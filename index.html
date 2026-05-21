@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="theme-color" content="#ffffff" />
-<title>Inspección Grout Pump — Oscar Orduno, Inc.</title>
+<title>OOI Safety — Inspección Grout Pump</title>
 <style>
   :root {
     --bg: #ffffff; --bg2: #f5f5f3; --bg3: #eeede8;
@@ -80,7 +80,8 @@
   .photo-thumb { position: relative; aspect-ratio: 1; border-radius: var(--radius); overflow: hidden; background: var(--bg2); }
   .photo-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
   .photo-del { position: absolute; top: 4px; right: 4px; width: 26px; height: 26px; border-radius: 50%; background: #E24B4A; border: none; cursor: pointer; color: white; font-size: 16px; line-height: 26px; text-align: center; font-weight: bold; }
-  .thumb-mini { width: 56px; height: 56px; border-radius: 8px; object-fit: cover; border: 0.5px solid var(--border); cursor: pointer; }
+  .photo-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+  .photo-preview { width: 80px; height: 80px; border-radius: var(--radius); object-fit: cover; border: 0.5px solid var(--border); cursor: pointer; }
   .badge { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; padding: 4px 10px; border-radius: 20px; font-weight: 600; }
   .badge-ok { background: var(--success-bg); color: var(--success-text); }
   .badge-bad { background: var(--danger-bg); color: var(--danger-text); }
@@ -95,24 +96,28 @@
   .detail-row:last-child { border-bottom: none; }
   .submit-msg { display: none; padding: 14px; border-radius: var(--radius); font-size: 15px; text-align: center; margin-bottom: 12px; font-weight: 500; }
   .loading { text-align: center; padding: 32px; color: var(--text2); font-size: 14px; }
-  #s-lightbox { background: var(--bg); }
+  .lightbox { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 1000; align-items: center; justify-content: center; flex-direction: column; }
+  .lightbox.active { display: flex; }
+  .lightbox img { max-width: 95%; max-height: 85vh; border-radius: var(--radius); object-fit: contain; }
+  .lightbox-close { position: absolute; top: 16px; right: 16px; color: white; font-size: 32px; cursor: pointer; background: rgba(0,0,0,0.5); width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: none; }
 </style>
 </head>
 <body>
+
 <div id="s-login" class="screen active">
   <div class="container" style="padding-top:48px;min-height:100vh;display:flex;flex-direction:column;justify-content:center;">
     <div style="text-align:center;margin-bottom:32px;">
       <div class="app-icon"><svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="2"/><path d="M9 12l2 2 4-4"/></svg></div>
       <div style="font-size:22px;font-weight:600;margin-bottom:4px;">Oscar Orduno, Inc.</div>
       <div style="font-size:15px;color:var(--text2);">Earth Retention Systems</div>
-      <div style="font-size:13px;color:var(--text3);margin-top:4px;">Sistema de inspección — Grout Pump</div>
+      <div style="font-size:13px;color:var(--text3);margin-top:4px;">OOI Safety — Inspección Grout Pump</div>
     </div>
     <div style="font-size:13px;color:var(--text2);margin-bottom:12px;text-align:center;">Selecciona tu rol para continuar</div>
     <button class="role-btn" onclick="selectRole('operator')"><div class="role-icon" style="background:var(--success-bg);">🔧</div><div style="flex:1"><div style="font-size:16px;font-weight:500;">Operador</div><div style="font-size:13px;color:var(--text2);">Grout Pump — llenar inspección</div></div><span style="color:var(--text3);font-size:20px;">›</span></button>
     <button class="role-btn" onclick="selectRole('mechanic')"><div class="role-icon" style="background:var(--warning-bg);">⚙️</div><div style="flex:1"><div style="font-size:16px;font-weight:500;">Mecánico</div><div style="font-size:13px;color:var(--text2);">Ver reportes y reparaciones</div></div><span style="color:var(--text3);font-size:20px;">›</span></button>
     <button class="role-btn" onclick="selectRole('super')"><div class="role-icon" style="background:var(--info-bg);">👷</div><div style="flex:1"><div style="font-size:16px;font-weight:500;">Superintendente</div><div style="font-size:13px;color:var(--text2);">Supervisión de equipo</div></div><span style="color:var(--text3);font-size:20px;">›</span></button>
     <button class="role-btn" onclick="selectRole('management')"><div class="role-icon" style="background:var(--bg3);">📋</div><div style="flex:1"><div style="font-size:16px;font-weight:500;">Management</div><div style="font-size:13px;color:var(--text2);">Vista ejecutiva de reportes</div></div><span style="color:var(--text3);font-size:20px;">›</span></button>
-    <div style="text-align:center;margin-top:24px;font-size:12px;color:var(--text3);">v3.0 — Oscar Orduno, Inc.</div>
+    <div style="text-align:center;margin-top:24px;font-size:12px;color:var(--text3);">v4.0 — Oscar Orduno, Inc.</div>
   </div>
 </div>
 
@@ -162,7 +167,7 @@
 
 <div id="s-manager" class="screen">
   <div class="container">
-    <div class="header-bar"><button class="btn-icon" onclick="show('s-login')">←</button><div style="flex:1"><div style="font-size:18px;font-weight:500;" id="mgr-name">Panel</div><div style="font-size:12px;color:var(--text2);">Oscar Orduno, Inc. — Google Sheets</div></div><button class="btn-icon" onclick="loadReports()" id="refresh-btn">↻</button></div>
+    <div class="header-bar"><button class="btn-icon" onclick="show('s-login')">←</button><div style="flex:1"><div style="font-size:18px;font-weight:500;" id="mgr-name">Panel</div><div style="font-size:12px;color:var(--text2);">Oscar Orduno, Inc. — Google Sheets</div></div><button class="btn-icon" onclick="loadReports()">↻</button></div>
     <div class="stat-grid">
       <div class="stat-card"><div class="stat-num" id="s-total">—</div><div class="stat-lbl">Total reportes</div></div>
       <div class="stat-card"><div class="stat-num" id="s-hoy">—</div><div class="stat-lbl">Hoy</div></div>
@@ -177,11 +182,9 @@
   </div>
 </div>
 
-<div id="s-lightbox" class="screen">
-  <div class="container" style="padding-top:16px;">
-    <div class="header-bar"><button class="btn-icon" onclick="closeLightbox()">←</button><div style="font-size:15px;font-weight:500;">Foto de inspección</div></div>
-    <img id="lb-img" src="" alt="Foto" style="width:100%;border-radius:var(--radius-lg);object-fit:contain;max-height:75vh;"/>
-  </div>
+<div class="lightbox" id="lightbox" onclick="closeLightbox()">
+  <button class="lightbox-close" onclick="closeLightbox()">✕</button>
+  <img id="lb-img" src="" alt="Foto" />
 </div>
 
 <script>
@@ -225,10 +228,10 @@ function buildSafetyList(){const c=document.getElementById('safety-list');if(!c)
 function setItem(id,val,btn){const row=document.getElementById('ir-'+id);row.querySelectorAll('.tog').forEach(t=>{t.className='tog';});btn.className='tog '+(val==='ok'?'ok':'bad');row.dataset.val=val;const oa=document.getElementById('oa-'+id);if(oa)oa.style.display=val==='bad'?'block':'none';}
 function triggerPhoto(storeKey,inputId){const inp=document.getElementById(inputId);inp.dataset.storekey=storeKey;inp.click();}
 function handlePhotos(input,storeKey){const key=input.dataset.storekey||storeKey;if(!photoStore[key])photoStore[key]=[];Array.from(input.files).forEach(file=>{const reader=new FileReader();reader.onload=e=>{const img=new Image();img.onload=()=>{const canvas=document.createElement('canvas');const MAX=1200;let w=img.width,h=img.height;if(w>MAX){h=Math.round(h*MAX/w);w=MAX;}if(h>MAX){w=Math.round(w*MAX/h);h=MAX;}canvas.width=w;canvas.height=h;canvas.getContext('2d').drawImage(img,0,0,w,h);photoStore[key].push({data:canvas.toDataURL('image/jpeg',0.75),name:file.name});renderPhotoGrid(key);};img.src=e.target.result;};reader.readAsDataURL(file);});input.value='';}
-function renderPhotoGrid(key){const grid=document.getElementById(key);if(!grid)return;const photos=photoStore[key]||[];grid.innerHTML=photos.map((p,i)=>`<div class="photo-thumb"><img src="${p.data}" alt="Foto ${i+1}" onclick="openLightbox('${key}',${i})"/><button class="photo-del" onclick="deletePhoto('${key}',${i})">×</button></div>`).join('');}
+function renderPhotoGrid(key){const grid=document.getElementById(key);if(!grid)return;const photos=photoStore[key]||[];grid.innerHTML=photos.map((p,i)=>`<div class="photo-thumb"><img src="${p.data}" alt="Foto ${i+1}" onclick="openLightbox('${p.data}')"/><button class="photo-del" onclick="deletePhoto('${key}',${i})">×</button></div>`).join('');}
 function deletePhoto(key,idx){if(photoStore[key])photoStore[key].splice(idx,1);renderPhotoGrid(key);}
-function openLightbox(key,idx){const p=photoStore[key]&&photoStore[key][idx];if(!p)return;lbPrevScreen=document.querySelector('.screen.active').id;document.getElementById('lb-img').src=p.data;show('s-lightbox');}
-function closeLightbox(){show(lbPrevScreen);}
+function openLightbox(src){document.getElementById('lb-img').src=src;document.getElementById('lightbox').classList.add('active');}
+function closeLightbox(){document.getElementById('lightbox').classList.remove('active');}
 function clearForm(){['f-proy','f-maq','f-op','f-sup','f-hi','f-hf','f-tools','f-obs','f-sobs'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});Object.keys(photoStore).forEach(k=>{photoStore[k]=[];});buildInspList();buildSafetyList();setToday();const msg=document.getElementById('submit-msg');if(msg)msg.style.display='none';renderPhotoGrid('general-photos');}
 
 async function submitReport(){
@@ -241,14 +244,12 @@ async function submitReport(){
   const genPhotos=(photoStore['general-photos']||[]).map(p=>p.data);
   const report={id:Date.now(),fecha:document.getElementById('f-fecha').value,proyecto:proy,operador:op,supervisor:document.getElementById('f-sup').value,maquina:document.getElementById('f-maq').value,hi:document.getElementById('f-hi').value,hf:document.getElementById('f-hf').value,tools:document.getElementById('f-tools').value,obs:document.getElementById('f-obs').value,safetyObs:document.getElementById('f-sobs').value,items,safety,hasBad,genPhotos};
   const msg=document.getElementById('submit-msg');
-  msg.style.display='block';msg.textContent='⏳ Enviando a Google Sheets...';msg.style.background='var(--info-bg)';msg.style.color='var(--info-text)';
+  msg.style.display='block';msg.textContent='⏳ Enviando inspección y fotos...';msg.style.background='var(--info-bg)';msg.style.color='var(--info-text)';
   try{
-    const slim={...report,genPhotos:[]};
-    const itemsSlim={};Object.keys(report.items).forEach(k=>{itemsSlim[k]={...report.items[k],photos:[]};});slim.items=itemsSlim;
-    await fetch(SCRIPT_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},body:JSON.stringify(slim)});
+    await fetch(SCRIPT_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},body:JSON.stringify(report)});
     if(hasBad){msg.textContent='⚠ Enviado — hay ítems que requieren reparación';msg.style.background='var(--warning-bg)';msg.style.color='var(--warning-text)';}
-    else{msg.textContent='✓ Inspección enviada correctamente';msg.style.background='var(--success-bg)';msg.style.color='var(--success-text)';}
-  }catch(err){msg.textContent='⚠ Error de conexión — verifica internet';msg.style.background='var(--danger-bg)';msg.style.color='var(--danger-text)';}
+    else{msg.textContent='✓ Inspección y fotos enviadas correctamente';msg.style.background='var(--success-bg)';msg.style.color='var(--success-text)';}
+  }catch(err){msg.textContent='⚠ Error de conexión';msg.style.background='var(--danger-bg)';msg.style.color='var(--danger-text)';}
   window.scrollTo(0,0);setTimeout(clearForm,4000);
 }
 
@@ -258,10 +259,7 @@ async function loadReports(){
   const empty=document.getElementById('rep-empty');
   const detail=document.getElementById('detail-area');
   list.innerHTML='';loading.style.display='block';empty.style.display='none';detail.innerHTML='';
-  document.getElementById('s-total').textContent='—';
-  document.getElementById('s-hoy').textContent='—';
-  document.getElementById('s-ok').textContent='—';
-  document.getElementById('s-bad').textContent='—';
+  ['s-total','s-hoy','s-ok','s-bad'].forEach(id=>document.getElementById(id).textContent='—');
   try{
     const res=await fetch(SCRIPT_URL+'?t='+Date.now());
     const json=await res.json();
@@ -276,13 +274,13 @@ async function loadReports(){
     document.getElementById('s-hoy').textContent=hoy;
     document.getElementById('s-ok').textContent=total-bad;
     document.getElementById('s-bad').textContent=bad;
-    list.innerHTML=reports.map(r=>`
-      <div class="report-card" onclick="showDetail(${JSON.stringify(r).replace(/"/g,'&quot;')})">
+    list.innerHTML=reports.map((r,i)=>`
+      <div class="report-card" onclick="showDetail(${i})">
         <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;">
           <div style="flex:1;">
             <div style="font-size:15px;font-weight:500;">${r.operador}</div>
             <div style="font-size:13px;color:var(--text2);margin-top:2px;">${r.proyecto} · ${r.maquina||'Sin #'}</div>
-            <div style="font-size:12px;color:var(--text3);margin-top:2px;">${r.fecha}</div>
+            <div style="font-size:12px;color:var(--text3);margin-top:2px;">${r.fecha}${r.photoUrls&&r.photoUrls.length?' · 📷 '+r.photoUrls.length+' foto(s)':''}</div>
           </div>
           <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;">
             <span class="badge ${r.hasBad?'badge-bad':'badge-ok'}">${r.hasBad?'⚠ Revisar':'✓ OK'}</span>
@@ -290,18 +288,21 @@ async function loadReports(){
           </div>
         </div>
       </div>`).join('');
+    window._reports=reports;
   }catch(err){
     loading.style.display='none';
-    list.innerHTML='<div style="padding:20px;text-align:center;color:var(--danger-text);font-size:14px;">Error cargando reportes. Verifica tu conexión.</div>';
+    list.innerHTML='<div style="padding:20px;text-align:center;color:var(--danger-text);font-size:14px;">Error cargando reportes.</div>';
   }
 }
 
-function showDetail(r){
-  if(typeof r==='string') r=JSON.parse(r);
+function showDetail(idx){
+  const r=window._reports[idx];
+  if(!r)return;
   const da=document.getElementById('detail-area');
   const inspHtml=[
-    {k:'estructura',n:'Estructura y cubeta'},{k:'mangueras',n:'Mangueras/cadenas'},{k:'fugas',n:'Fugas'},
-    {k:'tuberias',n:'Tuberías/válvulas'},{k:'barras',n:'Barras/escalones'},{k:'controles',n:'Controles/cableado'},
+    {k:'estructura',n:'Estructura y cubeta'},{k:'mangueras',n:'Mangueras/cadenas'},
+    {k:'fugas',n:'Fugas'},{k:'tuberias',n:'Tuberías/válvulas'},
+    {k:'barras',n:'Barras/escalones'},{k:'controles',n:'Controles/cableado'},
     {k:'silos',n:'Silos'},{k:'pompa',n:'Pompa de agua'},{k:'limpieza',n:'Limpieza'}
   ].map(item=>{
     const val=r[item.k]||'—';
@@ -309,6 +310,13 @@ function showDetail(r){
     const isOk=val.includes('OK');
     return`<div class="detail-row"><span style="flex:1;font-size:14px;">${item.n}</span><span class="badge ${isOk?'badge-ok':isBad?'badge-bad':'badge-pending'}">${val}</span></div>`;
   }).join('');
+
+  const photosHtml = r.photoUrls && r.photoUrls.length
+    ? `<div class="sec-label" style="margin-top:14px;">📷 Fotos (${r.photoUrls.length})</div>
+       <div class="photo-row">
+         ${r.photoUrls.map(url=>`<img class="photo-preview" src="${url}" onclick="openLightbox('${url}')" alt="foto" />`).join('')}
+       </div>` : '';
+
   da.innerHTML=`<div class="card" style="margin-top:14px;">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
       <div style="font-size:16px;font-weight:500;">${r.operador} — ${r.fecha}</div>
@@ -324,6 +332,7 @@ function showDetail(r){
     </div>
     <div class="sec-label">Ítems inspeccionados</div>
     ${inspHtml}
+    ${photosHtml}
     ${r.obs?`<div class="sec-label" style="margin-top:14px;">Observaciones</div><div style="font-size:14px;">${r.obs}</div>`:''}
     ${r.safetyObs?`<div class="sec-label" style="margin-top:14px;">Seguridad</div><div style="font-size:14px;">${r.safetyObs}</div>`:''}
     ${r.tools?`<div style="font-size:13px;color:var(--text2);margin-top:10px;">🔧 ${r.tools}</div>`:''}
