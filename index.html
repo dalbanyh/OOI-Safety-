@@ -4,7 +4,6 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
-<meta name="apple-mobile-web-app-status-bar-style" content="default" />
 <meta name="theme-color" content="#ffffff" />
 <title>Inspección Grout Pump — Oscar Orduno, Inc.</title>
 <style>
@@ -95,8 +94,8 @@
   .detail-row { display: flex; justify-content: space-between; align-items: flex-start; padding: 10px 0; border-bottom: 0.5px solid var(--border); font-size: 14px; gap: 8px; }
   .detail-row:last-child { border-bottom: none; }
   .submit-msg { display: none; padding: 14px; border-radius: var(--radius); font-size: 15px; text-align: center; margin-bottom: 12px; font-weight: 500; }
+  .loading { text-align: center; padding: 32px; color: var(--text2); font-size: 14px; }
   #s-lightbox { background: var(--bg); }
-  ::-webkit-scrollbar { width: 4px; } ::-webkit-scrollbar-track { background: transparent; } ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
 </style>
 </head>
 <body>
@@ -113,9 +112,10 @@
     <button class="role-btn" onclick="selectRole('mechanic')"><div class="role-icon" style="background:var(--warning-bg);">⚙️</div><div style="flex:1"><div style="font-size:16px;font-weight:500;">Mecánico</div><div style="font-size:13px;color:var(--text2);">Ver reportes y reparaciones</div></div><span style="color:var(--text3);font-size:20px;">›</span></button>
     <button class="role-btn" onclick="selectRole('super')"><div class="role-icon" style="background:var(--info-bg);">👷</div><div style="flex:1"><div style="font-size:16px;font-weight:500;">Superintendente</div><div style="font-size:13px;color:var(--text2);">Supervisión de equipo</div></div><span style="color:var(--text3);font-size:20px;">›</span></button>
     <button class="role-btn" onclick="selectRole('management')"><div class="role-icon" style="background:var(--bg3);">📋</div><div style="flex:1"><div style="font-size:16px;font-weight:500;">Management</div><div style="font-size:13px;color:var(--text2);">Vista ejecutiva de reportes</div></div><span style="color:var(--text3);font-size:20px;">›</span></button>
-    <div style="text-align:center;margin-top:24px;font-size:12px;color:var(--text3);">v2.0 — Oscar Orduno, Inc. — Google Sheets conectado</div>
+    <div style="text-align:center;margin-top:24px;font-size:12px;color:var(--text3);">v3.0 — Oscar Orduno, Inc.</div>
   </div>
 </div>
+
 <div id="s-pin" class="screen">
   <div class="container" style="padding-top:32px;">
     <div class="header-bar"><button class="btn-icon" onclick="show('s-login')">←</button><div><div style="font-size:18px;font-weight:500;" id="pin-role-name">PIN de acceso</div><div style="font-size:13px;color:var(--text2);">Ingresa tu PIN de 4 dígitos</div></div></div>
@@ -129,6 +129,7 @@
     </div>
   </div>
 </div>
+
 <div id="s-operator" class="screen">
   <div class="container">
     <div class="header-bar"><button class="btn-icon" onclick="show('s-login')">←</button><div style="flex:1"><div style="font-size:18px;font-weight:500;">Inspección diaria</div><div style="font-size:12px;color:var(--text2);">Grout Pump — Oscar Orduno, Inc.</div></div></div>
@@ -143,11 +144,11 @@
       <div class="grid2"><div class="field"><label>Horas inicio</label><input type="text" id="f-hi" placeholder="07:00" inputmode="numeric"/></div><div class="field"><label>Horas final</label><input type="text" id="f-hf" placeholder="17:00" inputmode="numeric"/></div></div>
     </div>
     <div class="card"><div class="sec-label">🔧 Lista de inspección</div><div style="font-size:13px;color:var(--text2);margin-bottom:14px;">Toca OK o BAD. Si marcas BAD puedes agregar foto y observación.</div><div id="insp-list"></div></div>
-    <div class="card"><div class="sec-label">🛡️ Safety Awareness</div><div style="font-size:13px;color:var(--text2);margin-bottom:12px;">Confirma cada punto antes de operar el equipo</div><div id="safety-list"></div><div class="field" style="margin-top:14px;"><label>Observaciones de seguridad</label><textarea id="f-sobs" placeholder="¿Riesgos? ¿Cuasi-accidente? ¿Condición insegura?..."></textarea></div></div>
+    <div class="card"><div class="sec-label">🛡️ Safety Awareness</div><div style="font-size:13px;color:var(--text2);margin-bottom:12px;">Confirma cada punto antes de operar el equipo</div><div id="safety-list"></div><div class="field" style="margin-top:14px;"><label>Observaciones de seguridad</label><textarea id="f-sobs" placeholder="¿Riesgos? ¿Cuasi-accidente?..."></textarea></div></div>
     <div class="card">
       <div class="sec-label">📝 Observaciones y fotos</div>
-      <div class="field"><label>Herramientas utilizadas</label><input type="text" id="f-tools" placeholder="Ej. llave 3/4, destornillador..." autocomplete="off"/></div>
-      <div class="field"><label>Observaciones generales</label><textarea id="f-obs" placeholder="Condición anormal, daño, situación que requiera atención..."></textarea></div>
+      <div class="field"><label>Herramientas utilizadas</label><input type="text" id="f-tools" placeholder="Ej. llave 3/4..." autocomplete="off"/></div>
+      <div class="field"><label>Observaciones generales</label><textarea id="f-obs" placeholder="Condición anormal, daño..."></textarea></div>
       <div style="font-size:13px;color:var(--text2);margin-bottom:8px;">Fotos generales de la unidad</div>
       <button class="photo-btn" onclick="triggerPhoto('general-photos','general-input')">📷 Tomar foto o elegir de galería</button>
       <input type="file" id="general-input" accept="image/*" capture="environment" multiple style="display:none" onchange="handlePhotos(this,'general-photos')" data-storekey="general-photos"/>
@@ -158,32 +159,39 @@
     <button class="btn btn-ghost" onclick="clearForm()" style="margin-top:10px;">Limpiar formulario</button>
   </div>
 </div>
+
 <div id="s-manager" class="screen">
   <div class="container">
-    <div class="header-bar"><button class="btn-icon" onclick="show('s-login')">←</button><div style="flex:1"><div style="font-size:18px;font-weight:500;" id="mgr-name">Panel</div><div style="font-size:12px;color:var(--text2);">Oscar Orduno, Inc.</div></div><button class="btn-icon" onclick="loadReports()">↻</button></div>
-    <div class="stat-grid"><div class="stat-card"><div class="stat-num" id="s-total">0</div><div class="stat-lbl">Total reportes</div></div><div class="stat-card"><div class="stat-num" id="s-hoy">0</div><div class="stat-lbl">Hoy</div></div><div class="stat-card"><div class="stat-num" style="color:var(--success-text);" id="s-ok">0</div><div class="stat-lbl">Sin problemas</div></div><div class="stat-card"><div class="stat-num" style="color:var(--danger-text);" id="s-bad">0</div><div class="stat-lbl">Necesitan revisión</div></div></div>
+    <div class="header-bar"><button class="btn-icon" onclick="show('s-login')">←</button><div style="flex:1"><div style="font-size:18px;font-weight:500;" id="mgr-name">Panel</div><div style="font-size:12px;color:var(--text2);">Oscar Orduno, Inc. — Google Sheets</div></div><button class="btn-icon" onclick="loadReports()" id="refresh-btn">↻</button></div>
+    <div class="stat-grid">
+      <div class="stat-card"><div class="stat-num" id="s-total">—</div><div class="stat-lbl">Total reportes</div></div>
+      <div class="stat-card"><div class="stat-num" id="s-hoy">—</div><div class="stat-lbl">Hoy</div></div>
+      <div class="stat-card"><div class="stat-num" style="color:var(--success-text);" id="s-ok">—</div><div class="stat-lbl">Sin problemas</div></div>
+      <div class="stat-card"><div class="stat-num" style="color:var(--danger-text);" id="s-bad">—</div><div class="stat-lbl">Necesitan revisión</div></div>
+    </div>
     <div style="font-size:14px;font-weight:500;margin-bottom:10px;">Inspecciones recientes</div>
     <div id="rep-list"></div>
+    <div id="rep-loading" class="loading">⏳ Cargando inspecciones...</div>
     <div id="rep-empty" style="padding:40px;text-align:center;color:var(--text2);display:none;"><div style="font-size:40px;margin-bottom:10px;">📋</div>No hay inspecciones aún.</div>
     <div id="detail-area"></div>
   </div>
 </div>
+
 <div id="s-lightbox" class="screen">
   <div class="container" style="padding-top:16px;">
     <div class="header-bar"><button class="btn-icon" onclick="closeLightbox()">←</button><div style="font-size:15px;font-weight:500;">Foto de inspección</div></div>
     <img id="lb-img" src="" alt="Foto" style="width:100%;border-radius:var(--radius-lg);object-fit:contain;max-height:75vh;"/>
-    <div id="lb-caption" style="font-size:13px;color:var(--text2);margin-top:10px;text-align:center;"></div>
   </div>
 </div>
+
 <script>
 const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxsouup5vWPD-VcaTqPWlltY0jZkwRdfOhSGTmW4a0gBvMGB1InvbYFtxYYyDG1cxkuIA/exec';
 const PINS = {mechanic:'1234',super:'0000',management:'5678'};
 const ROLES = {mechanic:'Mecánico',super:'Superintendente',management:'Management'};
 const MGR_NAMES = {mechanic:'Panel del mecánico',super:'Superintendente de equipo',management:'Management — reportes'};
 let pinEntry='',currentRole='',lbPrevScreen='s-operator';
-let reports=[];
 const photoStore={};
-try{reports=JSON.parse(localStorage.getItem('gp_v4')||'[]');}catch(e){}
+
 const inspItems=[
   {id:'estructura',name:'Daños de estructura y cubeta',sub:'Golpes, grietas, deformaciones'},
   {id:'mangueras',name:'Mangueras, cadenas y bandas',sub:'Desgaste, cortes, tensión correcta'},
@@ -203,13 +211,14 @@ const safetyItems=[
   'Nadie en zona de riesgo antes de encender el equipo',
   'Conozco la ruta de evacuación y ubicación del extintor más cercano',
 ];
+
 function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');window.scrollTo(0,0);}
 function selectRole(role){currentRole=role;if(role==='operator'){buildInspList();buildSafetyList();setToday();show('s-operator');}else{pinEntry='';updateDots();document.getElementById('pin-err').style.display='none';document.getElementById('pin-role-name').textContent=ROLES[role];show('s-pin');}}
 function pinPress(d){if(pinEntry.length>=4)return;pinEntry+=d;updateDots();if(pinEntry.length===4)setTimeout(checkPin,150);}
 function pinDel(){pinEntry=pinEntry.slice(0,-1);updateDots();}
 function pinClear(){pinEntry='';updateDots();}
 function updateDots(){for(let i=0;i<4;i++)document.getElementById('d'+i).classList.toggle('filled',i<pinEntry.length);}
-function checkPin(){if(pinEntry===PINS[currentRole]){document.getElementById('pin-err').style.display='none';document.getElementById('mgr-name').textContent=MGR_NAMES[currentRole];loadReports();show('s-manager');pinEntry='';updateDots();}else{document.getElementById('pin-err').style.display='block';pinEntry='';updateDots();}}
+function checkPin(){if(pinEntry===PINS[currentRole]){document.getElementById('pin-err').style.display='none';document.getElementById('mgr-name').textContent=MGR_NAMES[currentRole];show('s-manager');loadReports();pinEntry='';updateDots();}else{document.getElementById('pin-err').style.display='block';pinEntry='';updateDots();}}
 function setToday(){const el=document.getElementById('f-fecha');if(el)el.value=new Date().toISOString().split('T')[0];}
 function buildInspList(){const c=document.getElementById('insp-list');if(!c)return;inspItems.forEach(item=>{if(!photoStore['ph-'+item.id])photoStore['ph-'+item.id]=[];});c.innerHTML=inspItems.map(item=>`<div class="insp-item" id="ir-${item.id}" data-val=""><div class="insp-name">${item.name}</div><div class="insp-sub">${item.sub}</div><div class="tog-row"><button class="tog" onclick="setItem('${item.id}','ok',this)">✓ OK — Bien</button><button class="tog" onclick="setItem('${item.id}','bad',this)">✗ BAD — Mal</button></div><div class="obs-area" id="oa-${item.id}"><textarea rows="2" id="ot-${item.id}" placeholder="Describe el problema..." style="font-size:14px;margin-bottom:10px;"></textarea><button class="photo-btn" onclick="triggerPhoto('ph-${item.id}','pi-${item.id}')">📷 Agregar foto del problema</button><input type="file" id="pi-${item.id}" accept="image/*" capture="environment" multiple style="display:none" onchange="handlePhotos(this,'ph-${item.id}')" data-storekey="ph-${item.id}"/><div class="photo-grid" id="ph-${item.id}" style="margin-top:8px"></div></div></div>`).join('');}
 function buildSafetyList(){const c=document.getElementById('safety-list');if(!c)return;c.innerHTML=safetyItems.map((s,i)=>`<div class="safety-chk"><input type="checkbox" id="sc${i}"/><label for="sc${i}">${s}</label></div>`).join('');}
@@ -218,10 +227,10 @@ function triggerPhoto(storeKey,inputId){const inp=document.getElementById(inputI
 function handlePhotos(input,storeKey){const key=input.dataset.storekey||storeKey;if(!photoStore[key])photoStore[key]=[];Array.from(input.files).forEach(file=>{const reader=new FileReader();reader.onload=e=>{const img=new Image();img.onload=()=>{const canvas=document.createElement('canvas');const MAX=1200;let w=img.width,h=img.height;if(w>MAX){h=Math.round(h*MAX/w);w=MAX;}if(h>MAX){w=Math.round(w*MAX/h);h=MAX;}canvas.width=w;canvas.height=h;canvas.getContext('2d').drawImage(img,0,0,w,h);photoStore[key].push({data:canvas.toDataURL('image/jpeg',0.75),name:file.name});renderPhotoGrid(key);};img.src=e.target.result;};reader.readAsDataURL(file);});input.value='';}
 function renderPhotoGrid(key){const grid=document.getElementById(key);if(!grid)return;const photos=photoStore[key]||[];grid.innerHTML=photos.map((p,i)=>`<div class="photo-thumb"><img src="${p.data}" alt="Foto ${i+1}" onclick="openLightbox('${key}',${i})"/><button class="photo-del" onclick="deletePhoto('${key}',${i})">×</button></div>`).join('');}
 function deletePhoto(key,idx){if(photoStore[key])photoStore[key].splice(idx,1);renderPhotoGrid(key);}
-function openLightbox(key,idx){const p=photoStore[key]&&photoStore[key][idx];if(!p)return;lbPrevScreen=document.querySelector('.screen.active').id;document.getElementById('lb-img').src=p.data;document.getElementById('lb-caption').textContent=p.name||'';show('s-lightbox');}
+function openLightbox(key,idx){const p=photoStore[key]&&photoStore[key][idx];if(!p)return;lbPrevScreen=document.querySelector('.screen.active').id;document.getElementById('lb-img').src=p.data;show('s-lightbox');}
 function closeLightbox(){show(lbPrevScreen);}
-function showImgLightbox(src,caption){lbPrevScreen=document.querySelector('.screen.active').id;document.getElementById('lb-img').src=src;document.getElementById('lb-caption').textContent=caption||'';show('s-lightbox');}
 function clearForm(){['f-proy','f-maq','f-op','f-sup','f-hi','f-hf','f-tools','f-obs','f-sobs'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});Object.keys(photoStore).forEach(k=>{photoStore[k]=[];});buildInspList();buildSafetyList();setToday();const msg=document.getElementById('submit-msg');if(msg)msg.style.display='none';renderPhotoGrid('general-photos');}
+
 async function submitReport(){
   const proy=document.getElementById('f-proy').value.trim();
   const op=document.getElementById('f-op').value.trim();
@@ -231,22 +240,96 @@ async function submitReport(){
   const safety=safetyItems.map((s,i)=>({label:s,checked:document.getElementById('sc'+i)?.checked||false}));
   const genPhotos=(photoStore['general-photos']||[]).map(p=>p.data);
   const report={id:Date.now(),fecha:document.getElementById('f-fecha').value,proyecto:proy,operador:op,supervisor:document.getElementById('f-sup').value,maquina:document.getElementById('f-maq').value,hi:document.getElementById('f-hi').value,hf:document.getElementById('f-hf').value,tools:document.getElementById('f-tools').value,obs:document.getElementById('f-obs').value,safetyObs:document.getElementById('f-sobs').value,items,safety,hasBad,genPhotos};
-  reports.unshift(report);
-  try{localStorage.setItem('gp_v4',JSON.stringify(reports));}catch(e){const slim=reports.map(r=>{const ni={};Object.keys(r.items).forEach(k=>{ni[k]={...r.items[k],photos:[]};});return{...r,items:ni,genPhotos:[]};});try{localStorage.setItem('gp_v4',JSON.stringify(slim));}catch(e2){}}
   const msg=document.getElementById('submit-msg');
   msg.style.display='block';msg.textContent='⏳ Enviando a Google Sheets...';msg.style.background='var(--info-bg)';msg.style.color='var(--info-text)';
   try{
-    const reportSlim={...report,genPhotos:[]};
-    const itemsSlim={};Object.keys(report.items).forEach(k=>{itemsSlim[k]={...report.items[k],photos:[]};});
-    reportSlim.items=itemsSlim;
-    await fetch(SCRIPT_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},body:JSON.stringify(reportSlim)});
-    if(hasBad){msg.textContent='⚠ Enviado a Google Sheets — hay ítems que requieren reparación';msg.style.background='var(--warning-bg)';msg.style.color='var(--warning-text)';}
-    else{msg.textContent='✓ Inspección enviada a Google Sheets correctamente';msg.style.background='var(--success-bg)';msg.style.color='var(--success-text)';}
-  }catch(err){msg.textContent='⚠ Guardado local — verifica tu conexión a internet';msg.style.background='var(--warning-bg)';msg.style.color='var(--warning-text)';}
+    const slim={...report,genPhotos:[]};
+    const itemsSlim={};Object.keys(report.items).forEach(k=>{itemsSlim[k]={...report.items[k],photos:[]};});slim.items=itemsSlim;
+    await fetch(SCRIPT_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},body:JSON.stringify(slim)});
+    if(hasBad){msg.textContent='⚠ Enviado — hay ítems que requieren reparación';msg.style.background='var(--warning-bg)';msg.style.color='var(--warning-text)';}
+    else{msg.textContent='✓ Inspección enviada correctamente';msg.style.background='var(--success-bg)';msg.style.color='var(--success-text)';}
+  }catch(err){msg.textContent='⚠ Error de conexión — verifica internet';msg.style.background='var(--danger-bg)';msg.style.color='var(--danger-text)';}
   window.scrollTo(0,0);setTimeout(clearForm,4000);
 }
-function loadReports(){try{reports=JSON.parse(localStorage.getItem('gp_v4')||'[]');}catch(e){}const today=new Date().toISOString().split('T')[0];const total=reports.length;const bad=reports.filter(r=>r.hasBad).length;document.getElementById('s-total').textContent=total;document.getElementById('s-ok').textContent=total-bad;document.getElementById('s-bad').textContent=bad;document.getElementById('s-hoy').textContent=reports.filter(r=>r.fecha===today).length;const list=document.getElementById('rep-list');const empty=document.getElementById('rep-empty');document.getElementById('detail-area').innerHTML='';if(!total){list.innerHTML='';empty.style.display='block';return;}empty.style.display='none';list.innerHTML=reports.map(r=>`<div class="report-card" onclick="showDetail(${r.id})"><div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;"><div style="flex:1;"><div style="font-size:15px;font-weight:500;">${r.operador}</div><div style="font-size:13px;color:var(--text2);margin-top:2px;">${r.proyecto} · ${r.maquina||'Sin #'}</div><div style="font-size:12px;color:var(--text3);margin-top:2px;">${r.fecha} · ${r.hi||'—'} → ${r.hf||'—'}</div>${r.genPhotos&&r.genPhotos.length?`<div style="font-size:12px;color:var(--text2);margin-top:4px;">📷 ${r.genPhotos.length} foto(s)</div>`:''}</div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;"><span class="badge ${r.hasBad?'badge-bad':'badge-ok'}">${r.hasBad?'⚠ Revisar':'✓ OK'}</span><span style="color:var(--text3);font-size:20px;">›</span></div></div></div>`).join('');}
-function showDetail(id){const r=reports.find(x=>x.id===id);if(!r)return;const da=document.getElementById('detail-area');const safeDone=(r.safety||[]).filter(s=>s.checked).length;const itemsHtml=Object.values(r.items||{}).map(d=>{const photosHtml=d.photos&&d.photos.length?`<div style="display:flex;gap:6px;margin-top:6px;flex-wrap:wrap;">${d.photos.map(p=>`<img class="thumb-mini" src="${p}" alt="foto" onclick="showImgLightbox('${p}','${d.name}')"/>`).join('')}</div>`:'';return`<div class="detail-row"><div style="flex:1;"><div style="font-size:14px;">${d.name}</div>${d.obs?`<div style="font-size:12px;color:var(--text2);margin-top:2px;">${d.obs}</div>`:''} ${photosHtml}</div><span class="badge ${d.val==='ok'?'badge-ok':d.val==='bad'?'badge-bad':'badge-pending'}" style="flex-shrink:0;">${d.val==='ok'?'✓ OK':d.val==='bad'?'✗ BAD':'—'}</span></div>`;}).join('');const genPhotosHtml=r.genPhotos&&r.genPhotos.length?`<div class="sec-label" style="margin-top:14px;">Fotos generales</div><div style="display:flex;gap:8px;flex-wrap:wrap;">${r.genPhotos.map(p=>`<img class="thumb-mini" src="${p}" alt="foto" onclick="showImgLightbox('${p}','Foto general')"/>`).join('')}</div>`:'';const safetyHtml=(r.safety||[]).map(s=>`<div style="display:flex;gap:8px;align-items:flex-start;padding:6px 0;font-size:13px;border-bottom:0.5px solid var(--border);"><span style="color:${s.checked?'var(--success-text)':'var(--danger-text)'};font-size:15px;flex-shrink:0;">${s.checked?'✓':'✗'}</span><span>${s.label}</span></div>`).join('');da.innerHTML=`<div class="card" style="margin-top:14px;"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;"><div style="font-size:16px;font-weight:500;">${r.operador} — ${r.fecha}</div><button class="btn-icon" onclick="document.getElementById('detail-area').innerHTML=''">✕</button></div><div class="grid2" style="margin-bottom:14px;font-size:13px;gap:10px;"><div><span style="color:var(--text2);">Proyecto</span><br><strong>${r.proyecto}</strong></div><div><span style="color:var(--text2);">Máquina</span><br><strong>${r.maquina||'—'}</strong></div><div><span style="color:var(--text2);">Supervisor</span><br>${r.supervisor||'—'}</div><div><span style="color:var(--text2);">Safety</span><br><strong style="color:${safeDone===(r.safety||[]).length?'var(--success-text)':'var(--warning-text)'};">${safeDone}/${(r.safety||[]).length} ✓</strong></div></div><div class="sec-label">Ítems inspeccionados</div>${itemsHtml}${genPhotosHtml}<div class="sec-label" style="margin-top:14px;">Safety Awareness</div>${safetyHtml}${r.safetyObs?`<div style="font-size:13px;color:var(--text2);margin-top:8px;padding:10px;background:var(--bg2);border-radius:var(--radius);">${r.safetyObs}</div>`:''}${r.obs?`<div class="sec-label" style="margin-top:14px;">Observaciones generales</div><div style="font-size:14px;">${r.obs}</div>`:''}${r.tools?`<div style="font-size:13px;color:var(--text2);margin-top:8px;">🔧 Herramientas: ${r.tools}</div>`:''}</div>`;da.scrollIntoView({behavior:'smooth',block:'nearest'});}
+
+async function loadReports(){
+  const list=document.getElementById('rep-list');
+  const loading=document.getElementById('rep-loading');
+  const empty=document.getElementById('rep-empty');
+  const detail=document.getElementById('detail-area');
+  list.innerHTML='';loading.style.display='block';empty.style.display='none';detail.innerHTML='';
+  document.getElementById('s-total').textContent='—';
+  document.getElementById('s-hoy').textContent='—';
+  document.getElementById('s-ok').textContent='—';
+  document.getElementById('s-bad').textContent='—';
+  try{
+    const res=await fetch(SCRIPT_URL+'?t='+Date.now());
+    const json=await res.json();
+    loading.style.display='none';
+    if(!json.reports||json.reports.length===0){empty.style.display='block';return;}
+    const reports=json.reports;
+    const today=new Date().toISOString().split('T')[0];
+    const total=reports.length;
+    const bad=reports.filter(r=>r.hasBad).length;
+    const hoy=reports.filter(r=>String(r.fecha).startsWith(today)).length;
+    document.getElementById('s-total').textContent=total;
+    document.getElementById('s-hoy').textContent=hoy;
+    document.getElementById('s-ok').textContent=total-bad;
+    document.getElementById('s-bad').textContent=bad;
+    list.innerHTML=reports.map(r=>`
+      <div class="report-card" onclick="showDetail(${JSON.stringify(r).replace(/"/g,'&quot;')})">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;">
+          <div style="flex:1;">
+            <div style="font-size:15px;font-weight:500;">${r.operador}</div>
+            <div style="font-size:13px;color:var(--text2);margin-top:2px;">${r.proyecto} · ${r.maquina||'Sin #'}</div>
+            <div style="font-size:12px;color:var(--text3);margin-top:2px;">${r.fecha}</div>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;">
+            <span class="badge ${r.hasBad?'badge-bad':'badge-ok'}">${r.hasBad?'⚠ Revisar':'✓ OK'}</span>
+            <span style="color:var(--text3);font-size:20px;">›</span>
+          </div>
+        </div>
+      </div>`).join('');
+  }catch(err){
+    loading.style.display='none';
+    list.innerHTML='<div style="padding:20px;text-align:center;color:var(--danger-text);font-size:14px;">Error cargando reportes. Verifica tu conexión.</div>';
+  }
+}
+
+function showDetail(r){
+  if(typeof r==='string') r=JSON.parse(r);
+  const da=document.getElementById('detail-area');
+  const inspHtml=[
+    {k:'estructura',n:'Estructura y cubeta'},{k:'mangueras',n:'Mangueras/cadenas'},{k:'fugas',n:'Fugas'},
+    {k:'tuberias',n:'Tuberías/válvulas'},{k:'barras',n:'Barras/escalones'},{k:'controles',n:'Controles/cableado'},
+    {k:'silos',n:'Silos'},{k:'pompa',n:'Pompa de agua'},{k:'limpieza',n:'Limpieza'}
+  ].map(item=>{
+    const val=r[item.k]||'—';
+    const isBad=val.includes('BAD');
+    const isOk=val.includes('OK');
+    return`<div class="detail-row"><span style="flex:1;font-size:14px;">${item.n}</span><span class="badge ${isOk?'badge-ok':isBad?'badge-bad':'badge-pending'}">${val}</span></div>`;
+  }).join('');
+  da.innerHTML=`<div class="card" style="margin-top:14px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+      <div style="font-size:16px;font-weight:500;">${r.operador} — ${r.fecha}</div>
+      <button class="btn-icon" onclick="document.getElementById('detail-area').innerHTML=''">✕</button>
+    </div>
+    <div class="grid2" style="margin-bottom:14px;font-size:13px;gap:10px;">
+      <div><span style="color:var(--text2);">Proyecto</span><br><strong>${r.proyecto}</strong></div>
+      <div><span style="color:var(--text2);">Máquina</span><br><strong>${r.maquina||'—'}</strong></div>
+      <div><span style="color:var(--text2);">Supervisor</span><br>${r.supervisor||'—'}</div>
+      <div><span style="color:var(--text2);">Safety</span><br><strong>${r.safetyChecks||'—'}</strong></div>
+      <div><span style="color:var(--text2);">Horas</span><br>${r.hi||'—'} → ${r.hf||'—'}</div>
+      <div><span style="color:var(--text2);">Estado</span><br><span class="badge ${r.hasBad?'badge-bad':'badge-ok'}">${r.hasBad?'⚠ Revisar':'✓ OK'}</span></div>
+    </div>
+    <div class="sec-label">Ítems inspeccionados</div>
+    ${inspHtml}
+    ${r.obs?`<div class="sec-label" style="margin-top:14px;">Observaciones</div><div style="font-size:14px;">${r.obs}</div>`:''}
+    ${r.safetyObs?`<div class="sec-label" style="margin-top:14px;">Seguridad</div><div style="font-size:14px;">${r.safetyObs}</div>`:''}
+    ${r.tools?`<div style="font-size:13px;color:var(--text2);margin-top:10px;">🔧 ${r.tools}</div>`:''}
+  </div>`;
+  da.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
 </script>
 </body>
 </html>
