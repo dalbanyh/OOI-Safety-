@@ -80,6 +80,7 @@
   .photo-thumb { position: relative; aspect-ratio: 1; border-radius: var(--radius); overflow: hidden; background: var(--bg2); }
   .photo-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
   .photo-del { position: absolute; top: 4px; right: 4px; width: 26px; height: 26px; border-radius: 50%; background: #E24B4A; border: none; cursor: pointer; color: white; font-size: 16px; line-height: 26px; text-align: center; font-weight: bold; }
+  .photo-uploading { position: absolute; inset: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; color: white; font-size: 12px; }
   .photo-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
   .photo-preview { width: 80px; height: 80px; border-radius: var(--radius); object-fit: cover; border: 0.5px solid var(--border); cursor: pointer; }
   .badge { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; padding: 4px 10px; border-radius: 20px; font-weight: 600; }
@@ -96,10 +97,10 @@
   .detail-row:last-child { border-bottom: none; }
   .submit-msg { display: none; padding: 14px; border-radius: var(--radius); font-size: 15px; text-align: center; margin-bottom: 12px; font-weight: 500; }
   .loading { text-align: center; padding: 32px; color: var(--text2); font-size: 14px; }
-  .lightbox { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 1000; align-items: center; justify-content: center; flex-direction: column; }
+  .lightbox { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.92); z-index: 1000; align-items: center; justify-content: center; }
   .lightbox.active { display: flex; }
-  .lightbox img { max-width: 95%; max-height: 85vh; border-radius: var(--radius); object-fit: contain; }
-  .lightbox-close { position: absolute; top: 16px; right: 16px; color: white; font-size: 32px; cursor: pointer; background: rgba(0,0,0,0.5); width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: none; }
+  .lightbox img { max-width: 95%; max-height: 90vh; border-radius: var(--radius); object-fit: contain; }
+  .lightbox-close { position: absolute; top: 16px; right: 16px; color: white; font-size: 28px; cursor: pointer; background: rgba(255,255,255,0.15); width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: none; }
 </style>
 </head>
 <body>
@@ -117,7 +118,7 @@
     <button class="role-btn" onclick="selectRole('mechanic')"><div class="role-icon" style="background:var(--warning-bg);">⚙️</div><div style="flex:1"><div style="font-size:16px;font-weight:500;">Mecánico</div><div style="font-size:13px;color:var(--text2);">Ver reportes y reparaciones</div></div><span style="color:var(--text3);font-size:20px;">›</span></button>
     <button class="role-btn" onclick="selectRole('super')"><div class="role-icon" style="background:var(--info-bg);">👷</div><div style="flex:1"><div style="font-size:16px;font-weight:500;">Superintendente</div><div style="font-size:13px;color:var(--text2);">Supervisión de equipo</div></div><span style="color:var(--text3);font-size:20px;">›</span></button>
     <button class="role-btn" onclick="selectRole('management')"><div class="role-icon" style="background:var(--bg3);">📋</div><div style="flex:1"><div style="font-size:16px;font-weight:500;">Management</div><div style="font-size:13px;color:var(--text2);">Vista ejecutiva de reportes</div></div><span style="color:var(--text3);font-size:20px;">›</span></button>
-    <div style="text-align:center;margin-top:24px;font-size:12px;color:var(--text3);">v4.0 — Oscar Orduno, Inc.</div>
+    <div style="text-align:center;margin-top:24px;font-size:12px;color:var(--text3);">v5.0 — Oscar Orduno, Inc.</div>
   </div>
 </div>
 
@@ -167,7 +168,7 @@
 
 <div id="s-manager" class="screen">
   <div class="container">
-    <div class="header-bar"><button class="btn-icon" onclick="show('s-login')">←</button><div style="flex:1"><div style="font-size:18px;font-weight:500;" id="mgr-name">Panel</div><div style="font-size:12px;color:var(--text2);">Oscar Orduno, Inc. — Google Sheets</div></div><button class="btn-icon" onclick="loadReports()">↻</button></div>
+    <div class="header-bar"><button class="btn-icon" onclick="show('s-login')">←</button><div style="flex:1"><div style="font-size:18px;font-weight:500;" id="mgr-name">Panel</div><div style="font-size:12px;color:var(--text2);">Oscar Orduno, Inc. — En tiempo real</div></div><button class="btn-icon" onclick="loadReports()">↻</button></div>
     <div class="stat-grid">
       <div class="stat-card"><div class="stat-num" id="s-total">—</div><div class="stat-lbl">Total reportes</div></div>
       <div class="stat-card"><div class="stat-num" id="s-hoy">—</div><div class="stat-lbl">Hoy</div></div>
@@ -189,10 +190,11 @@
 
 <script>
 const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxsouup5vWPD-VcaTqPWlltY0jZkwRdfOhSGTmW4a0gBvMGB1InvbYFtxYYyDG1cxkuIA/exec';
+const IMGBB_KEY = '23cabfde3affda4781ddf1b5219ca20e';
 const PINS = {mechanic:'1234',super:'0000',management:'5678'};
 const ROLES = {mechanic:'Mecánico',super:'Superintendente',management:'Management'};
 const MGR_NAMES = {mechanic:'Panel del mecánico',super:'Superintendente de equipo',management:'Management — reportes'};
-let pinEntry='',currentRole='',lbPrevScreen='s-operator';
+let pinEntry='',currentRole='';
 const photoStore={};
 
 const inspItems=[
@@ -223,33 +225,143 @@ function pinClear(){pinEntry='';updateDots();}
 function updateDots(){for(let i=0;i<4;i++)document.getElementById('d'+i).classList.toggle('filled',i<pinEntry.length);}
 function checkPin(){if(pinEntry===PINS[currentRole]){document.getElementById('pin-err').style.display='none';document.getElementById('mgr-name').textContent=MGR_NAMES[currentRole];show('s-manager');loadReports();pinEntry='';updateDots();}else{document.getElementById('pin-err').style.display='block';pinEntry='';updateDots();}}
 function setToday(){const el=document.getElementById('f-fecha');if(el)el.value=new Date().toISOString().split('T')[0];}
-function buildInspList(){const c=document.getElementById('insp-list');if(!c)return;inspItems.forEach(item=>{if(!photoStore['ph-'+item.id])photoStore['ph-'+item.id]=[];});c.innerHTML=inspItems.map(item=>`<div class="insp-item" id="ir-${item.id}" data-val=""><div class="insp-name">${item.name}</div><div class="insp-sub">${item.sub}</div><div class="tog-row"><button class="tog" onclick="setItem('${item.id}','ok',this)">✓ OK — Bien</button><button class="tog" onclick="setItem('${item.id}','bad',this)">✗ BAD — Mal</button></div><div class="obs-area" id="oa-${item.id}"><textarea rows="2" id="ot-${item.id}" placeholder="Describe el problema..." style="font-size:14px;margin-bottom:10px;"></textarea><button class="photo-btn" onclick="triggerPhoto('ph-${item.id}','pi-${item.id}')">📷 Agregar foto del problema</button><input type="file" id="pi-${item.id}" accept="image/*" capture="environment" multiple style="display:none" onchange="handlePhotos(this,'ph-${item.id}')" data-storekey="ph-${item.id}"/><div class="photo-grid" id="ph-${item.id}" style="margin-top:8px"></div></div></div>`).join('');}
+
+function buildInspList(){
+  const c=document.getElementById('insp-list');if(!c)return;
+  inspItems.forEach(item=>{if(!photoStore['ph-'+item.id])photoStore['ph-'+item.id]=[];});
+  c.innerHTML=inspItems.map(item=>`
+    <div class="insp-item" id="ir-${item.id}" data-val="">
+      <div class="insp-name">${item.name}</div>
+      <div class="insp-sub">${item.sub}</div>
+      <div class="tog-row">
+        <button class="tog" onclick="setItem('${item.id}','ok',this)">✓ OK — Bien</button>
+        <button class="tog" onclick="setItem('${item.id}','bad',this)">✗ BAD — Mal</button>
+      </div>
+      <div class="obs-area" id="oa-${item.id}">
+        <textarea rows="2" id="ot-${item.id}" placeholder="Describe el problema..." style="font-size:14px;margin-bottom:10px;"></textarea>
+        <button class="photo-btn" onclick="triggerPhoto('ph-${item.id}','pi-${item.id}')">📷 Agregar foto del problema</button>
+        <input type="file" id="pi-${item.id}" accept="image/*" capture="environment" multiple style="display:none" onchange="handlePhotos(this,'ph-${item.id}')" data-storekey="ph-${item.id}"/>
+        <div class="photo-grid" id="ph-${item.id}" style="margin-top:8px"></div>
+      </div>
+    </div>`).join('');
+}
+
 function buildSafetyList(){const c=document.getElementById('safety-list');if(!c)return;c.innerHTML=safetyItems.map((s,i)=>`<div class="safety-chk"><input type="checkbox" id="sc${i}"/><label for="sc${i}">${s}</label></div>`).join('');}
 function setItem(id,val,btn){const row=document.getElementById('ir-'+id);row.querySelectorAll('.tog').forEach(t=>{t.className='tog';});btn.className='tog '+(val==='ok'?'ok':'bad');row.dataset.val=val;const oa=document.getElementById('oa-'+id);if(oa)oa.style.display=val==='bad'?'block':'none';}
 function triggerPhoto(storeKey,inputId){const inp=document.getElementById(inputId);inp.dataset.storekey=storeKey;inp.click();}
-function handlePhotos(input,storeKey){const key=input.dataset.storekey||storeKey;if(!photoStore[key])photoStore[key]=[];Array.from(input.files).forEach(file=>{const reader=new FileReader();reader.onload=e=>{const img=new Image();img.onload=()=>{const canvas=document.createElement('canvas');const MAX=1200;let w=img.width,h=img.height;if(w>MAX){h=Math.round(h*MAX/w);w=MAX;}if(h>MAX){w=Math.round(w*MAX/h);h=MAX;}canvas.width=w;canvas.height=h;canvas.getContext('2d').drawImage(img,0,0,w,h);photoStore[key].push({data:canvas.toDataURL('image/jpeg',0.75),name:file.name});renderPhotoGrid(key);};img.src=e.target.result;};reader.readAsDataURL(file);});input.value='';}
-function renderPhotoGrid(key){const grid=document.getElementById(key);if(!grid)return;const photos=photoStore[key]||[];grid.innerHTML=photos.map((p,i)=>`<div class="photo-thumb"><img src="${p.data}" alt="Foto ${i+1}" onclick="openLightbox('${p.data}')"/><button class="photo-del" onclick="deletePhoto('${key}',${i})">×</button></div>`).join('');}
+
+function handlePhotos(input, storeKey){
+  const key=input.dataset.storekey||storeKey;
+  if(!photoStore[key])photoStore[key]=[];
+  Array.from(input.files).forEach(file=>{
+    const idx = photoStore[key].length;
+    photoStore[key].push({data:null, url:null, uploading:true, name:file.name});
+    renderPhotoGrid(key);
+    const reader=new FileReader();
+    reader.onload=e=>{
+      const base64=e.target.result;
+      photoStore[key][idx].data=base64;
+      uploadToImgbb(base64, key, idx);
+    };
+    reader.readAsDataURL(file);
+  });
+  input.value='';
+}
+
+async function uploadToImgbb(base64, key, idx){
+  try {
+    const base64Data = base64.split(',')[1];
+    const formData = new FormData();
+    formData.append('key', IMGBB_KEY);
+    formData.append('image', base64Data);
+    const res = await fetch('https://api.imgbb.com/1/upload', {method:'POST', body:formData});
+    const json = await res.json();
+    if(json.success){
+      photoStore[key][idx].url = json.data.url;
+      photoStore[key][idx].uploading = false;
+    } else {
+      photoStore[key][idx].uploading = false;
+    }
+  } catch(err){
+    photoStore[key][idx].uploading = false;
+  }
+  renderPhotoGrid(key);
+}
+
+function renderPhotoGrid(key){
+  const grid=document.getElementById(key);if(!grid)return;
+  const photos=photoStore[key]||[];
+  grid.innerHTML=photos.map((p,i)=>`
+    <div class="photo-thumb">
+      <img src="${p.data||''}" alt="Foto ${i+1}" onclick="openLightbox('${p.url||p.data||''}')"/>
+      ${p.uploading?'<div class="photo-uploading">⏳</div>':''}
+      <button class="photo-del" onclick="deletePhoto('${key}',${i})">×</button>
+    </div>`).join('');
+}
+
 function deletePhoto(key,idx){if(photoStore[key])photoStore[key].splice(idx,1);renderPhotoGrid(key);}
-function openLightbox(src){document.getElementById('lb-img').src=src;document.getElementById('lightbox').classList.add('active');}
+function openLightbox(src){if(!src)return;document.getElementById('lb-img').src=src;document.getElementById('lightbox').classList.add('active');}
 function closeLightbox(){document.getElementById('lightbox').classList.remove('active');}
-function clearForm(){['f-proy','f-maq','f-op','f-sup','f-hi','f-hf','f-tools','f-obs','f-sobs'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});Object.keys(photoStore).forEach(k=>{photoStore[k]=[];});buildInspList();buildSafetyList();setToday();const msg=document.getElementById('submit-msg');if(msg)msg.style.display='none';renderPhotoGrid('general-photos');}
+
+function clearForm(){
+  ['f-proy','f-maq','f-op','f-sup','f-hi','f-hf','f-tools','f-obs','f-sobs'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  Object.keys(photoStore).forEach(k=>{photoStore[k]=[];});
+  buildInspList();buildSafetyList();setToday();
+  const msg=document.getElementById('submit-msg');if(msg)msg.style.display='none';
+  renderPhotoGrid('general-photos');
+}
 
 async function submitReport(){
   const proy=document.getElementById('f-proy').value.trim();
   const op=document.getElementById('f-op').value.trim();
   if(!proy||!op){alert('Por favor llena el nombre del proyecto y del operador.');return;}
+
+  // Check if photos are still uploading
+  const allPhotos = Object.values(photoStore).flat();
+  const uploading = allPhotos.filter(p=>p.uploading);
+  if(uploading.length > 0){
+    alert('Espera — las fotos se están subiendo todavía...');return;
+  }
+
   const items={};let hasBad=false;
-  inspItems.forEach(item=>{const row=document.getElementById('ir-'+item.id);const v=row?row.dataset.val:'';const obs=document.getElementById('ot-'+item.id);const photos=(photoStore['ph-'+item.id]||[]).map(p=>p.data);items[item.id]={val:v||'pending',obs:obs?obs.value:'',name:item.name,photos};if(v==='bad')hasBad=true;});
+  inspItems.forEach(item=>{
+    const row=document.getElementById('ir-'+item.id);
+    const v=row?row.dataset.val:'';
+    const obs=document.getElementById('ot-'+item.id);
+    const photos=(photoStore['ph-'+item.id]||[]).map(p=>p.url).filter(Boolean);
+    items[item.id]={val:v||'pending',obs:obs?obs.value:'',name:item.name,photoUrls:photos};
+    if(v==='bad')hasBad=true;
+  });
+
   const safety=safetyItems.map((s,i)=>({label:s,checked:document.getElementById('sc'+i)?.checked||false}));
-  const genPhotos=(photoStore['general-photos']||[]).map(p=>p.data);
-  const report={id:Date.now(),fecha:document.getElementById('f-fecha').value,proyecto:proy,operador:op,supervisor:document.getElementById('f-sup').value,maquina:document.getElementById('f-maq').value,hi:document.getElementById('f-hi').value,hf:document.getElementById('f-hf').value,tools:document.getElementById('f-tools').value,obs:document.getElementById('f-obs').value,safetyObs:document.getElementById('f-sobs').value,items,safety,hasBad,genPhotos};
+  const genPhotoUrls=(photoStore['general-photos']||[]).map(p=>p.url).filter(Boolean);
+
+  const report={
+    id:Date.now(),
+    fecha:document.getElementById('f-fecha').value,
+    proyecto:proy, operador:op,
+    supervisor:document.getElementById('f-sup').value,
+    maquina:document.getElementById('f-maq').value,
+    hi:document.getElementById('f-hi').value,
+    hf:document.getElementById('f-hf').value,
+    tools:document.getElementById('f-tools').value,
+    obs:document.getElementById('f-obs').value,
+    safetyObs:document.getElementById('f-sobs').value,
+    items, safety, hasBad, genPhotoUrls
+  };
+
   const msg=document.getElementById('submit-msg');
-  msg.style.display='block';msg.textContent='⏳ Enviando inspección y fotos...';msg.style.background='var(--info-bg)';msg.style.color='var(--info-text)';
+  msg.style.display='block';
+  msg.textContent='⏳ Enviando inspección...';
+  msg.style.background='var(--info-bg)';msg.style.color='var(--info-text)';
+
   try{
     await fetch(SCRIPT_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},body:JSON.stringify(report)});
     if(hasBad){msg.textContent='⚠ Enviado — hay ítems que requieren reparación';msg.style.background='var(--warning-bg)';msg.style.color='var(--warning-text)';}
-    else{msg.textContent='✓ Inspección y fotos enviadas correctamente';msg.style.background='var(--success-bg)';msg.style.color='var(--success-text)';}
-  }catch(err){msg.textContent='⚠ Error de conexión';msg.style.background='var(--danger-bg)';msg.style.color='var(--danger-text)';}
+    else{msg.textContent='✓ Inspección enviada correctamente';msg.style.background='var(--success-bg)';msg.style.color='var(--success-text)';}
+  }catch(err){
+    msg.textContent='⚠ Error de conexión';msg.style.background='var(--danger-bg)';msg.style.color='var(--danger-text)';
+  }
   window.scrollTo(0,0);setTimeout(clearForm,4000);
 }
 
@@ -269,11 +381,12 @@ async function loadReports(){
     const today=new Date().toISOString().split('T')[0];
     const total=reports.length;
     const bad=reports.filter(r=>r.hasBad).length;
-    const hoy=reports.filter(r=>String(r.fecha).startsWith(today)).length;
+    const hoy=reports.filter(r=>String(r.fecha)===today).length;
     document.getElementById('s-total').textContent=total;
     document.getElementById('s-hoy').textContent=hoy;
     document.getElementById('s-ok').textContent=total-bad;
     document.getElementById('s-bad').textContent=bad;
+    window._reports=reports;
     list.innerHTML=reports.map((r,i)=>`
       <div class="report-card" onclick="showDetail(${i})">
         <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;">
@@ -288,7 +401,6 @@ async function loadReports(){
           </div>
         </div>
       </div>`).join('');
-    window._reports=reports;
   }catch(err){
     loading.style.display='none';
     list.innerHTML='<div style="padding:20px;text-align:center;color:var(--danger-text);font-size:14px;">Error cargando reportes.</div>';
@@ -296,8 +408,7 @@ async function loadReports(){
 }
 
 function showDetail(idx){
-  const r=window._reports[idx];
-  if(!r)return;
+  const r=window._reports[idx];if(!r)return;
   const da=document.getElementById('detail-area');
   const inspHtml=[
     {k:'estructura',n:'Estructura y cubeta'},{k:'mangueras',n:'Mangueras/cadenas'},
@@ -306,16 +417,15 @@ function showDetail(idx){
     {k:'silos',n:'Silos'},{k:'pompa',n:'Pompa de agua'},{k:'limpieza',n:'Limpieza'}
   ].map(item=>{
     const val=r[item.k]||'—';
-    const isBad=val.includes('BAD');
-    const isOk=val.includes('OK');
+    const isBad=val.includes('BAD');const isOk=val.includes('OK');
     return`<div class="detail-row"><span style="flex:1;font-size:14px;">${item.n}</span><span class="badge ${isOk?'badge-ok':isBad?'badge-bad':'badge-pending'}">${val}</span></div>`;
   }).join('');
 
-  const photosHtml = r.photoUrls && r.photoUrls.length
-    ? `<div class="sec-label" style="margin-top:14px;">📷 Fotos (${r.photoUrls.length})</div>
-       <div class="photo-row">
-         ${r.photoUrls.map(url=>`<img class="photo-preview" src="${url}" onclick="openLightbox('${url}')" alt="foto" />`).join('')}
-       </div>` : '';
+  const allPhotos = r.photoUrls||[];
+  const photosHtml = allPhotos.length
+    ? `<div class="sec-label" style="margin-top:14px;">📷 Fotos (${allPhotos.length})</div>
+       <div class="photo-row">${allPhotos.map(url=>`<img class="photo-preview" src="${url}" onclick="openLightbox('${url}')" />`).join('')}</div>`
+    : '';
 
   da.innerHTML=`<div class="card" style="margin-top:14px;">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
