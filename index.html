@@ -101,6 +101,7 @@
   .lightbox.active { display: flex; }
   .lightbox img { max-width: 95%; max-height: 90vh; border-radius: var(--radius); object-fit: contain; }
   .lightbox-close { position: absolute; top: 16px; right: 16px; color: white; font-size: 28px; cursor: pointer; background: rgba(255,255,255,0.15); width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: none; }
+  select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236b6b67' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 14px center; padding-right: 40px; }
 </style>
 </head>
 <body>
@@ -118,7 +119,7 @@
     <button class="role-btn" onclick="selectRole('mechanic')"><div class="role-icon" style="background:var(--warning-bg);">⚙️</div><div style="flex:1"><div style="font-size:16px;font-weight:500;">Mecánico</div><div style="font-size:13px;color:var(--text2);">Ver reportes y reparaciones</div></div><span style="color:var(--text3);font-size:20px;">›</span></button>
     <button class="role-btn" onclick="selectRole('super')"><div class="role-icon" style="background:var(--info-bg);">👷</div><div style="flex:1"><div style="font-size:16px;font-weight:500;">Superintendente</div><div style="font-size:13px;color:var(--text2);">Supervisión de equipo</div></div><span style="color:var(--text3);font-size:20px;">›</span></button>
     <button class="role-btn" onclick="selectRole('management')"><div class="role-icon" style="background:var(--bg3);">📋</div><div style="flex:1"><div style="font-size:16px;font-weight:500;">Management</div><div style="font-size:13px;color:var(--text2);">Vista ejecutiva de reportes</div></div><span style="color:var(--text3);font-size:20px;">›</span></button>
-    <div style="text-align:center;margin-top:24px;font-size:12px;color:var(--text3);">v5.0 — Oscar Orduno, Inc.</div>
+    <div style="text-align:center;margin-top:24px;font-size:12px;color:var(--text3);">v6.0 — Oscar Orduno, Inc.</div>
   </div>
 </div>
 
@@ -142,12 +143,15 @@
     <div class="zona-roja">⚠️<div><div style="font-weight:600;margin-bottom:3px;">ZONA ROJA — Peligro de atrapamiento</div>Apagar máquina y llaves al bolsillo antes de meter la mano en: <strong>Aspas · Gusanos · Olla · Cilindro · Pistón · Agitador</strong></div></div>
     <div class="card">
       <div class="sec-label">Información general</div>
+      <div class="field"><label>Nombre del operador</label><select id="f-op"><option value="">— Selecciona operador —</option></select></div>
+      <div class="field"><label>Supervisor / Foreman</label><select id="f-sup"><option value="">— Selecciona foreman —</option></select></div>
+      <div class="field"><label>Número de máquina</label><select id="f-maq"><option value="">— Selecciona máquina —</option></select></div>
       <div class="field"><label>Nombre del proyecto</label><input type="text" id="f-proy" placeholder="Ej. Metro Line 3" autocomplete="off"/></div>
-      <div class="field"><label>Número de máquina</label><input type="text" id="f-maq" placeholder="Ej. GP-01" autocomplete="off"/></div>
-      <div class="field"><label>Nombre del operador</label><input type="text" id="f-op" placeholder="Nombre completo" autocomplete="off"/></div>
-      <div class="field"><label>Supervisor</label><input type="text" id="f-sup" placeholder="Nombre del supervisor" autocomplete="off"/></div>
       <div class="field"><label>Fecha</label><input type="date" id="f-fecha"/></div>
-      <div class="grid2"><div class="field"><label>Horas inicio</label><input type="text" id="f-hi" placeholder="07:00" inputmode="numeric"/></div><div class="field"><label>Horas final</label><input type="text" id="f-hf" placeholder="17:00" inputmode="numeric"/></div></div>
+      <div class="grid2">
+        <div class="field"><label>Horas inicio</label><input type="text" id="f-hi" placeholder="07:00" inputmode="numeric"/></div>
+        <div class="field"><label>Horas final</label><input type="text" id="f-hf" placeholder="17:00" inputmode="numeric"/></div>
+      </div>
     </div>
     <div class="card"><div class="sec-label">🔧 Lista de inspección</div><div style="font-size:13px;color:var(--text2);margin-bottom:14px;">Toca OK o BAD. Si marcas BAD puedes agregar foto y observación.</div><div id="insp-list"></div></div>
     <div class="card"><div class="sec-label">🛡️ Safety Awareness</div><div style="font-size:13px;color:var(--text2);margin-bottom:12px;">Confirma cada punto antes de operar el equipo</div><div id="safety-list"></div><div class="field" style="margin-top:14px;"><label>Observaciones de seguridad</label><textarea id="f-sobs" placeholder="¿Riesgos? ¿Cuasi-accidente?..."></textarea></div></div>
@@ -196,6 +200,7 @@ const ROLES = {mechanic:'Mecánico',super:'Superintendente',management:'Manageme
 const MGR_NAMES = {mechanic:'Panel del mecánico',super:'Superintendente de equipo',management:'Management — reportes'};
 let pinEntry='',currentRole='';
 const photoStore={};
+let listasGlobal = {foremen:[], operadores:[], maquinas:[]};
 
 const inspItems=[
   {id:'estructura',name:'Daños de estructura y cubeta',sub:'Golpes, grietas, deformaciones'},
@@ -218,7 +223,47 @@ const safetyItems=[
 ];
 
 function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');window.scrollTo(0,0);}
-function selectRole(role){currentRole=role;if(role==='operator'){buildInspList();buildSafetyList();setToday();show('s-operator');}else{pinEntry='';updateDots();document.getElementById('pin-err').style.display='none';document.getElementById('pin-role-name').textContent=ROLES[role];show('s-pin');}}
+
+function buildDropdown(selectId, opciones, placeholder) {
+  const sel = document.getElementById(selectId);
+  if (!sel) return;
+  sel.innerHTML = `<option value="">— ${placeholder} —</option>` +
+    opciones.map(o => `<option value="${o}">${o}</option>`).join('');
+}
+
+async function cargarListas() {
+  try {
+    const res = await fetch(SCRIPT_URL + '?t=' + Date.now());
+    const json = await res.json();
+    if (json.listas) {
+      listasGlobal = json.listas;
+      buildDropdown('f-op', json.listas.operadores, 'Selecciona operador');
+      buildDropdown('f-sup', json.listas.foremen, 'Selecciona foreman');
+      buildDropdown('f-maq', json.listas.maquinas, 'Selecciona máquina');
+    }
+    if (json.reports) {
+      window._reports = json.reports;
+      renderReports(json.reports);
+    }
+  } catch(err) {
+    console.log('Error cargando listas:', err);
+  }
+}
+
+function selectRole(role){
+  currentRole=role;
+  if(role==='operator'){
+    buildInspList();buildSafetyList();setToday();
+    cargarListas();
+    show('s-operator');
+  } else {
+    pinEntry='';updateDots();
+    document.getElementById('pin-err').style.display='none';
+    document.getElementById('pin-role-name').textContent=ROLES[role];
+    show('s-pin');
+  }
+}
+
 function pinPress(d){if(pinEntry.length>=4)return;pinEntry+=d;updateDots();if(pinEntry.length===4)setTimeout(checkPin,150);}
 function pinDel(){pinEntry=pinEntry.slice(0,-1);updateDots();}
 function pinClear(){pinEntry='';updateDots();}
@@ -250,41 +295,33 @@ function buildSafetyList(){const c=document.getElementById('safety-list');if(!c)
 function setItem(id,val,btn){const row=document.getElementById('ir-'+id);row.querySelectorAll('.tog').forEach(t=>{t.className='tog';});btn.className='tog '+(val==='ok'?'ok':'bad');row.dataset.val=val;const oa=document.getElementById('oa-'+id);if(oa)oa.style.display=val==='bad'?'block':'none';}
 function triggerPhoto(storeKey,inputId){const inp=document.getElementById(inputId);inp.dataset.storekey=storeKey;inp.click();}
 
-function handlePhotos(input, storeKey){
+function handlePhotos(input,storeKey){
   const key=input.dataset.storekey||storeKey;
   if(!photoStore[key])photoStore[key]=[];
   Array.from(input.files).forEach(file=>{
-    const idx = photoStore[key].length;
-    photoStore[key].push({data:null, url:null, uploading:true, name:file.name});
+    const idx=photoStore[key].length;
+    photoStore[key].push({data:null,url:null,uploading:true,name:file.name});
     renderPhotoGrid(key);
     const reader=new FileReader();
     reader.onload=e=>{
-      const base64=e.target.result;
-      photoStore[key][idx].data=base64;
-      uploadToImgbb(base64, key, idx);
+      photoStore[key][idx].data=e.target.result;
+      uploadToImgbb(e.target.result,key,idx);
     };
     reader.readAsDataURL(file);
   });
   input.value='';
 }
 
-async function uploadToImgbb(base64, key, idx){
-  try {
-    const base64Data = base64.split(',')[1];
-    const formData = new FormData();
-    formData.append('key', IMGBB_KEY);
-    formData.append('image', base64Data);
-    const res = await fetch('https://api.imgbb.com/1/upload', {method:'POST', body:formData});
-    const json = await res.json();
-    if(json.success){
-      photoStore[key][idx].url = json.data.url;
-      photoStore[key][idx].uploading = false;
-    } else {
-      photoStore[key][idx].uploading = false;
-    }
-  } catch(err){
-    photoStore[key][idx].uploading = false;
-  }
+async function uploadToImgbb(base64,key,idx){
+  try{
+    const formData=new FormData();
+    formData.append('key',IMGBB_KEY);
+    formData.append('image',base64.split(',')[1]);
+    const res=await fetch('https://api.imgbb.com/1/upload',{method:'POST',body:formData});
+    const json=await res.json();
+    if(json.success){photoStore[key][idx].url=json.data.url;photoStore[key][idx].uploading=false;}
+    else{photoStore[key][idx].uploading=false;}
+  }catch(err){photoStore[key][idx].uploading=false;}
   renderPhotoGrid(key);
 }
 
@@ -304,7 +341,15 @@ function openLightbox(src){if(!src)return;document.getElementById('lb-img').src=
 function closeLightbox(){document.getElementById('lightbox').classList.remove('active');}
 
 function clearForm(){
-  ['f-proy','f-maq','f-op','f-sup','f-hi','f-hf','f-tools','f-obs','f-sobs'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  document.getElementById('f-proy').value='';
+  document.getElementById('f-hi').value='';
+  document.getElementById('f-hf').value='';
+  document.getElementById('f-tools').value='';
+  document.getElementById('f-obs').value='';
+  document.getElementById('f-sobs').value='';
+  document.getElementById('f-op').selectedIndex=0;
+  document.getElementById('f-sup').selectedIndex=0;
+  document.getElementById('f-maq').selectedIndex=0;
   Object.keys(photoStore).forEach(k=>{photoStore[k]=[];});
   buildInspList();buildSafetyList();setToday();
   const msg=document.getElementById('submit-msg');if(msg)msg.style.display='none';
@@ -313,15 +358,11 @@ function clearForm(){
 
 async function submitReport(){
   const proy=document.getElementById('f-proy').value.trim();
-  const op=document.getElementById('f-op').value.trim();
-  if(!proy||!op){alert('Por favor llena el nombre del proyecto y del operador.');return;}
+  const op=document.getElementById('f-op').value;
+  if(!proy||!op){alert('Por favor llena el nombre del proyecto y selecciona el operador.');return;}
 
-  // Check if photos are still uploading
-  const allPhotos = Object.values(photoStore).flat();
-  const uploading = allPhotos.filter(p=>p.uploading);
-  if(uploading.length > 0){
-    alert('Espera — las fotos se están subiendo todavía...');return;
-  }
+  const allPhotos=Object.values(photoStore).flat();
+  if(allPhotos.some(p=>p.uploading)){alert('Espera — las fotos se están subiendo...');return;}
 
   const items={};let hasBad=false;
   inspItems.forEach(item=>{
@@ -347,7 +388,7 @@ async function submitReport(){
     tools:document.getElementById('f-tools').value,
     obs:document.getElementById('f-obs').value,
     safetyObs:document.getElementById('f-sobs').value,
-    items, safety, hasBad, genPhotoUrls
+    items,safety,hasBad,genPhotoUrls
   };
 
   const msg=document.getElementById('submit-msg');
@@ -376,35 +417,43 @@ async function loadReports(){
     const res=await fetch(SCRIPT_URL+'?t='+Date.now());
     const json=await res.json();
     loading.style.display='none';
+    if(json.listas) listasGlobal=json.listas;
     if(!json.reports||json.reports.length===0){empty.style.display='block';return;}
-    const reports=json.reports;
-    const today=new Date().toISOString().split('T')[0];
-    const total=reports.length;
-    const bad=reports.filter(r=>r.hasBad).length;
-    const hoy=reports.filter(r=>String(r.fecha)===today).length;
-    document.getElementById('s-total').textContent=total;
-    document.getElementById('s-hoy').textContent=hoy;
-    document.getElementById('s-ok').textContent=total-bad;
-    document.getElementById('s-bad').textContent=bad;
-    window._reports=reports;
-    list.innerHTML=reports.map((r,i)=>`
-      <div class="report-card" onclick="showDetail(${i})">
-        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;">
-          <div style="flex:1;">
-            <div style="font-size:15px;font-weight:500;">${r.operador}</div>
-            <div style="font-size:13px;color:var(--text2);margin-top:2px;">${r.proyecto} · ${r.maquina||'Sin #'}</div>
-            <div style="font-size:12px;color:var(--text3);margin-top:2px;">${r.fecha}${r.photoUrls&&r.photoUrls.length?' · 📷 '+r.photoUrls.length+' foto(s)':''}</div>
-          </div>
-          <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;">
-            <span class="badge ${r.hasBad?'badge-bad':'badge-ok'}">${r.hasBad?'⚠ Revisar':'✓ OK'}</span>
-            <span style="color:var(--text3);font-size:20px;">›</span>
-          </div>
-        </div>
-      </div>`).join('');
+    window._reports=json.reports;
+    renderReports(json.reports);
   }catch(err){
     loading.style.display='none';
     list.innerHTML='<div style="padding:20px;text-align:center;color:var(--danger-text);font-size:14px;">Error cargando reportes.</div>';
   }
+}
+
+function renderReports(reports){
+  const today=new Date().toISOString().split('T')[0];
+  const total=reports.length;
+  const bad=reports.filter(r=>r.hasBad).length;
+  const hoy=reports.filter(r=>String(r.fecha)===today).length;
+  document.getElementById('s-total').textContent=total;
+  document.getElementById('s-hoy').textContent=hoy;
+  document.getElementById('s-ok').textContent=total-bad;
+  document.getElementById('s-bad').textContent=bad;
+  const list=document.getElementById('rep-list');
+  const empty=document.getElementById('rep-empty');
+  if(!total){empty.style.display='block';list.innerHTML='';return;}
+  empty.style.display='none';
+  list.innerHTML=reports.map((r,i)=>`
+    <div class="report-card" onclick="showDetail(${i})">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;">
+        <div style="flex:1;">
+          <div style="font-size:15px;font-weight:500;">${r.operador}</div>
+          <div style="font-size:13px;color:var(--text2);margin-top:2px;">${r.proyecto} · ${r.maquina||'Sin #'}</div>
+          <div style="font-size:12px;color:var(--text3);margin-top:2px;">${r.fecha} · ${r.supervisor||'Sin foreman'}${r.photoUrls&&r.photoUrls.length?' · 📷 '+r.photoUrls.length:''}  </div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;">
+          <span class="badge ${r.hasBad?'badge-bad':'badge-ok'}">${r.hasBad?'⚠ Revisar':'✓ OK'}</span>
+          <span style="color:var(--text3);font-size:20px;">›</span>
+        </div>
+      </div>
+    </div>`).join('');
 }
 
 function showDetail(idx){
@@ -421,11 +470,9 @@ function showDetail(idx){
     return`<div class="detail-row"><span style="flex:1;font-size:14px;">${item.n}</span><span class="badge ${isOk?'badge-ok':isBad?'badge-bad':'badge-pending'}">${val}</span></div>`;
   }).join('');
 
-  const allPhotos = r.photoUrls||[];
-  const photosHtml = allPhotos.length
-    ? `<div class="sec-label" style="margin-top:14px;">📷 Fotos (${allPhotos.length})</div>
-       <div class="photo-row">${allPhotos.map(url=>`<img class="photo-preview" src="${url}" onclick="openLightbox('${url}')" />`).join('')}</div>`
-    : '';
+  const photosHtml=r.photoUrls&&r.photoUrls.length
+    ?`<div class="sec-label" style="margin-top:14px;">📷 Fotos (${r.photoUrls.length})</div>
+      <div class="photo-row">${r.photoUrls.map(url=>`<img class="photo-preview" src="${url}" onclick="openLightbox('${url}')" />`).join('')}</div>`:'';
 
   da.innerHTML=`<div class="card" style="margin-top:14px;">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
@@ -435,7 +482,7 @@ function showDetail(idx){
     <div class="grid2" style="margin-bottom:14px;font-size:13px;gap:10px;">
       <div><span style="color:var(--text2);">Proyecto</span><br><strong>${r.proyecto}</strong></div>
       <div><span style="color:var(--text2);">Máquina</span><br><strong>${r.maquina||'—'}</strong></div>
-      <div><span style="color:var(--text2);">Supervisor</span><br>${r.supervisor||'—'}</div>
+      <div><span style="color:var(--text2);">Foreman</span><br>${r.supervisor||'—'}</div>
       <div><span style="color:var(--text2);">Safety</span><br><strong>${r.safetyChecks||'—'}</strong></div>
       <div><span style="color:var(--text2);">Horas</span><br>${r.hi||'—'} → ${r.hf||'—'}</div>
       <div><span style="color:var(--text2);">Estado</span><br><span class="badge ${r.hasBad?'badge-bad':'badge-ok'}">${r.hasBad?'⚠ Revisar':'✓ OK'}</span></div>
