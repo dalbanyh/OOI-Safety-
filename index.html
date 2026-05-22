@@ -16,6 +16,7 @@
     --danger-bg: #fcebeb; --danger-text: #791f1f; --danger-border: rgba(163,45,45,0.3);
     --warning-bg: #faeeda; --warning-text: #633806; --warning-border: rgba(133,79,11,0.3);
     --radius: 10px; --radius-lg: 14px;
+    --swa: #E24B4A; --swa-dark: #791f1f; --swa-bg: #fcebeb;
   }
   @media (prefers-color-scheme: dark) {
     :root {
@@ -44,12 +45,16 @@
   .btn:active { opacity: 0.75; transform: scale(0.98); }
   .btn-success { background: var(--success-bg); color: var(--success-text); border-color: var(--success-border); font-size: 17px; min-height: 58px; }
   .btn-ghost { background: transparent; border-color: transparent; color: var(--text2); font-size: 14px; min-height: 44px; }
+  .btn-swa { background: var(--swa); color: white; border-color: var(--swa); font-size: 17px; min-height: 58px; font-weight: 600; }
+  .btn-swa:active { opacity: 0.85; }
   .btn-icon { width: 44px; height: 44px; min-height: 44px; border-radius: var(--radius); border: 0.5px solid var(--border); background: var(--bg); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
   .btn-icon:active { background: var(--bg2); }
   .app-icon { width: 68px; height: 68px; background: var(--info-bg); border-radius: 18px; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; }
   .app-icon svg { width: 36px; height: 36px; stroke: var(--info-text); fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
   .role-btn { background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 16px; cursor: pointer; text-align: left; width: 100%; margin-bottom: 10px; display: flex; align-items: center; gap: 14px; min-height: 68px; }
   .role-btn:active { background: var(--bg2); }
+  .role-btn.swa-btn { border-color: var(--swa); background: var(--swa-bg); }
+  .role-btn.swa-btn:active { opacity: 0.85; }
   .role-icon { width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 22px; }
   .pin-dots { display: flex; gap: 14px; justify-content: center; margin: 20px 0; }
   .pin-dot { width: 18px; height: 18px; border-radius: 50%; border: 2px solid var(--border2); background: transparent; transition: background 0.1s; }
@@ -102,10 +107,15 @@
   .lightbox img { max-width: 95%; max-height: 90vh; border-radius: var(--radius); object-fit: contain; }
   .lightbox-close { position: absolute; top: 16px; right: 16px; color: white; font-size: 28px; cursor: pointer; background: rgba(255,255,255,0.15); width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: none; }
   select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236b6b67' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 14px center; padding-right: 40px; }
+  .chip-group { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
+  .chip { padding: 8px 14px; border-radius: 20px; border: 0.5px solid var(--border2); background: var(--bg2); color: var(--text2); font-size: 14px; cursor: pointer; font-family: inherit; transition: all 0.1s; }
+  .chip.selected { background: var(--swa); color: white; border-color: var(--swa); }
+  .chip:active { transform: scale(0.97); }
+  .swa-header { background: var(--swa); color: white; border-radius: var(--radius); padding: 20px; text-align: center; margin-bottom: 16px; }
+  .swa-confirmacion { background: var(--success-bg); border: 1.5px solid var(--success-border); border-radius: var(--radius-lg); padding: 24px; text-align: center; display: none; }
 </style>
 </head>
 <body>
-<iframe name="hidden-frame" id="hidden-frame" style="display:none"></iframe>
 
 <div id="s-login" class="screen active">
   <div class="container" style="padding-top:48px;min-height:100vh;display:flex;flex-direction:column;justify-content:center;">
@@ -115,12 +125,97 @@
       <div style="font-size:15px;color:var(--text2);">Earth Retention Systems</div>
       <div style="font-size:13px;color:var(--text3);margin-top:4px;">OOI Safety — Inspección Grout Pump</div>
     </div>
+    <button class="role-btn swa-btn" onclick="show('s-swa')" style="margin-bottom:16px;">
+      <div class="role-icon" style="background:var(--swa);">🛑</div>
+      <div style="flex:1">
+        <div style="font-size:16px;font-weight:600;color:var(--swa-dark);">Autoridad de Parar el Trabajo</div>
+        <div style="font-size:13px;color:var(--swa-dark);opacity:0.8;">Reportar condición insegura</div>
+      </div>
+      <span style="color:var(--swa);font-size:20px;">›</span>
+    </button>
     <div style="font-size:13px;color:var(--text2);margin-bottom:12px;text-align:center;">Selecciona tu rol para continuar</div>
     <button class="role-btn" onclick="selectRole('operator')"><div class="role-icon" style="background:var(--success-bg);">🔧</div><div style="flex:1"><div style="font-size:16px;font-weight:500;">Operador</div><div style="font-size:13px;color:var(--text2);">Grout Pump — llenar inspección</div></div><span style="color:var(--text3);font-size:20px;">›</span></button>
     <button class="role-btn" onclick="selectRole('mechanic')"><div class="role-icon" style="background:var(--warning-bg);">⚙️</div><div style="flex:1"><div style="font-size:16px;font-weight:500;">Mecánico</div><div style="font-size:13px;color:var(--text2);">Ver reportes y reparaciones</div></div><span style="color:var(--text3);font-size:20px;">›</span></button>
     <button class="role-btn" onclick="selectRole('super')"><div class="role-icon" style="background:var(--info-bg);">👷</div><div style="flex:1"><div style="font-size:16px;font-weight:500;">Superintendente</div><div style="font-size:13px;color:var(--text2);">Supervisión de equipo</div></div><span style="color:var(--text3);font-size:20px;">›</span></button>
     <button class="role-btn" onclick="selectRole('management')"><div class="role-icon" style="background:var(--bg3);">📋</div><div style="flex:1"><div style="font-size:16px;font-weight:500;">Management</div><div style="font-size:13px;color:var(--text2);">Vista ejecutiva de reportes</div></div><span style="color:var(--text3);font-size:20px;">›</span></button>
-    <div style="text-align:center;margin-top:24px;font-size:12px;color:var(--text3);">v7.0 — Oscar Orduno, Inc.</div>
+    <div style="text-align:center;margin-top:24px;font-size:12px;color:var(--text3);">v8.0 — Oscar Orduno, Inc.</div>
+  </div>
+</div>
+
+<!-- SWA PANEL -->
+<div id="s-swa" class="screen">
+  <div class="container">
+    <div class="header-bar">
+      <button class="btn-icon" onclick="show('s-login')">←</button>
+      <div style="flex:1">
+        <div style="font-size:18px;font-weight:600;color:var(--swa);">🛑 Autoridad de Parar el Trabajo</div>
+        <div style="font-size:12px;color:var(--text2);">Cualquier trabajador puede parar el trabajo</div>
+      </div>
+    </div>
+
+    <div style="background:var(--swa);color:white;border-radius:var(--radius);padding:16px;margin-bottom:16px;font-size:14px;line-height:1.6;">
+      <div style="font-weight:600;font-size:16px;margin-bottom:8px;">Tu derecho y responsabilidad</div>
+      Todo trabajador de OOI tiene la <strong>autoridad y responsabilidad</strong> de parar cualquier trabajo que considere inseguro, sin importar su posición, <strong>sin miedo a represalias</strong>.
+    </div>
+
+    <div id="swa-form">
+      <div class="card">
+        <div class="sec-label">Información del evento</div>
+        <div class="field"><label>Fecha</label><input type="date" id="swa-fecha"/></div>
+        <div class="field"><label>Proyecto / Sitio</label><input type="text" id="swa-sitio" placeholder="Nombre del proyecto o sitio" autocomplete="off"/></div>
+        <div class="field"><label>¿Quién paró el trabajo?</label><input type="text" id="swa-quien" placeholder="Tu nombre" autocomplete="off"/></div>
+        <div class="field"><label>Foreman / Supervisor en turno</label><select id="swa-foreman"><option value="">— Selecciona foreman —</option></select></div>
+      </div>
+
+      <div class="card">
+        <div class="sec-label">Tipo de peligro</div>
+        <div class="chip-group" id="swa-chips">
+          <button class="chip" onclick="toggleChip(this,'Caída de altura')">Caída de altura</button>
+          <button class="chip" onclick="toggleChip(this,'Atrapamiento')">Atrapamiento</button>
+          <button class="chip" onclick="toggleChip(this,'Golpe por objeto')">Golpe por objeto</button>
+          <button class="chip" onclick="toggleChip(this,'Explosión / fuego')">Explosión / fuego</button>
+          <button class="chip" onclick="toggleChip(this,'Exposición química')">Exposición química</button>
+          <button class="chip" onclick="toggleChip(this,'Eléctrico')">Eléctrico</button>
+          <button class="chip" onclick="toggleChip(this,'Equipo / maquinaria')">Equipo / maquinaria</button>
+          <button class="chip" onclick="toggleChip(this,'Cuasi-accidente')">Cuasi-accidente</button>
+          <button class="chip" onclick="toggleChip(this,'Otro')">Otro</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="sec-label">Detalles del evento</div>
+        <div class="field">
+          <label>Descripción del peligro</label>
+          <textarea id="swa-descripcion" rows="3" placeholder="Describe la condición insegura que identificaste..."></textarea>
+        </div>
+        <div class="field">
+          <label>Acción tomada</label>
+          <textarea id="swa-accion" rows="3" placeholder="¿Qué hiciste para corregir o reportar el peligro?..."></textarea>
+        </div>
+        <div class="field">
+          <label>Estado de resolución</label>
+          <select id="swa-resolucion">
+            <option value="">— Selecciona estado —</option>
+            <option value="Resuelto">✅ Resuelto — el peligro fue corregido</option>
+            <option value="Pendiente">⏳ Pendiente — en proceso de corrección</option>
+            <option value="Escalado">📢 Escalado — requiere atención de management</option>
+            <option value="Cuasi-accidente">⚠️ Cuasi-accidente — casi ocurrió un accidente</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="submit-msg" id="swa-msg"></div>
+      <button class="btn btn-swa" onclick="enviarSWA()">🛑 Registrar — Parar el Trabajo</button>
+      <button class="btn btn-ghost" onclick="show('s-login')" style="margin-top:10px;">Cancelar</button>
+    </div>
+
+    <div class="swa-confirmacion" id="swa-confirmacion">
+      <div style="font-size:48px;margin-bottom:16px;">✅</div>
+      <div style="font-size:20px;font-weight:600;color:var(--success-text);margin-bottom:8px;">Evento registrado</div>
+      <div style="font-size:14px;color:var(--text2);margin-bottom:16px;">Tu reporte fue enviado a Diego y José Puente. Gracias por hablar — eso es lo que hace a OOI más seguro.</div>
+      <div style="background:var(--bg2);border-radius:var(--radius);padding:12px;font-size:13px;color:var(--text2);text-align:left;" id="swa-resumen"></div>
+      <button class="btn btn-success" onclick="resetSWA()" style="margin-top:16px;">Cerrar</button>
+    </div>
   </div>
 </div>
 
@@ -162,7 +257,7 @@
       <div class="field"><label>Observaciones generales</label><textarea id="f-obs" placeholder="Condición anormal, daño..."></textarea></div>
       <div style="font-size:13px;color:var(--text2);margin-bottom:8px;">Fotos generales de la unidad</div>
       <button class="photo-btn" onclick="triggerPhoto('general-photos','general-input')">📷 Tomar foto o elegir de galería</button>
-      <input type="file" id="general-input" accept="image/*" capture="environment" multiple style="display:none" onchange="handlePhotos(this,'general-photos')" data-storekey="general-photos"/>
+      <input type="file" id="general-input" accept="image/*" multiple style="display:none" onchange="handlePhotos(this,'general-photos')" data-storekey="general-photos"/>
       <div class="photo-grid" id="general-photos"></div>
     </div>
     <div class="submit-msg" id="submit-msg"></div>
@@ -202,6 +297,7 @@ const MGR_NAMES = {mechanic:'Panel del mecánico',super:'Superintendente de equi
 let pinEntry='',currentRole='';
 const photoStore={};
 let listasGlobal={foremen:[],operadores:[],maquinas:[]};
+let swaChipSelected='';
 
 const inspItems=[
   {id:'estructura',name:'Daños de estructura y cubeta',sub:'Golpes, grietas, deformaciones'},
@@ -225,6 +321,12 @@ const safetyItems=[
 
 function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');window.scrollTo(0,0);}
 
+function toggleChip(btn, val){
+  document.querySelectorAll('#swa-chips .chip').forEach(c=>c.classList.remove('selected'));
+  btn.classList.add('selected');
+  swaChipSelected=val;
+}
+
 function buildDropdown(selectId,opciones,placeholder){
   const sel=document.getElementById(selectId);if(!sel)return;
   sel.innerHTML=`<option value="">— ${placeholder} —</option>`+opciones.map(o=>`<option value="${o}">${o}</option>`).join('');
@@ -239,6 +341,7 @@ async function cargarListas(){
       buildDropdown('f-op',json.listas.operadores,'Selecciona operador');
       buildDropdown('f-sup',json.listas.foremen,'Selecciona foreman');
       buildDropdown('f-maq',json.listas.maquinas,'Selecciona máquina');
+      buildDropdown('swa-foreman',json.listas.foremen,'Selecciona foreman');
     }
   }catch(err){console.log('Error cargando listas:',err);}
 }
@@ -248,12 +351,17 @@ function selectRole(role){
   if(role==='operator'){buildInspList();buildSafetyList();setToday();cargarListas();show('s-operator');}
   else{pinEntry='';updateDots();document.getElementById('pin-err').style.display='none';document.getElementById('pin-role-name').textContent=ROLES[role];show('s-pin');}
 }
+
 function pinPress(d){if(pinEntry.length>=4)return;pinEntry+=d;updateDots();if(pinEntry.length===4)setTimeout(checkPin,150);}
 function pinDel(){pinEntry=pinEntry.slice(0,-1);updateDots();}
 function pinClear(){pinEntry='';updateDots();}
 function updateDots(){for(let i=0;i<4;i++)document.getElementById('d'+i).classList.toggle('filled',i<pinEntry.length);}
 function checkPin(){if(pinEntry===PINS[currentRole]){document.getElementById('pin-err').style.display='none';document.getElementById('mgr-name').textContent=MGR_NAMES[currentRole];show('s-manager');loadReports();pinEntry='';updateDots();}else{document.getElementById('pin-err').style.display='block';pinEntry='';updateDots();}}
-function setToday(){const el=document.getElementById('f-fecha');if(el)el.value=new Date().toISOString().split('T')[0];}
+function setToday(){
+  const today=new Date().toISOString().split('T')[0];
+  const fd=document.getElementById('f-fecha');if(fd)fd.value=today;
+  const sd=document.getElementById('swa-fecha');if(sd)sd.value=today;
+}
 
 function buildInspList(){
   const c=document.getElementById('insp-list');if(!c)return;
@@ -269,7 +377,7 @@ function buildInspList(){
       <div class="obs-area" id="oa-${item.id}">
         <textarea rows="2" id="ot-${item.id}" placeholder="Describe el problema..." style="font-size:14px;margin-bottom:10px;"></textarea>
         <button class="photo-btn" onclick="triggerPhoto('ph-${item.id}','pi-${item.id}')">📷 Agregar foto del problema</button>
-        <input type="file" id="pi-${item.id}" accept="image/*" capture="environment" multiple style="display:none" onchange="handlePhotos(this,'ph-${item.id}')" data-storekey="ph-${item.id}"/>
+        <input type="file" id="pi-${item.id}" accept="image/*" multiple style="display:none" onchange="handlePhotos(this,'ph-${item.id}')" data-storekey="ph-${item.id}"/>
         <div class="photo-grid" id="ph-${item.id}" style="margin-top:8px"></div>
       </div>
     </div>`).join('');
@@ -303,18 +411,9 @@ async function uploadToImgbb(base64,key,idx){
     formData.append('image',base64.split(',')[1]);
     const res=await fetch('https://api.imgbb.com/1/upload',{method:'POST',body:formData});
     const json=await res.json();
-    if(json.success){
-      photoStore[key][idx].url=json.data.url;
-      photoStore[key][idx].uploading=false;
-      console.log('Foto subida a imgbb:', json.data.url);
-    } else {
-      photoStore[key][idx].uploading=false;
-      console.log('Error imgbb:', json);
-    }
-  }catch(err){
-    photoStore[key][idx].uploading=false;
-    console.log('Error imgbb fetch:', err);
-  }
+    if(json.success){photoStore[key][idx].url=json.data.url;photoStore[key][idx].uploading=false;}
+    else{photoStore[key][idx].uploading=false;}
+  }catch(err){photoStore[key][idx].uploading=false;}
   renderPhotoGrid(key);
 }
 
@@ -355,8 +454,7 @@ async function submitReport(){
   if(!proy||!op){alert('Por favor llena el nombre del proyecto y selecciona el operador.');return;}
 
   const allPhotos=Object.values(photoStore).flat();
-  const uploading=allPhotos.filter(p=>p.uploading);
-  if(uploading.length>0){alert('⏳ Espera — las fotos se están subiendo todavía...');return;}
+  if(allPhotos.some(p=>p.uploading)){alert('⏳ Espera — las fotos se están subiendo...');return;}
 
   const items={};let hasBad=false;
   inspItems.forEach(item=>{
@@ -385,26 +483,78 @@ async function submitReport(){
     items,safety,hasBad,genPhotoUrls
   };
 
-  console.log('Enviando reporte con fotos:', genPhotoUrls, Object.fromEntries(Object.entries(items).map(([k,v])=>[k,v.photoUrls])));
-
   const msg=document.getElementById('submit-msg');
   msg.style.display='block';
   msg.textContent='⏳ Enviando inspección...';
   msg.style.background='var(--info-bg)';msg.style.color='var(--info-text)';
 
   try{
-    const res=await fetch(SCRIPT_URL,{
-      method:'POST',
-      mode:'no-cors',
-      headers:{'Content-Type':'text/plain'},
-      body:JSON.stringify(report)
-    });
+    await fetch(SCRIPT_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain'},body:JSON.stringify(report)});
     if(hasBad){msg.textContent='⚠ Enviado — hay ítems que requieren reparación';msg.style.background='var(--warning-bg)';msg.style.color='var(--warning-text)';}
     else{msg.textContent='✓ Inspección enviada correctamente';msg.style.background='var(--success-bg)';msg.style.color='var(--success-text)';}
   }catch(err){
     msg.textContent='⚠ Error de conexión';msg.style.background='var(--danger-bg)';msg.style.color='var(--danger-text)';
   }
   window.scrollTo(0,0);setTimeout(clearForm,4000);
+}
+
+async function enviarSWA(){
+  const sitio=document.getElementById('swa-sitio').value.trim();
+  const quien=document.getElementById('swa-quien').value.trim();
+  const descripcion=document.getElementById('swa-descripcion').value.trim();
+  const accion=document.getElementById('swa-accion').value.trim();
+  const resolucion=document.getElementById('swa-resolucion').value;
+
+  if(!sitio||!quien||!descripcion){
+    alert('Por favor llena el sitio, tu nombre y la descripción del peligro.');return;
+  }
+
+  const swaData={
+    tipo:'swa',
+    id:Date.now(),
+    fecha:document.getElementById('swa-fecha').value,
+    sitio,quien,
+    foreman:document.getElementById('swa-foreman').value,
+    tipoPeligro:swaChipSelected,
+    descripcion,accion,resolucion
+  };
+
+  const msg=document.getElementById('swa-msg');
+  msg.style.display='block';
+  msg.textContent='⏳ Enviando reporte...';
+  msg.style.background='var(--info-bg)';msg.style.color='var(--info-text)';
+
+  try{
+    await fetch(SCRIPT_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain'},body:JSON.stringify(swaData)});
+    msg.style.display='none';
+    document.getElementById('swa-form').style.display='none';
+    document.getElementById('swa-resumen').innerHTML=
+      '<strong>Sitio:</strong> '+sitio+'<br>'+
+      '<strong>Reportado por:</strong> '+quien+'<br>'+
+      '<strong>Foreman:</strong> '+(swaData.foreman||'—')+'<br>'+
+      '<strong>Tipo de peligro:</strong> '+(swaChipSelected||'—')+'<br>'+
+      '<strong>Estado:</strong> '+(resolucion||'—');
+    document.getElementById('swa-confirmacion').style.display='block';
+  }catch(err){
+    msg.textContent='⚠ Error de conexión — intenta de nuevo';
+    msg.style.background='var(--danger-bg)';msg.style.color='var(--danger-text)';
+  }
+}
+
+function resetSWA(){
+  document.getElementById('swa-sitio').value='';
+  document.getElementById('swa-quien').value='';
+  document.getElementById('swa-descripcion').value='';
+  document.getElementById('swa-accion').value='';
+  document.getElementById('swa-resolucion').selectedIndex=0;
+  document.getElementById('swa-foreman').selectedIndex=0;
+  document.querySelectorAll('#swa-chips .chip').forEach(c=>c.classList.remove('selected'));
+  swaChipSelected='';
+  document.getElementById('swa-form').style.display='block';
+  document.getElementById('swa-confirmacion').style.display='none';
+  document.getElementById('swa-msg').style.display='none';
+  setToday();
+  show('s-login');
 }
 
 async function loadReports(){
@@ -470,11 +620,9 @@ function showDetail(idx){
     const isBad=val.includes('BAD');const isOk=val.includes('OK');
     return`<div class="detail-row"><span style="flex:1;font-size:14px;">${item.n}</span><span class="badge ${isOk?'badge-ok':isBad?'badge-bad':'badge-pending'}">${val}</span></div>`;
   }).join('');
-
   const photosHtml=r.photoUrls&&r.photoUrls.length
     ?`<div class="sec-label" style="margin-top:14px;">📷 Fotos (${r.photoUrls.length})</div>
       <div class="photo-row">${r.photoUrls.map(url=>`<img class="photo-preview" src="${url}" onclick="openLightbox('${url}')" />`).join('')}</div>`:'';
-
   da.innerHTML=`<div class="card" style="margin-top:14px;">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
       <div style="font-size:16px;font-weight:500;">${r.operador} — ${r.fecha}</div>
@@ -497,6 +645,10 @@ function showDetail(idx){
   </div>`;
   da.scrollIntoView({behavior:'smooth',block:'nearest'});
 }
+
+// Init
+setToday();
+cargarListas();
 </script>
 </body>
 </html>
