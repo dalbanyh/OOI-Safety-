@@ -11,7 +11,7 @@
     --bg: #ffffff; --bg2: #f5f5f3; --bg3: #eeede8;
     --text: #1a1a18; --text2: #6b6b67; --text3: #9c9a92;
     --border: rgba(0,0,0,0.12); --border2: rgba(0,0,0,0.22);
-    --info-bg: #e6f1fb; --info-text: #0c447c; --info-border: rgba(24,95,165,0.3);
+    --info-bg: #e6f1fb; --info-text: #0c447c;
     --success-bg: #eaf3de; --success-text: #27500a; --success-border: rgba(59,109,17,0.3);
     --danger-bg: #fcebeb; --danger-text: #791f1f; --danger-border: rgba(163,45,45,0.3);
     --warning-bg: #faeeda; --warning-text: #633806; --warning-border: rgba(133,79,11,0.3);
@@ -22,7 +22,7 @@
       --bg: #1c1c1a; --bg2: #252523; --bg3: #2e2e2b;
       --text: #e8e6de; --text2: #9c9a92; --text3: #6b6b67;
       --border: rgba(255,255,255,0.1); --border2: rgba(255,255,255,0.2);
-      --info-bg: #0c447c; --info-text: #b5d4f4; --info-border: rgba(55,138,221,0.35);
+      --info-bg: #0c447c; --info-text: #b5d4f4;
       --success-bg: #27500a; --success-text: #c0dd97; --success-border: rgba(99,153,34,0.35);
       --danger-bg: #791f1f; --danger-text: #f7c1c1; --danger-border: rgba(226,75,74,0.35);
       --warning-bg: #633806; --warning-text: #fac775; --warning-border: rgba(186,117,23,0.35);
@@ -80,7 +80,7 @@
   .photo-thumb { position: relative; aspect-ratio: 1; border-radius: var(--radius); overflow: hidden; background: var(--bg2); }
   .photo-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
   .photo-del { position: absolute; top: 4px; right: 4px; width: 26px; height: 26px; border-radius: 50%; background: #E24B4A; border: none; cursor: pointer; color: white; font-size: 16px; line-height: 26px; text-align: center; font-weight: bold; }
-  .photo-uploading { position: absolute; inset: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; color: white; font-size: 12px; }
+  .photo-uploading { position: absolute; inset: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; color: white; font-size: 20px; }
   .photo-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
   .photo-preview { width: 80px; height: 80px; border-radius: var(--radius); object-fit: cover; border: 0.5px solid var(--border); cursor: pointer; }
   .badge { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; padding: 4px 10px; border-radius: 20px; font-weight: 600; }
@@ -105,6 +105,7 @@
 </style>
 </head>
 <body>
+<iframe name="hidden-frame" id="hidden-frame" style="display:none"></iframe>
 
 <div id="s-login" class="screen active">
   <div class="container" style="padding-top:48px;min-height:100vh;display:flex;flex-direction:column;justify-content:center;">
@@ -119,7 +120,7 @@
     <button class="role-btn" onclick="selectRole('mechanic')"><div class="role-icon" style="background:var(--warning-bg);">⚙️</div><div style="flex:1"><div style="font-size:16px;font-weight:500;">Mecánico</div><div style="font-size:13px;color:var(--text2);">Ver reportes y reparaciones</div></div><span style="color:var(--text3);font-size:20px;">›</span></button>
     <button class="role-btn" onclick="selectRole('super')"><div class="role-icon" style="background:var(--info-bg);">👷</div><div style="flex:1"><div style="font-size:16px;font-weight:500;">Superintendente</div><div style="font-size:13px;color:var(--text2);">Supervisión de equipo</div></div><span style="color:var(--text3);font-size:20px;">›</span></button>
     <button class="role-btn" onclick="selectRole('management')"><div class="role-icon" style="background:var(--bg3);">📋</div><div style="flex:1"><div style="font-size:16px;font-weight:500;">Management</div><div style="font-size:13px;color:var(--text2);">Vista ejecutiva de reportes</div></div><span style="color:var(--text3);font-size:20px;">›</span></button>
-    <div style="text-align:center;margin-top:24px;font-size:12px;color:var(--text3);">v6.0 — Oscar Orduno, Inc.</div>
+    <div style="text-align:center;margin-top:24px;font-size:12px;color:var(--text3);">v7.0 — Oscar Orduno, Inc.</div>
   </div>
 </div>
 
@@ -200,7 +201,7 @@ const ROLES = {mechanic:'Mecánico',super:'Superintendente',management:'Manageme
 const MGR_NAMES = {mechanic:'Panel del mecánico',super:'Superintendente de equipo',management:'Management — reportes'};
 let pinEntry='',currentRole='';
 const photoStore={};
-let listasGlobal = {foremen:[], operadores:[], maquinas:[]};
+let listasGlobal={foremen:[],operadores:[],maquinas:[]};
 
 const inspItems=[
   {id:'estructura',name:'Daños de estructura y cubeta',sub:'Golpes, grietas, deformaciones'},
@@ -224,46 +225,29 @@ const safetyItems=[
 
 function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');window.scrollTo(0,0);}
 
-function buildDropdown(selectId, opciones, placeholder) {
-  const sel = document.getElementById(selectId);
-  if (!sel) return;
-  sel.innerHTML = `<option value="">— ${placeholder} —</option>` +
-    opciones.map(o => `<option value="${o}">${o}</option>`).join('');
+function buildDropdown(selectId,opciones,placeholder){
+  const sel=document.getElementById(selectId);if(!sel)return;
+  sel.innerHTML=`<option value="">— ${placeholder} —</option>`+opciones.map(o=>`<option value="${o}">${o}</option>`).join('');
 }
 
-async function cargarListas() {
-  try {
-    const res = await fetch(SCRIPT_URL + '?t=' + Date.now());
-    const json = await res.json();
-    if (json.listas) {
-      listasGlobal = json.listas;
-      buildDropdown('f-op', json.listas.operadores, 'Selecciona operador');
-      buildDropdown('f-sup', json.listas.foremen, 'Selecciona foreman');
-      buildDropdown('f-maq', json.listas.maquinas, 'Selecciona máquina');
+async function cargarListas(){
+  try{
+    const res=await fetch(SCRIPT_URL+'?t='+Date.now());
+    const json=await res.json();
+    if(json.listas){
+      listasGlobal=json.listas;
+      buildDropdown('f-op',json.listas.operadores,'Selecciona operador');
+      buildDropdown('f-sup',json.listas.foremen,'Selecciona foreman');
+      buildDropdown('f-maq',json.listas.maquinas,'Selecciona máquina');
     }
-    if (json.reports) {
-      window._reports = json.reports;
-      renderReports(json.reports);
-    }
-  } catch(err) {
-    console.log('Error cargando listas:', err);
-  }
+  }catch(err){console.log('Error cargando listas:',err);}
 }
 
 function selectRole(role){
   currentRole=role;
-  if(role==='operator'){
-    buildInspList();buildSafetyList();setToday();
-    cargarListas();
-    show('s-operator');
-  } else {
-    pinEntry='';updateDots();
-    document.getElementById('pin-err').style.display='none';
-    document.getElementById('pin-role-name').textContent=ROLES[role];
-    show('s-pin');
-  }
+  if(role==='operator'){buildInspList();buildSafetyList();setToday();cargarListas();show('s-operator');}
+  else{pinEntry='';updateDots();document.getElementById('pin-err').style.display='none';document.getElementById('pin-role-name').textContent=ROLES[role];show('s-pin');}
 }
-
 function pinPress(d){if(pinEntry.length>=4)return;pinEntry+=d;updateDots();if(pinEntry.length===4)setTimeout(checkPin,150);}
 function pinDel(){pinEntry=pinEntry.slice(0,-1);updateDots();}
 function pinClear(){pinEntry='';updateDots();}
@@ -319,9 +303,18 @@ async function uploadToImgbb(base64,key,idx){
     formData.append('image',base64.split(',')[1]);
     const res=await fetch('https://api.imgbb.com/1/upload',{method:'POST',body:formData});
     const json=await res.json();
-    if(json.success){photoStore[key][idx].url=json.data.url;photoStore[key][idx].uploading=false;}
-    else{photoStore[key][idx].uploading=false;}
-  }catch(err){photoStore[key][idx].uploading=false;}
+    if(json.success){
+      photoStore[key][idx].url=json.data.url;
+      photoStore[key][idx].uploading=false;
+      console.log('Foto subida a imgbb:', json.data.url);
+    } else {
+      photoStore[key][idx].uploading=false;
+      console.log('Error imgbb:', json);
+    }
+  }catch(err){
+    photoStore[key][idx].uploading=false;
+    console.log('Error imgbb fetch:', err);
+  }
   renderPhotoGrid(key);
 }
 
@@ -362,7 +355,8 @@ async function submitReport(){
   if(!proy||!op){alert('Por favor llena el nombre del proyecto y selecciona el operador.');return;}
 
   const allPhotos=Object.values(photoStore).flat();
-  if(allPhotos.some(p=>p.uploading)){alert('Espera — las fotos se están subiendo...');return;}
+  const uploading=allPhotos.filter(p=>p.uploading);
+  if(uploading.length>0){alert('⏳ Espera — las fotos se están subiendo todavía...');return;}
 
   const items={};let hasBad=false;
   inspItems.forEach(item=>{
@@ -380,7 +374,7 @@ async function submitReport(){
   const report={
     id:Date.now(),
     fecha:document.getElementById('f-fecha').value,
-    proyecto:proy, operador:op,
+    proyecto:proy,operador:op,
     supervisor:document.getElementById('f-sup').value,
     maquina:document.getElementById('f-maq').value,
     hi:document.getElementById('f-hi').value,
@@ -391,13 +385,20 @@ async function submitReport(){
     items,safety,hasBad,genPhotoUrls
   };
 
+  console.log('Enviando reporte con fotos:', genPhotoUrls, Object.fromEntries(Object.entries(items).map(([k,v])=>[k,v.photoUrls])));
+
   const msg=document.getElementById('submit-msg');
   msg.style.display='block';
   msg.textContent='⏳ Enviando inspección...';
   msg.style.background='var(--info-bg)';msg.style.color='var(--info-text)';
 
   try{
-    await fetch(SCRIPT_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},body:JSON.stringify(report)});
+    const res=await fetch(SCRIPT_URL,{
+      method:'POST',
+      mode:'no-cors',
+      headers:{'Content-Type':'text/plain'},
+      body:JSON.stringify(report)
+    });
     if(hasBad){msg.textContent='⚠ Enviado — hay ítems que requieren reparación';msg.style.background='var(--warning-bg)';msg.style.color='var(--warning-text)';}
     else{msg.textContent='✓ Inspección enviada correctamente';msg.style.background='var(--success-bg)';msg.style.color='var(--success-text)';}
   }catch(err){
@@ -417,7 +418,7 @@ async function loadReports(){
     const res=await fetch(SCRIPT_URL+'?t='+Date.now());
     const json=await res.json();
     loading.style.display='none';
-    if(json.listas) listasGlobal=json.listas;
+    if(json.listas)listasGlobal=json.listas;
     if(!json.reports||json.reports.length===0){empty.style.display='block';return;}
     window._reports=json.reports;
     renderReports(json.reports);
@@ -446,7 +447,7 @@ function renderReports(reports){
         <div style="flex:1;">
           <div style="font-size:15px;font-weight:500;">${r.operador}</div>
           <div style="font-size:13px;color:var(--text2);margin-top:2px;">${r.proyecto} · ${r.maquina||'Sin #'}</div>
-          <div style="font-size:12px;color:var(--text3);margin-top:2px;">${r.fecha} · ${r.supervisor||'Sin foreman'}${r.photoUrls&&r.photoUrls.length?' · 📷 '+r.photoUrls.length:''}  </div>
+          <div style="font-size:12px;color:var(--text3);margin-top:2px;">${r.fecha} · ${r.supervisor||'Sin foreman'}${r.photoUrls&&r.photoUrls.length?' · 📷 '+r.photoUrls.length:''}</div>
         </div>
         <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;">
           <span class="badge ${r.hasBad?'badge-bad':'badge-ok'}">${r.hasBad?'⚠ Revisar':'✓ OK'}</span>
