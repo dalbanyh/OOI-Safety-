@@ -1100,7 +1100,7 @@ async function cargarListas(){
       buildDropdown(document.getElementById('f-sup'),json.listas.foremen,'Selecciona foreman');
       buildDropdown(document.getElementById('f-maq'),json.listas.maquinas,'Selecciona máquina');
       buildDropdown(document.getElementById('swa-foreman'),json.listas.foremen,'Selecciona foreman');
-      buildDropdown(document.getElementById('swa-super'),json.listas.foremen,'Selecciona superintendente');
+      buildDropdown(document.getElementById('swa-super'),json.listas.superintendentes||[],'Selecciona superintendente');
     }
   }catch(err){}
 }
