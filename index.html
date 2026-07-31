@@ -229,8 +229,40 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
     <div class="header-bar"><button class="btn-icon" onclick="show('s-login')">←</button><div style="flex:1"><div style="font-size:18px;font-weight:600;color:var(--swa);">🛑 Autoridad de Parar el Trabajo</div><div style="font-size:12px;color:var(--text2);">Cualquier trabajador puede parar el trabajo</div></div></div>
     <div style="background:var(--swa);color:white;border-radius:var(--radius);padding:16px;margin-bottom:16px;font-size:14px;line-height:1.6;">
       <div style="font-weight:600;font-size:16px;margin-bottom:8px;">Tu derecho y responsabilidad</div>
-      Todo trabajador de OOI tiene la <strong>autoridad y responsabilidad</strong> de parar cualquier trabajo inseguro, sin importar su posición, <strong>sin miedo a represalias</strong>.
+      Todos los empleados de Oscar Orduno Inc. (OOI) tienen el <strong>derecho, la autoridad y responsabilidad</strong> de detener cualquier actividad o tarea de trabajo al momento de identificar un peligro inminente o alguna acción insegura que pueda causar una lesión a un trabajador, daño a equipo o propiedad de la empresa o afectación a terceros, de manera honoraria y <strong>sin temor a represalias</strong>.
     </div>
+    <!-- 5 Pasos -->
+    <div style="margin-bottom:16px;">
+      <div style="font-size:11px;font-weight:600;color:var(--swa-dark);text-transform:uppercase;letter-spacing:0.07em;margin-bottom:10px;opacity:0.8;">5 Pasos para ejercer tu Autoridad</div>
+      <div style="display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;-webkit-overflow-scrolling:touch;">
+        <div style="flex-shrink:0;background:white;border:1.5px solid rgba(226,75,74,0.3);border-radius:var(--radius);padding:10px 8px;text-align:center;min-width:70px;">
+          <div style="font-size:22px;margin-bottom:4px;">✋</div>
+          <div style="font-size:10px;font-weight:700;color:#E24B4A;text-transform:uppercase;letter-spacing:0.05em;">1. Detén</div>
+          <div style="font-size:9px;color:#791f1f;margin-top:2px;line-height:1.3;">Para el trabajo inmediatamente</div>
+        </div>
+        <div style="flex-shrink:0;background:white;border:1.5px solid rgba(226,75,74,0.3);border-radius:var(--radius);padding:10px 8px;text-align:center;min-width:70px;">
+          <div style="font-size:22px;margin-bottom:4px;">📢</div>
+          <div style="font-size:10px;font-weight:700;color:#E24B4A;text-transform:uppercase;letter-spacing:0.05em;">2. Notifica</div>
+          <div style="font-size:9px;color:#791f1f;margin-top:2px;line-height:1.3;">Avisa a tu foreman y superintendente</div>
+        </div>
+        <div style="flex-shrink:0;background:white;border:1.5px solid rgba(226,75,74,0.3);border-radius:var(--radius);padding:10px 8px;text-align:center;min-width:70px;">
+          <div style="font-size:22px;margin-bottom:4px;">🔍</div>
+          <div style="font-size:10px;font-weight:700;color:#E24B4A;text-transform:uppercase;letter-spacing:0.05em;">3. Evalúa</div>
+          <div style="font-size:9px;color:#791f1f;margin-top:2px;line-height:1.3;">Investiga el peligro juntos</div>
+        </div>
+        <div style="flex-shrink:0;background:white;border:1.5px solid rgba(226,75,74,0.3);border-radius:var(--radius);padding:10px 8px;text-align:center;min-width:70px;">
+          <div style="font-size:22px;margin-bottom:4px;">✅</div>
+          <div style="font-size:10px;font-weight:700;color:#E24B4A;text-transform:uppercase;letter-spacing:0.05em;">4. Reanuda</div>
+          <div style="font-size:9px;color:#791f1f;margin-top:2px;line-height:1.3;">Solo cuando sea seguro</div>
+        </div>
+        <div style="flex-shrink:0;background:white;border:1.5px solid rgba(226,75,74,0.3);border-radius:var(--radius);padding:10px 8px;text-align:center;min-width:70px;">
+          <div style="font-size:22px;margin-bottom:4px;">📝</div>
+          <div style="font-size:10px;font-weight:700;color:#E24B4A;text-transform:uppercase;letter-spacing:0.05em;">5. Reporta</div>
+          <div style="font-size:9px;color:#791f1f;margin-top:2px;line-height:1.3;">Llena este formulario</div>
+        </div>
+      </div>
+    </div>
+
     <div id="swa-form">
       <div class="card">
         <div class="sec-label">Información del evento</div>
@@ -238,6 +270,7 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
         <div class="field"><label>Proyecto / Sitio</label><input type="text" id="swa-sitio" placeholder="Nombre del proyecto o sitio" autocomplete="off"/></div>
         <div class="field"><label>¿Quién paró el trabajo?</label><input type="text" id="swa-quien" placeholder="Tu nombre" autocomplete="off"/></div>
         <div class="field"><label>Foreman / Supervisor en turno</label><select id="swa-foreman"><option value="">— Selecciona foreman —</option></select></div>
+        <div class="field"><label>Superintendente en turno</label><select id="swa-super"><option value="">— Selecciona superintendente —</option></select></div>
       </div>
       <div class="card">
         <div class="sec-label">Tipo de peligro</div>
@@ -262,7 +295,6 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
             <option value="">— Selecciona estado —</option>
             <option value="Resuelto">✅ Resuelto</option>
             <option value="Pendiente">⏳ Pendiente</option>
-            <option value="Escalado">📢 Escalado</option>
             <option value="Cuasi-accidente">⚠️ Cuasi-accidente</option>
           </select>
         </div>
@@ -1068,6 +1100,7 @@ async function cargarListas(){
       buildDropdown(document.getElementById('f-sup'),json.listas.foremen,'Selecciona foreman');
       buildDropdown(document.getElementById('f-maq'),json.listas.maquinas,'Selecciona máquina');
       buildDropdown(document.getElementById('swa-foreman'),json.listas.foremen,'Selecciona foreman');
+      buildDropdown(document.getElementById('swa-super'),json.listas.foremen,'Selecciona superintendente');
     }
   }catch(err){}
 }
@@ -1195,7 +1228,7 @@ async function enviarSWA(){
   const quien=document.getElementById('swa-quien').value.trim();
   const descripcion=document.getElementById('swa-descripcion').value.trim();
   if(!sitio||!quien||!descripcion){alert('Por favor llena el sitio, tu nombre y la descripción.');return;}
-  const swaData={tipo:'swa',id:Date.now(),fecha:document.getElementById('swa-fecha').value,sitio,quien,foreman:document.getElementById('swa-foreman').value,tipoPeligro:swaChipSelected,descripcion,accion:document.getElementById('swa-accion').value,resolucion:document.getElementById('swa-resolucion').value};
+  const swaData={tipo:'swa',id:Date.now(),fecha:document.getElementById('swa-fecha').value,sitio,quien,foreman:document.getElementById('swa-foreman').value,superintendente:document.getElementById('swa-super').value,tipoPeligro:swaChipSelected,descripcion,accion:document.getElementById('swa-accion').value,resolucion:document.getElementById('swa-resolucion').value};
   const msg=document.getElementById('swa-msg');
   msg.style.display='block';msg.textContent='⏳ Enviando...';msg.style.background='var(--info-bg)';msg.style.color='var(--info-text)';
   try{
@@ -1210,6 +1243,7 @@ function resetSWA(){
   ['swa-sitio','swa-quien','swa-descripcion','swa-accion'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('swa-resolucion').selectedIndex=0;
   document.getElementById('swa-foreman').selectedIndex=0;
+  document.getElementById('swa-super').selectedIndex=0;
   document.querySelectorAll('#swa-chips .chip').forEach(c=>c.classList.remove('selected'));
   swaChipSelected='';
   document.getElementById('swa-form').style.display='block';
