@@ -413,6 +413,28 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
 .drils-wall-card.L::before{background:#791f1f;}
 .drils-wall-card.S::before{background:#0F6E56;}
 .drils-confirmacion{background:var(--success-bg);border:1px solid var(--success-border);border-radius:var(--radius-lg);padding:24px;text-align:center;display:none;}
+
+/* ── CHIPS (SWA tipo de peligro) ── */
+.chip-group{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px;}
+.chip{
+  padding:9px 16px;border-radius:99px;
+  border:1.5px solid var(--border2);
+  background:var(--bg);
+  color:var(--text2);
+  font-family:'Inter',system-ui,sans-serif;
+  font-size:13px;font-weight:600;
+  cursor:pointer;
+  transition:all 0.15s;
+  -webkit-tap-highlight-color:transparent;
+}
+.chip:active{transform:scale(0.97);}
+.chip.selected{
+  background:var(--swa);
+  color:white;
+  border-color:var(--swa);
+  box-shadow:0 2px 8px rgba(208,54,43,0.25);
+}
+
 </style>
 </head>
 <body>
@@ -453,7 +475,7 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
     <div class="header-bar"><button class="btn-icon" onclick="show('s-login')">←</button><div style="flex:1"><div style="font-size:18px;font-weight:600;color:var(--swa);">🛑 Autoridad de Parar el Trabajo</div><div style="font-size:12px;color:var(--text2);">Cualquier trabajador puede parar el trabajo</div></div></div>
     <div style="background:var(--swa);color:white;border-radius:var(--radius);padding:16px;margin-bottom:16px;font-size:14px;line-height:1.6;">
       <div style="font-weight:600;font-size:16px;margin-bottom:8px;">Tu derecho y responsabilidad</div>
-      Todos los empleados de Oscar Orduno Inc. (OOI) tienen el <strong>derecho, la autoridad y responsabilidad</strong> de detener cualquier actividad o tarea de trabajo al momento de identificar un peligro inminente o alguna acción insegura que pueda causar una lesión a un trabajador, daño a equipo o propiedad de la empresa o afectación a terceros, de manera honoraria y <strong>sin temor a represalias</strong>.
+      Todo trabajador de OOI tiene la <strong>autoridad y responsabilidad</strong> de parar cualquier trabajo inseguro, sin importar su posición, <strong>sin miedo a represalias</strong>.
     </div>
     <!-- 5 Pasos -->
     <div style="margin-bottom:16px;">
@@ -493,8 +515,8 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
         <div class="field"><label>Fecha</label><input type="date" id="swa-fecha"/></div>
         <div class="field"><label>Proyecto / Sitio</label><input type="text" id="swa-sitio" placeholder="Nombre del proyecto o sitio" autocomplete="off"/></div>
         <div class="field"><label>¿Quién paró el trabajo?</label><input type="text" id="swa-quien" placeholder="Tu nombre" autocomplete="off"/></div>
-        <div class="field"><label>Foreman / Supervisor en turno</label><select id="swa-foreman"><option value="">— Selecciona foreman —</option></select></div>
-        <div class="field"><label>Superintendente en turno</label><select id="swa-super"><option value="">— Selecciona superintendente —</option></select></div>
+        <div class="field"><label>Foreman / Supervisor en turno <span style="color:var(--swa);">*</span></label><select id="swa-foreman"><option value="">— Selecciona foreman —</option></select></div>
+        <div class="field"><label>Superintendente en turno <span style="color:var(--swa);">*</span></label><select id="swa-super"><option value="">— Selecciona superintendente —</option></select></div>
       </div>
       <div class="card">
         <div class="sec-label">Tipo de peligro</div>
@@ -530,7 +552,7 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
     <div class="swa-confirmacion" id="swa-confirmacion">
       <div style="font-size:48px;margin-bottom:16px;">✅</div>
       <div style="font-size:20px;font-weight:600;color:var(--success-text);margin-bottom:8px;">Evento registrado</div>
-      <div style="font-size:14px;color:var(--text2);margin-bottom:16px;">Tu reporte fue enviado a Diego y José Puente.</div>
+      <div id="swa-conf-recipients" style="font-size:14px;color:var(--text2);margin-bottom:16px;">Tu reporte será enviado al Departamento de Seguridad.</div>
       <div style="background:var(--bg2);border-radius:var(--radius);padding:12px;font-size:13px;color:var(--text2);text-align:left;" id="swa-resumen"></div>
       <button class="btn btn-success" onclick="resetSWA()" style="margin-top:16px;">Cerrar</button>
     </div>
@@ -1450,8 +1472,12 @@ async function submitReport(){
 async function enviarSWA(){
   const sitio=document.getElementById('swa-sitio').value.trim();
   const quien=document.getElementById('swa-quien').value.trim();
+  const foreman=document.getElementById('swa-foreman').value;
+  const superintendente=document.getElementById('swa-super').value;
   const descripcion=document.getElementById('swa-descripcion').value.trim();
   if(!sitio||!quien||!descripcion){alert('Por favor llena el sitio, tu nombre y la descripción.');return;}
+  if(!foreman){alert('Por favor selecciona el Foreman en turno.');return;}
+  if(!superintendente){alert('Por favor selecciona el Superintendente en turno.');return;}
   const swaData={tipo:'swa',id:Date.now(),fecha:document.getElementById('swa-fecha').value,sitio,quien,foreman:document.getElementById('swa-foreman').value,superintendente:document.getElementById('swa-super').value,tipoPeligro:swaChipSelected,descripcion,accion:document.getElementById('swa-accion').value,resolucion:document.getElementById('swa-resolucion').value};
   const msg=document.getElementById('swa-msg');
   msg.style.display='block';msg.textContent='⏳ Enviando...';msg.style.background='var(--info-bg)';msg.style.color='var(--info-text)';
@@ -1459,7 +1485,11 @@ async function enviarSWA(){
     await fetch(SCRIPT_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain'},body:JSON.stringify(swaData)});
     msg.style.display='none';
     document.getElementById('swa-form').style.display='none';
-    document.getElementById('swa-resumen').innerHTML='<strong>Sitio:</strong> '+sitio+'<br><strong>Reportado por:</strong> '+quien+'<br><strong>Estado:</strong> '+(swaData.resolucion||'—');
+    const _foreman=document.getElementById('swa-foreman').value;
+    const _super=document.getElementById('swa-super').value;
+    const recipEl=document.getElementById('swa-conf-recipients');
+    if(recipEl)recipEl.textContent='Notificación enviada al Departamento de Seguridad, Foreman: '+_foreman+' y Superintendente: '+_super+'.';
+    document.getElementById('swa-resumen').innerHTML='<strong>Sitio:</strong> '+sitio+'<br><strong>Reportado por:</strong> '+quien+'<br><strong>Foreman:</strong> '+_foreman+'<br><strong>Superintendente:</strong> '+_super+'<br><strong>Estado:</strong> '+(swaData.resolucion||'—');
     document.getElementById('swa-confirmacion').style.display='block';
   }catch(err){msg.textContent='⚠ Error';msg.style.background='var(--danger-bg)';msg.style.color='var(--danger-text)';}
 }
