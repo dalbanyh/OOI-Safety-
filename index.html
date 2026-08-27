@@ -870,10 +870,9 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
         <div class="sec-label">🔍 Filtrar inspecciones</div>
         <div class="field">
           <label>Jobsite / Proyecto</label>
-          <div class="tp-search" style="height:44px;margin-bottom:0;">
-            <span style="color:var(--text3);">🏗️</span>
-            <input type="text" id="filter-proyecto" placeholder="Buscar por nombre de proyecto..." oninput="filterReports()" autocomplete="off"/>
-          </div>
+          <select id="filter-proyecto" onchange="filterReports()">
+            <option value="">— Todos los proyectos —</option>
+          </select>
         </div>
         <div class="field">
           <label>Foreman / Supervisor</label>
@@ -2079,6 +2078,11 @@ async function loadSuperReports(){
         fsel.innerHTML='<option value="">— Todos los foremen —</option>'+
           json.listas.foremen.map(f=>`<option value="${f}">${f}</option>`).join('');
       }
+      const psel=document.getElementById('filter-proyecto');
+      if(psel && json.listas.proyectos){
+        psel.innerHTML='<option value="">— Todos los proyectos —</option>'+
+          json.listas.proyectos.map(p=>`<option value="${p}">${p}</option>`).join('');
+      }
     }
     if(!json.reports||!json.reports.length){empty.style.display='block';return;}
     window._ssReports=json.reports;
@@ -2546,7 +2550,7 @@ function filterReports(){
 
   let list = window._ssReports;
 
-  if(q) list = list.filter(r=>r.proyecto.toLowerCase().includes(q));
+  if(q) list = list.filter(r=>r.proyecto.toLowerCase().includes(q.toLowerCase()));
   if(foreman) list = list.filter(r=>r.supervisor===foreman);
   if(statusFilter==='bad') list = list.filter(r=>r.hasBad);
   if(statusFilter==='ok') list = list.filter(r=>!r.hasBad);
