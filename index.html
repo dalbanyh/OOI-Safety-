@@ -576,7 +576,7 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
       <div class="card">
         <div class="sec-label">Información del evento</div>
         <div class="field"><label>Fecha</label><input type="date" id="swa-fecha"/></div>
-        <div class="field"><label>Proyecto / Sitio</label><input type="text" id="swa-sitio" placeholder="Nombre del proyecto o sitio" autocomplete="off"/></div>
+        <div class="field"><label>Proyecto / Sitio</label><select id="swa-sitio"><option value="">— Selecciona proyecto —</option></select></div>
         <div class="field"><label>¿Quién paró el trabajo?</label><input type="text" id="swa-quien" placeholder="Tu nombre" autocomplete="off"/></div>
         <div class="field"><label>Foreman / Supervisor en turno <span style="color:var(--swa);">*</span></label><select id="swa-foreman"><option value="">— Selecciona foreman —</option></select></div>
         <div class="field"><label>Superintendente en turno <span style="color:var(--swa);">*</span></label><select id="swa-super"><option value="">— Selecciona superintendente —</option></select></div>
@@ -687,7 +687,7 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
       <div class="field"><label>Nombre del operador</label><select id="f-op"><option value="">— Selecciona operador —</option></select></div>
       <div class="field"><label>Supervisor / Foreman</label><select id="f-sup"><option value="">— Selecciona foreman —</option></select></div>
       <div class="field"><label>Número de máquina</label><select id="f-maq"><option value="">— Selecciona máquina —</option></select></div>
-      <div class="field"><label>Nombre del proyecto</label><input type="text" id="f-proy" placeholder="Ej. Metro Line 3" autocomplete="off"/></div>
+      <div class="field"><label>Proyecto activo</label><select id="f-proy"><option value="">— Selecciona proyecto —</option></select></div>
       <div class="field"><label>Fecha</label><input type="date" id="f-fecha"/></div>
       <div class="grid2">
         <div class="field"><label>Horas inicio</label><input type="text" id="f-hi" placeholder="07:00" inputmode="numeric"/></div>
@@ -724,7 +724,7 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
           <div class="sec-label">Información general</div>
           <div class="field"><label>Operador</label><select id="sc-op"><option value="">— Selecciona operador —</option></select></div>
           <div class="field"><label>Supervisor / Foreman</label><select id="sc-sup"><option value="">— Selecciona foreman —</option></select></div>
-          <div class="field"><label>Proyecto</label><input type="text" id="sc-proy" placeholder="Nombre del proyecto" autocomplete="off"/></div>
+          <div class="field"><label>Proyecto activo</label><select id="sc-proy"><option value="">— Selecciona proyecto —</option></select></div>
           <div class="field"><label>Fecha</label><input type="date" id="sc-fecha"/></div>
         </div>
 
@@ -751,7 +751,7 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
           <div class="sec-label">Información general</div>
           <div class="field"><label>Operador</label><select id="sct-op"><option value="">— Selecciona operador —</option></select></div>
           <div class="field"><label>Supervisor / Foreman</label><select id="sct-sup"><option value="">— Selecciona foreman —</option></select></div>
-          <div class="field"><label>Proyecto</label><input type="text" id="sct-proy" placeholder="Nombre del proyecto" autocomplete="off"/></div>
+          <div class="field"><label>Proyecto activo</label><select id="sct-proy"><option value="">— Selecciona proyecto —</option></select></div>
           <div class="field"><label>Número de equipo</label><input type="text" id="sct-equipo" placeholder="Ej. T-01" autocomplete="off"/></div>
           <div class="field"><label>Fecha</label><input type="date" id="sct-fecha"/></div>
           <div class="grid2">
@@ -805,23 +805,96 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
 <!-- ── SUPER PANEL ── -->
 <div id="s-super" class="screen">
   <div class="bottom-nav">
-    <button class="bottom-nav-back" onclick="show('s-login')">← Inicio</button>
-    <span class="bottom-nav-title">Panel del Superintendente</span>
+    <button class="bottom-nav-back" onclick="superBack()">← Atrás</button>
+    <span class="bottom-nav-title" id="super-bottom-title">Panel del Superintendente</span>
   </div>
-  <div class="tp-topbar">
-    <div>
-      <div class="tp-title">Superintendente</div>
-      <div class="tp-subtitle">Oscar Orduno, Inc.</div>
+
+  <!-- SUPER SELECTION SCREEN -->
+  <div id="super-selection-screen">
+    <div style="height:5px;width:calc(100% + 0px);background:linear-gradient(90deg,#0b0b0c 0%,#0b0b0c 55%,#E8611A 55%,#E8611A 100%);position:sticky;top:0;z-index:10;"></div>
+    <div style="background:var(--ooi-black);padding:16px;padding-top:20px;position:sticky;top:5px;z-index:9;">
+      <div style="font-family:'Sora',sans-serif;font-size:20px;font-weight:800;color:#fff;">Superintendente</div>
+      <div style="font-size:11px;color:rgba(255,255,255,0.45);text-transform:uppercase;letter-spacing:0.08em;">Oscar Orduno, Inc. — Safety</div>
     </div>
-    <div class="tp-tabs" style="gap:2px;">
-      <button class="tp-tab active" id="tab-insp" onclick="superTab('insp')">📋</button>
-      <button class="tp-tab" id="tab-train" onclick="superTab('train')">🎓</button>
-      <button class="tp-tab" id="tab-forms" onclick="superTab('forms')">📝</button>
+    <div style="max-width:480px;margin:0 auto;padding:20px 16px 80px;">
+      <div style="font-size:11px;font-weight:700;color:var(--ooi-orange);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:14px;">¿Qué deseas ver?</div>
+
+      <button class="role-btn" onclick="superTab('insp')" style="min-height:80px;">
+        <div class="role-icon" style="background:#FDE9DD;width:52px;height:52px;border-radius:12px;font-size:26px;">📋</div>
+        <div style="flex:1;">
+          <div style="font-family:'Sora',sans-serif;font-size:17px;font-weight:800;">Inspecciones</div>
+          <div style="font-size:13px;color:var(--text2);margin-top:2px;">Ver y filtrar por jobsite, foreman o superintendente</div>
+        </div>
+        <span class="role-arrow">›</span>
+      </button>
+
+      <button class="role-btn" onclick="superTab('train')" style="min-height:80px;">
+        <div class="role-icon" style="background:#E1F5EE;width:52px;height:52px;border-radius:12px;font-size:26px;">🎓</div>
+        <div style="flex:1;">
+          <div style="font-family:'Sora',sans-serif;font-size:17px;font-weight:800;">Entrenamientos</div>
+          <div style="font-size:13px;color:var(--text2);margin-top:2px;">Certificaciones, vencimientos y Drive</div>
+        </div>
+        <span class="role-arrow">›</span>
+      </button>
+
+      <button class="role-btn" onclick="superTab('fittest')" style="min-height:80px;">
+        <div class="role-icon" style="background:#F3E8FF;width:52px;height:52px;border-radius:12px;font-size:26px;">🫁</div>
+        <div style="flex:1;">
+          <div style="font-family:'Sora',sans-serif;font-size:17px;font-weight:800;">Fit Test</div>
+          <div style="font-size:13px;color:var(--text2);margin-top:2px;">Programa de Respiradores — Historial</div>
+        </div>
+        <span class="role-arrow">›</span>
+      </button>
+
+      <button class="role-btn" onclick="superTab('forms')" style="min-height:80px;">
+        <div class="role-icon" style="background:#FDE9DD;width:52px;height:52px;border-radius:12px;font-size:26px;">📝</div>
+        <div style="flex:1;">
+          <div style="font-family:'Sora',sans-serif;font-size:17px;font-weight:800;">Field Test</div>
+          <div style="font-size:13px;color:var(--text2);margin-top:2px;">Evaluación de operadores — Field Evaluation</div>
+        </div>
+        <span class="role-arrow">›</span>
+      </button>
     </div>
   </div>
   <!-- Inspections sub-panel -->
   <div id="super-insp-panel">
     <div class="container" style="padding-top:14px;">
+
+      <!-- Back button and title -->
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">
+        <div style="font-family:'Sora',sans-serif;font-size:18px;font-weight:800;">📋 Inspecciones</div>
+      </div>
+
+      <!-- FILTERS CARD -->
+      <div class="card" style="margin-bottom:14px;">
+        <div class="sec-label">🔍 Filtrar inspecciones</div>
+        <div class="field">
+          <label>Jobsite / Proyecto</label>
+          <div class="tp-search" style="height:44px;margin-bottom:0;">
+            <span style="color:var(--text3);">🏗️</span>
+            <input type="text" id="filter-proyecto" placeholder="Buscar por nombre de proyecto..." oninput="filterReports()" autocomplete="off"/>
+          </div>
+        </div>
+        <div class="field">
+          <label>Foreman / Supervisor</label>
+          <select id="filter-foreman" onchange="filterReports()">
+            <option value="">— Todos los foremen —</option>
+          </select>
+        </div>
+        <div class="field" style="margin-bottom:0;">
+          <label>Estado</label>
+          <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:4px;">
+            <button class="tp-chip on" id="filter-all" onclick="setStatusFilter('all',this)">Todos</button>
+            <button class="tp-chip" id="filter-bad" onclick="setStatusFilter('bad',this)">⚠ Con problemas</button>
+            <button class="tp-chip" id="filter-ok" onclick="setStatusFilter('ok',this)">✓ Sin problemas</button>
+            <button class="tp-chip" id="filter-today" onclick="setStatusFilter('today',this)">📅 Hoy</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Results count -->
+      <div id="ss-filter-count" style="font-size:12px;color:var(--text2);margin-bottom:10px;font-weight:600;"></div>
+
       <div class="stat-grid">
         <div class="stat-card"><div class="stat-num" id="ss-total">—</div><div class="stat-lbl">Total reportes</div></div>
         <div class="stat-card"><div class="stat-num" id="ss-hoy">—</div><div class="stat-lbl">Hoy</div></div>
@@ -954,7 +1027,17 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
         <button class="btn btn-ghost" onclick="tpCloseDetail()" style="margin-top:4px;">← Regresar a lista</button>
       </div>
 
-      <button class="btn btn-ghost" onclick="show('s-login')" style="margin-top:16px;">← Salir</button>
+      <button class="btn btn-ghost" onclick="superBack()" style="margin-top:16px;">← Atrás</button>
+    </div>
+  </div>
+
+  <!-- FIT TEST sub-panel for super -->
+  <div id="super-fittest-panel" style="display:none;">
+    <div style="max-width:480px;margin:0 auto;padding:14px 16px 80px;">
+      <div style="font-family:'Sora',sans-serif;font-size:18px;font-weight:800;margin-bottom:14px;">🫁 Programa de Respiradores</div>
+      <div style="font-size:13px;color:var(--text2);margin-bottom:14px;">Historial de todos los Fit Tests:</div>
+      <div id="super-fittest-list"><div class="loading">⏳ Cargando...</div></div>
+      <button class="btn btn-ghost" onclick="superBack()" style="margin-top:16px;">← Atrás</button>
     </div>
   </div>
 </div>
@@ -1198,7 +1281,7 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
           <div class="sec-label">Información de la solicitud</div>
           <div class="field"><label>Nombre del trabajador</label><select id="fittest-trabajador"><option value="">— Selecciona trabajador —</option></select></div>
           <div class="field"><label>Foreman que lo envía</label><select id="fittest-foreman"><option value="">— Selecciona foreman —</option></select></div>
-          <div class="field"><label>Proyecto / Sitio</label><input type="text" id="fittest-proyecto" placeholder="Nombre del proyecto" autocomplete="off"/></div>
+          <div class="field"><label>Proyecto / Sitio</label><select id="fittest-proyecto"><option value="">— Selecciona proyecto —</option></select></div>
           <div class="field"><label>Fecha</label><input type="date" id="fittest-fecha"/></div>
           <div class="field" style="margin-bottom:0;"><label>Razón del Fit Test</label>
             <select id="fittest-razon">
@@ -1764,6 +1847,14 @@ async function cargarListas(){
       buildDropdown(document.getElementById('f-maq'),json.listas.maquinas,'Selecciona máquina');
       buildDropdown(document.getElementById('swa-foreman'),json.listas.foremen,'Selecciona foreman');
       buildDropdown(document.getElementById('swa-super'),json.listas.superintendentes||[],'Selecciona superintendente');
+      // Populate project dropdowns
+      const proyectos = json.listas.proyectos||[];
+      ['f-proy','sc-proy','sct-proy','swa-sitio','fittest-proyecto'].forEach(id=>{
+        const el=document.getElementById(id);
+        if(el && el.tagName==='SELECT'){
+          buildDropdown(el, proyectos, 'Selecciona proyecto');
+        }
+      });
     }
   }catch(err){}
 }
@@ -1981,9 +2072,18 @@ async function loadSuperReports(){
     const res=await fetch(SCRIPT_URL+'?t='+Date.now());
     const json=await res.json();
     loading.style.display='none';
-    if(json.listas)listasGlobal=json.listas;
+    if(json.listas){
+      listasGlobal=json.listas;
+      const fsel=document.getElementById('filter-foreman');
+      if(fsel && json.listas.foremen){
+        fsel.innerHTML='<option value="">— Todos los foremen —</option>'+
+          json.listas.foremen.map(f=>`<option value="${f}">${f}</option>`).join('');
+      }
+    }
     if(!json.reports||!json.reports.length){empty.style.display='block';return;}
     window._ssReports=json.reports;
+    const countEl=document.getElementById('ss-filter-count');
+    if(countEl) countEl.textContent=json.reports.length+' inspecciones totales';
     renderReportsList(json.reports,'ss-total','ss-hoy','ss-ok','ss-bad','ss-rep-list','ss-rep-empty','ss-detail-area');
   }catch(err){loading.style.display='none';}
 }
@@ -2364,31 +2464,126 @@ function ftGenerarPDF(data, resultado, passCount, failCount){
   }
 }
 
-// Extend superTab to handle forms
-const _origSuperTab = superTab;
+// ── SUPER TAB NAVIGATION ──
+let currentSuperTab = '';
+
+function superBack(){
+  const sel = document.getElementById('super-selection-screen');
+  const panels = ['super-insp-panel','super-train-panel','super-fittest-panel'];
+  const anyVisible = panels.some(p=>{
+    const el=document.getElementById(p);
+    return el && el.style.display !== 'none';
+  });
+  if(anyVisible || currentSuperTab){
+    // Go back to selection
+    if(sel) sel.style.display = 'block';
+    panels.forEach(p=>{const el=document.getElementById(p);if(el)el.style.display='none';});
+    currentSuperTab = '';
+    const bt=document.getElementById('super-bottom-title');
+    if(bt) bt.textContent='Panel del Superintendente';
+  } else {
+    show('s-login');
+  }
+}
+
 function superTab(tab){
-  // Update tab buttons
-  const tabInsp=document.getElementById('tab-insp');
-  const tabTrain=document.getElementById('tab-train');
-  const tabForms=document.getElementById('tab-forms');
-  if(tabInsp)tabInsp.className='tp-tab'+(tab==='insp'?' active':'');
-  if(tabTrain)tabTrain.className='tp-tab'+(tab==='train'?' active':'');
-  if(tabForms)tabForms.className='tp-tab'+(tab==='forms'?' active':'');
+  currentSuperTab = tab;
+  const sel = document.getElementById('super-selection-screen');
+  if(sel) sel.style.display = 'none';
 
-  // Show/hide panels
-  const inspPanel=document.getElementById('super-insp-panel');
-  const trainPanel=document.getElementById('super-train-panel');
+  // Hide all panels
+  ['super-insp-panel','super-train-panel','super-fittest-panel'].forEach(p=>{
+    const el=document.getElementById(p);if(el)el.style.display='none';
+  });
 
-  if(inspPanel)inspPanel.style.display=tab==='insp'?'block':'none';
-  if(trainPanel)trainPanel.style.display=tab==='train'?'block':'none';
+  const bt=document.getElementById('super-bottom-title');
 
   if(tab==='forms'){
     show('s-forms');
     initForms();
     return;
   }
-  if(tab==='train') tpInit();
-  if(tab==='insp') loadSuperReports();
+
+  // Make sure we're on s-super
+  show('s-super');
+
+  if(tab==='insp'){
+    if(bt) bt.textContent='📋 Inspecciones';
+    const panel=document.getElementById('super-insp-panel');
+    if(panel) panel.style.display='block';
+    loadSuperReports();
+  } else if(tab==='train'){
+    if(bt) bt.textContent='🎓 Entrenamientos';
+    const panel=document.getElementById('super-train-panel');
+    if(panel) panel.style.display='block';
+    tpInit();
+  } else if(tab==='fittest'){
+    if(bt) bt.textContent='🫁 Fit Test';
+    const panel=document.getElementById('super-fittest-panel');
+    if(panel) panel.style.display='block';
+    loadSuperFitTests();
+  }
+  window.scrollTo(0,0);
+}
+
+// ── INSPECTION FILTERS ──
+let statusFilter = 'all';
+
+function setStatusFilter(val, btn){
+  statusFilter = val;
+  document.querySelectorAll('[id^="filter-"]').forEach(b=>{
+    if(b.tagName==='BUTTON') b.classList.remove('on');
+  });
+  btn.classList.add('on');
+  filterReports();
+}
+
+function filterReports(){
+  if(!window._ssReports) return;
+  const q = (document.getElementById('filter-proyecto')?.value||'').toLowerCase().trim();
+  const foreman = document.getElementById('filter-foreman')?.value||'';
+  const today = new Date().toISOString().split('T')[0];
+
+  let list = window._ssReports;
+
+  if(q) list = list.filter(r=>r.proyecto.toLowerCase().includes(q));
+  if(foreman) list = list.filter(r=>r.supervisor===foreman);
+  if(statusFilter==='bad') list = list.filter(r=>r.hasBad);
+  if(statusFilter==='ok') list = list.filter(r=>!r.hasBad);
+  if(statusFilter==='today') list = list.filter(r=>String(r.fecha)===today);
+
+  const countEl = document.getElementById('ss-filter-count');
+  if(countEl) countEl.textContent = list.length + ' inspección' + (list.length!==1?'es':'') + ' encontrada' + (list.length!==1?'s':'');
+
+  renderReportsList(list,'ss-total','ss-hoy','ss-ok','ss-bad','ss-rep-list','ss-rep-empty','ss-detail-area');
+}
+
+async function loadSuperFitTests(){
+  const listEl = document.getElementById('super-fittest-list');
+  try{
+    const res = await fetch(SCRIPT_URL+'?action=fittest&t='+Date.now());
+    const json = await res.json();
+    const all = json.fittests||[];
+    if(!all.length){
+      listEl.innerHTML='<div class="empty-state"><div class="icon">🫁</div><div>No hay solicitudes de Fit Test aún.</div></div>';
+      return;
+    }
+    listEl.innerHTML = all.map(r=>`
+      <div class="card" style="margin-bottom:10px;border-left:3px solid ${r.status==='Completado'?'var(--g5)':r.status==='Agendado'?'var(--a3)':'var(--swa)'};">
+        <div style="display:flex;align-items:flex-start;gap:10px;">
+          <div style="flex:1;">
+            <div style="font-size:15px;font-weight:700;">🫁 ${r.trabajador}</div>
+            <div style="font-size:12px;color:var(--text2);margin-top:2px;">${r.proyecto||'—'} · ${r.razon||'—'}</div>
+            <div style="font-size:11px;color:var(--text3);margin-top:2px;">${r.fecha} · Foreman: ${r.foreman||'—'}</div>
+          </div>
+          <span class="badge ${r.status==='Completado'?'badge-ok':r.status==='Agendado'?'badge-pending':'badge-bad'}">
+            ${r.status==='Completado'?'✅ Completado':r.status==='Agendado'?'🟡 Agendado':'🔴 Pendiente'}
+          </span>
+        </div>
+      </div>`).join('');
+  }catch(err){
+    listEl.innerHTML='<div style="color:var(--danger-text);padding:20px;text-align:center;font-size:13px;">Error cargando registros.</div>';
+  }
 }
 
 
@@ -2677,8 +2872,10 @@ function initShotcrete(){
   setTimeout(()=>{
     buildDropdown(document.getElementById('sc-op'), listasGlobal.operadores, 'Selecciona operador');
     buildDropdown(document.getElementById('sc-sup'), listasGlobal.foremen, 'Selecciona foreman');
+    buildDropdown(document.getElementById('sc-proy'), listasGlobal.proyectos||[], 'Selecciona proyecto');
     buildDropdown(document.getElementById('sct-op'), listasGlobal.operadores, 'Selecciona operador');
     buildDropdown(document.getElementById('sct-sup'), listasGlobal.foremen, 'Selecciona foreman');
+    buildDropdown(document.getElementById('sct-proy'), listasGlobal.proyectos||[], 'Selecciona proyecto');
   }, 800);
 
   // Build compresor items
@@ -2923,6 +3120,7 @@ function initFitTest(){
   // Load dropdowns from listas
   buildDropdown(document.getElementById('fittest-trabajador'), listasGlobal.operadores||[], 'Selecciona trabajador');
   buildDropdown(document.getElementById('fittest-foreman'), listasGlobal.foremen||[], 'Selecciona foreman');
+  buildDropdown(document.getElementById('fittest-proyecto'), listasGlobal.proyectos||[], 'Selecciona proyecto');
 
   // Load history
   loadFitTestHistory();
