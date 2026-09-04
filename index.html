@@ -3588,45 +3588,56 @@ async function loadTrainingRequests(tab){
     // Summary view — grouped by training type
     if(tab==='summary'){
       const summary = json.summary||[];
+      const requests = json.requests||[];
       if(!summary.length){
         summaryEl.innerHTML='<div class="empty-state"><div class="icon">📚</div><div>No hay solicitudes aun.</div></div>';
         return;
       }
-      // Build per-employee super mapping from requests
-      const reqMap = {};
-      (json.requests||[]).forEach(r=>{
-        if(!reqMap[r.entrenamiento]) reqMap[r.entrenamiento]=[];
-        reqMap[r.entrenamiento].push({empleado:r.empleado, super_:r.superintendente});
+
+      // Build per-training mapping from raw requests
+      const trainingMap = {};
+      requests.forEach(r=>{
+        const tipo = r.entrenamiento||'Sin tipo';
+        if(!trainingMap[tipo]) trainingMap[tipo]=[];
+        trainingMap[tipo].push({empleado:r.empleado, superintendente:r.superintendente, fecha:r.fecha, proyecto:r.proyecto});
       });
 
-      summaryEl.innerHTML=summary.map((s,idx)=>{
-        const pct=Math.min(100,Math.round((s.count/8)*100));
-        const isReady=s.count>=8;
-        const barColor=isReady?'var(--g5)':s.count>=5?'var(--a3)':'var(--swa)';
-        const entries=reqMap[s.entrenamiento]||[];
-        const empRows=entries.map(e=>`
-          <div style="display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:0.5px solid var(--border);font-size:13px;">
-            <span style="font-weight:500;">👷 ${e.empleado}</span>
-            <span style="font-size:11px;color:var(--text2);">Super: ${e.super_||'—'}</span>
+      // Sort by count descending
+      const sorted = Object.keys(trainingMap).sort((a,b)=>trainingMap[b].length-trainingMap[a].length);
+
+      summaryEl.innerHTML=sorted.map(tipo=>{
+        const entries = trainingMap[tipo];
+        const count = entries.length;
+        const pct = Math.min(100,Math.round((count/8)*100));
+        const isReady = count>=8;
+        const barColor = isReady?'var(--g5)':count>=5?'var(--a3)':'var(--swa)';
+
+        const empRows = entries.map(e=>`
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:0.5px solid var(--border);">
+            <div style="font-size:13px;font-weight:600;">👷 ${e.empleado||'—'}</div>
+            <div style="text-align:right;">
+              <div style="font-size:12px;color:var(--text2);">Super: ${e.superintendente||'—'}</div>
+              <div style="font-size:11px;color:var(--text3);">${e.proyecto||''}</div>
+            </div>
           </div>`).join('');
 
         return`<div class="card" style="margin-bottom:12px;border-color:${isReady?'var(--g5)':'var(--border)'};">
           <div onclick="const d=this.nextElementSibling;d.style.display=d.style.display==='none'?'block':'none';" style="cursor:pointer;">
             <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
               <div style="flex:1;">
-                <div style="font-family:'Sora',sans-serif;font-size:16px;font-weight:800;">📚 ${s.entrenamiento}</div>
-                <div style="font-size:12px;color:var(--text2);margin-top:2px;">${s.count} empleado${s.count!==1?'s':''} solicitado${s.count!==1?'s':''}</div>
+                <div style="font-family:'Sora',sans-serif;font-size:17px;font-weight:800;">📚 ${tipo}</div>
+                <div style="font-size:12px;color:var(--text2);margin-top:2px;">${count} empleado${count!==1?'s':''} solicitado${count!==1?'s':''}</div>
               </div>
-              <span class="badge" style="background:${isReady?'var(--success-bg)':s.count>=5?'var(--warning-bg)':'var(--danger-bg)'};color:${isReady?'var(--success-text)':s.count>=5?'var(--warning-text)':'var(--danger-text)'};font-size:14px;padding:6px 14px;font-weight:800;">
-                ${s.count}/8${isReady?' ✅':''}
+              <span style="background:${isReady?'var(--success-bg)':count>=5?'var(--warning-bg)':'var(--danger-bg)'};color:${isReady?'var(--success-text)':count>=5?'var(--warning-text)':'var(--danger-text)'};font-family:'Sora',sans-serif;font-size:16px;font-weight:800;padding:8px 14px;border-radius:99px;">
+                ${count}/8${isReady?' ✅':''}
               </span>
             </div>
             <div style="background:var(--bg2);border-radius:99px;height:10px;overflow:hidden;margin-bottom:4px;">
               <div style="height:100%;width:${pct}%;background:${barColor};border-radius:99px;"></div>
             </div>
-            <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text3);">
-              <span>${isReady?'✅ Listo para agendar':'Faltan '+(8-s.count)+' para notificar'}</span>
-              <span style="color:var(--ooi-orange);font-weight:600;">Ver ${s.count} empleado${s.count!==1?'s':''} ▾</span>
+            <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text3);margin-top:4px;">
+              <span>${isReady?'✅ Listo para agendar':'Faltan '+(8-count)+' para notificar'}</span>
+              <span style="color:var(--ooi-orange);font-weight:700;">Ver ${count} empleado${count!==1?'s':''} ▾</span>
             </div>
           </div>
           <div style="display:none;margin-top:12px;border-top:1px solid var(--border);padding-top:10px;">
