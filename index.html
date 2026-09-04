@@ -3585,28 +3585,54 @@ async function loadTrainingRequests(tab){
     const res = await fetch(SCRIPT_URL+'?action=training_requests&t='+Date.now());
     const json = await res.json();
 
-    // Summary view
+    // Summary view — grouped by training type
     if(tab==='summary'){
       const summary = json.summary||[];
       if(!summary.length){
         summaryEl.innerHTML='<div class="empty-state"><div class="icon">📚</div><div>No hay solicitudes aun.</div></div>';
         return;
       }
-      summaryEl.innerHTML=summary.map(s=>{
+      // Build per-employee super mapping from requests
+      const reqMap = {};
+      (json.requests||[]).forEach(r=>{
+        if(!reqMap[r.entrenamiento]) reqMap[r.entrenamiento]=[];
+        reqMap[r.entrenamiento].push({empleado:r.empleado, super_:r.superintendente});
+      });
+
+      summaryEl.innerHTML=summary.map((s,idx)=>{
         const pct=Math.min(100,Math.round((s.count/8)*100));
-        const color=s.count>=8?'var(--g5)':s.count>=5?'var(--a3)':'var(--swa)';
-        return`<div class="card" style="margin-bottom:10px;">
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
-            <div style="font-size:15px;font-weight:700;">📚 ${s.entrenamiento}</div>
-            <span class="badge" style="background:${s.count>=8?'var(--success-bg)':'var(--warning-bg)'};color:${s.count>=8?'var(--success-text)':'var(--warning-text)'};">
-              ${s.count}/8 ${s.count>=8?'✅ Listo':'pendiente'}
-            </span>
+        const isReady=s.count>=8;
+        const barColor=isReady?'var(--g5)':s.count>=5?'var(--a3)':'var(--swa)';
+        const entries=reqMap[s.entrenamiento]||[];
+        const empRows=entries.map(e=>`
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:0.5px solid var(--border);font-size:13px;">
+            <span style="font-weight:500;">👷 ${e.empleado}</span>
+            <span style="font-size:11px;color:var(--text2);">Super: ${e.super_||'—'}</span>
+          </div>`).join('');
+
+        return`<div class="card" style="margin-bottom:12px;border-color:${isReady?'var(--g5)':'var(--border)'};">
+          <div onclick="const d=this.nextElementSibling;d.style.display=d.style.display==='none'?'block':'none';" style="cursor:pointer;">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+              <div style="flex:1;">
+                <div style="font-family:'Sora',sans-serif;font-size:16px;font-weight:800;">📚 ${s.entrenamiento}</div>
+                <div style="font-size:12px;color:var(--text2);margin-top:2px;">${s.count} empleado${s.count!==1?'s':''} solicitado${s.count!==1?'s':''}</div>
+              </div>
+              <span class="badge" style="background:${isReady?'var(--success-bg)':s.count>=5?'var(--warning-bg)':'var(--danger-bg)'};color:${isReady?'var(--success-text)':s.count>=5?'var(--warning-text)':'var(--danger-text)'};font-size:14px;padding:6px 14px;font-weight:800;">
+                ${s.count}/8${isReady?' ✅':''}
+              </span>
+            </div>
+            <div style="background:var(--bg2);border-radius:99px;height:10px;overflow:hidden;margin-bottom:4px;">
+              <div style="height:100%;width:${pct}%;background:${barColor};border-radius:99px;"></div>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text3);">
+              <span>${isReady?'✅ Listo para agendar':'Faltan '+(8-s.count)+' para notificar'}</span>
+              <span style="color:var(--ooi-orange);font-weight:600;">Ver ${s.count} empleado${s.count!==1?'s':''} ▾</span>
+            </div>
           </div>
-          <div style="background:var(--bg2);border-radius:99px;height:8px;margin-bottom:8px;overflow:hidden;">
-            <div style="height:100%;width:${pct}%;background:${color};border-radius:99px;transition:width 0.3s;"></div>
+          <div style="display:none;margin-top:12px;border-top:1px solid var(--border);padding-top:10px;">
+            <div style="font-size:10px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:8px;">Empleados solicitados</div>
+            ${empRows}
           </div>
-          <div style="font-size:12px;color:var(--text2);">${s.empleados.slice(0,5).join(', ')}${s.empleados.length>5?' y '+(s.empleados.length-5)+' mas':''}</div>
-          <div style="font-size:11px;color:var(--text3);margin-top:2px;">Solicitado por: ${s.superintendentes.join(', ')}</div>
         </div>`;
       }).join('');
     }
