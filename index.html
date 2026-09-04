@@ -1939,27 +1939,58 @@ function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.re
 function toggleChip(btn,val){document.querySelectorAll('#swa-chips .chip').forEach(c=>c.classList.remove('selected'));btn.classList.add('selected');swaChipSelected=val;}
 function buildDropdown(sel,opts,ph){if(!sel)return;sel.innerHTML=`<option value="">— ${ph} —</option>`+opts.map(o=>`<option value="${o}">${o}</option>`).join('');}
 
-async function cargarListas(){
+async function cargarListas(retry=0){
   try{
     const res=await fetch(SCRIPT_URL+'?t='+Date.now());
     const json=await res.json();
     if(json.listas){
       listasGlobal=json.listas;
-      buildDropdown(document.getElementById('f-op'),json.listas.operadores,'Selecciona operador');
-      buildDropdown(document.getElementById('f-sup'),json.listas.foremen,'Selecciona foreman');
-      buildDropdown(document.getElementById('f-maq'),json.listas.maquinas,'Selecciona máquina');
-      buildDropdown(document.getElementById('swa-foreman'),json.listas.foremen,'Selecciona foreman');
-      buildDropdown(document.getElementById('swa-super'),json.listas.superintendentes||[],'Selecciona superintendente');
-      // Populate project dropdowns
-      const proyectos = json.listas.proyectos||[];
-      ['f-proy','sc-proy','sct-proy','swa-sitio','fittest-proyecto'].forEach(id=>{
-        const el=document.getElementById(id);
-        if(el && el.tagName==='SELECT'){
-          buildDropdown(el, proyectos, 'Selecciona proyecto');
-        }
-      });
+      poblarTodosLosDropdowns(json.listas);
+    } else if(retry<2){
+      setTimeout(()=>cargarListas(retry+1), 2000);
     }
-  }catch(err){}
+  }catch(err){
+    if(retry<2) setTimeout(()=>cargarListas(retry+1), 2000);
+  }
+}
+
+function poblarTodosLosDropdowns(listas){
+  // Operator screen
+  buildDropdown(document.getElementById('f-op'), listas.operadores||[], 'Selecciona operador');
+  buildDropdown(document.getElementById('f-sup'), listas.foremen||[], 'Selecciona foreman');
+  buildDropdown(document.getElementById('f-maq'), listas.maquinas||[], 'Selecciona maquina');
+
+  // SWA
+  buildDropdown(document.getElementById('swa-foreman'), listas.foremen||[], 'Selecciona foreman');
+  buildDropdown(document.getElementById('swa-super'), listas.superintendentes||[], 'Selecciona superintendente');
+
+  // Projects everywhere
+  const proyectos = listas.proyectos||[];
+  ['f-proy','sc-proy','sct-proy','swa-sitio','fittest-proyecto','tr-proyecto'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el && el.tagName==='SELECT') buildDropdown(el, proyectos, 'Selecciona proyecto');
+  });
+
+  // Shotcrete
+  buildDropdown(document.getElementById('sc-op'), listas.operadores||[], 'Selecciona operador');
+  buildDropdown(document.getElementById('sc-sup'), listas.foremen||[], 'Selecciona foreman');
+  buildDropdown(document.getElementById('sct-op'), listas.operadores||[], 'Selecciona operador');
+  buildDropdown(document.getElementById('sct-sup'), listas.foremen||[], 'Selecciona foreman');
+
+  // Fit test foreman
+  buildDropdown(document.getElementById('fittest-trabajador'), listas.operadores||[], 'Selecciona trabajador');
+  buildDropdown(document.getElementById('fittest-foreman'), listas.foremen||[], 'Selecciona foreman');
+
+  // Training requests
+  buildDropdown(document.getElementById('tr-super'), listas.superintendentes||[], 'Selecciona superintendente');
+  buildDropdown(document.getElementById('tr-empleado'), listas.operadores||[], 'Selecciona empleado');
+
+  // Forms / Field test
+  buildDropdown(document.getElementById('ft-operador'), listas.operadores||[], 'Selecciona operador');
+  buildDropdown(document.getElementById('ft-supervisor'), listas.foremen||[], 'Selecciona supervisor');
+
+  // RRHH
+  buildDropdown(document.getElementById('rrhh-trabajador'), listas.operadores||[], 'Selecciona trabajador');
 }
 
 function selectRole(role){
@@ -2320,8 +2351,11 @@ function formsTab(tab){
 
 function initForms(){
   // Load dropdowns
-  buildDropdown(document.getElementById('ft-operador'),listasGlobal.operadores,'Selecciona operador');
-  buildDropdown(document.getElementById('ft-supervisor'),listasGlobal.foremen,'Selecciona supervisor');
+  if(listasGlobal.operadores&&listasGlobal.operadores.length>0){
+    poblarTodosLosDropdowns(listasGlobal);
+  } else {
+    cargarListas();
+  }
   // Set today
   const fd=document.getElementById('ft-fecha');
   if(fd)fd.value=new Date().toISOString().split('T')[0];
@@ -2952,7 +2986,7 @@ function selectMachine(machine){
   if(machine === 'grout'){
     document.getElementById('op-screen-title').textContent = 'Bomba de Gruta';
     const _bt1=document.getElementById('op-bottom-title');if(_bt1)_bt1.textContent='🔧 Bomba de Gruta';
-    buildInspList(); buildSafetyList(); setToday(); cargarListas();
+    buildInspList(); buildSafetyList(); setToday(); cargarListas(); if(listasGlobal.operadores&&listasGlobal.operadores.length>0) poblarTodosLosDropdowns(listasGlobal);
     if(groutEl) groutEl.style.display = 'block';
   } else if(machine === 'shotcrete'){
     document.getElementById('op-screen-title').textContent = 'Shotcrete';
@@ -2982,14 +3016,11 @@ function initShotcrete(){
 
   // Load dropdowns
   cargarListas();
-  setTimeout(()=>{
-    buildDropdown(document.getElementById('sc-op'), listasGlobal.operadores, 'Selecciona operador');
-    buildDropdown(document.getElementById('sc-sup'), listasGlobal.foremen, 'Selecciona foreman');
-    buildDropdown(document.getElementById('sc-proy'), listasGlobal.proyectos||[], 'Selecciona proyecto');
-    buildDropdown(document.getElementById('sct-op'), listasGlobal.operadores, 'Selecciona operador');
-    buildDropdown(document.getElementById('sct-sup'), listasGlobal.foremen, 'Selecciona foreman');
-    buildDropdown(document.getElementById('sct-proy'), listasGlobal.proyectos||[], 'Selecciona proyecto');
-  }, 800);
+  if(listasGlobal.operadores&&listasGlobal.operadores.length>0){
+    poblarTodosLosDropdowns(listasGlobal);
+  } else {
+    cargarListas();
+  }
 
   // Build compresor items
   const compEl = document.getElementById('sc-comp-items');
@@ -3230,10 +3261,12 @@ function initFitTest(){
   const fd = document.getElementById('fittest-fecha');
   if(fd) fd.value = today;
 
-  // Load dropdowns from listas
-  buildDropdown(document.getElementById('fittest-trabajador'), listasGlobal.operadores||[], 'Selecciona trabajador');
-  buildDropdown(document.getElementById('fittest-foreman'), listasGlobal.foremen||[], 'Selecciona foreman');
-  buildDropdown(document.getElementById('fittest-proyecto'), listasGlobal.proyectos||[], 'Selecciona proyecto');
+  // Load dropdowns - use cached listas or reload
+  if(listasGlobal.operadores&&listasGlobal.operadores.length>0){
+    poblarTodosLosDropdowns(listasGlobal);
+  } else {
+    cargarListas();
+  }
 
   // Load history
   loadFitTestHistory();
@@ -3485,10 +3518,12 @@ function trainingTab(tab){
 function initTraining(){
   trainingTab('request');
   const today=new Date().toISOString().split('T')[0];
-  // Load dropdowns
-  buildDropdown(document.getElementById('tr-super'), listasGlobal.superintendentes||[], 'Selecciona superintendente');
-  buildDropdown(document.getElementById('tr-empleado'), listasGlobal.operadores||[], 'Selecciona empleado');
-  buildDropdown(document.getElementById('tr-proyecto'), listasGlobal.proyectos||[], 'Selecciona proyecto');
+  // Load dropdowns - use cached listas or reload
+  if(listasGlobal.operadores&&listasGlobal.operadores.length>0){
+    poblarTodosLosDropdowns(listasGlobal);
+  } else {
+    cargarListas();
+  }
   // Reset form
   document.getElementById('tr-entrenamiento').selectedIndex=0;
   document.getElementById('tr-notas').value='';
