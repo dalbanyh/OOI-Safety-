@@ -854,6 +854,15 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
         </div>
         <span class="role-arrow">›</span>
       </button>
+
+      <button class="role-btn" onclick="superTab('training')" style="min-height:80px;">
+        <div class="role-icon" style="background:#E1F5EE;width:52px;height:52px;border-radius:12px;font-size:26px;">📚</div>
+        <div style="flex:1;">
+          <div style="font-family:'Sora',sans-serif;font-size:17px;font-weight:800;">Solicitar Entrenamiento</div>
+          <div style="font-size:13px;color:var(--text2);margin-top:2px;">Solicitudes acumuladas — mínimo 8 para agendar</div>
+        </div>
+        <span class="role-arrow">›</span>
+      </button>
     </div>
   </div>
   <!-- Inspections sub-panel -->
@@ -1024,6 +1033,101 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
           <div id="tp-det-trainings"></div>
         </div>
         <button class="btn btn-ghost" onclick="tpCloseDetail()" style="margin-top:4px;">← Regresar a lista</button>
+      </div>
+
+      <button class="btn btn-ghost" onclick="superBack()" style="margin-top:16px;">← Atrás</button>
+    </div>
+  </div>
+
+  <!-- TRAINING REQUESTS sub-panel -->
+  <div id="super-training-panel" style="display:none;">
+    <div style="max-width:480px;margin:0 auto;padding:14px 16px 80px;">
+      <div style="font-family:'Sora',sans-serif;font-size:18px;font-weight:800;margin-bottom:4px;">📚 Solicitar Entrenamiento</div>
+      <div style="font-size:12px;color:var(--text2);margin-bottom:16px;">Notificación automática cuando se acumulen 8 solicitudes del mismo tipo</div>
+
+      <!-- Sub-tabs -->
+      <div style="display:flex;gap:6px;margin-bottom:16px;">
+        <button class="tp-chip on" id="tr-tab-request" onclick="trainingTab('request')">➕ Nueva Solicitud</button>
+        <button class="tp-chip" id="tr-tab-summary" onclick="trainingTab('summary')">📊 Resumen</button>
+        <button class="tp-chip" id="tr-tab-list" onclick="trainingTab('list')">📋 Todas</button>
+      </div>
+
+      <!-- REQUEST PANEL -->
+      <div id="tr-request-panel">
+        <div class="card">
+          <div class="sec-label">Información de la solicitud</div>
+          <div class="field">
+            <label>Superintendente que solicita</label>
+            <select id="tr-super"><option value="">— Selecciona superintendente —</option></select>
+          </div>
+          <div class="field">
+            <label>Empleado a entrenar</label>
+            <select id="tr-empleado"><option value="">— Selecciona empleado —</option></select>
+          </div>
+          <div class="field">
+            <label>Tipo de entrenamiento</label>
+            <select id="tr-entrenamiento">
+              <option value="">— Selecciona entrenamiento —</option>
+              <option value="Boom Lift">Boom Lift</option>
+              <option value="Scissor Lift">Scissor Lift</option>
+              <option value="Skytrack">Skytrack</option>
+              <option value="Forklift">Forklift</option>
+              <option value="Excavator">Excavator</option>
+              <option value="Confined Space">Confined Space</option>
+              <option value="Fall Protection">Fall Protection</option>
+              <option value="CPR First Aid">CPR First Aid</option>
+              <option value="OSHA 10">OSHA 10</option>
+              <option value="OSHA 30">OSHA 30</option>
+              <option value="Rigging and Signaling">Rigging and Signaling</option>
+              <option value="Silica">Silica</option>
+              <option value="Respiratory Protection">Respiratory Protection</option>
+              <option value="Flagger">Flagger</option>
+              <option value="LOTO">LOTO</option>
+              <option value="Grout Pump Operator">Grout Pump Operator</option>
+              <option value="Pier Drill">Pier Drill</option>
+              <option value="Welding and Cutting">Welding and Cutting</option>
+              <option value="Fire Extinguisher">Fire Extinguisher</option>
+              <option value="Otro">Otro</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Proyecto</label>
+            <select id="tr-proyecto"><option value="">— Selecciona proyecto —</option></select>
+          </div>
+          <div class="field" style="margin-bottom:0;">
+            <label>Notas adicionales</label>
+            <textarea id="tr-notas" rows="2" placeholder="Urgencia, contexto adicional..."></textarea>
+          </div>
+        </div>
+
+        <div style="background:var(--g0);border:1px solid var(--g3);border-radius:var(--radius);padding:12px 14px;margin-bottom:14px;font-size:13px;color:var(--g7);">
+          📧 Cuando se acumulen <strong>8 solicitudes</strong> del mismo tipo de entrenamiento, se notificará automáticamente a Diego y José para agendar la capacitación.
+        </div>
+
+        <div class="submit-msg" id="tr-msg"></div>
+        <button class="btn" style="background:var(--g7);color:white;border-color:var(--g7);font-size:16px;min-height:54px;" onclick="enviarTrainingRequest()">
+          📚 Enviar Solicitud de Entrenamiento
+        </button>
+
+        <div id="tr-confirmacion" style="display:none;background:var(--success-bg);border:1px solid var(--success-border);border-radius:var(--radius-lg);padding:20px;text-align:center;margin-top:14px;">
+          <div style="font-size:40px;margin-bottom:10px;">✅</div>
+          <div style="font-family:'Sora',sans-serif;font-size:18px;font-weight:800;color:var(--success-text);margin-bottom:6px;">Solicitud registrada</div>
+          <div style="font-size:13px;color:var(--text2);margin-bottom:4px;" id="tr-conf-count"></div>
+          <div style="font-size:12px;color:var(--text2);">Se notificará cuando se alcancen 8 solicitudes del mismo tipo.</div>
+          <button class="btn" style="background:var(--g7);color:white;border-color:var(--g7);margin-top:14px;" onclick="resetTrainingRequest()">Hacer otra solicitud</button>
+        </div>
+      </div>
+
+      <!-- SUMMARY PANEL -->
+      <div id="tr-summary-panel" style="display:none;">
+        <div style="font-size:13px;color:var(--text2);margin-bottom:12px;">Entrenamientos solicitados agrupados por tipo — ordenados por mayor demanda:</div>
+        <div id="tr-summary-list"><div class="loading">⏳ Cargando...</div></div>
+      </div>
+
+      <!-- ALL REQUESTS PANEL -->
+      <div id="tr-list-panel" style="display:none;">
+        <div style="font-size:13px;color:var(--text2);margin-bottom:12px;">Todas las solicitudes individuales:</div>
+        <div id="tr-all-list"><div class="loading">⏳ Cargando...</div></div>
       </div>
 
       <button class="btn btn-ghost" onclick="superBack()" style="margin-top:16px;">← Atrás</button>
@@ -2473,7 +2577,7 @@ let currentSuperTab = '';
 
 function superBack(){
   const sel = document.getElementById('super-selection-screen');
-  const panels = ['super-insp-panel','super-train-panel','super-fittest-panel'];
+  const panels = ['super-insp-panel','super-train-panel','super-fittest-panel','super-training-panel'];
   const anyVisible = panels.some(p=>{
     const el=document.getElementById(p);
     return el && el.style.display !== 'none';
@@ -2496,7 +2600,7 @@ function superTab(tab){
   if(sel) sel.style.display = 'none';
 
   // Hide all panels
-  ['super-insp-panel','super-train-panel','super-fittest-panel'].forEach(p=>{
+  ['super-insp-panel','super-train-panel','super-fittest-panel','super-training-panel'].forEach(p=>{
     const el=document.getElementById(p);if(el)el.style.display='none';
   });
 
@@ -2526,6 +2630,11 @@ function superTab(tab){
     const panel=document.getElementById('super-fittest-panel');
     if(panel) panel.style.display='block';
     loadSuperFitTests();
+  } else if(tab==='training'){
+    if(bt) bt.textContent='Solicitar Entrenamiento';
+    const panel=document.getElementById('super-training-panel');
+    if(panel) panel.style.display='block';
+    initTraining();
   }
   window.scrollTo(0,0);
 }
@@ -3361,6 +3470,131 @@ function resetRRHH(){
   const cards=document.getElementById('rrhh-upload-panel').querySelectorAll('.card');
   cards.forEach(c=>c.style.display='block');
   document.getElementById('rrhh-msg').style.display='none';
+}
+
+
+// ── TRAINING REQUESTS ──
+function trainingTab(tab){
+  ['request','summary','list'].forEach(t=>{
+    document.getElementById('tr-tab-'+t).className='tp-chip'+(tab===t?' on':'');
+    document.getElementById('tr-'+t+'-panel').style.display=tab===t?'block':'none';
+  });
+  if(tab==='summary'||tab==='list') loadTrainingRequests(tab);
+}
+
+function initTraining(){
+  trainingTab('request');
+  const today=new Date().toISOString().split('T')[0];
+  // Load dropdowns
+  buildDropdown(document.getElementById('tr-super'), listasGlobal.superintendentes||[], 'Selecciona superintendente');
+  buildDropdown(document.getElementById('tr-empleado'), listasGlobal.operadores||[], 'Selecciona empleado');
+  buildDropdown(document.getElementById('tr-proyecto'), listasGlobal.proyectos||[], 'Selecciona proyecto');
+  // Reset form
+  document.getElementById('tr-entrenamiento').selectedIndex=0;
+  document.getElementById('tr-notas').value='';
+  document.getElementById('tr-confirmacion').style.display='none';
+  document.getElementById('tr-msg').style.display='none';
+}
+
+async function enviarTrainingRequest(){
+  const super_ = document.getElementById('tr-super').value;
+  const empleado = document.getElementById('tr-empleado').value;
+  const entrenamiento = document.getElementById('tr-entrenamiento').value;
+  const proyecto = document.getElementById('tr-proyecto').value;
+
+  if(!super_){alert('Por favor selecciona el superintendente.');return;}
+  if(!empleado){alert('Por favor selecciona el empleado.');return;}
+  if(!entrenamiento){alert('Por favor selecciona el tipo de entrenamiento.');return;}
+
+  const payload = {
+    tipo: 'training_request',
+    id: Date.now(),
+    fecha: new Date().toISOString().split('T')[0],
+    empleado, superintendente: super_,
+    entrenamiento, proyecto,
+    notas: document.getElementById('tr-notas').value.trim()
+  };
+
+  const msg = document.getElementById('tr-msg');
+  msg.style.display='block';
+  msg.textContent='Enviando solicitud...';
+  msg.style.background='var(--info-bg)';msg.style.color='var(--info-text)';
+
+  try{
+    const res = await fetch(SCRIPT_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain'},body:JSON.stringify(payload)});
+    msg.style.display='none';
+    document.getElementById('tr-conf-count').textContent=
+      'Solicitud para '+entrenamiento+' registrada correctamente para '+empleado+'.';
+    document.getElementById('tr-confirmacion').style.display='block';
+    window.scrollTo(0,0);
+  }catch(err){
+    msg.textContent='Error de conexion — intenta de nuevo';
+    msg.style.background='var(--danger-bg)';msg.style.color='var(--danger-text)';
+  }
+}
+
+function resetTrainingRequest(){
+  document.getElementById('tr-super').selectedIndex=0;
+  document.getElementById('tr-empleado').selectedIndex=0;
+  document.getElementById('tr-entrenamiento').selectedIndex=0;
+  document.getElementById('tr-proyecto').selectedIndex=0;
+  document.getElementById('tr-notas').value='';
+  document.getElementById('tr-confirmacion').style.display='none';
+  document.getElementById('tr-msg').style.display='none';
+}
+
+async function loadTrainingRequests(tab){
+  const summaryEl = document.getElementById('tr-summary-list');
+  const listEl = document.getElementById('tr-all-list');
+  try{
+    const res = await fetch(SCRIPT_URL+'?action=training_requests&t='+Date.now());
+    const json = await res.json();
+
+    // Summary view
+    if(tab==='summary'){
+      const summary = json.summary||[];
+      if(!summary.length){
+        summaryEl.innerHTML='<div class="empty-state"><div class="icon">📚</div><div>No hay solicitudes aun.</div></div>';
+        return;
+      }
+      summaryEl.innerHTML=summary.map(s=>{
+        const pct=Math.min(100,Math.round((s.count/8)*100));
+        const color=s.count>=8?'var(--g5)':s.count>=5?'var(--a3)':'var(--swa)';
+        return`<div class="card" style="margin-bottom:10px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+            <div style="font-size:15px;font-weight:700;">📚 ${s.entrenamiento}</div>
+            <span class="badge" style="background:${s.count>=8?'var(--success-bg)':'var(--warning-bg)'};color:${s.count>=8?'var(--success-text)':'var(--warning-text)'};">
+              ${s.count}/8 ${s.count>=8?'✅ Listo':'pendiente'}
+            </span>
+          </div>
+          <div style="background:var(--bg2);border-radius:99px;height:8px;margin-bottom:8px;overflow:hidden;">
+            <div style="height:100%;width:${pct}%;background:${color};border-radius:99px;transition:width 0.3s;"></div>
+          </div>
+          <div style="font-size:12px;color:var(--text2);">${s.empleados.slice(0,5).join(', ')}${s.empleados.length>5?' y '+(s.empleados.length-5)+' mas':''}</div>
+          <div style="font-size:11px;color:var(--text3);margin-top:2px;">Solicitado por: ${s.superintendentes.join(', ')}</div>
+        </div>`;
+      }).join('');
+    }
+
+    // All requests view
+    if(tab==='list'){
+      const requests = json.requests||[];
+      if(!requests.length){
+        listEl.innerHTML='<div class="empty-state"><div class="icon">📋</div><div>No hay solicitudes aun.</div></div>';
+        return;
+      }
+      listEl.innerHTML=requests.map(r=>`
+        <div class="card" style="margin-bottom:10px;">
+          <div style="font-size:14px;font-weight:700;">📚 ${r.entrenamiento}</div>
+          <div style="font-size:13px;margin-top:4px;">👷 ${r.empleado}</div>
+          <div style="font-size:12px;color:var(--text2);margin-top:2px;">${r.proyecto||'Sin proyecto'} · ${r.fecha}</div>
+          <div style="font-size:11px;color:var(--text3);margin-top:2px;">Solicitado por: ${r.superintendente}</div>
+        </div>`).join('');
+    }
+  }catch(err){
+    if(summaryEl) summaryEl.innerHTML='<div style="color:var(--danger-text);padding:20px;text-align:center;">Error cargando datos.</div>';
+    if(listEl) listEl.innerHTML='<div style="color:var(--danger-text);padding:20px;text-align:center;">Error cargando datos.</div>';
+  }
 }
 
 </script>
