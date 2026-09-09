@@ -523,7 +523,56 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
 .ir-yn-btn.no{background:var(--danger-bg);color:var(--danger-text);border-color:var(--danger-border);}
 .ir-yn-btn:active{transform:scale(0.97);}
 
+
+/* ── SIGNATURE PAD ── */
+.sig-container {
+  border: 2px solid var(--border2);
+  border-radius: var(--radius);
+  background: white;
+  position: relative;
+  margin-top: 8px;
+  touch-action: none;
+}
+.sig-canvas {
+  display: block;
+  width: 100%;
+  height: 140px;
+  cursor: crosshair;
+  border-radius: var(--radius);
+}
+.sig-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 10px;
+  border-top: 1px solid var(--border);
+  background: var(--bg2);
+  border-radius: 0 0 var(--radius) var(--radius);
+}
+.sig-clear-btn {
+  font-size: 12px;
+  padding: 4px 12px;
+  border-radius: 99px;
+  border: 1px solid var(--border2);
+  background: var(--bg);
+  color: var(--text2);
+  font-family: inherit;
+  cursor: pointer;
+  font-weight: 600;
+}
+.sig-hint {
+  font-size: 11px;
+  color: var(--text3);
+  font-style: italic;
+}
+.sig-signed {
+  font-size: 11px;
+  color: var(--g5);
+  font-weight: 700;
+}
+
 </style>
+<script src="https://cdn.jsdelivr.net/npm/signature_pad@4.1.7/dist/signature_pad.umd.min.js"></script>
 </head>
 <body>
 
@@ -1311,12 +1360,32 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
       <div class="card">
         <div class="sec-label">Firmas</div>
         <div class="field">
-          <label>Nombre del Supervisor (firma)</label>
+          <label>Nombre del Supervisor</label>
           <input type="text" id="ft-firma-sup" placeholder="Nombre completo del supervisor" autocomplete="off"/>
         </div>
-        <div class="field" style="margin-bottom:0;">
-          <label>Nombre del Operador (firma)</label>
+        <div class="field">
+          <label>Firma del Supervisor</label>
+          <div class="sig-container">
+            <canvas id="ft-sig-sup-canvas" class="sig-canvas"></canvas>
+            <div class="sig-toolbar">
+              <span class="sig-hint" id="ft-sig-sup-hint">Firma con tu dedo o mouse</span>
+              <button class="sig-clear-btn" onclick="clearSig('ft-sup')">✕ Borrar</button>
+            </div>
+          </div>
+        </div>
+        <div class="field">
+          <label>Nombre del Operador</label>
           <input type="text" id="ft-firma-op" placeholder="Nombre completo del operador" autocomplete="off"/>
+        </div>
+        <div class="field" style="margin-bottom:0;">
+          <label>Firma del Operador</label>
+          <div class="sig-container">
+            <canvas id="ft-sig-op-canvas" class="sig-canvas"></canvas>
+            <div class="sig-toolbar">
+              <span class="sig-hint" id="ft-sig-op-hint">Firma con tu dedo o mouse</span>
+              <button class="sig-clear-btn" onclick="clearSig('ft-op')">✕ Borrar</button>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -1719,7 +1788,17 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
 
         <div class="card">
           <div class="sec-label">Firma del Foreman</div>
-          <div class="field" style="margin-bottom:0;"><label>Nombre completo del Foreman (firma)</label><input type="text" id="ir-firma" placeholder="Escribe tu nombre completo como firma" autocomplete="off"/></div>
+          <div class="field"><label>Nombre completo</label><input type="text" id="ir-firma" placeholder="Nombre completo del Foreman" autocomplete="off"/></div>
+          <div class="field" style="margin-bottom:0;">
+            <label>Firma digital</label>
+            <div class="sig-container">
+              <canvas id="ir-sig-canvas" class="sig-canvas"></canvas>
+              <div class="sig-toolbar">
+                <span class="sig-hint" id="ir-sig-hint">Firma con tu dedo o mouse</span>
+                <button class="sig-clear-btn" onclick="clearSig('ir')">✕ Borrar</button>
+              </div>
+            </div>
+          </div>
         </div>
 
         <div class="submit-msg" id="ir-msg"></div>
@@ -4339,6 +4418,7 @@ function buildIRPreview(){
   document.getElementById('ir-panel-5').style.display='block';
   irCurrentStep=5;
   updateIRSteps();
+  initIRSig();
 
   const tipos = {
     'casi-accidente':'⚠️ Casi-Accidente',
@@ -4370,7 +4450,9 @@ function buildIRPreview(){
 
 async function submitIncidentReport(){
   const firma = document.getElementById('ir-firma').value.trim();
-  if(!firma){alert('Por favor ingresa tu nombre como firma.');return;}
+  if(!firma){alert('Por favor ingresa tu nombre completo.');return;}
+  const firmaSig = getSigDataURL('ir');
+  if(isSigEmpty('ir')){alert('Por favor firma en el campo de firma digital.');return;}
 
   const lesiones = [...document.querySelectorAll('#ir-tipo-lesion .chip.selected')].map(c=>c.textContent);
   const factores = [...document.querySelectorAll('#ir-factores .chip.selected')].map(c=>c.textContent);
@@ -4413,7 +4495,8 @@ async function submitIncidentReport(){
       document.getElementById('ir-testigo2').value,
       document.getElementById('ir-testigo3').value
     ].filter(t=>t.trim()),
-    firma: firma
+    firma: firma,
+    firmaSigDataURL: firmaSig
   };
 
   const msg = document.getElementById('ir-msg');
@@ -4555,6 +4638,11 @@ function irGenerarPDF(data){
     doc.setDrawColor(180);doc.line(M,y+10,M+70,y+10);
     doc.setFontSize(8);doc.setTextColor(95,94,90);
     doc.text('Firma del Foreman: '+data.firma,M,y+15);
+    if(data.firmaSigDataURL){
+      try{
+        doc.addImage(data.firmaSigDataURL,'PNG',M,y+18,70,20);
+      }catch(e){}
+    }
     doc.text('Fecha: '+data.fecha,M+100,y+15);
 
     // Footer
@@ -4605,13 +4693,17 @@ function initSafety(){
   if(scd) scd.value = today;
   if(listasGlobal.operadores && listasGlobal.operadores.length > 0){
     poblarTodosLosDropdowns(listasGlobal);
-    saEmployees = listasGlobal.operadores;
+    saEmployees = typeof TRAINING_DATA !== 'undefined'
+      ? TRAINING_DATA.map(e => e.name).sort()
+      : listasGlobal.operadores||[];
     renderEmployeeList();
+    initSASig();
   } else {
-    cargarListas().then(()=>{
-      saEmployees = listasGlobal.operadores||[];
-      renderEmployeeList();
-    });
+    saEmployees = typeof TRAINING_DATA !== 'undefined'
+      ? TRAINING_DATA.map(e => e.name).sort()
+      : [];
+    renderEmployeeList();
+    cargarListas();
   }
 }
 
@@ -4643,12 +4735,18 @@ function safetyTab(tab){
     if(bt) bt.textContent='✅ Registrar Asistencia';
     document.getElementById('safety-attendance-panel').style.display='block';
     buildDropdown(document.getElementById('sa-proyecto'), listasGlobal.proyectos||[], 'Selecciona proyecto');
-    saEmployees = listasGlobal.operadores||[];
+    // Use TRAINING_DATA employees (261 from certification log) sorted by name
+    saEmployees = typeof TRAINING_DATA !== 'undefined'
+      ? TRAINING_DATA.map(e => e.name).sort()
+      : listasGlobal.operadores||[];
     renderEmployeeList();
   } else if(tab==='certs'){
     if(bt) bt.textContent='📄 Subir Certificaciones';
     document.getElementById('safety-certs-panel').style.display='block';
-    buildDropdown(document.getElementById('sc-empleado'), listasGlobal.operadores||[], 'Selecciona empleado');
+    const certEmps = typeof TRAINING_DATA !== 'undefined'
+      ? TRAINING_DATA.map(e => e.name).sort()
+      : listasGlobal.operadores||[];
+    buildDropdown(document.getElementById('sc-empleado'), certEmps, 'Selecciona empleado');
     if(!photoStore['sc-cert']) photoStore['sc-cert']=[];
     renderPhotoGrid('sc-cert');
   }
@@ -4719,6 +4817,7 @@ async function submitAttendance(){
   const instructor = document.getElementById('sa-instructor').value.trim();
   const duracion = document.getElementById('sa-duracion').value;
   const empleados = getSelectedEmployees();
+  const instructorSig = getSigDataURL('sa');
 
   if(!tipo){alert('Por favor selecciona el tipo de entrenamiento.');return;}
   if(!fecha){alert('Por favor selecciona la fecha.');return;}
@@ -4729,7 +4828,8 @@ async function submitAttendance(){
     id: Date.now(),
     tipoEntrenamiento: tipo,
     fecha, proyecto, instructor, duracion,
-    empleados
+    empleados,
+    instructorSig
   };
 
   const msg = document.getElementById('sa-msg');
@@ -4823,7 +4923,16 @@ function saGenerarPDF(data){
     y+=10;
     doc.setDrawColor(15,110,86);doc.line(M,y,W-M,y);y+=6;
     doc.setFontSize(8);doc.setTextColor(95,94,90);
-    doc.text('Supervisor / Instructor: ___________________________   Firma: ___________________________   Fecha: _____________',M,y);
+    doc.text('Instructor: '+(data.instructor||'')+'     Fecha: '+data.fecha,M,y);y+=8;
+    if(data.instructorSig){
+      try{
+        doc.addImage(data.instructorSig,'PNG',M,y,70,22);y+=24;
+      }catch(e){
+        doc.line(M,y+8,M+70,y+8);y+=12;
+      }
+    } else {
+      doc.text('Firma: ___________________________',M,y+8);y+=12;
+    }
     y+=10;
     doc.setFontSize(7);doc.setTextColor(180);
     doc.text('Oscar Orduno, Inc. — Safety Platform | Total asistentes: '+data.empleados.length,M,y);
@@ -4883,6 +4992,78 @@ function resetCertUpload(){
   document.getElementById('sc-fecha').value=today;
   document.getElementById('sc-msg').style.display='none';
   document.getElementById('sc-confirmacion').style.display='none';
+}
+
+
+// ── SIGNATURE PADS ──
+const sigPads = {};
+
+function initSigPad(id, canvasId) {
+  const canvas = document.getElementById(canvasId);
+  if (!canvas) return;
+  // Set canvas resolution to match display
+  const rect = canvas.getBoundingClientRect();
+  canvas.width = canvas.offsetWidth * window.devicePixelRatio;
+  canvas.height = canvas.offsetHeight * window.devicePixelRatio;
+  const ctx = canvas.getContext('2d');
+  ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+
+  if (sigPads[id]) {
+    sigPads[id].clear();
+    return;
+  }
+
+  if (typeof SignaturePad === 'undefined') return;
+
+  const pad = new SignaturePad(canvas, {
+    backgroundColor: 'rgb(255,255,255)',
+    penColor: 'rgb(11,11,12)',
+    minWidth: 1,
+    maxWidth: 3,
+  });
+
+  pad.addEventListener('beginStroke', () => {
+    const hint = document.getElementById(id + '-hint');
+    if (hint) { hint.textContent = '✓ Firmado'; hint.className = 'sig-signed'; }
+  });
+
+  sigPads[id] = pad;
+}
+
+function clearSig(id) {
+  const padKey = id + '-sig';
+  if (sigPads[padKey]) {
+    sigPads[padKey].clear();
+    const hint = document.getElementById(id + '-sig-hint');
+    if (hint) { hint.textContent = 'Firma con tu dedo o mouse'; hint.className = 'sig-hint'; }
+  }
+}
+
+function getSigDataURL(id) {
+  const padKey = id + '-sig';
+  if (sigPads[padKey] && !sigPads[padKey].isEmpty()) {
+    return sigPads[padKey].toDataURL('image/png');
+  }
+  return null;
+}
+
+function isSigEmpty(id) {
+  const padKey = id + '-sig';
+  return !sigPads[padKey] || sigPads[padKey].isEmpty();
+}
+
+// Initialize sig pads when screens open
+function initIRSig() {
+  setTimeout(() => initSigPad('ir-sig', 'ir-sig-canvas'), 200);
+}
+function initSASig() {
+  setTimeout(() => initSigPad('sa-sig', 'sa-sig-canvas'), 200);
+}
+function initFTSigs() {
+  setTimeout(() => {
+    initSigPad('ft-sig-sup', 'ft-sig-sup-canvas');
+    initSigPad('ft-sig-op', 'ft-sig-op-canvas');
+  }, 200);
 }
 
 </script>
