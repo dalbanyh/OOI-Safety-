@@ -3073,6 +3073,818 @@ async function submitFieldTest(){
   },4000);
 }
 
+function tpInit(){
+  const total=TRAINING_DATA.length;
+  let expired=0,soon=0,ok=0;
+  TRAINING_DATA.forEach(emp=>{
+    const status=tpEmpStatus(emp);
+    if(status==='expired')expired++;
+    else if(status==='soon')soon++;
+    else ok++;
+  });
+  document.getElementById('tp-total').textContent=total;
+  document.getElementById('tp-expired').textContent=expired;
+  document.getElementById('tp-soon').textContent=soon;
+  document.getElementById('tp-ok').textContent=ok;
+  // Reset filters
+  tpVencFilter='all';
+  tpTrainingFilter='';
+  const sel=document.getElementById('tp-training-select');
+  if(sel)sel.value='';
+  document.querySelectorAll('[id^="vf-"]').forEach(b=>b.classList.remove('on'));
+  const allBtn=document.getElementById('vf-all');
+  if(allBtn)allBtn.classList.add('on');
+  const srch=document.getElementById('tp-search');
+  if(srch)srch.value='';
+  tpRender();
+}
+
+function tpEmpStatus(emp){
+  let hasExpired=false, hasSoon=false;
+  emp.trainings.forEach(t=>{
+    if(t.expires){
+      const exp=new Date(t.expires);
+      const diffDays=(exp-TODAY)/(1000*60*60*24);
+      if(diffDays<0)hasExpired=true;
+      else if(diffDays<SOON_DAYS)hasSoon=true;
+    }
+  });
+  if(hasExpired)return 'expired';
+  if(hasSoon)return 'soon';
+  return 'ok';
+}
+
+function tpSetVencFilter(v,btn){
+  tpVencFilter=v;
+  document.querySelectorAll('[id^="vf-"]').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  tpRender();
+}
+
+function tpRender(){
+  const q=(document.getElementById('tp-search')?.value||'').toLowerCase().trim();
+  const resultsEl=document.getElementById('tp-results');
+  const detailEl=document.getElementById('tp-emp-detail');
+  if(detailEl&&detailEl.style.display!=='none')return;
+
+  const selVal=(document.getElementById('tp-training-select')?.value||'');
+  tpTrainingFilter=selVal;
+
+  let list=TRAINING_DATA;
+
+  // Filter by employee name
+  if(q) list=list.filter(e=>e.name.toLowerCase().includes(q)||(e.ooi_id||'').toLowerCase().includes(q));
+
+  // Filter by training type
+  if(tpTrainingFilter){
+    list=list.filter(e=>e.trainings.some(t=>t.name===tpTrainingFilter));
+  }
+
+  // Filter by expiry status
+  if(tpVencFilter==='expired'){
+    list=list.filter(e=>e.trainings.some(t=>{
+      if(!t.expires)return false;
+      const exp=new Date(t.expires);
+      return(!tpTrainingFilter||t.name===tpTrainingFilter)&&exp<TODAY;
+    }));
+  } else if(tpVencFilter==='60'){
+    list=list.filter(e=>e.trainings.some(t=>{
+      if(!t.expires)return false;
+      const exp=new Date(t.expires);
+      const d=(exp-TODAY)/(1000*60*60*24);
+      return(!tpTrainingFilter||t.name===tpTrainingFilter)&&d>=0&&d<=60;
+    }));
+  } else if(tpVencFilter==='90'){
+    list=list.filter(e=>e.trainings.some(t=>{
+      if(!t.expires)return false;
+      const exp=new Date(t.expires);
+      const d=(exp-TODAY)/(1000*60*60*24);
+      return(!tpTrainingFilter||t.name===tpTrainingFilter)&&d>=0&&d<=90;
+    }));
+  } else if(tpVencFilter==='ok'){
+    list=list.filter(e=>e.trainings.some(t=>{
+      if(!t.expires)return true;
+      const exp=new Date(t.expires);
+      const d=(exp-TODAY)/(1000*60*60*24);
+      return(!tpTrainingFilter||t.name===tpTrainingFilter)&&d>90;
+    }));
+  }
+
+  const countEl=document.getElementById('tp-results-count');
+  if(countEl)countEl.textContent=list.length+' empleado'+(list.length!==1?'s':'')+' encontrado'+(list.length!==1?'s':'');
+  if(!list.length){
+    resultsEl.innerHTML='<div class="empty-state"><div class="icon">🔍</div><div>No se encontraron resultados</div></div>';
+    return;
+  }
+
+  // If filtering by training type, show training-centric view
+  if(tpTrainingFilter){
+    resultsEl.innerHTML='<div class="tp-section">'+(list.length)+' empleados con este entrenamiento</div>'+
+    list.map((emp,i)=>{
+      const t=emp.trainings.find(x=>x.name===tpTrainingFilter);
+      const exp=t&&t.expires?new Date(t.expires):null;
+      const diffDays=exp?(exp-TODAY)/(1000*60*60*24):null;
+      const isExp=diffDays!==null&&diffDays<0;
+      const isSoon=diffDays!==null&&diffDays>=0&&diffDays<SOON_DAYS;
+      const initials=emp.name.split(/[,\s]+/).filter(Boolean).map(p=>p[0]||'').slice(0,2).join('').toUpperCase();
+      return `<div class="emp-card" onclick="tpOpenDetail(${i+'_'+tpTrainingFilter.replace(/[^a-z0-9]/gi,'_')},${TRAINING_DATA.indexOf(emp)})">
+        <div style="display:flex;align-items:center;gap:12px;">
+          <div class="emp-avatar">${initials}</div>
+          <div style="flex:1;">
+            <div style="font-size:15px;font-weight:500;">${emp.name}</div>
+            <div style="font-size:12px;color:var(--text2);margin-top:2px;">${emp.ooi_id||'Sin ID'}</div>
+          </div>
+          <div style="text-align:right;">
+            ${t?`<div class="train-badge ${isExp?'expired':isSoon?'current':'current'}" style="${isExp?'background:var(--danger-bg);color:var(--danger-text)':isSoon?'background:var(--warning-bg);color:var(--warning-text)':''}">${t.date}</div>
+            ${t.expires?`<div style="font-size:11px;color:${isExp?'var(--danger-text)':isSoon?'var(--warning-text)':'var(--text2)'};margin-top:3px;">Vence: ${t.expires}</div>`:''}` :'<span class="train-badge nodate">Sin registro</span>'}
+          </div>
+        </div>
+      </div>`;
+    }).join('');
+    return;
+  }
+
+  resultsEl.innerHTML='<div class="tp-section">'+(list.length)+' empleados</div>'+
+  list.map((emp,i)=>{
+    const status=tpEmpStatus(emp);
+    const initials=emp.name.split(/[,\s]+/).filter(Boolean).map(p=>p[0]||'').slice(0,2).join('').toUpperCase();
+    const badge=status==='expired'?'<span class="badge badge-bad">⚠ Vencido</span>':status==='soon'?'<span class="badge badge-pending">🔔 Pronto</span>':'<span class="badge badge-ok">✓ Al corriente</span>';
+    const expiredCount=emp.trainings.filter(t=>{if(!t.expires)return false;return new Date(t.expires)<TODAY;}).length;
+    return `<div class="emp-card" onclick="tpOpenDetail(null,${TRAINING_DATA.indexOf(emp)})">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <div class="emp-avatar">${initials}</div>
+        <div style="flex:1;">
+          <div style="font-size:15px;font-weight:500;">${emp.name}</div>
+          <div style="font-size:12px;color:var(--text2);margin-top:2px;">${emp.trainings.length} entrenamientos${expiredCount?(' · <span style="color:var(--danger-text);">'+expiredCount+' vencidos</span>'):''}</div>
+        </div>
+        <div>${badge}<div style="color:var(--text3);font-size:20px;text-align:right;margin-top:4px;">›</div></div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+async function tpOpenDetail(_,empIdx){
+  const emp=TRAINING_DATA[empIdx];
+  if(!emp)return;
+  document.getElementById('tp-results').style.display='none';
+  document.getElementById('tp-emp-detail').style.display='block';
+  const initials=emp.name.split(/[,\s]+/).filter(Boolean).map(p=>p[0]||'').slice(0,2).join('').toUpperCase();
+  document.getElementById('tp-det-name').textContent=emp.name;
+  document.getElementById('tp-det-ids').textContent=(emp.ooi_id?'OOI: '+emp.ooi_id:'')+(emp.stc_id?' · STC: '+emp.stc_id:'');
+  
+  const expiredCount=emp.trainings.filter(t=>{if(!t.expires)return false;return new Date(t.expires)<TODAY;}).length;
+  const soonCount=emp.trainings.filter(t=>{if(!t.expires)return false;const d=(new Date(t.expires)-TODAY)/(1000*60*60*24);return d>=0&&d<SOON_DAYS;}).length;
+  document.getElementById('tp-det-stats').innerHTML=
+    `<span class="badge badge-ok" style="margin-right:6px;">${emp.trainings.length} entrenamientos</span>`+
+    (expiredCount?`<span class="badge badge-bad" style="margin-right:6px;">${expiredCount} vencidos</span>`:'') +
+    (soonCount?`<span class="badge badge-pending">${soonCount} vencen pronto</span>`:'');
+
+  // Training list
+  const sorted=[...emp.trainings].sort((a,b)=>b.date.localeCompare(a.date));
+  document.getElementById('tp-det-trainings').innerHTML=sorted.map(t=>{
+    const exp=t.expires?new Date(t.expires):null;
+    const diffDays=exp?(exp-TODAY)/(1000*60*60*24):null;
+    const isExp=diffDays!==null&&diffDays<0;
+    const isSoon=diffDays!==null&&diffDays>=0&&diffDays<SOON_DAYS;
+    const dotClass=isExp?'exp':isSoon?'soon':'ok';
+    const dateClass=isExp?'expired':isSoon?'expiring':'';
+    return `<div class="cert-row">
+      <div class="cert-dot ${dotClass}"></div>
+      <div class="cert-name">${t.name}</div>
+      <div>
+        <div class="cert-date">${t.date}</div>
+        ${t.expires?`<div class="cert-date ${dateClass}" style="font-size:10px;">Vence: ${t.expires}</div>`:''}
+      </div>
+    </div>`;
+  }).join('') || '<div style="color:var(--text2);font-size:13px;padding:8px 0;">Sin registros de entrenamiento.</div>';
+
+  // Drive cert search
+  document.getElementById('tp-cert-status').textContent='Buscando certificaciones en Google Drive...';
+  document.getElementById('tp-cert-list').innerHTML='';
+  try{
+    const res=await fetch(SCRIPT_URL+'?action=certs&nombre='+encodeURIComponent(emp.name)+'&t='+Date.now());
+    const json=await res.json();
+    if(json.certs&&json.certs.length>0){
+      document.getElementById('tp-cert-status').textContent=json.certs.length+' certificado(s) encontrado(s) en Drive';
+      document.getElementById('tp-cert-list').innerHTML=json.certs.map(c=>`
+        <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:0.5px solid var(--border);">
+          <div style="flex:1;">
+            <div style="font-size:13px;font-weight:500;">${c.entrenamiento}</div>
+            <div style="font-size:11px;color:var(--text2);">${c.anio} · ${c.ext}</div>
+          </div>
+          <a href="${c.viewUrl}" target="_blank" class="drive-btn">📄 Ver</a>
+        </div>`).join('');
+    } else {
+      document.getElementById('tp-cert-status').textContent='Sin archivos en Drive para este empleado';
+    }
+  }catch(err){
+    document.getElementById('tp-cert-status').textContent='No se pudo conectar con Drive';
+  }
+}
+
+function tpCloseDetail(){
+  document.getElementById('tp-emp-detail').style.display='none';
+  document.getElementById('tp-results').style.display='block';
+}
+
+function superTab(tab){
+  document.getElementById('tab-insp').className='tp-tab'+(tab==='insp'?' active':'');
+  document.getElementById('tab-train').className='tp-tab'+(tab==='train'?' active':'');
+  document.getElementById('super-insp-panel').style.display=tab==='insp'?'block':'none';
+  document.getElementById('super-train-panel').style.display=tab==='train'?'block':'none';
+  if(tab==='train')tpInit();
+}
+
+// ── INSPECTION DATA ──
+const inspItems=[
+  {id:'estructura',name:'Daños de estructura y cubeta',sub:'Golpes, grietas, deformaciones'},
+  {id:'mangueras',name:'Mangueras, cadenas y bandas',sub:'Desgaste, cortes, tensión correcta'},
+  {id:'fugas',name:'Fugas: aceite, combustible, hidráulico',sub:'Sellos, conexiones, depósitos'},
+  {id:'tuberias',name:'Tuberías, empaques y válvulas',sub:'Fugas, sellos, operación de válvulas'},
+  {id:'barras',name:'Barras de agarre, escalones, plataforma',sub:'Firmes, sin corrosión ni daño'},
+  {id:'controles',name:'Controles, botones, cableado eléctrico',sub:'Funcionamiento, cables sin exposición'},
+  {id:'silos',name:'Inspección de silos',sub:'Nivel, fugas y estado estructural'},
+  {id:'pompa',name:'Pompa de agua y mangueras de gruta',sub:'Presión, fugas y estado de mangueras'},
+  {id:'limpieza',name:'Pompa limpia',sub:'Unidad limpia al final del turno'},
+];
+const safetyItems=[
+  'Verifiqué que la máquina está apagada antes de ingresar a zona roja',
+  'Las llaves están en mi bolsillo (no en el switch) al trabajar cerca de aspas/gusanos',
+  'Tengo mi EPP completo: casco, lentes, guantes, botas con casquillo',
+  'El área está despejada y sin derrames de aceite en el piso',
+  'Nadie en zona de riesgo antes de encender el equipo',
+  'Conozco la ruta de evacuación y ubicación del extintor más cercano',
+];
+
+function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');window.scrollTo(0,0);}
+function toggleChip(btn,val){document.querySelectorAll('#swa-chips .chip').forEach(c=>c.classList.remove('selected'));btn.classList.add('selected');swaChipSelected=val;}
+function buildDropdown(sel,opts,ph){if(!sel)return;sel.innerHTML=`<option value="">— ${ph} —</option>`+opts.map(o=>`<option value="${o}">${o}</option>`).join('');}
+
+async function cargarListas(retry=0){
+  try{
+    const res=await fetch(SCRIPT_URL+'?t='+Date.now());
+    const json=await res.json();
+    if(json.listas){
+      listasGlobal=json.listas;
+      poblarTodosLosDropdowns(json.listas);
+    } else if(retry<2){
+      setTimeout(()=>cargarListas(retry+1), 2000);
+    }
+  }catch(err){
+    if(retry<2) setTimeout(()=>cargarListas(retry+1), 2000);
+  }
+}
+
+function poblarTodosLosDropdowns(listas){
+  // Operator screen
+  buildDropdown(document.getElementById('f-op'), listas.operadores||[], 'Selecciona operador');
+  buildDropdown(document.getElementById('f-sup'), listas.foremen||[], 'Selecciona foreman');
+  buildDropdown(document.getElementById('f-maq'), listas.maquinas||[], 'Selecciona maquina');
+
+  // SWA
+  buildDropdown(document.getElementById('swa-foreman'), listas.foremen||[], 'Selecciona foreman');
+  buildDropdown(document.getElementById('swa-super'), listas.superintendentes||[], 'Selecciona superintendente');
+
+  // Projects everywhere
+  const proyectos = listas.proyectos||[];
+  ['f-proy','sc-proy','sct-proy','swa-sitio','fittest-proyecto','tr-proyecto'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el && el.tagName==='SELECT') buildDropdown(el, proyectos, 'Selecciona proyecto');
+  });
+
+  // Shotcrete
+  buildDropdown(document.getElementById('sc-op'), listas.operadores||[], 'Selecciona operador');
+  buildDropdown(document.getElementById('sc-sup'), listas.foremen||[], 'Selecciona foreman');
+  buildDropdown(document.getElementById('sct-op'), listas.operadores||[], 'Selecciona operador');
+  buildDropdown(document.getElementById('sct-sup'), listas.foremen||[], 'Selecciona foreman');
+
+  // Fit test foreman
+  buildDropdown(document.getElementById('fittest-trabajador'), listas.operadores||[], 'Selecciona trabajador');
+  buildDropdown(document.getElementById('fittest-foreman'), listas.foremen||[], 'Selecciona foreman');
+
+  // Training requests
+  buildDropdown(document.getElementById('tr-super'), listas.superintendentes||[], 'Selecciona superintendente');
+  buildDropdown(document.getElementById('tr-empleado'), listas.operadores||[], 'Selecciona empleado');
+
+  // Forms / Field test
+  buildDropdown(document.getElementById('ft-operador'), listas.operadores||[], 'Selecciona operador');
+  buildDropdown(document.getElementById('ft-supervisor'), listas.foremen||[], 'Selecciona supervisor');
+
+  // RRHH
+  buildDropdown(document.getElementById('rrhh-trabajador'), listas.operadores||[], 'Selecciona trabajador');
+  // Incident report dropdowns
+  buildDropdown(document.getElementById('ir-foreman'), listas.foremen||[], 'Selecciona foreman');
+  buildDropdown(document.getElementById('ir-super'), listas.superintendentes||[], 'Selecciona superintendente');
+  buildDropdown(document.getElementById('ir-proyecto'), listas.proyectos||[], 'Selecciona proyecto');
+  buildDropdown(document.getElementById('ir-empleado'), listas.operadores||[], 'Selecciona empleado');
+}
+
+function selectRole(role){
+  currentRole=role;
+  if(role==='operator'){buildInspList();buildSafetyList();setToday();cargarListas();show('s-operator');}else if(role==='foreman'){pinEntry='';updateDots();document.getElementById('pin-err').style.display='none';document.getElementById('pin-role-name').textContent='Foreman';show('s-pin');return;}
+  else if(role==='rrhh'){pinEntry='';updateDots();document.getElementById('pin-err').style.display='none';document.getElementById('pin-role-name').textContent='Recursos Humanos';show('s-pin');return;}
+  else if(role==='safety'){pinEntry='';updateDots();document.getElementById('pin-err').style.display='none';document.getElementById('pin-role-name').textContent='Safety';show('s-pin');return;}
+  else if(role==='super'){pinEntry='';updateDots();document.getElementById('pin-err').style.display='none';document.getElementById('pin-role-name').textContent='Superintendente';show('s-pin');}
+  else{pinEntry='';updateDots();document.getElementById('pin-err').style.display='none';document.getElementById('pin-role-name').textContent=ROLES[role];show('s-pin');}
+}
+function pinPress(d){if(pinEntry.length>=4)return;pinEntry+=d;updateDots();if(pinEntry.length===4)setTimeout(checkPin,150);}
+function pinDel(){pinEntry=pinEntry.slice(0,-1);updateDots();}
+function pinClear(){pinEntry='';updateDots();}
+function updateDots(){for(let i=0;i<4;i++)document.getElementById('d'+i).classList.toggle('filled',i<pinEntry.length);}
+function checkPin(){
+  if(pinEntry===PINS[currentRole]){
+    document.getElementById('pin-err').style.display='none';
+    pinEntry='';updateDots();
+    if(currentRole==='super'){
+      show('s-super');
+      loadSuperReports();
+    } else if(currentRole==='foreman'){
+      show('s-foreman');
+    } else if(currentRole==='rrhh'){
+      show('s-respiradores');
+      initRespiradoresRRHH();
+    } else if(currentRole==='safety'){
+      show('s-safety');
+      initSafety();
+    } else {
+      document.getElementById('mgr-name').textContent=currentRole==='mechanic'?'Panel del mecánico':'Management — reportes';
+      show('s-manager');loadReports();
+    }
+  } else {
+    document.getElementById('pin-err').style.display='block';pinEntry='';updateDots();
+  }
+}
+function setToday(){
+  const t=new Date().toISOString().split('T')[0];
+  const fd=document.getElementById('f-fecha');if(fd)fd.value=t;
+  const sd=document.getElementById('swa-fecha');if(sd)sd.value=t;
+}
+function buildInspList(){
+  const c=document.getElementById('insp-list');if(!c)return;
+  inspItems.forEach(item=>{if(!photoStore['ph-'+item.id])photoStore['ph-'+item.id]=[];});
+  c.innerHTML=inspItems.map(item=>`<div class="insp-item" id="ir-${item.id}" data-val="">
+    <div class="insp-name">${item.name}</div><div class="insp-sub">${item.sub}</div>
+    <div class="tog-row">
+      <button class="tog" onclick="setItem('${item.id}','ok',this)">✓ OK — Bien</button>
+      <button class="tog" onclick="setItem('${item.id}','bad',this)">✗ BAD — Mal</button>
+    </div>
+    <div class="obs-area" id="oa-${item.id}">
+      <textarea rows="2" id="ot-${item.id}" placeholder="Describe el problema..." style="font-size:14px;margin-bottom:10px;"></textarea>
+      <button class="photo-btn" onclick="triggerPhoto('ph-${item.id}','pi-${item.id}')">📷 Agregar foto</button>
+      <input type="file" id="pi-${item.id}" accept="image/*" multiple style="display:none" onchange="handlePhotos(this,'ph-${item.id}')" data-storekey="ph-${item.id}"/>
+      <div class="photo-grid" id="ph-${item.id}" style="margin-top:8px"></div>
+    </div></div>`).join('');
+}
+function buildSafetyList(){
+  const c=document.getElementById('safety-list');if(!c)return;
+  c.innerHTML=safetyItems.map((s,i)=>`
+    <div class="safety-chk" id="sch-${i}">
+      <input type="checkbox" id="sc${i}" onchange="toggleSafetyCheck(${i})"/>
+      <label for="sc${i}">${s}</label>
+    </div>`).join('');
+}
+function toggleSafetyCheck(i){
+  const row=document.getElementById('sch-'+i);
+  const cb=document.getElementById('sc'+i);
+  if(!row||!cb)return;
+  if(cb.checked){
+    row.style.background='var(--ooi-orange-bg)';
+    row.style.borderRadius='var(--radius)';
+    row.style.paddingLeft='8px';
+    row.style.paddingRight='8px';
+  } else {
+    row.style.background='';
+    row.style.borderRadius='';
+    row.style.paddingLeft='';
+    row.style.paddingRight='';
+  }
+}
+function setItem(id,val,btn){const row=document.getElementById('ir-'+id);row.querySelectorAll('.tog').forEach(t=>{t.className='tog';});btn.className='tog '+(val==='ok'?'ok':'bad');row.dataset.val=val;const oa=document.getElementById('oa-'+id);if(oa)oa.style.display=val==='bad'?'block':'none';}
+function triggerPhoto(sk,iid){const inp=document.getElementById(iid);inp.dataset.storekey=sk;inp.click();}
+function handlePhotos(input,sk){
+  const key=input.dataset.storekey||sk;
+  if(!photoStore[key])photoStore[key]=[];
+  Array.from(input.files).forEach(file=>{
+    const idx=photoStore[key].length;
+    photoStore[key].push({data:null,url:null,uploading:true,name:file.name});
+    renderPhotoGrid(key);
+    const reader=new FileReader();
+    reader.onload=e=>{photoStore[key][idx].data=e.target.result;uploadToImgbb(e.target.result,key,idx);};
+    reader.readAsDataURL(file);
+  });
+  input.value='';
+}
+async function uploadToImgbb(base64,key,idx){
+  try{
+    const fd=new FormData();fd.append('key',IMGBB_KEY);fd.append('image',base64.split(',')[1]);
+    const res=await fetch('https://api.imgbb.com/1/upload',{method:'POST',body:fd});
+    const json=await res.json();
+    if(json.success){photoStore[key][idx].url=json.data.url;photoStore[key][idx].uploading=false;}
+    else photoStore[key][idx].uploading=false;
+  }catch(err){photoStore[key][idx].uploading=false;}
+  renderPhotoGrid(key);
+}
+function renderPhotoGrid(key){
+  const grid=document.getElementById(key);if(!grid)return;
+  grid.innerHTML=(photoStore[key]||[]).map((p,i)=>`<div class="photo-thumb">
+    <img src="${p.data||''}" onclick="openLightbox('${p.url||p.data||''}')"/>
+    ${p.uploading?'<div class="photo-uploading">⏳</div>':''}
+    <button class="photo-del" onclick="deletePhoto('${key}',${i})">×</button>
+  </div>`).join('');
+}
+function deletePhoto(key,idx){if(photoStore[key])photoStore[key].splice(idx,1);renderPhotoGrid(key);}
+function openLightbox(src){if(!src)return;document.getElementById('lb-img').src=src;document.getElementById('lightbox').classList.add('active');}
+function closeLightbox(){document.getElementById('lightbox').classList.remove('active');}
+function clearForm(){
+  ['f-proy','f-hi','f-hf','f-tools','f-obs','f-sobs'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  ['f-op','f-sup','f-maq'].forEach(id=>{const el=document.getElementById(id);if(el)el.selectedIndex=0;});
+  Object.keys(photoStore).forEach(k=>{photoStore[k]=[];});
+  buildInspList();buildSafetyList();setToday();
+  const msg=document.getElementById('submit-msg');if(msg)msg.style.display='none';
+  renderPhotoGrid('general-photos');
+}
+async function submitReport(){
+  const proy=document.getElementById('f-proy').value.trim();
+  const op=document.getElementById('f-op').value;
+  if(!proy||!op){alert('Por favor llena el nombre del proyecto y selecciona el operador.');return;}
+  const allPhotos=Object.values(photoStore).flat();
+  if(allPhotos.some(p=>p.uploading)){alert('⏳ Espera — las fotos se están subiendo...');return;}
+  const items={};let hasBad=false;
+  inspItems.forEach(item=>{
+    const row=document.getElementById('ir-'+item.id);
+    const v=row?row.dataset.val:'';
+    const obs=document.getElementById('ot-'+item.id);
+    const photos=(photoStore['ph-'+item.id]||[]).map(p=>p.url).filter(Boolean);
+    items[item.id]={val:v||'pending',obs:obs?obs.value:'',name:item.name,photoUrls:photos};
+    if(v==='bad')hasBad=true;
+  });
+  const safety=safetyItems.map((s,i)=>({label:s,checked:document.getElementById('sc'+i)?.checked||false}));
+  const genPhotoUrls=(photoStore['general-photos']||[]).map(p=>p.url).filter(Boolean);
+  const report={id:Date.now(),fecha:document.getElementById('f-fecha').value,proyecto:proy,operador:op,supervisor:document.getElementById('f-sup').value,maquina:document.getElementById('f-maq').value,hi:document.getElementById('f-hi').value,hf:document.getElementById('f-hf').value,tools:document.getElementById('f-tools').value,obs:document.getElementById('f-obs').value,safetyObs:document.getElementById('f-sobs').value,items,safety,hasBad,genPhotoUrls};
+  const msg=document.getElementById('submit-msg');
+  msg.style.display='block';msg.textContent='⏳ Enviando inspección...';msg.style.background='var(--info-bg)';msg.style.color='var(--info-text)';
+  try{
+    await fetch(SCRIPT_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain'},body:JSON.stringify(report)});
+    if(hasBad){msg.textContent='⚠ Enviado — hay ítems que requieren reparación';msg.style.background='var(--warning-bg)';msg.style.color='var(--warning-text)';}
+    else{msg.textContent='✓ Inspección enviada correctamente';msg.style.background='var(--success-bg)';msg.style.color='var(--success-text)';}
+  }catch(err){msg.textContent='⚠ Error de conexión';msg.style.background='var(--danger-bg)';msg.style.color='var(--danger-text)';}
+  window.scrollTo(0,0);setTimeout(clearForm,4000);
+}
+async function enviarSWA(){
+  const sitio=document.getElementById('swa-sitio').value.trim();
+  const quien=document.getElementById('swa-quien').value.trim();
+  const foreman=document.getElementById('swa-foreman').value;
+  const superintendente=document.getElementById('swa-super').value;
+  const descripcion=document.getElementById('swa-descripcion').value.trim();
+  if(!sitio||!quien||!descripcion){alert('Por favor llena el sitio, tu nombre y la descripción.');return;}
+  if(!foreman){alert('Por favor selecciona el Foreman en turno.');return;}
+  if(!superintendente){alert('Por favor selecciona el Superintendente en turno.');return;}
+  const swaData={tipo:'swa',id:Date.now(),fecha:document.getElementById('swa-fecha').value,sitio,quien,foreman:document.getElementById('swa-foreman').value,superintendente:document.getElementById('swa-super').value,tipoPeligro:swaChipSelected,descripcion,accion:document.getElementById('swa-accion').value,resolucion:document.getElementById('swa-resolucion').value};
+  const msg=document.getElementById('swa-msg');
+  msg.style.display='block';msg.textContent='⏳ Enviando...';msg.style.background='var(--info-bg)';msg.style.color='var(--info-text)';
+  try{
+    await fetch(SCRIPT_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain'},body:JSON.stringify(swaData)});
+    msg.style.display='none';
+    document.getElementById('swa-form').style.display='none';
+    const _foreman=document.getElementById('swa-foreman').value;
+    const _super=document.getElementById('swa-super').value;
+    const recipEl=document.getElementById('swa-conf-recipients');
+    if(recipEl)recipEl.textContent='Notificación enviada al Departamento de Seguridad, Foreman: '+_foreman+' y Superintendente: '+_super+'.';
+    document.getElementById('swa-resumen').innerHTML='<strong>Sitio:</strong> '+sitio+'<br><strong>Reportado por:</strong> '+quien+'<br><strong>Foreman:</strong> '+_foreman+'<br><strong>Superintendente:</strong> '+_super+'<br><strong>Estado:</strong> '+(swaData.resolucion||'—');
+    document.getElementById('swa-confirmacion').style.display='block';
+  }catch(err){msg.textContent='⚠ Error';msg.style.background='var(--danger-bg)';msg.style.color='var(--danger-text)';}
+}
+function resetSWA(){
+  ['swa-sitio','swa-quien','swa-descripcion','swa-accion'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('swa-resolucion').selectedIndex=0;
+  document.getElementById('swa-foreman').selectedIndex=0;
+  document.getElementById('swa-super').selectedIndex=0;
+  document.querySelectorAll('#swa-chips .chip').forEach(c=>c.classList.remove('selected'));
+  swaChipSelected='';
+  document.getElementById('swa-form').style.display='block';
+  document.getElementById('swa-confirmacion').style.display='none';
+  document.getElementById('swa-msg').style.display='none';
+  setToday();show('s-login');
+}
+
+async function loadReports(){
+  const list=document.getElementById('rep-list');
+  const loading=document.getElementById('rep-loading');
+  const empty=document.getElementById('rep-empty');
+  list.innerHTML='';loading.style.display='block';empty.style.display='none';
+  document.getElementById('detail-area').innerHTML='';
+  ['s-total','s-hoy','s-ok','s-bad'].forEach(id=>document.getElementById(id).textContent='—');
+  try{
+    const res=await fetch(SCRIPT_URL+'?t='+Date.now());
+    const json=await res.json();
+    loading.style.display='none';
+    if(json.listas)listasGlobal=json.listas;
+    if(!json.reports||!json.reports.length){empty.style.display='block';return;}
+    window._reports=json.reports;
+    renderReportsList(json.reports,'s-total','s-hoy','s-ok','s-bad','rep-list','rep-empty','detail-area');
+  }catch(err){loading.style.display='none';list.innerHTML='<div style="padding:20px;text-align:center;color:var(--danger-text);font-size:14px;">Error cargando reportes.</div>';}
+}
+
+async function loadSuperReports(){
+  const list=document.getElementById('ss-rep-list');
+  const loading=document.getElementById('ss-rep-loading');
+  const empty=document.getElementById('ss-rep-empty');
+  list.innerHTML='';loading.style.display='block';empty.style.display='none';
+  document.getElementById('ss-detail-area').innerHTML='';
+  ['ss-total','ss-hoy','ss-ok','ss-bad'].forEach(id=>document.getElementById(id).textContent='—');
+  try{
+    const res=await fetch(SCRIPT_URL+'?t='+Date.now());
+    const json=await res.json();
+    loading.style.display='none';
+    if(json.listas){
+      listasGlobal=json.listas;
+      const fsel=document.getElementById('filter-foreman');
+      if(fsel && json.listas.foremen){
+        fsel.innerHTML='<option value="">— Todos los foremen —</option>'+
+          json.listas.foremen.map(f=>`<option value="${f}">${f}</option>`).join('');
+      }
+      const psel=document.getElementById('filter-proyecto');
+      if(psel && json.listas.proyectos){
+        psel.innerHTML='<option value="">— Todos los proyectos —</option>'+
+          json.listas.proyectos.map(p=>`<option value="${p}">${p}</option>`).join('');
+      }
+    }
+    if(!json.reports||!json.reports.length){empty.style.display='block';return;}
+    window._ssReports=json.reports;
+    const countEl=document.getElementById('ss-filter-count');
+    if(countEl) countEl.textContent=json.reports.length+' inspecciones totales';
+    renderReportsList(json.reports,'ss-total','ss-hoy','ss-ok','ss-bad','ss-rep-list','ss-rep-empty','ss-detail-area');
+  }catch(err){loading.style.display='none';}
+}
+
+function renderReportsList(reports,idTotal,idHoy,idOk,idBad,idList,idEmpty,idDetail){
+  const today=new Date().toISOString().split('T')[0];
+  document.getElementById(idTotal).textContent=reports.length;
+  document.getElementById(idHoy).textContent=reports.filter(r=>String(r.fecha)===today).length;
+  document.getElementById(idOk).textContent=reports.filter(r=>!r.hasBad).length;
+  document.getElementById(idBad).textContent=reports.filter(r=>r.hasBad).length;
+  const list=document.getElementById(idList);
+  list.innerHTML=reports.map((r,i)=>`<div class="report-card" onclick="showDetail(${i},'${idDetail}','${idList==='rep-list'?'_reports':'_ssReports'}')">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;">
+      <div style="flex:1;">
+        <div style="font-size:15px;font-weight:500;">${r.operador}</div>
+        <div style="font-size:13px;color:var(--text2);margin-top:2px;">${r.proyecto} · ${r.maquina||'Sin #'}</div>
+        <div style="font-size:12px;color:var(--text3);margin-top:2px;">${r.fecha} · ${r.supervisor||'Sin foreman'}${r.photoUrls&&r.photoUrls.length?' · 📷 '+r.photoUrls.length:''}</div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;">
+        <span class="badge ${r.hasBad?'badge-bad':'badge-ok'}">${r.hasBad?'⚠ Revisar':'✓ OK'}</span>
+        <span class="role-arrow">›</span>
+      </div>
+    </div>
+  </div>`).join('');
+}
+
+function showDetail(idx,detailId,reportsKey){
+  const r=window[reportsKey][idx];if(!r)return;
+  const da=document.getElementById(detailId);
+  const inspHtml=[
+    {k:'estructura',n:'Estructura y cubeta'},{k:'mangueras',n:'Mangueras/cadenas'},
+    {k:'fugas',n:'Fugas'},{k:'tuberias',n:'Tuberías/válvulas'},
+    {k:'barras',n:'Barras/escalones'},{k:'controles',n:'Controles/cableado'},
+    {k:'silos',n:'Silos'},{k:'pompa',n:'Pompa de agua'},{k:'limpieza',n:'Limpieza'}
+  ].map(item=>{
+    const val=r[item.k]||'—';const isBad=val.includes('BAD');const isOk=val.includes('OK');
+    return`<div class="detail-row"><span style="flex:1;font-size:14px;">${item.n}</span><span class="badge ${isOk?'badge-ok':isBad?'badge-bad':'badge-pending'}">${val}</span></div>`;
+  }).join('');
+  const photosHtml=r.photoUrls&&r.photoUrls.length
+    ?`<div class="sec-label" style="margin-top:14px;">📷 Fotos (${r.photoUrls.length})</div>
+      <div class="photo-row">${r.photoUrls.map(url=>`<img class="photo-preview" src="${url}" onclick="openLightbox('${url}')" />`).join('')}</div>`:'';
+  da.innerHTML=`<div class="card" style="margin-top:14px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+      <div style="font-size:16px;font-weight:500;">${r.operador} — ${r.fecha}</div>
+      <button class="btn-icon" onclick="document.getElementById('${detailId}').innerHTML=''">✕</button>
+    </div>
+    <div class="grid2" style="margin-bottom:14px;font-size:13px;gap:10px;">
+      <div><span style="color:var(--text2);">Proyecto</span><br><strong>${r.proyecto}</strong></div>
+      <div><span style="color:var(--text2);">Máquina</span><br><strong>${r.maquina||'—'}</strong></div>
+      <div><span style="color:var(--text2);">Foreman</span><br>${r.supervisor||'—'}</div>
+      <div><span style="color:var(--text2);">Safety</span><br><strong>${r.safetyChecks||'—'}</strong></div>
+      <div><span style="color:var(--text2);">Horas</span><br>${r.hi||'—'} → ${r.hf||'—'}</div>
+      <div><span style="color:var(--text2);">Estado</span><br><span class="badge ${r.hasBad?'badge-bad':'badge-ok'}">${r.hasBad?'⚠ Revisar':'✓ OK'}</span></div>
+    </div>
+    <div class="sec-label">Ítems inspeccionados</div>
+    ${inspHtml}${photosHtml}
+    ${r.obs?`<div class="sec-label" style="margin-top:14px;">Observaciones</div><div style="font-size:14px;">${r.obs}</div>`:''}
+    ${r.tools?`<div style="font-size:13px;color:var(--text2);margin-top:10px;">🔧 ${r.tools}</div>`:''}
+  </div>`;
+  da.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+
+// Init
+setToday();
+cargarListas();
+
+// ── FORMS PORTAL ──
+const FT_CRITERIOS = [
+  'Realiza una inspección pre-operación diario, y si es necesario',
+  'Revisa, sube y baja por escalones y agarraderas frente a la máquina con 3 puntos de contacto',
+  'Está familiarizado con requerimientos de mantenimiento',
+  'Entiende las limitaciones y capacidades del equipo',
+  'Puede operar suavemente controles y accesorios del equipo',
+  'Muestra una operación segura del equipo',
+  'Revisa su entorno 360 grados antes de subir',
+  'Usa cinturón de seguridad antes de mover la máquina',
+  'Mantiene el cucharón / cubeta bajos al avanzar',
+  'Suena claxon antes de mover máquina',
+  'Da derecho de paso a personal de piso y otros vehículos',
+  'Estaciona y apaga la máquina apropiadamente',
+  'Retira la llave y asegura la máquina',
+];
+
+const FT_INSP_ITEMS = [
+  'Tracks / Tires (Traques - tensión y Limpieza, Llantas)',
+  'Horquillas, cucharón, barrenas, martillo (picos, cubeta, brocas)',
+  'Sistema de barandales',
+  'Daño de carrocería',
+  'Hoses, Chains, Belts (Mangueras, Cadenas, Bandas)',
+  'Fugas y Niveles: Oil, Fuel, Hydraulic',
+  'Grab bars, Steps (Barras de agarre, escalones)',
+  'Fire Extinguisher (Extinguidor de Incendios)',
+  'Steering System (Sistema de Dirección)',
+  'Frenos',
+  'Operating Controls (Controles Operativos)',
+  'Claxon',
+  'Luces y luces estroboscópicas',
+  'Alarmas de Reversa',
+  'Windows (Ventanas)',
+  'Front & Rear Mirrors (Espejos Delanteros y Traseros)',
+  'Seatbelt (Cinturón de Seguridad)',
+  'Operator Manual (Manual del Operador)',
+];
+
+const FT_AREA_ITEMS = [
+  'Drop-offs or Holes (Descensos, Bajadas o Agujeros)',
+  'Slopes, bumps, debris (Rampas, piedras, topes, escombro)',
+  'Overhead obstructions (Obstrucciones Aéreas, Líneas eléctricas, Árboles)',
+  'Ground obstructions (Obstrucciones en el Suelo, Utilidades Subterráneas)',
+  'Weather conditions (Condiciones climáticas)',
+];
+
+function formsTab(tab){
+  document.getElementById('ftab-eval').className='tp-tab'+(tab==='eval'?' active':'');
+  document.getElementById('ftab-insp').className='tp-tab'+(tab==='insp'?' active':'');
+  document.getElementById('forms-eval-panel').style.display=tab==='eval'?'block':'none';
+  document.getElementById('forms-insp-panel').style.display=tab==='insp'?'block':'none';
+  if(tab==='insp'){
+    // Sync marca/modelo from eval to insp
+    const marca=document.getElementById('ft-marca').value;
+    const modelo=document.getElementById('ft-modelo').value;
+    if(marca)document.getElementById('ft-insp-marca').value=marca;
+    if(modelo)document.getElementById('ft-insp-modelo').value=modelo;
+  }
+}
+
+function initForms(){
+  // Load dropdowns for incident form specifically
+  if(listasGlobal.foremen&&listasGlobal.foremen.length>0){
+    buildDropdown(document.getElementById('ir-foreman'), listasGlobal.foremen, 'Selecciona foreman');
+    buildDropdown(document.getElementById('ir-super'), listasGlobal.superintendentes||[], 'Selecciona superintendente');
+    buildDropdown(document.getElementById('ir-proyecto'), listasGlobal.proyectos||[], 'Selecciona proyecto');
+    buildDropdown(document.getElementById('ir-empleado'), listasGlobal.operadores||[], 'Selecciona empleado');
+  } else {
+    cargarListas();
+    setTimeout(function(){
+      buildDropdown(document.getElementById('ir-foreman'), listasGlobal.foremen||[], 'Selecciona foreman');
+      buildDropdown(document.getElementById('ir-super'), listasGlobal.superintendentes||[], 'Selecciona superintendente');
+      buildDropdown(document.getElementById('ir-proyecto'), listasGlobal.proyectos||[], 'Selecciona proyecto');
+      buildDropdown(document.getElementById('ir-empleado'), listasGlobal.operadores||[], 'Selecciona empleado');
+    }, 2000);
+  }
+  // Set today
+  const fd=document.getElementById('ft-fecha');
+  if(fd)fd.value=new Date().toISOString().split('T')[0];
+  // Build criterios
+  const cl=document.getElementById('ft-criterios-list');
+  if(cl){
+    cl.innerHTML=FT_CRITERIOS.map((c,i)=>`
+      <div class="pf-row" id="pf-${i}" data-val="">
+        <div class="pf-label">${i+1}. ${c}</div>
+        <button class="pf-btn pass" onclick="setPF(${i},'pass',this)">PASS</button>
+        <button class="pf-btn fail" onclick="setPF(${i},'fail',this)">FAIL</button>
+      </div>`).join('');
+  }
+  // Build inspection items
+  const il=document.getElementById('ft-insp-list');
+  if(il){
+    il.innerHTML=FT_INSP_ITEMS.map((item,i)=>`
+      <div class="insp-row">
+        <div class="insp-row-label">${item}</div>
+        <div class="insp-radio"><input type="radio" name="insp-${i}" value="bueno"/></div>
+        <div class="insp-radio"><input type="radio" name="insp-${i}" value="malo"/></div>
+        <div class="insp-radio"><input type="radio" name="insp-${i}" value="na"/></div>
+      </div>`).join('');
+  }
+  // Build area items
+  const al=document.getElementById('ft-area-list');
+  if(al){
+    al.innerHTML=FT_AREA_ITEMS.map((item,i)=>`
+      <div class="insp-row">
+        <div class="insp-row-label">${item}</div>
+        <div class="insp-radio"><input type="radio" name="area-${i}" value="bueno"/></div>
+        <div class="insp-radio"><input type="radio" name="area-${i}" value="malo"/></div>
+        <div class="insp-radio"><input type="radio" name="area-${i}" value="na"/></div>
+      </div>`).join('');
+  }
+  // Reset submit msg
+  const msg=document.getElementById('ft-submit-msg');
+  if(msg)msg.style.display='none';
+  // Reset to eval tab
+  formsTab('eval');
+}
+
+function setPF(idx,val,btn){
+  const row=document.getElementById('pf-'+idx);
+  row.querySelectorAll('.pf-btn').forEach(b=>{b.className=b.classList.contains('pass')?'pf-btn pass':'pf-btn fail';});
+  btn.classList.add('selected');
+  row.dataset.val=val;
+}
+
+async function submitFieldTest(){
+  const operador=document.getElementById('ft-operador').value;
+  const supervisor=document.getElementById('ft-supervisor').value;
+  if(!operador||!supervisor){alert('Por favor selecciona el operador y el supervisor.');return;}
+
+  // Collect equipment checkboxes
+  const equipoChecks=Array.from(document.querySelectorAll('input[name="equipo"]:checked')).map(c=>c.value);
+  const equipoTipo=equipoChecks.join(', ')||'No especificado';
+
+  // Collect criterios
+  const evaluacion=FT_CRITERIOS.map((c,i)=>{
+    const row=document.getElementById('pf-'+i);
+    return{criterio:c,resultado:row?row.dataset.val||'sin marcar':'sin marcar'};
+  });
+  const sinMarcar=evaluacion.filter(e=>e.resultado==='sin marcar').length;
+  if(sinMarcar>0){
+    if(!confirm(`Hay ${sinMarcar} criterio(s) sin marcar. ¿Deseas continuar?`))return;
+  }
+
+  // Collect inspection items
+  const inspeccion=FT_INSP_ITEMS.map((item,i)=>{
+    const sel=document.querySelector(`input[name="insp-${i}"]:checked`);
+    return{nombre:item,resultado:sel?sel.value:'sin marcar'};
+  });
+  const areaInsp=FT_AREA_ITEMS.map((item,i)=>{
+    const sel=document.querySelector(`input[name="area-${i}"]:checked`);
+    return{nombre:item,resultado:sel?sel.value:'sin marcar'};
+  });
+
+  const allInsp=[...inspeccion,...areaInsp];
+  const passCount=evaluacion.filter(e=>e.resultado==='pass').length;
+  const failCount=evaluacion.filter(e=>e.resultado==='fail').length;
+  const resultado=failCount>0?'FAIL':'PASS';
+
+  const payload={
+    tipo:'fieldtest',
+    id:Date.now(),
+    fecha:document.getElementById('ft-fecha').value,
+    operador,
+    posicion:document.getElementById('ft-posicion').value,
+    supervisor,
+    equipoTipo,
+    equipoMarca:document.getElementById('ft-marca').value,
+    equipoModelo:document.getElementById('ft-modelo').value,
+    capacidad:document.getElementById('ft-capacidad').value,
+    evaluacion,
+    inspeccion:allInsp,
+    observaciones:document.getElementById('ft-obs-eval').value,
+    firmaSupervisor:document.getElementById('ft-firma-sup').value,
+    firmaOperador:document.getElementById('ft-firma-op').value,
+  };
+
+  const msg=document.getElementById('ft-submit-msg');
+  msg.style.display='block';
+  msg.textContent='⏳ Guardando field test...';
+  msg.style.background='var(--info-bg)';msg.style.color='var(--info-text)';
+
+  try{
+    await fetch(SCRIPT_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain'},body:JSON.stringify(payload)});
+
+    // Generate PDF
+    ftGenerarPDF(payload, resultado, passCount, failCount);
+
+    if(resultado==='PASS'){
+      msg.textContent='✅ PASS — Field test guardado correctamente';
+      msg.style.background='var(--success-bg)';msg.style.color='var(--success-text)';
+    } else {
+      msg.textContent='❌ FAIL — Field test guardado. Revisar criterios fallidos.';
+      msg.style.background='var(--danger-bg)';msg.style.color='var(--danger-text)';
+    }
+  }catch(err){
+    msg.textContent='⚠ Error de conexión';
+    msg.style.background='var(--danger-bg)';msg.style.color='var(--danger-text)';
+  }
+  window.scrollTo(0,0);
+  setTimeout(()=>{
+    msg.style.display='none';
+    show('s-super');
+  },4000);
+}
+
 function ftGenerarPDF(data, resultado, passCount, failCount){
   try{
     const {jsPDF}=window.jspdf;
@@ -4526,132 +5338,108 @@ function resetIncidentReport(){
 
 function irGenerarPDF(data){
   try{
-    const {jsPDF}=window.jspdf;
-    const doc=new jsPDF({orientation:'portrait',unit:'mm',format:'letter'});
-    const W=215.9,M=16;let y=0;
+    const {jsPDF} = window.jspdf;
+    const doc = new jsPDF({orientation:'portrait', unit:'mm', format:'letter'});
+    const W = 215.9, M = 16;
 
-    const tipoLabel={
-      'casi-accidente':'Casi-Accidente / Near Miss',
-      'primeros-auxilios':'Primeros Auxilios / First Aid',
-      'empleado-herido':'Empleado Herido / Employee Injured',
-      'dano-propiedad':'Daño a Propiedad / Property Damage'
-    }[data.tipoIncidente]||data.tipoIncidente;
+    const tipoLabel = {
+      'casi-accidente': 'Casi-Accidente / Near Miss',
+      'primeros-auxilios': 'Primeros Auxilios / First Aid',
+      'empleado-herido': 'Empleado Herido / Injured Employee',
+      'dano-propiedad': 'Daño a Propiedad / Property Damage'
+    }[data.tipoIncidente] || data.tipoIncidente;
 
-    // Header
-    doc.setFillColor(11,11,12);doc.rect(0,0,W,38,'F');
-    doc.setFillColor(232,97,26);doc.rect(0,33,W,5,'F');
-    doc.setFontSize(18);doc.setFont('helvetica','bold');doc.setTextColor(255,255,255);
-    doc.text('REPORTE DE INCIDENTE',M,14);
-    doc.setFontSize(11);doc.setFont('helvetica','normal');doc.setTextColor(200,200,200);
-    doc.text('Incident Report — Oscar Orduno, Inc.',M,22);
-    doc.text('ID: '+data.id+' | Generado: '+new Date().toLocaleDateString('en-US'),M,30);
+    const badgeColors = {
+      'casi-accidente': [220, 150, 0],
+      'primeros-auxilios': [0, 120, 190],
+      'empleado-herido': [200, 40, 40],
+      'dano-propiedad': [80, 80, 80]
+    };
 
-    // Type badge
-    doc.setFillColor(232,97,26);doc.roundedRect(W-M-50,6,48,16,3,3,'F');
-    doc.setFontSize(9);doc.setFont('helvetica','bold');doc.setTextColor(255,255,255);
-    doc.text(tipoLabel.toUpperCase().substring(0,20),W-M-26,17,{align:'center'});
+    let y = pdfHeader(doc,
+      'REPORTE DE INCIDENTE',
+      'Incident Report  |  Oscar Orduno, Inc.  |  ID: ' + data.id,
+      tipoLabel.split('/')[0].trim(),
+      badgeColors[data.tipoIncidente] || [232, 97, 26]
+    );
 
-    y=46;
+    y = pdfSection(doc, 'Información General', y);
+    y = pdfRow(doc, 'Tipo de Incidente', tipoLabel, y, false);
+    y = pdfRow(doc, 'Fecha / Hora', data.fecha + ' ' + (data.hora||''), y, true);
+    y = pdfRow(doc, 'Proyecto', data.proyecto, y, false);
+    y = pdfRow(doc, 'Foreman', data.foreman, y, true);
+    y = pdfRow(doc, 'Superintendente', data.superintendente, y, false);
+    y = pdfRow(doc, 'Lugar', data.lugar, y, true);
+    y += 4;
 
-    // Section helper
-    function section(title){
-      if(y>240){doc.addPage();y=20;}
-      doc.setFillColor(232,97,26);doc.rect(M,y,W-M*2,7,'F');
-      doc.setFontSize(9);doc.setFont('helvetica','bold');doc.setTextColor(255,255,255);
-      doc.text(title.toUpperCase(),M+3,y+5);
-      y+=10;
-    }
-
-    function row(label,val){
-      if(y>250){doc.addPage();y=20;}
-      doc.setFontSize(8.5);doc.setFont('helvetica','bold');doc.setTextColor(95,94,90);
-      doc.text(label+':',M,y);
-      doc.setFont('helvetica','normal');doc.setTextColor(26,26,24);
-      const lines=doc.splitTextToSize(String(val||'—'),W-M*2-35);
-      doc.text(lines,M+40,y);
-      y+=lines.length*5+2;
-    }
-
-    // General info
-    section('Informacion General');
-    row('Tipo de Incidente',tipoLabel);
-    row('Fecha',data.fecha+' '+data.hora);
-    row('Proyecto',data.proyecto);
-    row('Foreman',data.foreman);
-    row('Superintendente',data.superintendente);
-    row('Lugar del incidente',data.lugar);
-    y+=4;
-
-    // Worker info
     if(data.hayHerido){
-      section('Informacion del Empleado Herido');
-      row('Nombre',data.empleadoHerido);
-      row('Posicion',data.posicion);
-      row('Descripcion de la lesion',data.lesionDescripcion);
-      if(data.tiposLesion&&data.tiposLesion.length) row('Tipo de lesion',data.tiposLesion.join(', '));
-      if(data.hayMedico){
-        row('Doctor',data.doctor);
-        row('Clinica',data.clinica);
-        row('Direccion clinica',data.clinicaDireccion);
-        row('Regreso al trabajo',data.fechaRegreso||'Por determinar');
-      } else {
-        row('Atencion medica','No requirio atencion medica');
+      y = pdfSection(doc, 'Empleado Herido', y);
+      y = pdfRow(doc, 'Nombre', data.empleadoHerido, y, false);
+      y = pdfRow(doc, 'Posición', data.posicion, y, true);
+      y = pdfRow(doc, 'Descripción lesión', data.lesionDescripcion, y, false);
+      if(data.tiposLesion && data.tiposLesion.length)
+        y = pdfRow(doc, 'Tipo de lesión', data.tiposLesion.join(', '), y, true);
+      y = pdfRow(doc, 'Atención médica', data.hayMedico ? 'Sí — ' + (data.clinica||'') : 'No requirió', y, false);
+      if(data.hayMedico) {
+        y = pdfRow(doc, 'Doctor', data.doctor, y, true);
+        y = pdfRow(doc, 'Dirección clínica', data.clinicaDireccion, y, false);
+        y = pdfRow(doc, 'Regreso al trabajo', data.fechaRegreso || 'Por determinar', y, true);
       }
-      y+=4;
+      y += 4;
     }
 
-    // Machinery
     if(data.hayMaquinaria){
-      section('Maquinaria / Propiedad Afectada');
-      row('Equipo afectado',data.maquinaria);
-      row('Descripcion del dano',data.danoMaquinaria);
-      y+=4;
+      y = pdfSection(doc, 'Maquinaria / Propiedad Afectada', y);
+      y = pdfRow(doc, 'Equipo', data.maquinaria, y, false);
+      y = pdfRow(doc, 'Descripción del daño', data.danoMaquinaria, y, true);
+      y += 4;
     }
 
-    // Incident description
-    section('Descripcion del Incidente');
-    row('Que hacia antes del incidente',data.antesIncidente);
-    row('Como ocurrio',data.comoOcurrio);
-    row('Objeto que causo la lesion',data.objetoCausa);
-    row('Actividad regular',data.actividadRegular?'Si':'No');
-    if(data.factores&&data.factores.length) row('Factores contribuyentes',data.factores.join(', '));
-    y+=4;
+    y = pdfSection(doc, 'Descripción del Incidente', y);
+    y = pdfRow(doc, 'Qué hacía antes', data.antesIncidente, y, false);
+    y = pdfRow(doc, 'Cómo ocurrió', data.comoOcurrio, y, true);
+    y = pdfRow(doc, 'Objeto causante', data.objetoCausa, y, false);
+    y = pdfRow(doc, 'Actividad regular', data.actividadRegular ? 'Sí' : 'No', y, true);
+    if(data.factores && data.factores.length)
+      y = pdfRow(doc, 'Factores contribuyentes', data.factores.join(', '), y, false);
+    y += 4;
 
-    // Corrective actions
-    section('Acciones Correctivas');
-    row('Causa identificada',data.causa);
-    row('Correccion implementada',data.correccion);
-    row('Seguimiento requerido',data.seguimiento||'No requiere');
-    row('Potencial de severidad',data.severidad||'—');
-    row('Notificar a OSHA',data.osha?'SI':'No');
-    y+=4;
+    y = pdfSection(doc, 'Acciones Correctivas', y);
+    y = pdfRow(doc, 'Causa identificada', data.causa, y, false);
+    y = pdfRow(doc, 'Corrección implementada', data.correccion, y, true);
+    y = pdfRow(doc, 'Seguimiento', data.seguimiento || 'No requiere', y, false);
+    y = pdfRow(doc, 'Severidad potencial', data.severidad || '—', y, true);
+    y = pdfRow(doc, 'Notificar OSHA', data.osha ? 'SÍ — REQUERIDO' : 'No requerido', y, false);
+    y += 4;
 
-    // Witnesses
-    if(data.testigos&&data.testigos.length){
-      section('Testigos');
-      data.testigos.forEach((t,i)=>row('Testigo '+(i+1),t));
-      y+=4;
+    if(data.testigos && data.testigos.length){
+      y = pdfSection(doc, 'Testigos', y);
+      data.testigos.forEach((t, i) => { y = pdfRow(doc, 'Testigo ' + (i+1), t, y, i%2===0); });
+      y += 4;
     }
 
-    // Signature
-    if(y>230){doc.addPage();y=20;}
-    doc.setDrawColor(180);doc.line(M,y+10,M+70,y+10);
-    doc.setFontSize(8);doc.setTextColor(95,94,90);
-    doc.text('Firma del Foreman: '+data.firma,M,y+15);
+    // Signature section
+    if(y > 220) { doc.addPage(); y = pdfNewPage(doc); }
+    y = pdfSection(doc, 'Firma del Foreman', y);
+    y += 6;
+    doc.setFontSize(9);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(26, 26, 24);
+    doc.text('Nombre: ' + (data.firma || ''), M, y);
+    doc.text('Fecha: ' + data.fecha, W - M - 50, y);
+    y += 6;
+
     if(data.firmaSigDataURL){
-      try{
-        doc.addImage(data.firmaSigDataURL,'PNG',M,y+18,70,20);
-      }catch(e){}
+      try { doc.addImage(data.firmaSigDataURL, 'PNG', M, y, 75, 22); y += 26; }
+      catch(e) { doc.line(M, y + 10, M + 75, y + 10); y += 16; }
+    } else {
+      doc.setDrawColor(200); doc.line(M, y + 10, M + 75, y + 10); y += 16;
     }
-    doc.text('Fecha: '+data.fecha,M+100,y+15);
 
-    // Footer
-    doc.setFontSize(7);doc.setTextColor(180);
-    doc.text('Oscar Orduno, Inc. — Earth Retention Systems | Reporte ID: '+data.id,M,267);
-
-    const fname='Incidente_'+data.fecha+'_'+data.proyecto.replace(/[^a-zA-Z0-9]/g,'_').substring(0,20)+'.pdf';
+    pdfFooter(doc, 'Incidente-' + data.id);
+    const fname = 'Incidente_' + data.fecha + '_' + (data.proyecto||'').replace(/[^a-zA-Z0-9]/g,'_').substring(0,20) + '.pdf';
     doc.save(fname);
-  }catch(err){console.log('PDF error:',err);}
+  } catch(err){ console.log('PDF error:', err); }
 }
 
 
@@ -4873,73 +5661,80 @@ function resetAttendance(){
 
 function saGenerarPDF(data){
   try{
-    const {jsPDF}=window.jspdf;
-    const doc=new jsPDF({orientation:'portrait',unit:'mm',format:'letter'});
-    const W=215.9,M=16;let y=0;
+    const {jsPDF} = window.jspdf;
+    const doc = new jsPDF({orientation:'portrait', unit:'mm', format:'letter'});
+    const W = 215.9, M = 16;
 
-    // Header
-    doc.setFillColor(11,11,12);doc.rect(0,0,W,38,'F');
-    doc.setFillColor(15,110,86);doc.rect(0,33,W,5,'F');
-    doc.setFontSize(18);doc.setFont('helvetica','bold');doc.setTextColor(255,255,255);
-    doc.text('LISTA DE ASISTENCIA',M,14);
-    doc.setFontSize(11);doc.setFont('helvetica','normal');doc.setTextColor(200,200,200);
-    doc.text('Training Attendance — Oscar Orduno, Inc.',M,22);
-    doc.text('Generado: '+new Date().toLocaleDateString('en-US'),M,30);
-    y=46;
+    let y = pdfHeader(doc,
+      'LISTA DE ASISTENCIA',
+      'Training Attendance  |  Oscar Orduno, Inc.',
+      data.tipoEntrenamiento,
+      [232, 97, 26]
+    );
 
-    // Info section
-    doc.setFontSize(10);doc.setFont('helvetica','bold');doc.setTextColor(26,26,24);
-    doc.text('Entrenamiento: '+data.tipoEntrenamiento,M,y);y+=7;
-    doc.setFont('helvetica','normal');doc.setTextColor(95,94,90);
-    doc.text('Fecha: '+data.fecha,M,y);y+=6;
-    if(data.proyecto) {doc.text('Proyecto: '+data.proyecto,M,y);y+=6;}
-    if(data.instructor) {doc.text('Instructor: '+data.instructor,M,y);y+=6;}
-    if(data.duracion) {doc.text('Duracion: '+data.duracion+' hora(s)',M,y);y+=6;}
-    y+=4;
+    // Info row
+    y = pdfSection(doc, 'Información del Entrenamiento', y);
+    y = pdfRow(doc, 'Tipo', data.tipoEntrenamiento, y, false);
+    y = pdfRow(doc, 'Fecha', data.fecha, y, true);
+    if(data.proyecto) y = pdfRow(doc, 'Proyecto', data.proyecto, y, false);
+    if(data.instructor) y = pdfRow(doc, 'Instructor', data.instructor, y, data.proyecto?true:false);
+    if(data.duracion) y = pdfRow(doc, 'Duración', data.duracion + ' hora(s)', y, true);
+    y += 6;
 
-    // Table header
-    doc.setFillColor(15,110,86);doc.rect(M,y,W-M*2,8,'F');
-    doc.setFontSize(9);doc.setFont('helvetica','bold');doc.setTextColor(255,255,255);
-    doc.text('#',M+2,y+5.5);
-    doc.text('Nombre del Empleado',M+12,y+5.5);
-    doc.text('Firma',W-M-35,y+5.5);
-    y+=10;
+    // Employee table header
+    y = pdfSection(doc, 'Lista de Empleados — ' + data.empleados.length + ' Asistentes', y);
+    y += 2;
 
-    // Employee rows
-    data.empleados.forEach((emp,i)=>{
-      if(y>250){doc.addPage();y=20;}
-      const bg = i%2===0?[248,247,245]:[255,255,255];
-      doc.setFillColor(bg[0],bg[1],bg[2]);
-      doc.rect(M,y,W-M*2,9,'F');
-      doc.setFontSize(9);doc.setFont('helvetica','normal');doc.setTextColor(26,26,24);
-      doc.text(String(i+1),M+2,y+6);
-      doc.text(emp,M+12,y+6);
-      // Signature line
-      doc.setDrawColor(180);doc.line(W-M-40,y+7,W-M-4,y+7);
-      y+=9;
+    // Table columns
+    doc.setFontSize(8);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(255, 255, 255);
+    doc.setFillColor(11, 11, 12);
+    doc.rect(M, y, W - M*2, 7, 'F');
+    doc.text('#', M + 3, y + 5);
+    doc.text('Nombre del Empleado', M + 13, y + 5);
+    doc.text('Firma', W - M - 42, y + 5);
+    y += 9;
+
+    data.empleados.forEach((emp, i) => {
+      if(y > 255) { doc.addPage(); y = pdfNewPage(doc); }
+      if(i % 2 === 0) {
+        doc.setFillColor(245, 244, 242);
+        doc.rect(M, y - 1, W - M*2, 9, 'F');
+      }
+      doc.setFontSize(9);
+      doc.setFont('helvetica', 'normal');
+      doc.setTextColor(26, 26, 24);
+      doc.text(String(i + 1), M + 3, y + 5);
+      doc.text(emp, M + 13, y + 5);
+      doc.setDrawColor(200);
+      doc.line(W - M - 46, y + 7, W - M - 4, y + 7);
+      y += 9;
     });
 
-    // Footer
-    y+=10;
-    doc.setDrawColor(15,110,86);doc.line(M,y,W-M,y);y+=6;
-    doc.setFontSize(8);doc.setTextColor(95,94,90);
-    doc.text('Instructor: '+(data.instructor||'')+'     Fecha: '+data.fecha,M,y);y+=8;
-    if(data.instructorSig){
-      try{
-        doc.addImage(data.instructorSig,'PNG',M,y,70,22);y+=24;
-      }catch(e){
-        doc.line(M,y+8,M+70,y+8);y+=12;
-      }
-    } else {
-      doc.text('Firma: ___________________________',M,y+8);y+=12;
-    }
-    y+=10;
-    doc.setFontSize(7);doc.setTextColor(180);
-    doc.text('Oscar Orduno, Inc. — Safety Platform | Total asistentes: '+data.empleados.length,M,y);
+    // Instructor signature
+    y += 8;
+    if(y > 220) { doc.addPage(); y = pdfNewPage(doc); }
+    y = pdfSection(doc, 'Firma del Instructor', y);
+    y += 6;
+    doc.setFontSize(9);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(26, 26, 24);
+    doc.text('Instructor: ' + (data.instructor||'___________________________'), M, y);
+    doc.text('Fecha: ' + data.fecha, W - M - 60, y);
+    y += 8;
 
-    const fname='Asistencia_'+data.tipoEntrenamiento.replace(/[^a-zA-Z0-9]/g,'_')+'_'+data.fecha+'.pdf';
+    if(data.instructorSig){
+      try { doc.addImage(data.instructorSig, 'PNG', M, y, 75, 22); y += 26; }
+      catch(e) { doc.setDrawColor(200); doc.line(M, y + 12, M + 75, y + 12); y += 18; }
+    } else {
+      doc.setDrawColor(200); doc.line(M, y + 12, M + 75, y + 12); y += 18;
+    }
+
+    pdfFooter(doc, 'Asistencia-' + data.tipoEntrenamiento.replace(/[^a-zA-Z0-9]/g,'_') + '-' + data.fecha);
+    const fname = 'Asistencia_' + data.tipoEntrenamiento.replace(/[^a-zA-Z0-9]/g,'_') + '_' + data.fecha + '.pdf';
     doc.save(fname);
-  }catch(err){console.log('PDF error:',err);}
+  } catch(err){ console.log('PDF error:', err); }
 }
 
 async function submitCertUpload(){
@@ -5064,6 +5859,110 @@ function initFTSigs() {
     initSigPad('ft-sig-sup', 'ft-sig-sup-canvas');
     initSigPad('ft-sig-op', 'ft-sig-op-canvas');
   }, 200);
+}
+
+
+// ── UNIFIED PDF DESIGN ──
+const OOI_LOGO_B64 = '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';
+
+function pdfHeader(doc, title, subtitle, badgeText, badgeColor) {
+  const W = 215.9, M = 16;
+
+  // Black header bar
+  doc.setFillColor(11, 11, 12);
+  doc.rect(0, 0, W, 44, 'F');
+
+  // Orange accent line
+  doc.setFillColor(232, 97, 26);
+  doc.rect(0, 39, W, 5, 'F');
+
+  // Logo (white version embedded)
+  try {
+    doc.addImage('data:image/png;base64,' + OOI_LOGO_B64, 'PNG', M, 8, 42, 9);
+  } catch(e) {}
+
+  // Title
+  doc.setFontSize(15);
+  doc.setFont('helvetica', 'bold');
+  doc.setTextColor(255, 255, 255);
+  doc.text(title, M, 26);
+
+  // Subtitle
+  if(subtitle) {
+    doc.setFontSize(9);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(180, 180, 180);
+    doc.text(subtitle, M, 33);
+  }
+
+  // Badge
+  if(badgeText) {
+    const bc = badgeColor || [232, 97, 26];
+    doc.setFillColor(bc[0], bc[1], bc[2]);
+    doc.roundedRect(W - M - 52, 8, 50, 16, 3, 3, 'F');
+    doc.setFontSize(8);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(255, 255, 255);
+    doc.text(badgeText.toUpperCase().substring(0,22), W - M - 27, 18, { align: 'center' });
+  }
+
+  return 50; // return starting Y position
+}
+
+function pdfSection(doc, text, y) {
+  const W = 215.9, M = 16;
+  if(y > 245) { doc.addPage(); y = pdfNewPage(doc); }
+  doc.setFillColor(11, 11, 12);
+  doc.rect(M, y, W - M * 2, 8, 'F');
+  doc.setFontSize(9);
+  doc.setFont('helvetica', 'bold');
+  doc.setTextColor(255, 255, 255);
+  doc.text(text.toUpperCase(), M + 4, y + 5.5);
+  return y + 11;
+}
+
+function pdfRow(doc, label, value, y, shade) {
+  const W = 215.9, M = 16;
+  if(y > 255) { doc.addPage(); y = pdfNewPage(doc); }
+  if(shade) {
+    doc.setFillColor(245, 244, 242);
+    doc.rect(M, y - 3, W - M * 2, 8, 'F');
+  }
+  doc.setFontSize(8.5);
+  doc.setFont('helvetica', 'bold');
+  doc.setTextColor(95, 94, 90);
+  doc.text(label + ':', M + 2, y + 2);
+  doc.setFont('helvetica', 'normal');
+  doc.setTextColor(26, 26, 24);
+  const lines = doc.splitTextToSize(String(value || '—'), W - M * 2 - 42);
+  doc.text(lines, M + 42, y + 2);
+  return y + lines.length * 5 + 3;
+}
+
+function pdfFooter(doc, docId) {
+  const W = 215.9, M = 16;
+  const pageCount = doc.internal.getNumberOfPages();
+  for(let i = 1; i <= pageCount; i++) {
+    doc.setPage(i);
+    doc.setDrawColor(232, 97, 26);
+    doc.line(M, 261, W - M, 261);
+    doc.setFontSize(7.5);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(150, 150, 150);
+    doc.text('Oscar Orduno, Inc.  |  Earth Retention Systems  |  ' + docId, M, 266);
+    doc.text('Página ' + i + ' de ' + pageCount, W - M, 266, { align: 'right' });
+  }
+}
+
+function pdfNewPage(doc) {
+  const W = 215.9, M = 16;
+  doc.setDrawColor(232, 97, 26);
+  doc.line(M, 12, W - M, 12);
+  doc.setFontSize(8);
+  doc.setFont('helvetica', 'normal');
+  doc.setTextColor(150, 150, 150);
+  doc.text('Oscar Orduno, Inc. — Continuación', M, 10);
+  return 18;
 }
 
 </script>
