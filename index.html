@@ -552,6 +552,7 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
     <button class="role-btn" onclick="selectRole('operator')"><div class="role-icon" style="background:var(--success-bg);">🔧</div><div style="flex:1"><div style="font-size:16px;font-weight:500;">Operador</div><div style="font-size:13px;color:var(--text2);">Grout Pump — llenar inspección</div></div><span class="role-arrow">›</span></button>
     <button class="role-btn" onclick="selectRole('foreman')"><div class="role-icon" style="background:#E9F1FB;">📋</div><div style="flex:1"><div style="font-size:16px;font-weight:500;">Foreman</div><div style="font-size:13px;color:var(--text2);">Portal PTP — Pre-Task Plan</div></div><span class="role-arrow">›</span></button>
     <button class="role-btn" onclick="selectRole('rrhh')" style="border-color:#6B21A8;background:#F3E8FF;"><div class="role-icon" style="background:#F3E8FF;font-size:22px;">🏥</div><div style="flex:1"><div style="font-size:16px;font-weight:500;color:#6B21A8;">Recursos Humanos</div><div style="font-size:13px;color:#7C3AED;">Programa de Respiradores</div></div><span style="color:#6B21A8;font-size:18px;font-weight:700;">›</span></button>
+    <button class="role-btn" onclick="selectRole('safety')" style="border-color:#0F6E56;background:#E1F5EE;"><div class="role-icon" style="background:#E1F5EE;font-size:22px;">🛡️</div><div style="flex:1"><div style="font-size:16px;font-weight:500;color:#0F6E56;">Safety</div><div style="font-size:13px;color:#0F6E56;opacity:0.8;">Registrar entrenamientos · Certificaciones</div></div><span style="color:#0F6E56;font-size:18px;font-weight:700;">›</span></button>
     <button class="role-btn" onclick="selectRole('super')"><div class="role-icon" style="background:var(--info-bg);">👷</div><div style="flex:1"><div style="font-size:16px;font-weight:500;">Superintendente</div><div style="font-size:13px;color:var(--text2);">Inspecciones · Entrenamientos</div></div><span class="role-arrow">›</span></button>
 
     <div style="text-align:center;margin-top:24px;font-size:12px;color:var(--text3);">v10.0 — Oscar Orduno, Inc.</div>
@@ -1841,6 +1842,184 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
   </div>
 </div>
 
+
+<!-- ── SAFETY PORTAL SCREEN ── -->
+<div id="s-safety" class="screen">
+  <div class="bottom-nav">
+    <button class="bottom-nav-back" onclick="safetyBack()">← Atrás</button>
+    <span class="bottom-nav-title" id="safety-bottom-title">Portal de Safety</span>
+  </div>
+
+  <!-- SAFETY SELECTION SCREEN -->
+  <div id="safety-selection-screen">
+    <div style="height:5px;width:calc(100% + 0px);background:linear-gradient(90deg,#0b0b0c 0%,#0b0b0c 55%,#0F6E56 55%,#0F6E56 100%);position:sticky;top:0;z-index:10;"></div>
+    <div style="background:var(--ooi-black);padding:16px;padding-top:20px;position:sticky;top:5px;z-index:9;">
+      <div style="font-family:'Sora',sans-serif;font-size:20px;font-weight:800;color:#fff;">Safety</div>
+      <div style="font-size:11px;color:rgba(255,255,255,0.45);text-transform:uppercase;letter-spacing:0.08em;">Oscar Orduno, Inc.</div>
+    </div>
+    <div style="max-width:480px;margin:0 auto;padding:20px 16px 80px;">
+      <div style="font-size:11px;font-weight:700;color:#0F6E56;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:14px;">¿Qué deseas hacer?</div>
+
+      <button class="role-btn" onclick="safetyTab('attendance')" style="min-height:80px;">
+        <div class="role-icon" style="background:#E1F5EE;width:52px;height:52px;border-radius:12px;font-size:26px;">✅</div>
+        <div style="flex:1;">
+          <div style="font-family:'Sora',sans-serif;font-size:17px;font-weight:800;">Registrar Asistencia</div>
+          <div style="font-size:13px;color:var(--text2);margin-top:2px;">Pasar lista de entrenamiento con checkboxes</div>
+        </div>
+        <span class="role-arrow">›</span>
+      </button>
+
+      <button class="role-btn" onclick="safetyTab('certs')" style="min-height:80px;">
+        <div class="role-icon" style="background:#E1F5EE;width:52px;height:52px;border-radius:12px;font-size:26px;">📄</div>
+        <div style="flex:1;">
+          <div style="font-family:'Sora',sans-serif;font-size:17px;font-weight:800;">Subir Certificaciones</div>
+          <div style="font-size:13px;color:var(--text2);margin-top:2px;">Subir tarjetas de certificación a Drive</div>
+        </div>
+        <span class="role-arrow">›</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- ATTENDANCE PANEL -->
+  <div id="safety-attendance-panel" style="display:none;">
+    <div style="max-width:480px;margin:0 auto;padding:14px 16px 80px;">
+      <div style="font-family:'Sora',sans-serif;font-size:18px;font-weight:800;margin-bottom:4px;">✅ Registrar Asistencia</div>
+      <div style="font-size:12px;color:var(--text2);margin-bottom:16px;">El sistema marcará las solicitudes como completadas automáticamente</div>
+
+      <div id="sa-form-content">
+        <div class="card">
+          <div class="sec-label">Información del entrenamiento</div>
+          <div class="field">
+            <label>Tipo de entrenamiento</label>
+            <select id="sa-tipo">
+              <option value="">— Selecciona tipo —</option>
+              <option value="Boom Lift">Boom Lift</option>
+              <option value="Scissor Lift">Scissor Lift</option>
+              <option value="Skytrack">Skytrack</option>
+              <option value="Forklift">Forklift</option>
+              <option value="Excavator">Excavator</option>
+              <option value="Confined Space">Confined Space</option>
+              <option value="Fall Protection">Fall Protection</option>
+              <option value="CPR First Aid">CPR First Aid</option>
+              <option value="OSHA 10">OSHA 10</option>
+              <option value="OSHA 30">OSHA 30</option>
+              <option value="Rigging and Signaling">Rigging and Signaling</option>
+              <option value="Silica">Silica</option>
+              <option value="Respiratory Protection">Respiratory Protection</option>
+              <option value="Flagger">Flagger</option>
+              <option value="LOTO">LOTO</option>
+              <option value="Grout Pump Operator">Grout Pump Operator</option>
+              <option value="Pier Drill">Pier Drill</option>
+              <option value="Welding and Cutting">Welding and Cutting</option>
+              <option value="Fire Extinguisher">Fire Extinguisher</option>
+              <option value="Otro">Otro</option>
+            </select>
+          </div>
+          <div class="field"><label>Fecha del entrenamiento</label><input type="date" id="sa-fecha"/></div>
+          <div class="field"><label>Proyecto / Sitio</label><select id="sa-proyecto"><option value="">— Selecciona proyecto —</option></select></div>
+          <div class="field"><label>Instructor / Trainer</label><input type="text" id="sa-instructor" placeholder="Nombre del instructor" autocomplete="off"/></div>
+          <div class="field" style="margin-bottom:0;"><label>Duración (horas)</label><input type="number" id="sa-duracion" placeholder="Ej. 4" min="1" max="40"/></div>
+        </div>
+
+        <div class="card">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+            <div class="sec-label" style="margin-bottom:0;">Lista de asistencia</div>
+            <div style="display:flex;gap:6px;">
+              <button onclick="saSelectAll(true)" style="font-size:11px;padding:4px 10px;border-radius:99px;border:1px solid var(--g5);background:var(--success-bg);color:var(--success-text);font-family:inherit;cursor:pointer;font-weight:700;">✓ Todos</button>
+              <button onclick="saSelectAll(false)" style="font-size:11px;padding:4px 10px;border-radius:99px;border:1px solid var(--border2);background:var(--bg2);color:var(--text2);font-family:inherit;cursor:pointer;">Ninguno</button>
+            </div>
+          </div>
+          <div style="margin-bottom:8px;">
+            <input type="text" id="sa-search" placeholder="🔍 Buscar empleado..." oninput="saFilterList()" style="width:100%;padding:10px 12px;border-radius:var(--radius);border:1.5px solid var(--border2);font-family:inherit;font-size:14px;background:var(--bg2);color:var(--text);box-sizing:border-box;"/>
+          </div>
+          <div id="sa-employee-list" style="max-height:400px;overflow-y:auto;">
+            <div class="loading">⏳ Cargando empleados...</div>
+          </div>
+          <div style="font-size:12px;color:var(--text2);margin-top:8px;text-align:right;" id="sa-count">0 seleccionados</div>
+        </div>
+
+        <div class="submit-msg" id="sa-msg"></div>
+        <button class="btn" style="background:#0F6E56;color:white;border-color:#0F6E56;font-size:16px;min-height:54px;" onclick="submitAttendance()">
+          ✅ Registrar Lista de Asistencia
+        </button>
+      </div>
+
+      <div id="sa-confirmacion" style="display:none;background:var(--success-bg);border:1px solid var(--success-border);border-radius:var(--radius-lg);padding:24px;text-align:center;margin-top:14px;">
+        <div style="font-size:48px;margin-bottom:12px;">✅</div>
+        <div style="font-family:'Sora',sans-serif;font-size:20px;font-weight:800;color:var(--success-text);margin-bottom:8px;">Asistencia registrada</div>
+        <div style="font-size:14px;color:var(--text2);margin-bottom:8px;" id="sa-conf-detail"></div>
+        <div style="font-size:13px;color:var(--text2);margin-bottom:16px;">Las solicitudes de entrenamiento fueron marcadas como completadas. El PDF de asistencia fue descargado.</div>
+        <button class="btn" style="background:#0F6E56;color:white;border-color:#0F6E56;" onclick="resetAttendance()">Registrar otro entrenamiento</button>
+        <button class="btn btn-ghost" onclick="safetyBack()" style="margin-top:8px;">← Atrás</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- CERTS UPLOAD PANEL -->
+  <div id="safety-certs-panel" style="display:none;">
+    <div style="max-width:480px;margin:0 auto;padding:14px 16px 80px;">
+      <div style="font-family:'Sora',sans-serif;font-size:18px;font-weight:800;margin-bottom:4px;">📄 Subir Certificación</div>
+      <div style="font-size:12px;color:var(--text2);margin-bottom:16px;">La certificación se guardará en Drive en la carpeta Employee_Certifications</div>
+
+      <div class="card">
+        <div class="sec-label">Información de la certificación</div>
+        <div class="field"><label>Empleado</label><select id="sc-empleado"><option value="">— Selecciona empleado —</option></select></div>
+        <div class="field">
+          <label>Tipo de certificación</label>
+          <select id="sc-tipo">
+            <option value="">— Selecciona tipo —</option>
+            <option value="Boom Lift">Boom Lift</option>
+            <option value="Scissor Lift">Scissor Lift</option>
+            <option value="Skytrack">Skytrack</option>
+            <option value="Forklift">Forklift</option>
+            <option value="Excavator">Excavator</option>
+            <option value="Confined Space">Confined Space</option>
+            <option value="Fall Protection">Fall Protection</option>
+            <option value="CPR First Aid">CPR First Aid</option>
+            <option value="OSHA 10">OSHA 10</option>
+            <option value="OSHA 30">OSHA 30</option>
+            <option value="Rigging and Signaling">Rigging and Signaling</option>
+            <option value="Silica">Silica</option>
+            <option value="Respiratory Protection">Respiratory Protection</option>
+            <option value="Flagger">Flagger</option>
+            <option value="LOTO">LOTO</option>
+            <option value="Grout Pump Operator">Grout Pump Operator</option>
+            <option value="Pier Drill">Pier Drill</option>
+            <option value="Welding and Cutting">Welding and Cutting</option>
+            <option value="Fire Extinguisher">Fire Extinguisher</option>
+            <option value="Otro">Otro</option>
+          </select>
+        </div>
+        <div class="field"><label>Fecha de la certificación</label><input type="date" id="sc-fecha"/></div>
+        <div class="field"><label>Fecha de vencimiento (si aplica)</label><input type="date" id="sc-vence"/></div>
+        <div class="field" style="margin-bottom:0;">
+          <label>Foto de la certificación / tarjeta</label>
+          <button class="photo-btn" onclick="triggerPhoto('sc-cert','sc-cert-input')">📸 Tomar foto o elegir de galería</button>
+          <input type="file" id="sc-cert-input" accept="image/*" style="display:none" onchange="handlePhotos(this,'sc-cert')" data-storekey="sc-cert"/>
+          <div class="photo-grid" id="sc-cert" style="margin-top:10px;"></div>
+        </div>
+      </div>
+
+      <div style="background:#E1F5EE;border:1px solid rgba(15,110,86,0.2);border-radius:var(--radius);padding:12px 14px;margin-bottom:14px;font-size:13px;color:#0F6E56;">
+        📁 El archivo se guardará en Drive con el nombre: <strong>[Empleado] - [Tipo] - [Año].jpg</strong>
+      </div>
+
+      <div class="submit-msg" id="sc-msg"></div>
+      <button class="btn" style="background:#0F6E56;color:white;border-color:#0F6E56;font-size:16px;min-height:54px;" onclick="submitCertUpload()">
+        📄 Subir Certificación a Drive
+      </button>
+
+      <div id="sc-confirmacion" style="display:none;background:var(--success-bg);border:1px solid var(--success-border);border-radius:var(--radius-lg);padding:24px;text-align:center;margin-top:14px;">
+        <div style="font-size:48px;margin-bottom:12px;">✅</div>
+        <div style="font-family:'Sora',sans-serif;font-size:20px;font-weight:800;color:var(--success-text);margin-bottom:8px;">Certificación subida</div>
+        <div style="font-size:14px;color:var(--text2);margin-bottom:16px;" id="sc-conf-detail"></div>
+        <button class="btn" style="background:#0F6E56;color:white;border-color:#0F6E56;" onclick="resetCertUpload()">Subir otra certificación</button>
+        <button class="btn btn-ghost" onclick="safetyBack()" style="margin-top:8px;">← Atrás</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- ── DRILS SCREEN ── -->
 <div id="s-drils" class="screen">
   <div class="bottom-nav">
@@ -1987,8 +2166,8 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
 <script>
 const SCRIPT_URL='https://script.google.com/macros/s/AKfycbxsouup5vWPD-VcaTqPWlltY0jZkwRdfOhSGTmW4a0gBvMGB1InvbYFtxYYyDG1cxkuIA/exec';
 const IMGBB_KEY='23cabfde3affda4781ddf1b5219ca20e';
-const PINS={mechanic:'1234',super:'0000',management:'5678',foreman:'2014',rrhh:'7766'};
-const ROLES={mechanic:'Mecánico',super:'Superintendente',management:'Management',foreman:'Foreman',rrhh:'Recursos Humanos'};
+const PINS={mechanic:'1234',super:'0000',management:'5678',foreman:'2014',rrhh:'7766',safety:'9999'};
+const ROLES={mechanic:'Mecánico',super:'Superintendente',management:'Management',foreman:'Foreman',rrhh:'Recursos Humanos',safety:'Safety'};
 let pinEntry='',currentRole='';
 const photoStore={};
 let listasGlobal={foremen:[],operadores:[],maquinas:[]};
@@ -2302,12 +2481,18 @@ function poblarTodosLosDropdowns(listas){
 
   // RRHH
   buildDropdown(document.getElementById('rrhh-trabajador'), listas.operadores||[], 'Selecciona trabajador');
+  // Incident report dropdowns
+  buildDropdown(document.getElementById('ir-foreman'), listas.foremen||[], 'Selecciona foreman');
+  buildDropdown(document.getElementById('ir-super'), listas.superintendentes||[], 'Selecciona superintendente');
+  buildDropdown(document.getElementById('ir-proyecto'), listas.proyectos||[], 'Selecciona proyecto');
+  buildDropdown(document.getElementById('ir-empleado'), listas.operadores||[], 'Selecciona empleado');
 }
 
 function selectRole(role){
   currentRole=role;
   if(role==='operator'){buildInspList();buildSafetyList();setToday();cargarListas();show('s-operator');}else if(role==='foreman'){pinEntry='';updateDots();document.getElementById('pin-err').style.display='none';document.getElementById('pin-role-name').textContent='Foreman';show('s-pin');return;}
   else if(role==='rrhh'){pinEntry='';updateDots();document.getElementById('pin-err').style.display='none';document.getElementById('pin-role-name').textContent='Recursos Humanos';show('s-pin');return;}
+  else if(role==='safety'){pinEntry='';updateDots();document.getElementById('pin-err').style.display='none';document.getElementById('pin-role-name').textContent='Safety';show('s-pin');return;}
   else if(role==='super'){pinEntry='';updateDots();document.getElementById('pin-err').style.display='none';document.getElementById('pin-role-name').textContent='Superintendente';show('s-pin');}
   else{pinEntry='';updateDots();document.getElementById('pin-err').style.display='none';document.getElementById('pin-role-name').textContent=ROLES[role];show('s-pin');}
 }
@@ -2327,6 +2512,9 @@ function checkPin(){
     } else if(currentRole==='rrhh'){
       show('s-respiradores');
       initRespiradoresRRHH();
+    } else if(currentRole==='safety'){
+      show('s-safety');
+      initSafety();
     } else {
       document.getElementById('mgr-name').textContent=currentRole==='mechanic'?'Panel del mecánico':'Management — reportes';
       show('s-manager');loadReports();
@@ -4395,6 +4583,306 @@ function foremanBack(){
   } else {
     show('s-login');
   }
+}
+
+
+// ── SAFETY PORTAL ──
+let saEmployees = [];
+
+function initSafety(){
+  // Show selection screen, hide panels
+  const sel = document.getElementById('safety-selection-screen');
+  if(sel) sel.style.display='block';
+  ['safety-attendance-panel','safety-certs-panel'].forEach(p=>{
+    const el=document.getElementById(p);if(el)el.style.display='none';
+  });
+  const bt=document.getElementById('safety-bottom-title');
+  if(bt) bt.textContent='Portal de Safety';
+  const today = new Date().toISOString().split('T')[0];
+  const fd = document.getElementById('sa-fecha');
+  if(fd) fd.value = today;
+  const scd = document.getElementById('sc-fecha');
+  if(scd) scd.value = today;
+  if(listasGlobal.operadores && listasGlobal.operadores.length > 0){
+    poblarTodosLosDropdowns(listasGlobal);
+    saEmployees = listasGlobal.operadores;
+    renderEmployeeList();
+  } else {
+    cargarListas().then(()=>{
+      saEmployees = listasGlobal.operadores||[];
+      renderEmployeeList();
+    });
+  }
+}
+
+function safetyBack(){
+  const sel = document.getElementById('safety-selection-screen');
+  const panels = ['safety-attendance-panel','safety-certs-panel'];
+  const anyVisible = panels.some(p=>{
+    const el=document.getElementById(p);
+    return el && el.style.display !== 'none';
+  });
+  if(anyVisible){
+    panels.forEach(p=>{const el=document.getElementById(p);if(el)el.style.display='none';});
+    if(sel) sel.style.display='block';
+    const bt=document.getElementById('safety-bottom-title');
+    if(bt) bt.textContent='Portal de Safety';
+  } else {
+    show('s-login');
+  }
+}
+
+function safetyTab(tab){
+  const sel = document.getElementById('safety-selection-screen');
+  if(sel) sel.style.display='none';
+  ['safety-attendance-panel','safety-certs-panel'].forEach(p=>{
+    const el=document.getElementById(p);if(el)el.style.display='none';
+  });
+  const bt = document.getElementById('safety-bottom-title');
+  if(tab==='attendance'){
+    if(bt) bt.textContent='✅ Registrar Asistencia';
+    document.getElementById('safety-attendance-panel').style.display='block';
+    buildDropdown(document.getElementById('sa-proyecto'), listasGlobal.proyectos||[], 'Selecciona proyecto');
+    saEmployees = listasGlobal.operadores||[];
+    renderEmployeeList();
+  } else if(tab==='certs'){
+    if(bt) bt.textContent='📄 Subir Certificaciones';
+    document.getElementById('safety-certs-panel').style.display='block';
+    buildDropdown(document.getElementById('sc-empleado'), listasGlobal.operadores||[], 'Selecciona empleado');
+    if(!photoStore['sc-cert']) photoStore['sc-cert']=[];
+    renderPhotoGrid('sc-cert');
+  }
+  window.scrollTo(0,0);
+}
+
+function renderEmployeeList(){
+  const q = (document.getElementById('sa-search')?.value||'').toLowerCase();
+  const filtered = saEmployees.filter(e=>e.toLowerCase().includes(q));
+  const listEl = document.getElementById('sa-employee-list');
+  if(!listEl) return;
+  if(!filtered.length){
+    listEl.innerHTML='<div style="padding:20px;text-align:center;color:var(--text2);font-size:13px;">No se encontraron empleados.</div>';
+    return;
+  }
+  listEl.innerHTML = filtered.map((emp,i)=>`
+    <div style="display:flex;align-items:center;gap:12px;padding:10px 4px;border-bottom:0.5px solid var(--border);" onclick="saToggle('sa-chk-${i}')">
+      <div style="width:24px;height:24px;border-radius:6px;border:2px solid var(--border2);display:flex;align-items:center;justify-content:center;flex-shrink:0;background:var(--bg2);transition:all 0.15s;" id="sa-chk-${i}" data-emp="${emp}">
+      </div>
+      <div style="font-size:14px;font-weight:500;flex:1;">${emp}</div>
+    </div>`).join('');
+  updateSACount();
+}
+
+function saFilterList(){
+  renderEmployeeList();
+}
+
+function saToggle(id){
+  const el = document.getElementById(id);
+  if(!el) return;
+  const checked = el.dataset.checked === 'true';
+  el.dataset.checked = !checked;
+  el.style.background = !checked ? '#0F6E56' : 'var(--bg2)';
+  el.style.borderColor = !checked ? '#0F6E56' : 'var(--border2)';
+  el.innerHTML = !checked ? '<span style="color:white;font-size:14px;font-weight:700;">✓</span>' : '';
+  updateSACount();
+}
+
+function saSelectAll(val){
+  document.querySelectorAll('[id^="sa-chk-"]').forEach(el=>{
+    el.dataset.checked = val;
+    el.style.background = val ? '#0F6E56' : 'var(--bg2)';
+    el.style.borderColor = val ? '#0F6E56' : 'var(--border2)';
+    el.innerHTML = val ? '<span style="color:white;font-size:14px;font-weight:700;">✓</span>' : '';
+  });
+  updateSACount();
+}
+
+function updateSACount(){
+  const count = document.querySelectorAll('[id^="sa-chk-"][data-checked="true"]').length;
+  const el = document.getElementById('sa-count');
+  if(el) el.textContent = count + ' seleccionado' + (count!==1?'s':'');
+}
+
+function getSelectedEmployees(){
+  const selected = [];
+  document.querySelectorAll('[id^="sa-chk-"][data-checked="true"]').forEach(el=>{
+    if(el.dataset.emp) selected.push(el.dataset.emp);
+  });
+  return selected;
+}
+
+async function submitAttendance(){
+  const tipo = document.getElementById('sa-tipo').value;
+  const fecha = document.getElementById('sa-fecha').value;
+  const proyecto = document.getElementById('sa-proyecto').value;
+  const instructor = document.getElementById('sa-instructor').value.trim();
+  const duracion = document.getElementById('sa-duracion').value;
+  const empleados = getSelectedEmployees();
+
+  if(!tipo){alert('Por favor selecciona el tipo de entrenamiento.');return;}
+  if(!fecha){alert('Por favor selecciona la fecha.');return;}
+  if(!empleados.length){alert('Por favor selecciona al menos un empleado.');return;}
+
+  const payload = {
+    tipo: 'attendance',
+    id: Date.now(),
+    tipoEntrenamiento: tipo,
+    fecha, proyecto, instructor, duracion,
+    empleados
+  };
+
+  const msg = document.getElementById('sa-msg');
+  msg.style.display='block';
+  msg.textContent='⏳ Registrando asistencia...';
+  msg.style.background='var(--info-bg)';msg.style.color='var(--info-text)';
+
+  try{
+    await fetch(SCRIPT_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain'},body:JSON.stringify(payload)});
+
+    // Generate PDF attendance list
+    saGenerarPDF(payload);
+
+    msg.style.display='none';
+    document.getElementById('sa-conf-detail').innerHTML =
+      '<strong>'+tipo+'</strong><br>'+
+      empleados.length+' empleado'+(empleados.length!==1?'s':'')+' registrado'+(empleados.length!==1?'s':'')+
+      '<br>'+fecha+(proyecto?' · '+proyecto:'');
+    document.getElementById('sa-confirmacion').style.display='block';
+    document.getElementById('sa-form-content').style.opacity='0.3';
+    window.scrollTo(0,0);
+  }catch(err){
+    msg.textContent='⚠ Error de conexión — intenta de nuevo';
+    msg.style.background='var(--danger-bg)';msg.style.color='var(--danger-text)';
+  }
+}
+
+function resetAttendance(){
+  document.getElementById('sa-tipo').selectedIndex=0;
+  document.getElementById('sa-proyecto').selectedIndex=0;
+  document.getElementById('sa-instructor').value='';
+  document.getElementById('sa-duracion').value='';
+  document.getElementById('sa-search').value='';
+  document.getElementById('sa-msg').style.display='none';
+  document.getElementById('sa-confirmacion').style.display='none';
+  document.getElementById('sa-form-content').style.opacity='1';
+  const today=new Date().toISOString().split('T')[0];
+  document.getElementById('sa-fecha').value=today;
+  renderEmployeeList();
+}
+
+function saGenerarPDF(data){
+  try{
+    const {jsPDF}=window.jspdf;
+    const doc=new jsPDF({orientation:'portrait',unit:'mm',format:'letter'});
+    const W=215.9,M=16;let y=0;
+
+    // Header
+    doc.setFillColor(11,11,12);doc.rect(0,0,W,38,'F');
+    doc.setFillColor(15,110,86);doc.rect(0,33,W,5,'F');
+    doc.setFontSize(18);doc.setFont('helvetica','bold');doc.setTextColor(255,255,255);
+    doc.text('LISTA DE ASISTENCIA',M,14);
+    doc.setFontSize(11);doc.setFont('helvetica','normal');doc.setTextColor(200,200,200);
+    doc.text('Training Attendance — Oscar Orduno, Inc.',M,22);
+    doc.text('Generado: '+new Date().toLocaleDateString('en-US'),M,30);
+    y=46;
+
+    // Info section
+    doc.setFontSize(10);doc.setFont('helvetica','bold');doc.setTextColor(26,26,24);
+    doc.text('Entrenamiento: '+data.tipoEntrenamiento,M,y);y+=7;
+    doc.setFont('helvetica','normal');doc.setTextColor(95,94,90);
+    doc.text('Fecha: '+data.fecha,M,y);y+=6;
+    if(data.proyecto) {doc.text('Proyecto: '+data.proyecto,M,y);y+=6;}
+    if(data.instructor) {doc.text('Instructor: '+data.instructor,M,y);y+=6;}
+    if(data.duracion) {doc.text('Duracion: '+data.duracion+' hora(s)',M,y);y+=6;}
+    y+=4;
+
+    // Table header
+    doc.setFillColor(15,110,86);doc.rect(M,y,W-M*2,8,'F');
+    doc.setFontSize(9);doc.setFont('helvetica','bold');doc.setTextColor(255,255,255);
+    doc.text('#',M+2,y+5.5);
+    doc.text('Nombre del Empleado',M+12,y+5.5);
+    doc.text('Firma',W-M-35,y+5.5);
+    y+=10;
+
+    // Employee rows
+    data.empleados.forEach((emp,i)=>{
+      if(y>250){doc.addPage();y=20;}
+      const bg = i%2===0?[248,247,245]:[255,255,255];
+      doc.setFillColor(bg[0],bg[1],bg[2]);
+      doc.rect(M,y,W-M*2,9,'F');
+      doc.setFontSize(9);doc.setFont('helvetica','normal');doc.setTextColor(26,26,24);
+      doc.text(String(i+1),M+2,y+6);
+      doc.text(emp,M+12,y+6);
+      // Signature line
+      doc.setDrawColor(180);doc.line(W-M-40,y+7,W-M-4,y+7);
+      y+=9;
+    });
+
+    // Footer
+    y+=10;
+    doc.setDrawColor(15,110,86);doc.line(M,y,W-M,y);y+=6;
+    doc.setFontSize(8);doc.setTextColor(95,94,90);
+    doc.text('Supervisor / Instructor: ___________________________   Firma: ___________________________   Fecha: _____________',M,y);
+    y+=10;
+    doc.setFontSize(7);doc.setTextColor(180);
+    doc.text('Oscar Orduno, Inc. — Safety Platform | Total asistentes: '+data.empleados.length,M,y);
+
+    const fname='Asistencia_'+data.tipoEntrenamiento.replace(/[^a-zA-Z0-9]/g,'_')+'_'+data.fecha+'.pdf';
+    doc.save(fname);
+  }catch(err){console.log('PDF error:',err);}
+}
+
+async function submitCertUpload(){
+  const empleado = document.getElementById('sc-empleado').value;
+  const tipo = document.getElementById('sc-tipo').value;
+  const fecha = document.getElementById('sc-fecha').value;
+
+  if(!empleado){alert('Por favor selecciona el empleado.');return;}
+  if(!tipo){alert('Por favor selecciona el tipo de certificación.');return;}
+  if(!fecha){alert('Por favor selecciona la fecha.');return;}
+
+  const allPhotos = photoStore['sc-cert']||[];
+  if(allPhotos.some(p=>p.uploading)){alert('⏳ La foto se está subiendo, espera un momento...');return;}
+  const certUrls = allPhotos.map(p=>p.url).filter(Boolean);
+
+  const payload = {
+    tipo: 'cert_upload',
+    id: Date.now(),
+    empleado, tipoEntrenamiento: tipo,
+    fecha,
+    fechaVence: document.getElementById('sc-vence').value||'',
+    certUrls
+  };
+
+  const msg = document.getElementById('sc-msg');
+  msg.style.display='block';
+  msg.textContent='⏳ Subiendo certificación...';
+  msg.style.background='var(--info-bg)';msg.style.color='var(--info-text)';
+
+  try{
+    await fetch(SCRIPT_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain'},body:JSON.stringify(payload)});
+    msg.style.display='none';
+    document.getElementById('sc-conf-detail').innerHTML=
+      '<strong>'+empleado+'</strong><br>'+tipo+'<br>Fecha: '+fecha+
+      (certUrls.length?'<br>✅ Foto subida':'<br>⚠ Sin foto');
+    document.getElementById('sc-confirmacion').style.display='block';
+  }catch(err){
+    msg.textContent='⚠ Error de conexión';
+    msg.style.background='var(--danger-bg)';msg.style.color='var(--danger-text)';
+  }
+}
+
+function resetCertUpload(){
+  document.getElementById('sc-empleado').selectedIndex=0;
+  document.getElementById('sc-tipo').selectedIndex=0;
+  document.getElementById('sc-vence').value='';
+  photoStore['sc-cert']=[];
+  renderPhotoGrid('sc-cert');
+  const today=new Date().toISOString().split('T')[0];
+  document.getElementById('sc-fecha').value=today;
+  document.getElementById('sc-msg').style.display='none';
+  document.getElementById('sc-confirmacion').style.display='none';
 }
 
 </script>
