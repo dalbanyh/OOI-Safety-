@@ -493,6 +493,36 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
 .screen.active .container{padding-bottom:80px;}
 .tp-body{padding-bottom:80px !important;}
 
+
+/* ── INCIDENT REPORT CSS ── */
+.ir-step{
+  width:32px;height:32px;border-radius:50%;
+  background:var(--bg2);border:2px solid var(--border2);
+  display:flex;align-items:center;justify-content:center;
+  font-size:13px;font-weight:700;color:var(--text2);
+  flex-shrink:0;transition:all 0.2s;
+}
+.ir-step.active{background:var(--ooi-orange);border-color:var(--ooi-orange);color:white;}
+.ir-step.done{background:var(--g5);border-color:var(--g5);color:white;}
+.ir-type-btn{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:16px 8px;border-radius:var(--radius-lg);
+  border:2px solid var(--border);background:var(--bg);
+  cursor:pointer;font-family:'Inter',system-ui,sans-serif;
+  transition:all 0.15s;min-height:90px;
+}
+.ir-type-btn:active{transform:scale(0.97);}
+.ir-type-btn.selected{border-color:var(--ooi-orange);background:var(--ooi-orange-bg);}
+.ir-yn-btn{
+  flex:1;padding:12px;border-radius:var(--radius);
+  border:1.5px solid var(--border2);background:var(--bg2);
+  font-family:'Inter',system-ui,sans-serif;font-size:15px;font-weight:700;
+  cursor:pointer;transition:all 0.15s;
+}
+.ir-yn-btn.yes{background:var(--success-bg);color:var(--success-text);border-color:var(--success-border);}
+.ir-yn-btn.no{background:var(--danger-bg);color:var(--danger-text);border-color:var(--danger-border);}
+.ir-yn-btn:active{transform:scale(0.97);}
+
 </style>
 </head>
 <body>
@@ -1315,18 +1345,47 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
       <div style="background:#1B4F8C;color:white;font-size:9px;font-weight:700;padding:3px 10px;border-radius:99px;text-transform:uppercase;letter-spacing:0.08em;font-family:'Inter',system-ui,sans-serif;">📋 Foreman</div>
     </div>
 
-    <div class="header-bar">
-      <button class="btn-icon" onclick="show('s-login')">←</button>
-      <div style="flex:1">
-        <div style="font-family:'Sora',sans-serif;font-size:18px;font-weight:800;">Portal del Foreman</div>
-        <div style="font-size:12px;color:var(--text2);">Oscar Orduno, Inc. — Safety</div>
+    <!-- FOREMAN SELECTION SCREEN -->
+    <div id="foreman-selection-screen">
+      <div style="height:5px;width:calc(100% + 32px);margin:-16px -16px 0;background:linear-gradient(90deg,#0b0b0c 0%,#0b0b0c 55%,#E8611A 55%,#E8611A 100%);"></div>
+      <div style="background:var(--ooi-black);padding:16px;padding-top:20px;margin:0 -16px 20px;">
+        <div style="font-family:'Sora',sans-serif;font-size:20px;font-weight:800;color:#fff;">Foreman</div>
+        <div style="font-size:11px;color:rgba(255,255,255,0.45);text-transform:uppercase;letter-spacing:0.08em;">Oscar Orduno, Inc. — Safety</div>
       </div>
+      <div style="font-size:11px;font-weight:700;color:var(--ooi-orange);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:14px;">¿Qué deseas hacer?</div>
+
+      <button class="role-btn" onclick="foremanTab('ptp')" style="min-height:80px;">
+        <div class="role-icon" style="background:#E9F1FB;width:52px;height:52px;border-radius:12px;font-size:26px;">📋</div>
+        <div style="flex:1;">
+          <div style="font-family:'Sora',sans-serif;font-size:17px;font-weight:800;">PTP</div>
+          <div style="font-size:13px;color:var(--text2);margin-top:2px;">Subir foto del Pre-Task Plan de la contratista</div>
+        </div>
+        <span class="role-arrow">›</span>
+      </button>
+
+      <button class="role-btn" onclick="foremanTab('fittest')" style="min-height:80px;">
+        <div class="role-icon" style="background:#F3E8FF;width:52px;height:52px;border-radius:12px;font-size:26px;">🫁</div>
+        <div style="flex:1;">
+          <div style="font-family:'Sora',sans-serif;font-size:17px;font-weight:800;">Programa de Respiradores</div>
+          <div style="font-size:13px;color:var(--text2);margin-top:2px;">Solicitar Fit Test para un trabajador</div>
+        </div>
+        <span class="role-arrow">›</span>
+      </button>
+
+      <button class="role-btn" onclick="foremanTab('incident')" style="min-height:80px;border-color:#F3B9B0;background:var(--swa-bg);">
+        <div class="role-icon" style="background:var(--swa-bg);width:52px;height:52px;border-radius:12px;font-size:26px;">🚨</div>
+        <div style="flex:1;">
+          <div style="font-family:'Sora',sans-serif;font-size:17px;font-weight:800;color:var(--swa-dark);">Reporte de Incidente</div>
+          <div style="font-size:13px;color:var(--swa-dark);opacity:0.8;margin-top:2px;">Reportar casi-accidente, lesión o daño a propiedad</div>
+        </div>
+        <span style="color:var(--swa);font-size:18px;font-weight:700;">›</span>
+      </button>
     </div>
-    <!-- Foreman tabs -->
-    <div style="display:flex;gap:6px;margin-bottom:16px;">
-      <button class="tp-chip on" id="ft-tab-ptp" onclick="foremanTab('ptp')">📋 PTP</button>
-      <button class="tp-chip" id="ft-tab-fittest" onclick="foremanTab('fittest')">🫁 Programa de Respiradores</button>
-    </div>
+
+    <!-- Hidden tab IDs for compatibility -->
+    <span id="ft-tab-ptp" style="display:none;"></span>
+    <span id="ft-tab-fittest" style="display:none;"></span>
+    <span id="ft-tab-incident" style="display:none;"></span>
 
     <!-- PTP PANEL -->
     <div id="foreman-ptp-panel">
@@ -1427,6 +1486,258 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
         <div id="fittest-history"><div class="loading">⏳ Cargando registros...</div></div>
       </div>
     </div><!-- end foreman-fittest-panel -->
+
+    <!-- INCIDENT REPORT PANEL -->
+    <div id="foreman-incident-panel" style="display:none;">
+
+      <!-- Step indicator -->
+      <div style="display:flex;gap:4px;margin-bottom:16px;" id="ir-steps">
+        <div class="ir-step active" id="ir-s1">1</div>
+        <div style="flex:1;height:2px;background:var(--border);margin:auto;"></div>
+        <div class="ir-step" id="ir-s2">2</div>
+        <div style="flex:1;height:2px;background:var(--border);margin:auto;"></div>
+        <div class="ir-step" id="ir-s3">3</div>
+        <div style="flex:1;height:2px;background:var(--border);margin:auto;"></div>
+        <div class="ir-step" id="ir-s4">4</div>
+        <div style="flex:1;height:2px;background:var(--border);margin:auto;"></div>
+        <div class="ir-step" id="ir-s5">5</div>
+      </div>
+
+      <!-- STEP 1: Tipo de incidente + Info general -->
+      <div id="ir-panel-1">
+        <div style="font-family:'Sora',sans-serif;font-size:16px;font-weight:800;margin-bottom:14px;">🚨 Tipo de Incidente</div>
+        <div class="card">
+          <div class="sec-label">Selecciona el tipo</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:4px;">
+            <button class="ir-type-btn" onclick="selectIncidentType('casi-accidente',this)">
+              <div style="font-size:22px;margin-bottom:4px;">⚠️</div>
+              <div style="font-size:13px;font-weight:700;">Casi-Accidente</div>
+              <div style="font-size:11px;color:var(--text2);">Near Miss</div>
+            </button>
+            <button class="ir-type-btn" onclick="selectIncidentType('primeros-auxilios',this)">
+              <div style="font-size:22px;margin-bottom:4px;">🩹</div>
+              <div style="font-size:13px;font-weight:700;">Primeros Auxilios</div>
+              <div style="font-size:11px;color:var(--text2);">First Aid</div>
+            </button>
+            <button class="ir-type-btn" onclick="selectIncidentType('empleado-herido',this)">
+              <div style="font-size:22px;margin-bottom:4px;">🤕</div>
+              <div style="font-size:13px;font-weight:700;">Empleado Herido</div>
+              <div style="font-size:11px;color:var(--text2);">Employee Injured</div>
+            </button>
+            <button class="ir-type-btn" onclick="selectIncidentType('dano-propiedad',this)">
+              <div style="font-size:22px;margin-bottom:4px;">🔧</div>
+              <div style="font-size:13px;font-weight:700;">Daño a Propiedad</div>
+              <div style="font-size:11px;color:var(--text2);">Property Damage</div>
+            </button>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="sec-label">Información General</div>
+          <div class="field"><label>Proyecto</label><select id="ir-proyecto"><option value="">— Selecciona proyecto —</option></select></div>
+          <div class="field"><label>Foreman que reporta</label><select id="ir-foreman"><option value="">— Selecciona foreman —</option></select></div>
+          <div class="field"><label>Superintendente</label><select id="ir-super"><option value="">— Selecciona superintendente —</option></select></div>
+          <div class="grid2">
+            <div class="field"><label>Fecha del incidente</label><input type="date" id="ir-fecha"/></div>
+            <div class="field"><label>Hora</label><input type="time" id="ir-hora"/></div>
+          </div>
+          <div class="field" style="margin-bottom:0;"><label>Lugar exacto del incidente</label><input type="text" id="ir-lugar" placeholder="Ej. Lado norte del proyecto, cerca de la retención este" autocomplete="off"/></div>
+        </div>
+        <button class="btn btn-primary" onclick="irNext(1)">Continuar →</button>
+      </div>
+
+      <!-- STEP 2: Trabajador herido + Maquinaria -->
+      <div id="ir-panel-2" style="display:none;">
+        <div style="font-family:'Sora',sans-serif;font-size:16px;font-weight:800;margin-bottom:14px;">👷 Personas y Equipos Involucrados</div>
+
+        <!-- Worker injured? -->
+        <div class="card">
+          <div class="sec-label">¿Hay un trabajador herido?</div>
+          <div style="display:flex;gap:8px;margin-bottom:14px;">
+            <button class="ir-yn-btn" id="ir-herido-si" onclick="toggleYN('herido',true)">✓ Sí</button>
+            <button class="ir-yn-btn" id="ir-herido-no" onclick="toggleYN('herido',false)">✗ No</button>
+          </div>
+          <div id="ir-herido-section" style="display:none;">
+            <div class="field"><label>Nombre del empleado herido</label><select id="ir-empleado"><option value="">— Selecciona empleado —</option></select></div>
+            <div class="field"><label>Posición / Puesto</label><input type="text" id="ir-posicion" placeholder="Ej. Grout Pump Operator" autocomplete="off"/></div>
+            <div class="field"><label>Descripción de la lesión</label><textarea id="ir-lesion" rows="3" placeholder="Describa la parte del cuerpo afectada y cómo se lastimó. Ej: Torcedura del tobillo izquierdo al bajar del equipo..."></textarea></div>
+
+            <div class="sec-label" style="margin-top:8px;">Tipo de lesión (selecciona todas las que apliquen)</div>
+            <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px;" id="ir-tipo-lesion">
+              <button class="chip" onclick="toggleChipMulti(this)">Quemadura calor/frío</button>
+              <button class="chip" onclick="toggleChipMulti(this)">Quemadura química</button>
+              <button class="chip" onclick="toggleChipMulti(this)">Shock eléctrico</button>
+              <button class="chip" onclick="toggleChipMulti(this)">Fractura</button>
+              <button class="chip" onclick="toggleChipMulti(this)">Torcedura/Desgarre</button>
+              <button class="chip" onclick="toggleChipMulti(this)">Cortada/Laceración</button>
+              <button class="chip" onclick="toggleChipMulti(this)">Golpe/Moretón</button>
+              <button class="chip" onclick="toggleChipMulti(this)">Cuerpo extraño</button>
+              <button class="chip" onclick="toggleChipMulti(this)">Inhalación química</button>
+              <button class="chip" onclick="toggleChipMulti(this)">Cansancio físico</button>
+              <button class="chip" onclick="toggleChipMulti(this)">Condición médica</button>
+              <button class="chip" onclick="toggleChipMulti(this)">Otro</button>
+            </div>
+
+            <div class="sec-label">¿Requirió atención médica?</div>
+            <div style="display:flex;gap:8px;margin-bottom:14px;">
+              <button class="ir-yn-btn" id="ir-medico-si" onclick="toggleYN('medico',true)">✓ Sí</button>
+              <button class="ir-yn-btn" id="ir-medico-no" onclick="toggleYN('medico',false)">✗ No</button>
+            </div>
+            <div id="ir-medico-section" style="display:none;">
+              <div class="field"><label>Nombre del doctor</label><input type="text" id="ir-doctor" placeholder="Nombre del médico" autocomplete="off"/></div>
+              <div class="field"><label>Clínica / Hospital</label><input type="text" id="ir-clinica" placeholder="Nombre de la clínica" autocomplete="off"/></div>
+              <div class="field"><label>Dirección de la clínica</label><input type="text" id="ir-clinica-dir" placeholder="Dirección" autocomplete="off"/></div>
+              <div class="field" style="margin-bottom:0;"><label>Fecha de regreso al trabajo</label><input type="date" id="ir-regreso"/></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Machinery damaged? -->
+        <div class="card">
+          <div class="sec-label">¿Hay maquinaria o propiedad afectada?</div>
+          <div style="display:flex;gap:8px;margin-bottom:14px;">
+            <button class="ir-yn-btn" id="ir-maq-si" onclick="toggleYN('maquinaria',true)">✓ Sí</button>
+            <button class="ir-yn-btn" id="ir-maq-no" onclick="toggleYN('maquinaria',false)">✗ No</button>
+          </div>
+          <div id="ir-maquinaria-section" style="display:none;">
+            <div class="field"><label>Equipo / Maquinaria afectada</label><input type="text" id="ir-maquinaria" placeholder="Ej. Excavadora Doosan DX325, GP-01" autocomplete="off"/></div>
+            <div class="field" style="margin-bottom:0;"><label>Descripción del daño</label><textarea id="ir-dano-maq" rows="3" placeholder="Describa el daño a la maquinaria o propiedad..."></textarea></div>
+          </div>
+        </div>
+
+        <div style="display:flex;gap:8px;">
+          <button class="btn btn-ghost" onclick="irBack(2)" style="flex:1;">← Atrás</button>
+          <button class="btn btn-primary" onclick="irNext(2)" style="flex:2;">Continuar →</button>
+        </div>
+      </div>
+
+      <!-- STEP 3: Descripción del incidente -->
+      <div id="ir-panel-3" style="display:none;">
+        <div style="font-family:'Sora',sans-serif;font-size:16px;font-weight:800;margin-bottom:14px;">📝 Descripción del Incidente</div>
+
+        <div class="card">
+          <div class="field"><label>¿Qué estaba haciendo el empleado justo antes del incidente?</label><textarea id="ir-antes" rows="3" placeholder="Ej. Subiendo una escalera mientras llevaba materiales, aplicando shotcrete..."></textarea></div>
+          <div class="field"><label>¿Cómo ocurrió el incidente?</label><textarea id="ir-como" rows="4" placeholder="Ej. Cuando la escalera se resbaló en el piso mojado, el trabajador cayó desde 20ft..."></textarea></div>
+          <div class="field"><label>¿Qué objeto causó directamente la lesión o daño?</label><input type="text" id="ir-objeto" placeholder="Ej. Piso de concreto, el martillo, mezcla de cemento. Si no aplica, N/A" autocomplete="off"/></div>
+          <div class="field" style="margin-bottom:0;"><label>¿Estaba el empleado realizando sus actividades regulares?</label>
+            <div style="display:flex;gap:8px;margin-top:6px;">
+              <button class="ir-yn-btn" id="ir-regular-si" onclick="toggleYN('regular',true)">✓ Sí</button>
+              <button class="ir-yn-btn" id="ir-regular-no" onclick="toggleYN('regular',false)">✗ No</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="sec-label">Factores que contribuyeron (selecciona todos los que apliquen)</div>
+          <div style="display:flex;flex-wrap:wrap;gap:6px;" id="ir-factores">
+            <button class="chip" onclick="toggleChipMulti(this)">No siguió procedimientos</button>
+            <button class="chip" onclick="toggleChipMulti(this)">No entendió procedimientos</button>
+            <button class="chip" onclick="toggleChipMulti(this)">Sin JHA/PTP</button>
+            <button class="chip" onclick="toggleChipMulti(this)">Sin entrenamiento</button>
+            <button class="chip" onclick="toggleChipMulti(this)">Acción de otro trabajador</button>
+            <button class="chip" onclick="toggleChipMulti(this)">Equipo defectuoso</button>
+            <button class="chip" onclick="toggleChipMulti(this)">Equipo inapropiado</button>
+            <button class="chip" onclick="toggleChipMulti(this)">Sin PPE / PPE inadecuado</button>
+            <button class="chip" onclick="toggleChipMulti(this)">LOTO inapropiado</button>
+            <button class="chip" onclick="toggleChipMulti(this)">Falta de supervisión</button>
+            <button class="chip" onclick="toggleChipMulti(this)">Distracción</button>
+            <button class="chip" onclick="toggleChipMulti(this)">Limpieza pobre</button>
+            <button class="chip" onclick="toggleChipMulti(this)">Clima/Temperatura extrema</button>
+            <button class="chip" onclick="toggleChipMulti(this)">Mecánica corporal inadecuada</button>
+            <button class="chip" onclick="toggleChipMulti(this)">Otro</button>
+          </div>
+        </div>
+
+        <div style="display:flex;gap:8px;">
+          <button class="btn btn-ghost" onclick="irBack(3)" style="flex:1;">← Atrás</button>
+          <button class="btn btn-primary" onclick="irNext(3)" style="flex:2;">Continuar →</button>
+        </div>
+      </div>
+
+      <!-- STEP 4: Acciones correctivas + Testigos -->
+      <div id="ir-panel-4" style="display:none;">
+        <div style="font-family:'Sora',sans-serif;font-size:16px;font-weight:800;margin-bottom:14px;">✅ Acciones Correctivas</div>
+
+        <div class="card">
+          <div class="field"><label>Causa identificada</label><textarea id="ir-causa" rows="3" placeholder="Identifique los actos o condiciones inseguras en el lugar..."></textarea></div>
+          <div class="field"><label>Pasos tomados para prevenir futuros incidentes</label><textarea id="ir-correccion" rows="3" placeholder="Describa las correcciones implementadas en el lugar..."></textarea></div>
+          <div class="field">
+            <label>Seguimiento requerido</label>
+            <select id="ir-seguimiento">
+              <option value="">— Selecciona —</option>
+              <option value="No requiere">No requiere seguimiento</option>
+              <option value="30 dias">30 días</option>
+              <option value="60 dias">60 días</option>
+              <option value="90 dias">90 días</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Potencial de severidad</label>
+            <select id="ir-severidad">
+              <option value="">— Selecciona —</option>
+              <option value="Menor">Menor</option>
+              <option value="Seria">Seria</option>
+              <option value="Fatalidad">Fatalidad</option>
+            </select>
+          </div>
+          <div class="field" style="margin-bottom:0;">
+            <label>¿Es necesario notificar a OSHA?</label>
+            <div style="display:flex;gap:8px;margin-top:6px;">
+              <button class="ir-yn-btn" id="ir-osha-si" onclick="toggleYN('osha',true)">✓ Sí</button>
+              <button class="ir-yn-btn" id="ir-osha-no" onclick="toggleYN('osha',false)">✗ No</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="sec-label">Testigos (si aplica)</div>
+          <div class="field"><label>Testigo 1</label><input type="text" id="ir-testigo1" placeholder="Nombre y teléfono" autocomplete="off"/></div>
+          <div class="field"><label>Testigo 2</label><input type="text" id="ir-testigo2" placeholder="Nombre y teléfono" autocomplete="off"/></div>
+          <div class="field" style="margin-bottom:0;"><label>Testigo 3</label><input type="text" id="ir-testigo3" placeholder="Nombre y teléfono" autocomplete="off"/></div>
+        </div>
+
+        <div style="display:flex;gap:8px;">
+          <button class="btn btn-ghost" onclick="irBack(4)" style="flex:1;">← Atrás</button>
+          <button class="btn btn-primary" onclick="irNext(4)" style="flex:2;">Continuar →</button>
+        </div>
+      </div>
+
+      <!-- STEP 5: Revisión y envío -->
+      <div id="ir-panel-5" style="display:none;">
+        <div style="font-family:'Sora',sans-serif;font-size:16px;font-weight:800;margin-bottom:14px;">📋 Revisión y Firma</div>
+
+        <div class="card" style="background:var(--ooi-orange-bg);border-color:rgba(232,97,26,0.2);">
+          <div style="font-size:13px;color:var(--ooi-orange);line-height:1.6;">
+            Al enviar este reporte confirmas que la información es correcta y completa. Se generará un PDF y se enviará a <strong>safety@oscarordunoinc.com</strong>, al superintendente y a ti como foreman.
+          </div>
+        </div>
+
+        <div class="card">
+          <div id="ir-resumen-preview"></div>
+        </div>
+
+        <div class="card">
+          <div class="sec-label">Firma del Foreman</div>
+          <div class="field" style="margin-bottom:0;"><label>Nombre completo del Foreman (firma)</label><input type="text" id="ir-firma" placeholder="Escribe tu nombre completo como firma" autocomplete="off"/></div>
+        </div>
+
+        <div class="submit-msg" id="ir-msg"></div>
+        <button class="btn btn-primary" style="min-height:58px;font-size:17px;" onclick="submitIncidentReport()">
+          🚨 Enviar Reporte de Incidente
+        </button>
+
+        <div id="ir-confirmacion" style="display:none;background:var(--success-bg);border:1px solid var(--success-border);border-radius:var(--radius-lg);padding:24px;text-align:center;margin-top:14px;">
+          <div style="font-size:48px;margin-bottom:12px;">✅</div>
+          <div style="font-family:'Sora',sans-serif;font-size:20px;font-weight:800;color:var(--success-text);margin-bottom:8px;">Reporte enviado</div>
+          <div style="font-size:14px;color:var(--text2);margin-bottom:16px;">El reporte fue enviado a safety@oscarordunoinc.com y al superintendente. El PDF fue generado y descargado.</div>
+          <button class="btn btn-primary" onclick="resetIncidentReport()">Nuevo reporte</button>
+          <button class="btn btn-ghost" onclick="foremanTab('ptp')" style="margin-top:8px;">Volver al portal</button>
+        </div>
+
+        <button class="btn btn-ghost" onclick="irBack(5)" style="margin-top:8px;">← Atrás</button>
+      </div>
+
+    </div><!-- end foreman-incident-panel -->
 
   </div>
 </div>
@@ -3230,7 +3541,7 @@ async function submitShotcrete(type){
     } else if(id === 's-drils'){
       show('s-login');
     } else if(id === 's-foreman'){
-      show('s-login');
+      foremanBack();
     }
     // Brief visual feedback
     if(active){
@@ -3249,12 +3560,32 @@ async function submitShotcrete(type){
 const EMAIL_BRISEIDA = 'bestrada@oscarordunoinc.com';
 
 function foremanTab(tab){
-  document.getElementById('ft-tab-ptp').className = 'tp-chip' + (tab==='ptp'?' on':'');
-  document.getElementById('ft-tab-fittest').className = 'tp-chip' + (tab==='fittest'?' on':'');
-  document.getElementById('foreman-ptp-panel').style.display = tab==='ptp'?'block':'none';
-  document.getElementById('foreman-fittest-panel').style.display = tab==='fittest'?'block':'none';
-  if(tab==='fittest') initFitTest();
+  // Hide selection screen
+  const sel = document.getElementById('foreman-selection-screen');
+  if(sel) sel.style.display = 'none';
+
+  // Hide all panels
+  ['foreman-ptp-panel','foreman-fittest-panel','foreman-incident-panel'].forEach(p=>{
+    const el=document.getElementById(p);if(el)el.style.display='none';
+  });
+
+  const bt = document.getElementById('foreman-bottom-title');
+
+  if(tab==='ptp'){
+    if(bt) bt.textContent='📋 PTP';
+    const el=document.getElementById('foreman-ptp-panel');if(el)el.style.display='block';
+  } else if(tab==='fittest'){
+    if(bt) bt.textContent='🫁 Programa de Respiradores';
+    const el=document.getElementById('foreman-fittest-panel');if(el)el.style.display='block';
+    initFitTest();
+  } else if(tab==='incident'){
+    if(bt) bt.textContent='🚨 Reporte de Incidente';
+    const el=document.getElementById('foreman-incident-panel');if(el)el.style.display='block';
+    initIncidentReport();
+  }
+  window.scrollTo(0,0);
 }
+
 
 function initFitTest(){
   const today = new Date().toISOString().split('T')[0];
@@ -3666,6 +3997,385 @@ async function loadTrainingRequests(tab){
   }catch(err){
     if(summaryEl) summaryEl.innerHTML='<div style="color:var(--danger-text);padding:20px;text-align:center;">Error cargando datos.</div>';
     if(listEl) listEl.innerHTML='<div style="color:var(--danger-text);padding:20px;text-align:center;">Error cargando datos.</div>';
+  }
+}
+
+
+// ── INCIDENT REPORT ──
+const EMAIL_SAFETY = 'safety@oscarordunoinc.com';
+let irData = {};
+let irCurrentStep = 1;
+
+function initIncidentReport(){
+  irData = {};
+  irCurrentStep = 1;
+  // Show step 1, hide rest
+  [1,2,3,4,5].forEach(s=>{
+    document.getElementById('ir-panel-'+s).style.display = s===1?'block':'none';
+    const stepEl = document.getElementById('ir-s'+s);
+    if(stepEl){ stepEl.className = 'ir-step' + (s===1?' active':''); }
+  });
+  // Reset type selection
+  document.querySelectorAll('.ir-type-btn').forEach(b=>b.classList.remove('selected'));
+  // Reset Y/N buttons
+  ['herido','maquinaria','medico','regular','osha'].forEach(k=>{
+    const si=document.getElementById('ir-'+k+'-si');
+    const no=document.getElementById('ir-'+k+'-no');
+    if(si){si.className='ir-yn-btn';}
+    if(no){no.className='ir-yn-btn';}
+  });
+  // Hide conditional sections
+  ['herido','maquinaria','medico'].forEach(k=>{
+    const el=document.getElementById('ir-'+k+'-section');
+    if(el) el.style.display='none';
+  });
+  // Reset chips
+  document.querySelectorAll('#ir-tipo-lesion .chip, #ir-factores .chip').forEach(c=>c.classList.remove('selected'));
+  // Reset fields
+  ['ir-lugar','ir-posicion','ir-lesion','ir-objeto','ir-doctor','ir-clinica','ir-clinica-dir',
+   'ir-maquinaria','ir-dano-maq','ir-causa','ir-correccion','ir-testigo1','ir-testigo2',
+   'ir-testigo3','ir-firma','ir-antes','ir-como'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el) el.value='';
+  });
+  ['ir-seguimiento','ir-severidad'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el) el.selectedIndex=0;
+  });
+  // Set today
+  const today=new Date().toISOString().split('T')[0];
+  const fd=document.getElementById('ir-fecha');if(fd)fd.value=today;
+  const ht=document.getElementById('ir-hora');
+  if(ht){const now=new Date();ht.value=now.getHours().toString().padStart(2,'0')+':'+now.getMinutes().toString().padStart(2,'0');}
+  // Load dropdowns
+  if(listasGlobal.operadores&&listasGlobal.operadores.length>0){
+    poblarTodosLosDropdowns(listasGlobal);
+  } else {
+    cargarListas();
+  }
+  // Reset messages
+  document.getElementById('ir-msg').style.display='none';
+  document.getElementById('ir-confirmacion').style.display='none';
+  document.getElementById('ir-panel-5').querySelector('button.btn-primary').style.display='flex';
+}
+
+function selectIncidentType(tipo, btn){
+  document.querySelectorAll('.ir-type-btn').forEach(b=>b.classList.remove('selected'));
+  btn.classList.add('selected');
+  irData.tipo = tipo;
+}
+
+function toggleYN(key, val){
+  const siBtn = document.getElementById('ir-'+key+'-si');
+  const noBtn = document.getElementById('ir-'+key+'-no');
+  if(siBtn) siBtn.className = 'ir-yn-btn' + (val?' yes':'');
+  if(noBtn) noBtn.className = 'ir-yn-btn' + (!val?' no':'');
+  irData[key] = val;
+  // Show/hide conditional sections
+  const section = document.getElementById('ir-'+key+'-section');
+  if(section) section.style.display = val?'block':'none';
+}
+
+function toggleChipMulti(btn){
+  btn.classList.toggle('selected');
+}
+
+function irNext(step){
+  // Validate current step
+  if(step===1){
+    if(!irData.tipo){alert('Por favor selecciona el tipo de incidente.');return;}
+    if(!document.getElementById('ir-proyecto').value){alert('Por favor selecciona el proyecto.');return;}
+    if(!document.getElementById('ir-foreman').value){alert('Por favor selecciona el foreman.');return;}
+    if(!document.getElementById('ir-super').value){alert('Por favor selecciona el superintendente.');return;}
+  }
+  if(step===3){
+    if(!document.getElementById('ir-como').value.trim()){alert('Por favor describe cómo ocurrió el incidente.');return;}
+  }
+  if(step===4){
+    if(!document.getElementById('ir-causa').value.trim()){alert('Por favor identifica la causa del incidente.');return;}
+  }
+  if(step===5){
+    // Show preview
+    buildIRPreview();
+    return;
+  }
+
+  // Move to next step
+  document.getElementById('ir-panel-'+step).style.display='none';
+  document.getElementById('ir-panel-'+(step+1)).style.display='block';
+  irCurrentStep = step+1;
+  updateIRSteps();
+  window.scrollTo(0,200);
+
+  if(step+1===5) buildIRPreview();
+}
+
+function irBack(step){
+  document.getElementById('ir-panel-'+step).style.display='none';
+  document.getElementById('ir-panel-'+(step-1)).style.display='block';
+  irCurrentStep = step-1;
+  updateIRSteps();
+  window.scrollTo(0,200);
+}
+
+function updateIRSteps(){
+  [1,2,3,4,5].forEach(s=>{
+    const el=document.getElementById('ir-s'+s);
+    if(!el) return;
+    if(s<irCurrentStep) el.className='ir-step done';
+    else if(s===irCurrentStep) el.className='ir-step active';
+    else el.className='ir-step';
+  });
+}
+
+function buildIRPreview(){
+  document.getElementById('ir-panel-4').style.display='none';
+  document.getElementById('ir-panel-5').style.display='block';
+  irCurrentStep=5;
+  updateIRSteps();
+
+  const tipos = {
+    'casi-accidente':'⚠️ Casi-Accidente',
+    'primeros-auxilios':'🩹 Primeros Auxilios',
+    'empleado-herido':'🤕 Empleado Herido',
+    'dano-propiedad':'🔧 Daño a Propiedad'
+  };
+
+  const lesiones = [...document.querySelectorAll('#ir-tipo-lesion .chip.selected')].map(c=>c.textContent).join(', ');
+  const factores = [...document.querySelectorAll('#ir-factores .chip.selected')].map(c=>c.textContent).join(', ');
+
+  document.getElementById('ir-resumen-preview').innerHTML = `
+    <div style="font-size:11px;font-weight:700;color:var(--ooi-orange);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:12px;">Resumen del reporte</div>
+    <div style="font-size:13px;line-height:2;">
+      <strong>Tipo:</strong> ${tipos[irData.tipo]||irData.tipo}<br>
+      <strong>Proyecto:</strong> ${document.getElementById('ir-proyecto').value}<br>
+      <strong>Foreman:</strong> ${document.getElementById('ir-foreman').value}<br>
+      <strong>Superintendente:</strong> ${document.getElementById('ir-super').value}<br>
+      <strong>Fecha/Hora:</strong> ${document.getElementById('ir-fecha').value} ${document.getElementById('ir-hora').value}<br>
+      <strong>Lugar:</strong> ${document.getElementById('ir-lugar').value||'—'}<br>
+      ${irData.herido?`<strong>Empleado herido:</strong> ${document.getElementById('ir-empleado').value}<br>`:''}
+      ${irData.herido&&lesiones?`<strong>Tipo de lesión:</strong> ${lesiones}<br>`:''}
+      ${irData.maquinaria?`<strong>Maquinaria afectada:</strong> ${document.getElementById('ir-maquinaria').value}<br>`:''}
+      <strong>Severidad:</strong> ${document.getElementById('ir-severidad').value||'—'}<br>
+      ${factores?`<strong>Factores:</strong> ${factores}<br>`:''}
+    </div>`;
+  window.scrollTo(0,200);
+}
+
+async function submitIncidentReport(){
+  const firma = document.getElementById('ir-firma').value.trim();
+  if(!firma){alert('Por favor ingresa tu nombre como firma.');return;}
+
+  const lesiones = [...document.querySelectorAll('#ir-tipo-lesion .chip.selected')].map(c=>c.textContent);
+  const factores = [...document.querySelectorAll('#ir-factores .chip.selected')].map(c=>c.textContent);
+
+  const payload = {
+    tipo: 'incidente',
+    id: Date.now(),
+    tipoIncidente: irData.tipo||'',
+    fecha: document.getElementById('ir-fecha').value,
+    hora: document.getElementById('ir-hora').value,
+    proyecto: document.getElementById('ir-proyecto').value,
+    foreman: document.getElementById('ir-foreman').value,
+    superintendente: document.getElementById('ir-super').value,
+    lugar: document.getElementById('ir-lugar').value,
+    hayHerido: irData.herido||false,
+    empleadoHerido: irData.herido?document.getElementById('ir-empleado').value:'',
+    posicion: irData.herido?document.getElementById('ir-posicion').value:'',
+    lesionDescripcion: irData.herido?document.getElementById('ir-lesion').value:'',
+    tiposLesion: lesiones,
+    hayMedico: irData.medico||false,
+    doctor: irData.medico?document.getElementById('ir-doctor').value:'',
+    clinica: irData.medico?document.getElementById('ir-clinica').value:'',
+    clinicaDireccion: irData.medico?document.getElementById('ir-clinica-dir').value:'',
+    fechaRegreso: irData.medico?document.getElementById('ir-regreso').value:'',
+    hayMaquinaria: irData.maquinaria||false,
+    maquinaria: irData.maquinaria?document.getElementById('ir-maquinaria').value:'',
+    danoMaquinaria: irData.maquinaria?document.getElementById('ir-dano-maq').value:'',
+    antesIncidente: document.getElementById('ir-antes').value,
+    comoOcurrio: document.getElementById('ir-como').value,
+    objetoCausa: document.getElementById('ir-objeto').value,
+    actividadRegular: irData.regular||false,
+    factores: factores,
+    causa: document.getElementById('ir-causa').value,
+    correccion: document.getElementById('ir-correccion').value,
+    seguimiento: document.getElementById('ir-seguimiento').value,
+    severidad: document.getElementById('ir-severidad').value,
+    osha: irData.osha||false,
+    testigos: [
+      document.getElementById('ir-testigo1').value,
+      document.getElementById('ir-testigo2').value,
+      document.getElementById('ir-testigo3').value
+    ].filter(t=>t.trim()),
+    firma: firma
+  };
+
+  const msg = document.getElementById('ir-msg');
+  msg.style.display='block';
+  msg.textContent='⏳ Enviando reporte...';
+  msg.style.background='var(--info-bg)';msg.style.color='var(--info-text)';
+
+  try{
+    // Generate PDF first
+    irGenerarPDF(payload);
+
+    // Send to script
+    await fetch(SCRIPT_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain'},body:JSON.stringify(payload)});
+
+    msg.style.display='none';
+    document.getElementById('ir-panel-5').querySelector('button.btn-primary').style.display='none';
+    document.getElementById('ir-confirmacion').style.display='block';
+  }catch(err){
+    msg.textContent='⚠ Error de conexión — intenta de nuevo';
+    msg.style.background='var(--danger-bg)';msg.style.color='var(--danger-text)';
+  }
+}
+
+function resetIncidentReport(){
+  initIncidentReport();
+}
+
+function irGenerarPDF(data){
+  try{
+    const {jsPDF}=window.jspdf;
+    const doc=new jsPDF({orientation:'portrait',unit:'mm',format:'letter'});
+    const W=215.9,M=16;let y=0;
+
+    const tipoLabel={
+      'casi-accidente':'Casi-Accidente / Near Miss',
+      'primeros-auxilios':'Primeros Auxilios / First Aid',
+      'empleado-herido':'Empleado Herido / Employee Injured',
+      'dano-propiedad':'Daño a Propiedad / Property Damage'
+    }[data.tipoIncidente]||data.tipoIncidente;
+
+    // Header
+    doc.setFillColor(11,11,12);doc.rect(0,0,W,38,'F');
+    doc.setFillColor(232,97,26);doc.rect(0,33,W,5,'F');
+    doc.setFontSize(18);doc.setFont('helvetica','bold');doc.setTextColor(255,255,255);
+    doc.text('REPORTE DE INCIDENTE',M,14);
+    doc.setFontSize(11);doc.setFont('helvetica','normal');doc.setTextColor(200,200,200);
+    doc.text('Incident Report — Oscar Orduno, Inc.',M,22);
+    doc.text('ID: '+data.id+' | Generado: '+new Date().toLocaleDateString('en-US'),M,30);
+
+    // Type badge
+    doc.setFillColor(232,97,26);doc.roundedRect(W-M-50,6,48,16,3,3,'F');
+    doc.setFontSize(9);doc.setFont('helvetica','bold');doc.setTextColor(255,255,255);
+    doc.text(tipoLabel.toUpperCase().substring(0,20),W-M-26,17,{align:'center'});
+
+    y=46;
+
+    // Section helper
+    function section(title){
+      if(y>240){doc.addPage();y=20;}
+      doc.setFillColor(232,97,26);doc.rect(M,y,W-M*2,7,'F');
+      doc.setFontSize(9);doc.setFont('helvetica','bold');doc.setTextColor(255,255,255);
+      doc.text(title.toUpperCase(),M+3,y+5);
+      y+=10;
+    }
+
+    function row(label,val){
+      if(y>250){doc.addPage();y=20;}
+      doc.setFontSize(8.5);doc.setFont('helvetica','bold');doc.setTextColor(95,94,90);
+      doc.text(label+':',M,y);
+      doc.setFont('helvetica','normal');doc.setTextColor(26,26,24);
+      const lines=doc.splitTextToSize(String(val||'—'),W-M*2-35);
+      doc.text(lines,M+40,y);
+      y+=lines.length*5+2;
+    }
+
+    // General info
+    section('Informacion General');
+    row('Tipo de Incidente',tipoLabel);
+    row('Fecha',data.fecha+' '+data.hora);
+    row('Proyecto',data.proyecto);
+    row('Foreman',data.foreman);
+    row('Superintendente',data.superintendente);
+    row('Lugar del incidente',data.lugar);
+    y+=4;
+
+    // Worker info
+    if(data.hayHerido){
+      section('Informacion del Empleado Herido');
+      row('Nombre',data.empleadoHerido);
+      row('Posicion',data.posicion);
+      row('Descripcion de la lesion',data.lesionDescripcion);
+      if(data.tiposLesion&&data.tiposLesion.length) row('Tipo de lesion',data.tiposLesion.join(', '));
+      if(data.hayMedico){
+        row('Doctor',data.doctor);
+        row('Clinica',data.clinica);
+        row('Direccion clinica',data.clinicaDireccion);
+        row('Regreso al trabajo',data.fechaRegreso||'Por determinar');
+      } else {
+        row('Atencion medica','No requirio atencion medica');
+      }
+      y+=4;
+    }
+
+    // Machinery
+    if(data.hayMaquinaria){
+      section('Maquinaria / Propiedad Afectada');
+      row('Equipo afectado',data.maquinaria);
+      row('Descripcion del dano',data.danoMaquinaria);
+      y+=4;
+    }
+
+    // Incident description
+    section('Descripcion del Incidente');
+    row('Que hacia antes del incidente',data.antesIncidente);
+    row('Como ocurrio',data.comoOcurrio);
+    row('Objeto que causo la lesion',data.objetoCausa);
+    row('Actividad regular',data.actividadRegular?'Si':'No');
+    if(data.factores&&data.factores.length) row('Factores contribuyentes',data.factores.join(', '));
+    y+=4;
+
+    // Corrective actions
+    section('Acciones Correctivas');
+    row('Causa identificada',data.causa);
+    row('Correccion implementada',data.correccion);
+    row('Seguimiento requerido',data.seguimiento||'No requiere');
+    row('Potencial de severidad',data.severidad||'—');
+    row('Notificar a OSHA',data.osha?'SI':'No');
+    y+=4;
+
+    // Witnesses
+    if(data.testigos&&data.testigos.length){
+      section('Testigos');
+      data.testigos.forEach((t,i)=>row('Testigo '+(i+1),t));
+      y+=4;
+    }
+
+    // Signature
+    if(y>230){doc.addPage();y=20;}
+    doc.setDrawColor(180);doc.line(M,y+10,M+70,y+10);
+    doc.setFontSize(8);doc.setTextColor(95,94,90);
+    doc.text('Firma del Foreman: '+data.firma,M,y+15);
+    doc.text('Fecha: '+data.fecha,M+100,y+15);
+
+    // Footer
+    doc.setFontSize(7);doc.setTextColor(180);
+    doc.text('Oscar Orduno, Inc. — Earth Retention Systems | Reporte ID: '+data.id,M,267);
+
+    const fname='Incidente_'+data.fecha+'_'+data.proyecto.replace(/[^a-zA-Z0-9]/g,'_').substring(0,20)+'.pdf';
+    doc.save(fname);
+  }catch(err){console.log('PDF error:',err);}
+}
+
+
+function foremanBack(){
+  const sel = document.getElementById('foreman-selection-screen');
+  const panels = ['foreman-ptp-panel','foreman-fittest-panel','foreman-incident-panel'];
+  const anyVisible = panels.some(p=>{
+    const el=document.getElementById(p);
+    return el && el.style.display !== 'none';
+  });
+  if(anyVisible){
+    // Go back to selection
+    panels.forEach(p=>{const el=document.getElementById(p);if(el)el.style.display='none';});
+    if(sel) sel.style.display='block';
+    const bt=document.getElementById('foreman-bottom-title');
+    if(bt) bt.textContent='Portal del Foreman';
+  } else {
+    show('s-login');
   }
 }
 
