@@ -1179,7 +1179,7 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
 <!-- ── FORMS PORTAL ── -->
 <div id="s-forms" class="screen">
   <div class="bottom-nav">
-    <button class="bottom-nav-back" onclick="show('s-super')">← Superintendent</button>
+    <button class="bottom-nav-back" onclick="show('s-super')">← Atrás</button>
     <span class="bottom-nav-title">📝 Forms — Field Test</span>
   </div>
   <div class="tp-topbar">
@@ -1333,8 +1333,8 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
 <!-- ── FOREMAN PTP SCREEN ── -->
 <div id="s-foreman" class="screen">
   <div class="bottom-nav">
-    <button class="bottom-nav-back" onclick="show('s-login')">← Inicio</button>
-    <span class="bottom-nav-title">📋 Portal del Foreman</span>
+    <button class="bottom-nav-back" onclick="foremanBack()">← Atrás</button>
+    <span class="bottom-nav-title" id="foreman-bottom-title">Portal del Foreman</span>
   </div>
   <div class="container" style="padding-top:20px;">
     <!-- Top bar -->
@@ -2661,11 +2661,20 @@ function formsTab(tab){
 }
 
 function initForms(){
-  // Load dropdowns
-  if(listasGlobal.operadores&&listasGlobal.operadores.length>0){
-    poblarTodosLosDropdowns(listasGlobal);
+  // Load dropdowns for incident form specifically
+  if(listasGlobal.foremen&&listasGlobal.foremen.length>0){
+    buildDropdown(document.getElementById('ir-foreman'), listasGlobal.foremen, 'Selecciona foreman');
+    buildDropdown(document.getElementById('ir-super'), listasGlobal.superintendentes||[], 'Selecciona superintendente');
+    buildDropdown(document.getElementById('ir-proyecto'), listasGlobal.proyectos||[], 'Selecciona proyecto');
+    buildDropdown(document.getElementById('ir-empleado'), listasGlobal.operadores||[], 'Selecciona empleado');
   } else {
     cargarListas();
+    setTimeout(function(){
+      buildDropdown(document.getElementById('ir-foreman'), listasGlobal.foremen||[], 'Selecciona foreman');
+      buildDropdown(document.getElementById('ir-super'), listasGlobal.superintendentes||[], 'Selecciona superintendente');
+      buildDropdown(document.getElementById('ir-proyecto'), listasGlobal.proyectos||[], 'Selecciona proyecto');
+      buildDropdown(document.getElementById('ir-empleado'), listasGlobal.operadores||[], 'Selecciona empleado');
+    }, 2000);
   }
   // Set today
   const fd=document.getElementById('ft-fecha');
@@ -4047,11 +4056,20 @@ function initIncidentReport(){
   const fd=document.getElementById('ir-fecha');if(fd)fd.value=today;
   const ht=document.getElementById('ir-hora');
   if(ht){const now=new Date();ht.value=now.getHours().toString().padStart(2,'0')+':'+now.getMinutes().toString().padStart(2,'0');}
-  // Load dropdowns
-  if(listasGlobal.operadores&&listasGlobal.operadores.length>0){
-    poblarTodosLosDropdowns(listasGlobal);
+  // Load dropdowns for incident form specifically
+  if(listasGlobal.foremen&&listasGlobal.foremen.length>0){
+    buildDropdown(document.getElementById('ir-foreman'), listasGlobal.foremen, 'Selecciona foreman');
+    buildDropdown(document.getElementById('ir-super'), listasGlobal.superintendentes||[], 'Selecciona superintendente');
+    buildDropdown(document.getElementById('ir-proyecto'), listasGlobal.proyectos||[], 'Selecciona proyecto');
+    buildDropdown(document.getElementById('ir-empleado'), listasGlobal.operadores||[], 'Selecciona empleado');
   } else {
     cargarListas();
+    setTimeout(function(){
+      buildDropdown(document.getElementById('ir-foreman'), listasGlobal.foremen||[], 'Selecciona foreman');
+      buildDropdown(document.getElementById('ir-super'), listasGlobal.superintendentes||[], 'Selecciona superintendente');
+      buildDropdown(document.getElementById('ir-proyecto'), listasGlobal.proyectos||[], 'Selecciona proyecto');
+      buildDropdown(document.getElementById('ir-empleado'), listasGlobal.operadores||[], 'Selecciona empleado');
+    }, 2000);
   }
   // Reset messages
   document.getElementById('ir-msg').style.display='none';
