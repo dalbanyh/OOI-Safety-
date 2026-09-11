@@ -3259,12 +3259,80 @@ function tpCloseDetail(){
   document.getElementById('tp-results').style.display='block';
 }
 
+function superBack(){
+  // Check which panel is visible
+  var panels = ['super-insp-panel','super-train-panel','super-fittest-panel','super-training-panel'];
+  var anyOpen = panels.some(function(pid){
+    var el = document.getElementById(pid);
+    return el && el.style.display !== 'none';
+  });
+
+  if(anyOpen){
+    // Go back to selection screen
+    panels.forEach(function(pid){
+      var el = document.getElementById(pid);
+      if(el) el.style.display = 'none';
+    });
+    var sel = document.getElementById('super-selection-screen');
+    if(sel) sel.style.display = 'block';
+    var bt = document.getElementById('super-bottom-title');
+    if(bt) bt.textContent = 'Panel del Superintendente';
+  } else {
+    // Already on selection screen — go to login
+    show('s-login');
+  }
+  window.scrollTo(0,0);
+}
+
 function superTab(tab){
-  document.getElementById('tab-insp').className='tp-tab'+(tab==='insp'?' active':'');
-  document.getElementById('tab-train').className='tp-tab'+(tab==='train'?' active':'');
-  document.getElementById('super-insp-panel').style.display=tab==='insp'?'block':'none';
-  document.getElementById('super-train-panel').style.display=tab==='train'?'block':'none';
-  if(tab==='train')tpInit();
+  // Hide selection screen
+  var sel = document.getElementById('super-selection-screen');
+  if(sel) sel.style.display = 'none';
+
+  // Hide all super panels
+  var panels = [
+    'super-insp-panel',
+    'super-train-panel',
+    'super-fittest-panel',
+    'super-training-panel'
+  ];
+  panels.forEach(function(pid){
+    var el = document.getElementById(pid);
+    if(el) el.style.display = 'none';
+  });
+
+  // Update bottom title
+  var bt = document.getElementById('super-bottom-title');
+
+  if(tab === 'insp'){
+    if(bt) bt.textContent = 'Inspecciones';
+    var el = document.getElementById('super-insp-panel');
+    if(el) el.style.display = 'block';
+    loadSuperReports();
+  } else if(tab === 'train'){
+    if(bt) bt.textContent = 'Entrenamientos';
+    var el = document.getElementById('super-train-panel');
+    if(el) el.style.display = 'block';
+    tpInit();
+  } else if(tab === 'fittest'){
+    if(bt) bt.textContent = 'Fit Test';
+    var el = document.getElementById('super-fittest-panel');
+    if(el) el.style.display = 'block';
+    loadFitTestHistory();
+  } else if(tab === 'forms'){
+    // Field Test uses its own screen
+    if(bt) bt.textContent = 'Field Test';
+    show('s-forms');
+    formsTab('eval');
+    return;
+  } else if(tab === 'training'){
+    if(bt) bt.textContent = 'Solicitar Entrenamiento';
+    var el = document.getElementById('super-training-panel');
+    if(el) el.style.display = 'block';
+    loadTrainingRequests();
+  }
+
+  window.scrollTo(0, 0);
 }
 
 // ── FIT TEST ──
