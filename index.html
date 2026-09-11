@@ -1229,7 +1229,7 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
 <!-- ── FORMS PORTAL ── -->
 <div id="s-forms" class="screen">
   <div class="bottom-nav">
-    <button class="bottom-nav-back" onclick="show('s-super')">← Atrás</button>
+    <button class="bottom-nav-back" onclick="formsBack()">← Atrás</button>
     <span class="bottom-nav-title">📝 Forms — Field Test</span>
   </div>
   <div class="tp-topbar">
@@ -1312,7 +1312,7 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
       <button class="btn" style="background:var(--g7);color:#fff;border-color:var(--g7);font-size:16px;min-height:52px;" onclick="formsTab('insp')">
         Continuar a Inspección de Equipos →
       </button>
-      <button class="btn btn-ghost" onclick="show('s-super')" style="margin-top:8px;">← Cancelar</button>
+      <button class="btn btn-ghost" onclick="superBack()" style="margin-top:8px;">← Cancelar</button>
     </div>
   </div>
 
@@ -1394,7 +1394,7 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
         ✓ Guardar Field Test Completo
       </button>
       <button class="btn btn-ghost" onclick="formsTab('eval')" style="margin-top:8px;">← Regresar a Evaluación</button>
-      <button class="btn btn-ghost" onclick="show('s-super')" style="margin-top:4px;">Cancelar</button>
+      <button class="btn btn-ghost" onclick="superBack()" style="margin-top:4px;">Cancelar</button>
     </div>
   </div>
 </div>
@@ -3257,6 +3257,16 @@ async function tpOpenDetail(_,empIdx){
 function tpCloseDetail(){
   document.getElementById('tp-emp-detail').style.display='none';
   document.getElementById('tp-results').style.display='block';
+}
+
+function formsBack(){
+  // Return to super selection screen
+  var sel = document.getElementById('super-selection-screen');
+  if(sel) sel.style.display = 'block';
+  var bt = document.getElementById('super-bottom-title');
+  if(bt) bt.textContent = 'Panel del Superintendente';
+  show('s-super');
+  window.scrollTo(0,0);
 }
 
 function superBack(){
