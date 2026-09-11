@@ -1025,51 +1025,6 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
           <label>Tipo de entrenamiento</label>
           <select id="tp-training-select" onchange="tpRender()">
             <option value="">— Todos los entrenamientos —</option>
-            <option value="1601-03 Fleet &amp; Driver Safety">1601-03 Fleet &amp; Driver Safety</option>
-            <option value="1801-04 Shotcrete Nozzlemam Safety">1801-04 Shotcrete Nozzlemam Safety</option>
-            <option value="1901-04 Grout Pump Op">1901-04 Grout Pump Op</option>
-            <option value="2001-03 Scissor Lift OFFICE SAFETY">2001-03 Scissor Lift OFFICE SAFETY</option>
-            <option value="2001-03 Scissor Lift2 FIELD EVALUATION">2001-03 Scissor Lift2 FIELD EVALUATION</option>
-            <option value="2101-03 RTFL OFFICE-SAFETY">2101-03 RTFL OFFICE-SAFETY</option>
-            <option value="2101-03 RTFL2 FIELD EVALUATION">2101-03 RTFL2 FIELD EVALUATION</option>
-            <option value="2201-03 Aerial Lift OFFICE SAFETY">2201-03 Aerial Lift OFFICE SAFETY</option>
-            <option value="2201-03 Aerial Lift2 FIELD EVALUATION">2201-03 Aerial Lift2 FIELD EVALUATION</option>
-            <option value="2301-03 Warehouse Forklift  Training &amp; FIELD TEST">2301-03 Warehouse Forklift Training &amp; FIELD TEST</option>
-            <option value="2301-03 Warehouse Forklift Safety">2301-03 Warehouse Forklift Safety</option>
-            <option value="2401-03 - HEAVY EQUIPMENT FIELD EVALUATION">2401-03 - HEAVY EQUIPMENT FIELD EVALUATION</option>
-            <option value="2401-03 - HEAVY EQUIPMENT IN-OFFICE-SAFETY">2401-03 - HEAVY EQUIPMENT IN-OFFICE-SAFETY</option>
-            <option value="2901-01 Fall Protection">2901-01 Fall Protection</option>
-            <option value="30 Hour">30 Hour</option>
-            <option value="3301-01 Powder Actuated Tools Awareness">3301-01 Powder Actuated Tools Awareness</option>
-            <option value="3801-03 Rigging &amp; Signaling">3801-03 Rigging &amp; Signaling</option>
-            <option value="3F &amp; 4F SMAW WELDING TEST">3F &amp; 4F SMAW WELDING TEST</option>
-            <option value="4301-03 Flagger">4301-03 Flagger</option>
-            <option value="4801-01 Respiratory Protection">4801-01 Respiratory Protection</option>
-            <option value="5301-03 Boom + Scissor Lift">5301-03 Boom + Scissor Lift</option>
-            <option value="5301-03 Boom + Scissor Lift FIELD EVALUATION">5301-03 Boom + Scissor Lift FIELD EVALUATION</option>
-            <option value="5301-03 Boom_Scissor Lift">5301-03 Boom_Scissor Lift</option>
-            <option value="5601-03  Silica">5601-03 Silica</option>
-            <option value="6401-03 Welding &amp; Cutting">6401-03 Welding &amp; Cutting</option>
-            <option value="6801-03 Rigging Only">6801-03 Rigging Only</option>
-            <option value="CONFINED SPACE">CONFINED SPACE</option>
-            <option value="CPR  FirstAid">CPR FirstAid</option>
-            <option value="DOOSAN-DEVELON TRAINING">DOOSAN-DEVELON TRAINING</option>
-            <option value="DRILLING 1 IN-OFFICE -SAFETY">DRILLING 1 IN-OFFICE -SAFETY</option>
-            <option value="DRILLING FIELD EVALUATION">DRILLING FIELD EVALUATION</option>
-            <option value="DRIVER SAFETY FLEET DEFENSIVE DRIVING TRAINING -AMERISSURE">DRIVER SAFETY - AMERISSURE</option>
-            <option value="EXCAVATIONS AND TRENCHES">EXCAVATIONS AND TRENCHES</option>
-            <option value="Equipment Stand Down">Equipment Stand Down</option>
-            <option value="FIRE EXTINGUISHER USE TRAINING">FIRE EXTINGUISHER USE TRAINING</option>
-            <option value="Grout Pump Operator SM">Grout Pump Operator SM</option>
-            <option value="Incident Stand Down">Incident Stand Down</option>
-            <option value="LOTO">LOTO</option>
-            <option value="New Hire">New Hire</option>
-            <option value="OSHA 10 HR">OSHA 10 HR</option>
-            <option value="OVERHEAD CRANE SAFE OPERATION">OVERHEAD CRANE SAFE OPERATION</option>
-            <option value="PIER DRILL FIELD EVALUATION">PIER DRILL FIELD EVALUATION</option>
-            <option value="PIER DRILL OFFICE-SAFETY">PIER DRILL OFFICE-SAFETY</option>
-            <option value="Respiratory Protection">Respiratory Protection</option>
-            <option value="TIRE SERVICE EQUIPMENT TRAINING">TIRE SERVICE EQUIPMENT TRAINING</option>
           </select>
         </div>
 
@@ -2261,10 +2216,34 @@ const SOON_DAYS=90;
 let tpVencFilter='all';
 let tpTrainingFilter='';
 
+
+function tpPopulateDropdown() {
+  var sel = document.getElementById('tp-training-select');
+  if (!sel) return;
+  // Get unique training types from current data
+  var data = getTrainingData();
+  var types = {};
+  data.forEach(function(emp) {
+    (emp.trainings || []).forEach(function(t) {
+      if (t.name) types[t.name] = true;
+    });
+  });
+  var sorted = Object.keys(types).sort();
+  // Rebuild options
+  sel.innerHTML = '<option value="">— Todos los entrenamientos —</option>';
+  sorted.forEach(function(t) {
+    var opt = document.createElement('option');
+    opt.value = t;
+    opt.textContent = t;
+    sel.appendChild(opt);
+  });
+}
+
 function tpInit(){
-  const total=TRAINING_DATA.length;
+  tpPopulateDropdown();
+  const total=getTrainingData().length;
   let expired=0,soon=0,ok=0;
-  TRAINING_DATA.forEach(emp=>{
+  getTrainingData().forEach(emp=>{
     const status=tpEmpStatus(emp);
     if(status==='expired')expired++;
     else if(status==='soon')soon++;
@@ -2318,7 +2297,7 @@ function tpRender(){
   const selVal=(document.getElementById('tp-training-select')?.value||'');
   tpTrainingFilter=selVal;
 
-  let list=TRAINING_DATA;
+  let list=getTrainingData();
 
   // Filter by employee name
   if(q) list=list.filter(e=>e.name.toLowerCase().includes(q)||(e.ooi_id||'').toLowerCase().includes(q));
@@ -2375,7 +2354,7 @@ function tpRender(){
       const isExp=diffDays!==null&&diffDays<0;
       const isSoon=diffDays!==null&&diffDays>=0&&diffDays<SOON_DAYS;
       const initials=emp.name.split(/[,\s]+/).filter(Boolean).map(p=>p[0]||'').slice(0,2).join('').toUpperCase();
-      return `<div class="emp-card" onclick="tpOpenDetail(${i+'_'+tpTrainingFilter.replace(/[^a-z0-9]/gi,'_')},${TRAINING_DATA.indexOf(emp)})">
+      return `<div class="emp-card" onclick="tpOpenDetail(${i+'_'+tpTrainingFilter.replace(/[^a-z0-9]/gi,'_')},${getTrainingData().indexOf(emp)})">
         <div style="display:flex;align-items:center;gap:12px;">
           <div class="emp-avatar">${initials}</div>
           <div style="flex:1;">
@@ -2398,7 +2377,7 @@ function tpRender(){
     const initials=emp.name.split(/[,\s]+/).filter(Boolean).map(p=>p[0]||'').slice(0,2).join('').toUpperCase();
     const badge=status==='expired'?'<span class="badge badge-bad">⚠ Vencido</span>':status==='soon'?'<span class="badge badge-pending">🔔 Pronto</span>':'<span class="badge badge-ok">✓ Al corriente</span>';
     const expiredCount=emp.trainings.filter(t=>{if(!t.expires)return false;return new Date(t.expires)<TODAY;}).length;
-    return `<div class="emp-card" onclick="tpOpenDetail(null,${TRAINING_DATA.indexOf(emp)})">
+    return `<div class="emp-card" onclick="tpOpenDetail(null,${getTrainingData().indexOf(emp)})">
       <div style="display:flex;align-items:center;gap:12px;">
         <div class="emp-avatar">${initials}</div>
         <div style="flex:1;">
@@ -2412,7 +2391,7 @@ function tpRender(){
 }
 
 async function tpOpenDetail(_,empIdx){
-  const emp=TRAINING_DATA[empIdx];
+  const emp=getTrainingData()[empIdx];
   if(!emp)return;
   document.getElementById('tp-results').style.display='none';
   document.getElementById('tp-emp-detail').style.display='block';
@@ -2512,9 +2491,88 @@ function fetchEmpleados() {
     .catch(function(){ return usarFallback(); });
 }
 
+
+// ── DYNAMIC TRAINING DATA ──
+var trainingDataCargado = false;
+var TRAINING_DATA_DYNAMIC = null;
+
+function fetchTrainingData() {
+  // Check sessionStorage first
+  try {
+    var cached = sessionStorage.getItem('ooi_training_data');
+    if (cached) {
+      var parsed = JSON.parse(cached);
+      if (parsed && parsed.length > 0) {
+        TRAINING_DATA_DYNAMIC = parsed;
+        trainingDataCargado = true;
+        return Promise.resolve(parsed);
+      }
+    }
+  } catch(e) {}
+
+  // Fetch from Apps Script
+  return fetch(SCRIPT_URL + '?action=training_data&t=' + Date.now())
+    .then(function(res) { return res.json(); })
+    .then(function(json) {
+      if (json.status === 'ok' && json.employees && json.employees.length > 0) {
+        // Convert to getTrainingData() format for compatibility
+        var converted = json.employees.map(function(emp) {
+          return {
+            name: emp.name,
+            ooi_id: emp.ooi_id,
+            stc_id: '',
+            trainings: emp.trainings.map(function(t) {
+              // Calculate expiry based on training type
+              var expires = calcExpiry(t.name, t.date);
+              return {name: t.name, date: t.date, expires: expires};
+            })
+          };
+        });
+        TRAINING_DATA_DYNAMIC = converted;
+        trainingDataCargado = true;
+        try { sessionStorage.setItem('ooi_training_data', JSON.stringify(converted)); } catch(e) {}
+        return converted;
+      }
+      // Fallback to static
+      TRAINING_DATA_DYNAMIC = typeof getTrainingData() !== 'undefined' ? getTrainingData() : [];
+      return TRAINING_DATA_DYNAMIC;
+    })
+    .catch(function() {
+      TRAINING_DATA_DYNAMIC = typeof getTrainingData() !== 'undefined' ? getTrainingData() : [];
+      return TRAINING_DATA_DYNAMIC;
+    });
+}
+
+function calcExpiry(trainingName, dateStr) {
+  if (!dateStr) return '';
+  try {
+    var d = new Date(dateStr);
+    if (isNaN(d.getTime())) return '';
+    var name = trainingName.toLowerCase();
+    var years = 3; // default
+    if (name.includes('osha 10') || name.includes('osha 30')) years = 5;
+    else if (name.includes('new hire') || name.includes('confined') || 
+             name.includes('fall') || name.includes('fire') || 
+             name.includes('loto') || name.includes('respiratory')) years = 1;
+    else if (name.includes('cpr') || name.includes('first aid') || 
+             name.includes('silica') || name.includes('weld') ||
+             name.includes('grout') || name.includes('pier') || 
+             name.includes('flagger')) years = 2;
+    d.setFullYear(d.getFullYear() + years);
+    return d.toISOString().substring(0, 10);
+  } catch(e) { return ''; }
+}
+
+function getTrainingData() {
+  // Returns current training data - dynamic or static fallback
+  if (TRAINING_DATA_DYNAMIC && TRAINING_DATA_DYNAMIC.length > 0) return TRAINING_DATA_DYNAMIC;
+  if (typeof getTrainingData() !== 'undefined') return getTrainingData();
+  return [];
+}
+
 function usarFallback() {
-  if (typeof TRAINING_DATA !== 'undefined') {
-    var names = TRAINING_DATA.map(function(e){ return e.name; }).sort();
+  if (typeof getTrainingData() !== 'undefined') {
+    var names = getTrainingData().map(function(e){ return e.name; }).sort();
     listasGlobal.empleados = names;
     empleadosCargados = true;
     return names;
@@ -2527,8 +2585,8 @@ function getEmpleadosList() {
   if (listasGlobal.empleados && listasGlobal.empleados.length > 0) {
     return listasGlobal.empleados;
   }
-  if (typeof TRAINING_DATA !== 'undefined') {
-    return TRAINING_DATA.map(function(e){ return e.name; }).sort();
+  if (typeof getTrainingData() !== 'undefined') {
+    return getTrainingData().map(function(e){ return e.name; }).sort();
   }
   return [];
 }
@@ -3103,9 +3161,9 @@ async function submitFieldTest(){
 }
 
 function tpInit(){
-  const total=TRAINING_DATA.length;
+  const total=getTrainingData().length;
   let expired=0,soon=0,ok=0;
-  TRAINING_DATA.forEach(emp=>{
+  getTrainingData().forEach(emp=>{
     const status=tpEmpStatus(emp);
     if(status==='expired')expired++;
     else if(status==='soon')soon++;
@@ -3159,7 +3217,7 @@ function tpRender(){
   const selVal=(document.getElementById('tp-training-select')?.value||'');
   tpTrainingFilter=selVal;
 
-  let list=TRAINING_DATA;
+  let list=getTrainingData();
 
   // Filter by employee name
   if(q) list=list.filter(e=>e.name.toLowerCase().includes(q)||(e.ooi_id||'').toLowerCase().includes(q));
@@ -3216,7 +3274,7 @@ function tpRender(){
       const isExp=diffDays!==null&&diffDays<0;
       const isSoon=diffDays!==null&&diffDays>=0&&diffDays<SOON_DAYS;
       const initials=emp.name.split(/[,\s]+/).filter(Boolean).map(p=>p[0]||'').slice(0,2).join('').toUpperCase();
-      return `<div class="emp-card" onclick="tpOpenDetail(${i+'_'+tpTrainingFilter.replace(/[^a-z0-9]/gi,'_')},${TRAINING_DATA.indexOf(emp)})">
+      return `<div class="emp-card" onclick="tpOpenDetail(${i+'_'+tpTrainingFilter.replace(/[^a-z0-9]/gi,'_')},${getTrainingData().indexOf(emp)})">
         <div style="display:flex;align-items:center;gap:12px;">
           <div class="emp-avatar">${initials}</div>
           <div style="flex:1;">
@@ -3239,7 +3297,7 @@ function tpRender(){
     const initials=emp.name.split(/[,\s]+/).filter(Boolean).map(p=>p[0]||'').slice(0,2).join('').toUpperCase();
     const badge=status==='expired'?'<span class="badge badge-bad">⚠ Vencido</span>':status==='soon'?'<span class="badge badge-pending">🔔 Pronto</span>':'<span class="badge badge-ok">✓ Al corriente</span>';
     const expiredCount=emp.trainings.filter(t=>{if(!t.expires)return false;return new Date(t.expires)<TODAY;}).length;
-    return `<div class="emp-card" onclick="tpOpenDetail(null,${TRAINING_DATA.indexOf(emp)})">
+    return `<div class="emp-card" onclick="tpOpenDetail(null,${getTrainingData().indexOf(emp)})">
       <div style="display:flex;align-items:center;gap:12px;">
         <div class="emp-avatar">${initials}</div>
         <div style="flex:1;">
@@ -3253,7 +3311,7 @@ function tpRender(){
 }
 
 async function tpOpenDetail(_,empIdx){
-  const emp=TRAINING_DATA[empIdx];
+  const emp=getTrainingData()[empIdx];
   if(!emp)return;
   document.getElementById('tp-results').style.display='none';
   document.getElementById('tp-emp-detail').style.display='block';
@@ -3380,7 +3438,12 @@ function superTab(tab){
     if(bt) bt.textContent = 'Entrenamientos';
     var el = document.getElementById('super-train-panel');
     if(el) el.style.display = 'block';
-    tpInit();
+    // Load dynamic training data then init
+    if (!trainingDataCargado) {
+      fetchTrainingData().then(function(){ tpInit(); });
+    } else {
+      tpInit();
+    }
   } else if(tab === 'fittest'){
     if(bt) bt.textContent = 'Fit Test';
     var el = document.getElementById('super-fittest-panel');
