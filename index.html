@@ -2480,19 +2480,76 @@ function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.re
 function toggleChip(btn,val){document.querySelectorAll('#swa-chips .chip').forEach(c=>c.classList.remove('selected'));btn.classList.add('selected');swaChipSelected=val;}
 function buildDropdown(sel,opts,ph){if(!sel)return;sel.innerHTML=`<option value="">— ${ph} —</option>`+opts.map(o=>`<option value="${o}">${o}</option>`).join('');}
 
-async function cargarListas(retry=0){
-  try{
-    const res=await fetch(SCRIPT_URL+'?t='+Date.now());
-    const json=await res.json();
-    if(json.listas){
-      listasGlobal=json.listas;
-      poblarTodosLosDropdowns(json.listas);
-    } else if(retry<2){
-      setTimeout(()=>cargarListas(retry+1), 2000);
+// ── DYNAMIC EMPLOYEE LIST ──
+var empleadosCargados = false;
+
+function fetchEmpleados() {
+  // Check sessionStorage first (instant, no network call)
+  try {
+    var cached = sessionStorage.getItem('ooi_empleados');
+    if (cached) {
+      var parsed = JSON.parse(cached);
+      if (parsed && parsed.length > 0) {
+        listasGlobal.empleados = parsed;
+        empleadosCargados = true;
+        return Promise.resolve(parsed);
+      }
     }
-  }catch(err){
-    if(retry<2) setTimeout(()=>cargarListas(retry+1), 2000);
+  } catch(e) {}
+
+  // Fetch from Apps Script using .then()
+  return fetch(SCRIPT_URL + '?action=empleados&t=' + Date.now())
+    .then(function(res){ return res.json(); })
+    .then(function(json){
+      if (json.status === 'ok' && json.empleados && json.empleados.length > 0) {
+        listasGlobal.empleados = json.empleados;
+        empleadosCargados = true;
+        try { sessionStorage.setItem('ooi_empleados', JSON.stringify(json.empleados)); } catch(e) {}
+        return json.empleados;
+      }
+      return usarFallback();
+    })
+    .catch(function(){ return usarFallback(); });
+}
+
+function usarFallback() {
+  if (typeof TRAINING_DATA !== 'undefined') {
+    var names = TRAINING_DATA.map(function(e){ return e.name; }).sort();
+    listasGlobal.empleados = names;
+    empleadosCargados = true;
+    return names;
   }
+  return [];
+}
+
+function getEmpleadosList() {
+  // Returns current list - either dynamic or fallback
+  if (listasGlobal.empleados && listasGlobal.empleados.length > 0) {
+    return listasGlobal.empleados;
+  }
+  if (typeof TRAINING_DATA !== 'undefined') {
+    return TRAINING_DATA.map(function(e){ return e.name; }).sort();
+  }
+  return [];
+}
+
+function cargarListas(retry){
+  if(retry===undefined) retry=0;
+  // Start employee fetch in parallel (non-blocking)
+  if(!empleadosCargados) fetchEmpleados();
+  fetch(SCRIPT_URL+'?t='+Date.now())
+    .then(function(res){ return res.json(); })
+    .then(function(json){
+      if(json.listas){
+        listasGlobal=json.listas;
+        poblarTodosLosDropdowns(json.listas);
+      } else if(retry<2){
+        setTimeout(function(){ cargarListas(retry+1); }, 2000);
+      }
+    })
+    .catch(function(){
+      if(retry<2) setTimeout(function(){ cargarListas(retry+1); }, 2000);
+    });
 }
 
 function poblarTodosLosDropdowns(listas){
@@ -4182,17 +4239,20 @@ function initSafety(){
   if(scd) scd.value = today;
   if(listasGlobal.operadores && listasGlobal.operadores.length > 0){
     poblarTodosLosDropdowns(listasGlobal);
-    saEmployees = typeof TRAINING_DATA !== 'undefined'
-      ? TRAINING_DATA.map(e => e.name).sort()
-      : listasGlobal.operadores||[];
+    saEmployees = getEmpleadosList();
     renderEmployeeList();
     initSASig();
+    // Refresh with latest if not yet loaded
+    if (!empleadosCargados) {
+      fetchEmpleados().then(function(names){ saEmployees = names; renderEmployeeList(); });
+    }
   } else {
-    saEmployees = typeof TRAINING_DATA !== 'undefined'
-      ? TRAINING_DATA.map(e => e.name).sort()
-      : [];
+    saEmployees = getEmpleadosList();
     renderEmployeeList();
     cargarListas();
+    if (!empleadosCargados) {
+      fetchEmpleados().then(function(names){ saEmployees = names; renderEmployeeList(); });
+    }
   }
 }
 
@@ -4224,18 +4284,23 @@ function safetyTab(tab){
     if(bt) bt.textContent='✅ Registrar Asistencia';
     document.getElementById('safety-attendance-panel').style.display='block';
     buildDropdown(document.getElementById('sa-proyecto'), listasGlobal.proyectos||[], 'Selecciona proyecto');
-    // Use TRAINING_DATA employees (261 from certification log) sorted by name
-    saEmployees = typeof TRAINING_DATA !== 'undefined'
-      ? TRAINING_DATA.map(e => e.name).sort()
-      : listasGlobal.operadores||[];
+    // Use dynamic employee list (from Apps Script, cached in sessionStorage)
+    saEmployees = getEmpleadosList();
     renderEmployeeList();
+    if (!empleadosCargados) {
+      fetchEmpleados().then(function(names){ saEmployees = names; renderEmployeeList(); });
+    }
   } else if(tab==='certs'){
     if(bt) bt.textContent='📄 Subir Certificaciones';
     document.getElementById('safety-certs-panel').style.display='block';
-    const certEmps = typeof TRAINING_DATA !== 'undefined'
-      ? TRAINING_DATA.map(e => e.name).sort()
-      : listasGlobal.operadores||[];
+    var certEmps = getEmpleadosList();
     buildDropdown(document.getElementById('sc-empleado'), certEmps, 'Selecciona empleado');
+    // Refresh if not yet loaded
+    if (!empleadosCargados) {
+      fetchEmpleados().then(function(names){
+        buildDropdown(document.getElementById('sc-empleado'), names, 'Selecciona empleado');
+      });
+    }
     if(!photoStore['sc-cert']) photoStore['sc-cert']=[];
     renderPhotoGrid('sc-cert');
   }
