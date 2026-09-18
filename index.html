@@ -2459,11 +2459,39 @@ function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.re
 function toggleChip(btn,val){document.querySelectorAll('#swa-chips .chip').forEach(c=>c.classList.remove('selected'));btn.classList.add('selected');swaChipSelected=val;}
 function buildDropdown(sel,opts,ph){if(!sel)return;sel.innerHTML=`<option value="">— ${ph} —</option>`+opts.map(o=>`<option value="${o}">${o}</option>`).join('');}
 
+
+// ── FIREBASE CONFIG ──
+var FB_API_KEY = 'AIzaSyBwxyI21DC0vwAqckyF04vkzh8T_yjKF3A';
+var FB_PROJECT = 'ooi-safety';
+var FB_BASE = 'https://firestore.googleapis.com/v1/projects/' + FB_PROJECT + '/databases/(default)/documents';
+
+function fbGet(path) {
+  return fetch(FB_BASE + '/' + path + '?key=' + FB_API_KEY)
+    .then(function(r) { return r.json(); });
+}
+
+function fbList(collection, pageSize) {
+  var url = FB_BASE + '/' + collection + '?key=' + FB_API_KEY;
+  if (pageSize) url += '&pageSize=' + pageSize;
+  return fetch(url).then(function(r) { return r.json(); });
+}
+
+function fbFieldStr(doc, field) {
+  return doc.fields && doc.fields[field] ? doc.fields[field].stringValue || '' : '';
+}
+
+function fbFieldArr(doc, field) {
+  if (!doc.fields || !doc.fields[field]) return [];
+  var arrVal = doc.fields[field].arrayValue;
+  if (!arrVal || !arrVal.values) return [];
+  return arrVal.values;
+}
+
 // ── DYNAMIC EMPLOYEE LIST ──
 var empleadosCargados = false;
 
 function fetchEmpleados() {
-  // Check sessionStorage first (instant, no network call)
+  // Check sessionStorage first (instant)
   try {
     var cached = sessionStorage.getItem('ooi_empleados');
     if (cached) {
@@ -2476,19 +2504,22 @@ function fetchEmpleados() {
     }
   } catch(e) {}
 
-  // Fetch from Apps Script using .then()
-  return fetch(SCRIPT_URL + '?action=empleados&t=' + Date.now())
-    .then(function(res){ return res.json(); })
-    .then(function(json){
-      if (json.status === 'ok' && json.empleados && json.empleados.length > 0) {
-        listasGlobal.empleados = json.empleados;
-        empleadosCargados = true;
-        try { sessionStorage.setItem('ooi_empleados', JSON.stringify(json.empleados)); } catch(e) {}
-        return json.empleados;
+  // Fetch from Firebase Firestore (fast, direct, no Apps Script)
+  return fbGet('meta/empleados_list')
+    .then(function(doc) {
+      if (doc.fields && doc.fields.names) {
+        var vals = doc.fields.names.arrayValue && doc.fields.names.arrayValue.values;
+        if (vals && vals.length > 0) {
+          var names = vals.map(function(v) { return v.stringValue || ''; }).filter(Boolean).sort();
+          listasGlobal.empleados = names;
+          empleadosCargados = true;
+          try { sessionStorage.setItem('ooi_empleados', JSON.stringify(names)); } catch(e) {}
+          return names;
+        }
       }
       return usarFallback();
     })
-    .catch(function(){ return usarFallback(); });
+    .catch(function() { return usarFallback(); });
 }
 
 
@@ -2497,7 +2528,7 @@ var trainingDataCargado = false;
 var TRAINING_DATA_DYNAMIC = null;
 
 function fetchTrainingData() {
-  // Check sessionStorage first
+  // Check sessionStorage first (instant)
   try {
     var cached = sessionStorage.getItem('ooi_training_data');
     if (cached) {
@@ -2510,35 +2541,39 @@ function fetchTrainingData() {
     }
   } catch(e) {}
 
-  // Fetch from Apps Script
-  return fetch(SCRIPT_URL + '?action=training_data&t=' + Date.now())
-    .then(function(res) { return res.json(); })
-    .then(function(json) {
-      if (json.status === 'ok' && json.employees && json.employees.length > 0) {
-        // Convert to getTrainingData() format for compatibility
-        var converted = json.employees.map(function(emp) {
-          return {
-            name: emp.name,
-            ooi_id: emp.ooi_id,
-            stc_id: '',
-            trainings: emp.trainings.map(function(t) {
-              // Calculate expiry based on training type
-              var expires = calcExpiry(t.name, t.date);
-              return {name: t.name, date: t.date, expires: expires};
-            })
-          };
-        });
-        TRAINING_DATA_DYNAMIC = converted;
-        trainingDataCargado = true;
-        try { sessionStorage.setItem('ooi_training_data', JSON.stringify(converted)); } catch(e) {}
-        return converted;
+  // Fetch from Firebase Firestore — fast, direct, no Apps Script needed
+  return fbList('empleados', 300)
+    .then(function(res) {
+      if (!res.documents || res.documents.length === 0) {
+        TRAINING_DATA_DYNAMIC = typeof TRAINING_DATA !== 'undefined' ? TRAINING_DATA : [];
+        return TRAINING_DATA_DYNAMIC;
       }
-      // Fallback to static
-      TRAINING_DATA_DYNAMIC = typeof getTrainingData() !== 'undefined' ? getTrainingData() : [];
-      return TRAINING_DATA_DYNAMIC;
+      var converted = res.documents.map(function(doc) {
+        var trainings = fbFieldArr(doc, 'trainings').map(function(t) {
+          var f = t.mapValue && t.mapValue.fields || {};
+          return {
+            name:    f.name    ? f.name.stringValue    || '' : '',
+            date:    f.date    ? f.date.stringValue    || '' : '',
+            expires: f.expires ? f.expires.stringValue || '' : ''
+          };
+        }).filter(function(t) { return t.name && t.date; });
+
+        return {
+          name:     fbFieldStr(doc, 'name'),
+          ooi_id:   fbFieldStr(doc, 'ooi_id'),
+          stc_id:   '',
+          trainings: trainings
+        };
+      }).filter(function(e) { return e.name; })
+        .sort(function(a, b) { return a.name.localeCompare(b.name); });
+
+      TRAINING_DATA_DYNAMIC = converted;
+      trainingDataCargado = true;
+      try { sessionStorage.setItem('ooi_training_data', JSON.stringify(converted)); } catch(e) {}
+      return converted;
     })
     .catch(function() {
-      TRAINING_DATA_DYNAMIC = typeof getTrainingData() !== 'undefined' ? getTrainingData() : [];
+      TRAINING_DATA_DYNAMIC = typeof TRAINING_DATA !== 'undefined' ? TRAINING_DATA : [];
       return TRAINING_DATA_DYNAMIC;
     });
 }
