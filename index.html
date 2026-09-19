@@ -2630,18 +2630,51 @@ function cargarListas(retry){
   if(retry===undefined) retry=0;
   // Start employee fetch in parallel (non-blocking)
   if(!empleadosCargados) fetchEmpleados();
-  fetch(SCRIPT_URL+'?t='+Date.now())
-    .then(function(res){ return res.json(); })
-    .then(function(json){
-      if(json.listas){
-        listasGlobal=json.listas;
-        poblarTodosLosDropdowns(json.listas);
+
+  // Load listas from Firebase (fast, direct)
+  fbGet('meta/listas')
+    .then(function(doc){
+      if(doc && doc.fields){
+        var f = doc.fields;
+        function getArr(field){
+          if(!f[field]) return [];
+          var vals = f[field].arrayValue && f[field].arrayValue.values;
+          return vals ? vals.map(function(v){ return v.stringValue||''; }).filter(Boolean) : [];
+        }
+        function getMap(field){
+          if(!f[field] || !f[field].mapValue) return {};
+          var fields = f[field].mapValue.fields || {};
+          var result = {};
+          Object.keys(fields).forEach(function(k){ result[k] = fields[k].stringValue||''; });
+          return result;
+        }
+        listasGlobal = {
+          foremen:          getArr('foremen'),
+          operadores:       getArr('operadores'),
+          maquinas:         getArr('maquinas'),
+          superintendentes: getArr('superintendentes'),
+          proyectos:        getArr('proyectos'),
+          emailsForeman:    getMap('emailsForeman'),
+          emailsSuper:      getMap('emailsSuper')
+        };
+        poblarTodosLosDropdowns(listasGlobal);
       } else if(retry<2){
         setTimeout(function(){ cargarListas(retry+1); }, 2000);
       }
     })
     .catch(function(){
-      if(retry<2) setTimeout(function(){ cargarListas(retry+1); }, 2000);
+      // Fallback to Apps Script if Firebase fails
+      if(retry<2){
+        fetch(SCRIPT_URL+'?t='+Date.now())
+          .then(function(res){ return res.json(); })
+          .then(function(json){
+            if(json.listas){
+              listasGlobal=json.listas;
+              poblarTodosLosDropdowns(json.listas);
+            }
+          })
+          .catch(function(){});
+      }
     });
 }
 
