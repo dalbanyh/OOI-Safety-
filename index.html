@@ -602,6 +602,13 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
     <button class="role-btn" onclick="selectRole('foreman')"><div class="role-icon" style="background:#E9F1FB;">📋</div><div style="flex:1"><div style="font-size:16px;font-weight:500;">Foreman</div><div style="font-size:13px;color:var(--text2);">Portal PTP — Pre-Task Plan</div></div><span class="role-arrow">›</span></button>
     <button class="role-btn" onclick="selectRole('rrhh')" style="border-color:#6B21A8;background:#F3E8FF;"><div class="role-icon" style="background:#F3E8FF;font-size:22px;">🏥</div><div style="flex:1"><div style="font-size:16px;font-weight:500;color:#6B21A8;">Recursos Humanos</div><div style="font-size:13px;color:#7C3AED;">Programa de Respiradores</div></div><span style="color:#6B21A8;font-size:18px;font-weight:700;">›</span></button>
     <button class="role-btn" onclick="selectRole('safety')" style="border-color:#0F6E56;background:#E1F5EE;"><div class="role-icon" style="background:#E1F5EE;font-size:22px;">🛡️</div><div style="flex:1"><div style="font-size:16px;font-weight:500;color:#0F6E56;">Safety</div><div style="font-size:13px;color:#0F6E56;opacity:0.8;">Registrar entrenamientos · Certificaciones</div></div><span style="color:#0F6E56;font-size:18px;font-weight:700;">›</span></button>
+    <button class="role-btn" onclick="showCerts(false)" style="border-left:4px solid #E8611A;">
+      <div class="role-icon" style="background:#FDE9DD;">📄</div>
+      <div style="flex:1"><div style="font-family:'Sora',sans-serif;font-size:17px;font-weight:800;">Certificaciones</div>
+      <div style="font-size:13px;color:var(--text2);">Ver certificaciones</div></div>
+      <span class="role-arrow">›</span>
+    </button>
+
     <button class="role-btn" onclick="selectRole('super')"><div class="role-icon" style="background:var(--info-bg);">👷</div><div style="flex:1"><div style="font-size:16px;font-weight:500;">Superintendente</div><div style="font-size:13px;color:var(--text2);">Inspecciones · Entrenamientos</div></div><span class="role-arrow">›</span></button>
 
     <div style="text-align:center;margin-top:24px;font-size:12px;color:var(--text3);">v10.0 — Oscar Orduno, Inc.</div>
@@ -4862,6 +4869,649 @@ function pdfNewPage(doc) {
   return 18;
 }
 
+
+// ══════════════════════════════════════════
+// CERTIFICATION PORTAL — JavaScript
+// ══════════════════════════════════════════
+var certsData = [];          // All employees from Firebase
+var certsFiltered = [];      // After filter
+var certsStatusFilter = 'all';
+var certsTypeFilter = '';
+var certCurrentEmp = null;   // Currently viewed employee
+var isSafetyUser = false;    // Set when Safety logs in
+
+// Certification catalog from OOI_CERTS (static — always available)
+var OOI_CERTS_CLIENT = [
+  {name:'New Hire', expYears:null},
+  {name:'OSHA 10', expYears:5},
+  {name:'OSHA 30', expYears:5},
+  {name:'Excavations & Trenches', expYears:3},
+  {name:'CPR / First Aid', expYears:2},
+  {name:'LOTO', expYears:1},
+  {name:'Soilnail Drilling', expYears:3},
+  {name:'Tire Service Equipment', expYears:3},
+  {name:'Pier Drill', expYears:2},
+  {name:'Fall Protection', expYears:1},
+  {name:'Boom & Scissor Lift', expYears:3},
+  {name:'Rock Terrain Forklift (RTFL)', expYears:3},
+  {name:'Heavy Equipment', expYears:3},
+  {name:'Warehouse Forklift', expYears:3},
+  {name:'Driver Safety / Defensive Driving', expYears:3},
+  {name:'Grout Pump Operator', expYears:2},
+  {name:'Flagger', expYears:2},
+  {name:'Shotcrete Crew Safety', expYears:2},
+  {name:'Rigging & Signaling', expYears:3},
+  {name:'Overhead Crane', expYears:3},
+  {name:'Silica', expYears:2},
+  {name:'Fleet & Driver Safety', expYears:3},
+  {name:'Fire Extinguisher', expYears:1},
+  {name:'3F & 4F SMAW Welding', expYears:2},
+  {name:'Confined Space', expYears:1},
+  {name:'Respiratory Protection', expYears:1}
+];
+
+// ── Navigation ──
+function showCerts(safetyAccess) {
+  isSafetyUser = !!safetyAccess;
+  show('s-certs');
+  document.getElementById('certs-bottom-title').textContent = '📄 Certificaciones';
+  document.getElementById('certs-dashboard').style.display = 'block';
+  document.getElementById('certs-profile').style.display = 'none';
+  document.getElementById('certs-add-employee').style.display = 'none';
+  document.getElementById('certs-add-cert').style.display = 'none';
+  // Show add employee button for Safety
+  document.getElementById('cert-add-emp-btn').style.display = isSafetyUser ? 'block' : 'none';
+  certsPopulateCertFilter();
+  certsLoadData();
+}
+
+function certsBack() {
+  var profile = document.getElementById('certs-profile');
+  var addEmp  = document.getElementById('certs-add-employee');
+  var addCert = document.getElementById('certs-add-cert');
+  var dash    = document.getElementById('certs-dashboard');
+
+  if (addCert.style.display !== 'none') {
+    addCert.style.display = 'none';
+    profile.style.display = 'block';
+    document.getElementById('certs-bottom-title').textContent = certCurrentEmp ? certCurrentEmp.name : 'Certificaciones';
+  } else if (addEmp.style.display !== 'none') {
+    addEmp.style.display = 'none';
+    dash.style.display = 'block';
+    document.getElementById('certs-bottom-title').textContent = '📄 Certificaciones';
+  } else if (profile.style.display !== 'none') {
+    profile.style.display = 'none';
+    dash.style.display = 'block';
+    document.getElementById('certs-bottom-title').textContent = '📄 Certificaciones';
+  } else {
+    show('s-login');
+  }
+  window.scrollTo(0,0);
+}
+
+// ── Data Loading ──
+function certsLoadData() {
+  document.getElementById('certs-list').innerHTML = '<div class="loading">⏳ Cargando...</div>';
+  // Try sessionStorage first
+  try {
+    var cached = sessionStorage.getItem('ooi_certs');
+    if (cached) {
+      certsData = JSON.parse(cached);
+      certsComputeStats();
+      certsRender();
+      return;
+    }
+  } catch(e) {}
+
+  // Load from Firebase
+  fbList('certificaciones', 300)
+    .then(function(res) {
+      if (res.documents && res.documents.length > 0) {
+        certsData = res.documents.map(function(doc) {
+          var f = doc.fields || {};
+          var certs = fbFieldArr(doc, 'certifications').map(function(t) {
+            var tf = t.mapValue && t.mapValue.fields || {};
+            return {
+              name:     tf.name     ? tf.name.stringValue     : '',
+              date:     tf.date     ? tf.date.stringValue     : '',
+              expires:  tf.expires  ? tf.expires.stringValue  : '',
+              noExpiry: tf.noExpiry ? tf.noExpiry.booleanValue: false,
+              photoUrl: tf.photoUrl ? tf.photoUrl.stringValue : '',
+            };
+          }).filter(function(c){ return c.name; });
+
+          // Extract docId from name field
+          var nameParts = doc.name ? doc.name.split('/') : [];
+          var docId = nameParts[nameParts.length - 1] || '';
+
+          return {
+            docId:    docId,
+            name:     fbFieldStr(doc, 'name'),
+            lastName: fbFieldStr(doc, 'lastName'),
+            firstName:fbFieldStr(doc, 'firstName'),
+            ooiId:    fbFieldStr(doc, 'ooiId'),
+            status:   fbFieldStr(doc, 'status') || 'ACTIVE',
+            certs:    certs
+          };
+        }).filter(function(e){ return e.name; })
+          .sort(function(a,b){ return a.name.localeCompare(b.name); });
+
+        try { sessionStorage.setItem('ooi_certs', JSON.stringify(certsData)); } catch(e){}
+        certsComputeStats();
+        certsRender();
+      } else {
+        document.getElementById('certs-list').innerHTML = '<div style="text-align:center;padding:40px;color:var(--text2);">Sin datos. Corre syncCertificationsToFirebase en Apps Script.</div>';
+      }
+    })
+    .catch(function(err) {
+      document.getElementById('certs-list').innerHTML = '<div style="text-align:center;padding:40px;color:#C82828;">Error cargando datos.</div>';
+    });
+}
+
+// ── Stats ──
+function certStatus(cert) {
+  if (!cert.expires || cert.noExpiry) return 'ok';
+  var today = new Date(); today.setHours(0,0,0,0);
+  var exp = new Date(cert.expires);
+  if (isNaN(exp.getTime())) return 'ok';
+  var daysLeft = Math.floor((exp - today) / 86400000);
+  if (daysLeft < 0) return 'expired';
+  if (daysLeft <= 30) return 'soon';
+  return 'ok';
+}
+
+function empWorstStatus(emp) {
+  var worst = 'ok';
+  (emp.certs || []).forEach(function(c) {
+    var s = certStatus(c);
+    if (s === 'expired') worst = 'expired';
+    else if (s === 'soon' && worst !== 'expired') worst = 'soon';
+  });
+  return worst;
+}
+
+function certsComputeStats() {
+  var total = certsData.length;
+  var activas = 0, proximas = 0, vencidas = 0;
+  certsData.forEach(function(emp) {
+    var s = empWorstStatus(emp);
+    if (s === 'expired') vencidas++;
+    else if (s === 'soon') proximas++;
+    else activas++;
+  });
+  document.getElementById('cd-total').textContent = total;
+  document.getElementById('cd-activas').textContent = activas;
+  document.getElementById('cd-proximas').textContent = proximas;
+  document.getElementById('cd-vencidas').textContent = vencidas;
+}
+
+// ── Filters ──
+function certsPopulateCertFilter() {
+  var sel = document.getElementById('cert-filter-type');
+  sel.innerHTML = '<option value="">— Todas las certificaciones —</option>';
+  OOI_CERTS_CLIENT.forEach(function(c) {
+    var opt = document.createElement('option');
+    opt.value = c.name;
+    opt.textContent = c.name;
+    sel.appendChild(opt);
+  });
+}
+
+function certsFilterChanged() {
+  certsTypeFilter = document.getElementById('cert-filter-type').value;
+  certsRender();
+}
+
+function certsSetStatus(status) {
+  certsStatusFilter = status;
+  ['all','ok','soon','exp'].forEach(function(s) {
+    document.getElementById('cf-' + s).classList.toggle('on', s === status);
+  });
+  certsRender();
+}
+
+// ── Render employee list ──
+function certsRender() {
+  var q = (document.getElementById('cert-search').value || '').toLowerCase().trim();
+  var list = certsData;
+
+  if (q) list = list.filter(function(e){ return e.name.toLowerCase().includes(q) || (e.ooiId||'').toLowerCase().includes(q); });
+
+  if (certsTypeFilter) {
+    list = list.filter(function(e){
+      return (e.certs||[]).some(function(c){ return c.name === certsTypeFilter; });
+    });
+  }
+
+  if (certsStatusFilter !== 'all') {
+    list = list.filter(function(e){
+      if (certsTypeFilter) {
+        var cert = (e.certs||[]).find(function(c){ return c.name === certsTypeFilter; });
+        return cert && certStatus(cert) === certsStatusFilter;
+      }
+      return empWorstStatus(e) === certsStatusFilter;
+    });
+  }
+
+  certsFiltered = list;
+
+  if (!list.length) {
+    document.getElementById('certs-list').innerHTML = '<div style="text-align:center;padding:32px;color:var(--text2);">Sin resultados</div>';
+    return;
+  }
+
+  var html = '';
+  list.forEach(function(emp) {
+    var ws = empWorstStatus(emp);
+    var statusDot = ws === 'expired' ? '🔴' : ws === 'soon' ? '⚠️' : '✅';
+    var certCount = (emp.certs||[]).length;
+
+    // If filtering by cert type, show that cert's specific status
+    var certInfo = '';
+    if (certsTypeFilter) {
+      var cert = (emp.certs||[]).find(function(c){ return c.name === certsTypeFilter; });
+      if (cert) {
+        var s = certStatus(cert);
+        var icon = s === 'expired' ? '🔴' : s === 'soon' ? '⚠️' : '✅';
+        certInfo = '<div style="font-size:11px;color:var(--text2);margin-top:2px;">' + icon + ' ' + (cert.expires ? cert.expires : 'No expira') + '</div>';
+      } else {
+        certInfo = '<div style="font-size:11px;color:#C82828;margin-top:2px;">Sin certificación</div>';
+      }
+    }
+
+    html += '<div class="card" style="margin-bottom:10px;cursor:pointer;" onclick="certsOpenProfile(' + JSON.stringify(JSON.stringify(emp)) + ')">' +
+      '<div style="display:flex;align-items:center;gap:12px;">' +
+      '<div style="width:40px;height:40px;border-radius:50%;background:#0b0b0c;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#fff;flex-shrink:0;">' +
+      (emp.firstName ? emp.firstName[0] : emp.name[0]) + (emp.lastName ? emp.lastName[0] : '') +
+      '</div>' +
+      '<div style="flex:1;min-width:0;">' +
+      '<div style="font-weight:600;font-size:14px;">' + emp.name + '</div>' +
+      '<div style="font-size:11px;color:var(--text2);">' + (emp.ooiId||'') + ' · ' + certCount + ' cert' + (certCount!==1?'s':'') + ' ' + statusDot + '</div>' +
+      certInfo +
+      '</div>' +
+      '<div style="color:var(--text3);font-size:18px;">›</div>' +
+      '</div></div>';
+  });
+
+  document.getElementById('certs-list').innerHTML = html;
+}
+
+function certsOpenProfile(empJson) {
+  certCurrentEmp = JSON.parse(empJson);
+  document.getElementById('certs-dashboard').style.display = 'none';
+  document.getElementById('certs-profile').style.display = 'block';
+  document.getElementById('certs-bottom-title').textContent = certCurrentEmp.name;
+  document.getElementById('cp-name').textContent = certCurrentEmp.name;
+  document.getElementById('cp-id').textContent = (certCurrentEmp.ooiId||'Sin ID') + ' · ' + (certCurrentEmp.status||'ACTIVE');
+  document.getElementById('cp-upload-btn').style.display = isSafetyUser ? 'block' : 'none';
+  certsRenderProfile();
+  window.scrollTo(0,0);
+}
+
+function certsRenderProfile() {
+  var emp = certCurrentEmp;
+  var certs = emp.certs || [];
+
+  // Badges
+  var expired=0, soon=0, ok=0;
+  certs.forEach(function(c){
+    var s = certStatus(c);
+    if(s==='expired') expired++;
+    else if(s==='soon') soon++;
+    else ok++;
+  });
+
+  var badges = '';
+  if (ok>0)      badges += '<span style="background:#E1F5EE;color:#0F6E56;padding:4px 10px;border-radius:99px;font-size:12px;font-weight:600;">✅ ' + ok + ' activas</span>';
+  if (soon>0)    badges += '<span style="background:#FFF3CD;color:#856404;padding:4px 10px;border-radius:99px;font-size:12px;font-weight:600;">⚠️ ' + soon + ' por vencer</span>';
+  if (expired>0) badges += '<span style="background:#FDE9DD;color:#C82828;padding:4px 10px;border-radius:99px;font-size:12px;font-weight:600;">🔴 ' + expired + ' vencidas</span>';
+  if (!certs.length) badges = '<span style="color:var(--text2);font-size:13px;">Sin certificaciones registradas</span>';
+  document.getElementById('cp-badges').innerHTML = badges;
+
+  // Cert cards — show all 26 certs, gray out missing ones
+  var html = '';
+  OOI_CERTS_CLIENT.forEach(function(certDef) {
+    var cert = certs.find(function(c){ return c.name === certDef.name; });
+    var s = cert ? certStatus(cert) : 'none';
+    var statusColor = {ok:'#0F6E56', soon:'#D48C00', expired:'#C82828', none:'#aaa'}[s];
+    var statusIcon  = {ok:'✅', soon:'⚠️', expired:'🔴', none:'—'}[s];
+    var expiryText  = '';
+    if (cert) {
+      if (cert.noExpiry || !cert.expires) expiryText = 'No expira';
+      else expiryText = 'Vence: ' + cert.expires;
+    }
+
+    html += '<div style="display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:8px;margin-bottom:6px;background:' + (cert?'var(--bg)':'var(--bg2)') + ';border:0.5px solid var(--border);">';
+    html += '<div style="font-size:18px;width:24px;text-align:center;">' + statusIcon + '</div>';
+    html += '<div style="flex:1;">';
+    html += '<div style="font-size:13px;font-weight:600;color:' + (cert?'var(--text)':'#aaa') + ';">' + certDef.name + '</div>';
+    if (cert) {
+      html += '<div style="font-size:11px;color:' + statusColor + ';">' + (cert.date ? 'Fecha: ' + cert.date + ' · ' : '') + expiryText + '</div>';
+    } else {
+      html += '<div style="font-size:11px;color:#bbb;">Sin registro</div>';
+    }
+    html += '</div>';
+    // Photo link if exists
+    if (cert && cert.photoUrl) {
+      html += '<a href="' + cert.photoUrl + '" target="_blank" style="font-size:11px;color:#E8611A;font-weight:600;text-decoration:none;">📷 Ver</a>';
+    }
+    html += '</div>';
+  });
+
+  document.getElementById('cp-certs-list').innerHTML = html;
+}
+
+// ── Add Employee ──
+function certsShowAddEmployee() {
+  document.getElementById('certs-dashboard').style.display = 'none';
+  document.getElementById('certs-add-employee').style.display = 'block';
+  document.getElementById('certs-bottom-title').textContent = 'Nuevo Empleado';
+  window.scrollTo(0,0);
+}
+
+function certsSubmitNewEmployee() {
+  var apellido   = document.getElementById('nce-apellido').value.trim();
+  var nombre     = document.getElementById('nce-nombre').value.trim();
+  var ooiId      = document.getElementById('nce-ooi-id').value.trim();
+  var newHire    = document.getElementById('nce-new-hire').value;
+  var notas      = document.getElementById('nce-notas').value.trim();
+
+  if (!apellido || !nombre) { alert('Apellido y nombre son requeridos.'); return; }
+
+  var btn = document.querySelector('#certs-add-employee .btn-primary');
+  btn.disabled = true; btn.textContent = 'Guardando...';
+
+  var payload = {
+    tipo: 'new_employee',
+    apellido: apellido, nombre: nombre,
+    ooiId: ooiId, newHireDate: newHire,
+    notas: notas, addedBy: 'Safety'
+  };
+
+  fetch(SCRIPT_URL, {method:'POST', body:JSON.stringify(payload)})
+    .then(function(r){ return r.json(); })
+    .then(function(res) {
+      if (res.status === 'ok') {
+        alert('✅ ' + res.name + ' añadido correctamente.');
+        // Clear session cache so next load gets fresh data
+        try { sessionStorage.removeItem('ooi_certs'); } catch(e){}
+        // Clear form
+        ['nce-apellido','nce-nombre','nce-ooi-id','nce-notas'].forEach(function(id){
+          document.getElementById(id).value='';
+        });
+        document.getElementById('nce-new-hire').value='';
+        // Go back to dashboard and reload
+        document.getElementById('certs-add-employee').style.display='none';
+        document.getElementById('certs-dashboard').style.display='block';
+        certsLoadData();
+      } else {
+        alert('Error: ' + (res.message||'Intenta de nuevo.'));
+      }
+    })
+    .catch(function(){ alert('Error de conexión.'); })
+    .finally(function(){ btn.disabled=false; btn.textContent='Crear Perfil'; });
+}
+
+// ── Add Certification ──
+function certsShowUpload() {
+  document.getElementById('certs-profile').style.display='none';
+  document.getElementById('certs-add-cert').style.display='block';
+  document.getElementById('certs-bottom-title').textContent='Agregar Certificación';
+  document.getElementById('ac-emp-name-hdr').textContent = certCurrentEmp ? certCurrentEmp.name : '';
+  // Populate cert type dropdown
+  var sel = document.getElementById('ac-cert-type');
+  sel.innerHTML = '<option value="">— Selecciona certificación —</option>';
+  OOI_CERTS_CLIENT.forEach(function(c){
+    var opt = document.createElement('option');
+    opt.value = c.name;
+    opt.textContent = c.name + (c.expYears ? ' (' + c.expYears + ' años)' : ' — No expira');
+    sel.appendChild(opt);
+  });
+  // Photo preview
+  document.getElementById('ac-foto').addEventListener('change', function(e){
+    var file = e.target.files[0];
+    if (file) {
+      var reader = new FileReader();
+      reader.onload = function(ev){
+        document.getElementById('ac-preview-img').src = ev.target.result;
+        document.getElementById('ac-preview').style.display='block';
+      };
+      reader.readAsDataURL(file);
+    }
+  });
+  window.scrollTo(0,0);
+}
+
+function acCertChanged() {
+  var certName = document.getElementById('ac-cert-type').value;
+  var certDate = document.getElementById('ac-cert-date').value;
+  var certDef = OOI_CERTS_CLIENT.find(function(c){ return c.name===certName; });
+  if (certDef && certDef.expYears && certDate) {
+    var d = new Date(certDate);
+    d.setFullYear(d.getFullYear() + certDef.expYears);
+    document.getElementById('ac-cert-expiry').value = d.toISOString().substring(0,10);
+    document.getElementById('ac-expiry-field').style.display='block';
+  } else if (certDef && !certDef.expYears) {
+    document.getElementById('ac-cert-expiry').value = 'No expira';
+    document.getElementById('ac-expiry-field').style.display='block';
+  } else {
+    document.getElementById('ac-expiry-field').style.display='none';
+  }
+}
+
+function certsSubmitCert() {
+  var certName   = document.getElementById('ac-cert-type').value;
+  var certDate   = document.getElementById('ac-cert-date').value;
+  var instructor = document.getElementById('ac-instructor').value.trim();
+  var notas      = document.getElementById('ac-notas').value.trim();
+  var fotoInput  = document.getElementById('ac-foto');
+
+  if (!certName) { alert('Selecciona el tipo de certificación.'); return; }
+  if (!certDate) { alert('Ingresa la fecha del entrenamiento.'); return; }
+  if (!certCurrentEmp) { alert('Error: sin empleado seleccionado.'); return; }
+
+  var btn = document.querySelector('#certs-add-cert .btn-primary');
+  btn.disabled=true; btn.textContent='Guardando...';
+
+  function submitWithPhoto(photoUrl) {
+    var payload = {
+      tipo: 'add_cert',
+      docId: certCurrentEmp.docId,
+      empName: certCurrentEmp.name,
+      certName: certName,
+      certDate: certDate,
+      instructor: instructor,
+      notas: notas,
+      photoUrl: photoUrl || '',
+      addedBy: 'Safety'
+    };
+
+    fetch(SCRIPT_URL, {method:'POST', body:JSON.stringify(payload)})
+      .then(function(r){ return r.json(); })
+      .then(function(res){
+        if (res.status==='ok') {
+          alert('✅ Certificación guardada. Vence: ' + (res.expires||'No expira'));
+          try { sessionStorage.removeItem('ooi_certs'); } catch(e){}
+          // Go back to profile
+          document.getElementById('certs-add-cert').style.display='none';
+          document.getElementById('certs-profile').style.display='block';
+          // Reload employee data
+          certsLoadData();
+        } else {
+          alert('Error: ' + (res.message||'Intenta de nuevo.'));
+        }
+      })
+      .catch(function(){ alert('Error de conexión.'); })
+      .finally(function(){ btn.disabled=false; btn.textContent='Guardar Certificación'; });
+  }
+
+  // Upload photo to imgbb if provided
+  if (fotoInput.files && fotoInput.files[0]) {
+    var reader = new FileReader();
+    reader.onload = function(ev) {
+      var b64 = ev.target.result.split(',')[1];
+      var fd = new FormData();
+      fd.append('image', b64);
+      fetch('https://api.imgbb.com/1/upload?key=' + IMGBB_KEY, {method:'POST', body:fd})
+        .then(function(r){ return r.json(); })
+        .then(function(res){
+          var url = res.data && res.data.url ? res.data.url : '';
+          submitWithPhoto(url);
+        })
+        .catch(function(){ submitWithPhoto(''); });
+    };
+    reader.readAsDataURL(fotoInput.files[0]);
+  } else {
+    submitWithPhoto('');
+  }
+}
+
+
 </script>
+
+<!-- ══════════════════════════════════════════
+     CERTIFICATION PORTAL — STANDALONE SCREEN
+     ══════════════════════════════════════════ -->
+<div id="s-certs" class="screen" style="display:none;">
+  <div class="bottom-nav">
+    <button class="bottom-nav-back" onclick="certsBack()">← Atrás</button>
+    <span class="bottom-nav-title" id="certs-bottom-title">📄 Certificaciones</span>
+  </div>
+
+  <!-- DASHBOARD -->
+  <div id="certs-dashboard">
+    <div style="height:5px;background:linear-gradient(90deg,#0b0b0c 55%,#E8611A 55%);position:sticky;top:0;z-index:10;"></div>
+    <div style="background:#0b0b0c;padding:16px;position:sticky;top:5px;z-index:9;">
+      <div style="font-family:'Sora',sans-serif;font-size:20px;font-weight:800;color:#fff;">Certificaciones</div>
+      <div style="font-size:11px;color:rgba(255,255,255,0.45);text-transform:uppercase;letter-spacing:1px;">Oscar Orduno, Inc.</div>
+    </div>
+    <div style="max-width:480px;margin:0 auto;padding:14px 16px 80px;">
+
+      <!-- Stats cards -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:18px;">
+        <div class="card" style="text-align:center;padding:14px 10px;">
+          <div style="font-size:28px;font-weight:800;color:#0b0b0c;" id="cd-total">—</div>
+          <div style="font-size:11px;color:var(--text2);margin-top:2px;">Empleados</div>
+        </div>
+        <div class="card" style="text-align:center;padding:14px 10px;">
+          <div style="font-size:28px;font-weight:800;color:#0F6E56;" id="cd-activas">—</div>
+          <div style="font-size:11px;color:var(--text2);margin-top:2px;">Activas</div>
+        </div>
+        <div class="card" style="text-align:center;padding:14px 10px;">
+          <div style="font-size:28px;font-weight:800;color:#D48C00;" id="cd-proximas">—</div>
+          <div style="font-size:11px;color:var(--text2);margin-top:2px;">Por vencer (30 días)</div>
+        </div>
+        <div class="card" style="text-align:center;padding:14px 10px;">
+          <div style="font-size:28px;font-weight:800;color:#C82828;" id="cd-vencidas">—</div>
+          <div style="font-size:11px;color:var(--text2);margin-top:2px;">Vencidas</div>
+        </div>
+      </div>
+
+      <!-- Filter by certification -->
+      <div class="card" style="margin-bottom:14px;">
+        <div class="sec-label">Filtrar por certificación</div>
+        <div class="field" style="margin-bottom:8px;">
+          <select id="cert-filter-type" onchange="certsFilterChanged()" style="width:100%;">
+            <option value="">— Todas las certificaciones —</option>
+          </select>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <button class="chip on" id="cf-all" onclick="certsSetStatus('all')">Todos</button>
+          <button class="chip" id="cf-ok" onclick="certsSetStatus('ok')">✅ Activas</button>
+          <button class="chip" id="cf-soon" onclick="certsSetStatus('soon')">⚠️ Por vencer</button>
+          <button class="chip" id="cf-exp" onclick="certsSetStatus('expired')">🔴 Vencidas</button>
+        </div>
+      </div>
+
+      <!-- Search -->
+      <div class="field" style="margin-bottom:14px;">
+        <input type="text" id="cert-search" placeholder="🔍 Buscar empleado..." oninput="certsRender()" style="width:100%;box-sizing:border-box;"/>
+      </div>
+
+      <!-- Safety: Add new employee button -->
+      <div id="cert-add-emp-btn" style="display:none;margin-bottom:14px;">
+        <button class="btn btn-primary" onclick="certsShowAddEmployee()" style="width:100%;">+ Añadir Empleado Nuevo</button>
+      </div>
+
+      <!-- Employee list -->
+      <div id="certs-list"><div class="loading">⏳ Cargando certificaciones...</div></div>
+    </div>
+  </div>
+
+  <!-- EMPLOYEE PROFILE -->
+  <div id="certs-profile" style="display:none;">
+    <div style="height:5px;background:linear-gradient(90deg,#0b0b0c 55%,#E8611A 55%);position:sticky;top:0;z-index:10;"></div>
+    <div style="background:#0b0b0c;padding:16px;position:sticky;top:5px;z-index:9;">
+      <div style="font-family:'Sora',sans-serif;font-size:18px;font-weight:800;color:#fff;" id="cp-name">Empleado</div>
+      <div style="font-size:11px;color:rgba(255,255,255,0.45);" id="cp-id">OOI ID</div>
+    </div>
+    <div style="max-width:480px;margin:0 auto;padding:14px 16px 80px;">
+
+      <!-- Cert summary badges -->
+      <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;" id="cp-badges"></div>
+
+      <!-- Safety upload button -->
+      <div id="cp-upload-btn" style="display:none;margin-bottom:16px;">
+        <button class="btn btn-primary" onclick="certsShowUpload()" style="width:100%;">+ Agregar Certificación</button>
+      </div>
+
+      <!-- Certifications list -->
+      <div id="cp-certs-list"></div>
+    </div>
+  </div>
+
+  <!-- ADD EMPLOYEE FORM (Safety only) -->
+  <div id="certs-add-employee" style="display:none;">
+    <div style="height:5px;background:linear-gradient(90deg,#0b0b0c 55%,#E8611A 55%);position:sticky;top:0;z-index:10;"></div>
+    <div style="background:#0b0b0c;padding:16px;position:sticky;top:5px;z-index:9;">
+      <div style="font-family:'Sora',sans-serif;font-size:18px;font-weight:800;color:#fff;">Nuevo Empleado</div>
+    </div>
+    <div style="max-width:480px;margin:0 auto;padding:14px 16px 80px;">
+      <div class="card">
+        <div class="sec-label">Información del Empleado</div>
+        <div class="field"><label>Apellido(s) *</label><input type="text" id="nce-apellido" placeholder="Ej. Ramirez Garcia" autocomplete="off"/></div>
+        <div class="field"><label>Nombre(s) *</label><input type="text" id="nce-nombre" placeholder="Ej. Juan Carlos" autocomplete="off"/></div>
+        <div class="field"><label>OOI ID</label><input type="text" id="nce-ooi-id" placeholder="Ej. OOID1300" autocomplete="off"/></div>
+        <div class="field"><label>Fecha New Hire</label><input type="date" id="nce-new-hire"/></div>
+        <div class="field" style="margin-bottom:0;"><label>Notas</label><textarea id="nce-notas" rows="2" placeholder="Información adicional..."></textarea></div>
+      </div>
+      <button class="btn btn-primary" onclick="certsSubmitNewEmployee()" style="width:100%;margin-top:14px;">Crear Perfil</button>
+    </div>
+  </div>
+
+  <!-- ADD CERTIFICATION FORM (Safety only) -->
+  <div id="certs-add-cert" style="display:none;">
+    <div style="height:5px;background:linear-gradient(90deg,#0b0b0c 55%,#E8611A 55%);position:sticky;top:0;z-index:10;"></div>
+    <div style="background:#0b0b0c;padding:16px;position:sticky;top:5px;z-index:9;">
+      <div style="font-family:'Sora',sans-serif;font-size:18px;font-weight:800;color:#fff;">Agregar Certificación</div>
+      <div style="font-size:11px;color:rgba(255,255,255,0.45);" id="ac-emp-name-hdr"></div>
+    </div>
+    <div style="max-width:480px;margin:0 auto;padding:14px 16px 80px;">
+      <div class="card">
+        <div class="sec-label">Detalles de la Certificación</div>
+        <div class="field"><label>Tipo de Certificación *</label>
+          <select id="ac-cert-type" style="width:100%;" onchange="acCertChanged()">
+            <option value="">— Selecciona certificación —</option>
+          </select>
+        </div>
+        <div class="field"><label>Fecha del Entrenamiento *</label><input type="date" id="ac-cert-date" onchange="acCertChanged()"/></div>
+        <div class="field" id="ac-expiry-field" style="display:none;">
+          <label>Fecha de Vencimiento (calculada)</label>
+          <input type="text" id="ac-cert-expiry" readonly style="background:var(--bg2);color:var(--text2);"/>
+        </div>
+        <div class="field"><label>Instructor / Entidad</label><input type="text" id="ac-instructor" placeholder="Nombre del instructor o empresa" autocomplete="off"/></div>
+        <div class="field"><label>Foto de la tarjeta</label>
+          <input type="file" id="ac-foto" accept="image/*" capture="environment"/>
+        </div>
+        <div class="field" style="margin-bottom:0;"><label>Notas</label><textarea id="ac-notas" rows="2"></textarea></div>
+      </div>
+      <div id="ac-preview" style="display:none;margin-bottom:14px;">
+        <img id="ac-preview-img" style="width:100%;border-radius:8px;max-height:200px;object-fit:cover;"/>
+      </div>
+      <button class="btn btn-primary" onclick="certsSubmitCert()" style="width:100%;margin-top:14px;">Guardar Certificación</button>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>
