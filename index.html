@@ -1918,6 +1918,15 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
         </div>
         <span class="role-arrow">›</span>
       </button>
+
+      <button class="role-btn" onclick="showCerts(true)" style="min-height:80px;">
+        <div class="role-icon" style="background:#FDE9DD;width:52px;height:52px;border-radius:12px;font-size:26px;">🏅</div>
+        <div style="flex:1;">
+          <div style="font-family:'Sora',sans-serif;font-size:17px;font-weight:800;">Gestionar Certificaciones</div>
+          <div style="font-size:13px;color:var(--text2);margin-top:2px;">Ver perfiles, añadir empleados y certificaciones</div>
+        </div>
+        <span class="role-arrow">›</span>
+      </button>
     </div>
   </div>
 
@@ -2576,6 +2585,11 @@ function fetchTrainingData() {
 
       TRAINING_DATA_DYNAMIC = converted;
       trainingDataCargado = true;
+      // Also populate employee names as side effect
+      if (!listasGlobal.empleados || listasGlobal.empleados.length === 0) {
+        listasGlobal.empleados = converted.map(function(e){ return e.name; }).sort();
+        empleadosCargados = true;
+      }
       try { sessionStorage.setItem('ooi_training_data', JSON.stringify(converted)); } catch(e) {}
       return converted;
     })
@@ -2608,7 +2622,7 @@ function calcExpiry(trainingName, dateStr) {
 function getTrainingData() {
   // Returns current training data - dynamic or static fallback
   if (TRAINING_DATA_DYNAMIC && TRAINING_DATA_DYNAMIC.length > 0) return TRAINING_DATA_DYNAMIC;
-  if (typeof getTrainingData() !== 'undefined') return getTrainingData();
+  if (typeof TRAINING_DATA !== 'undefined' && TRAINING_DATA.length > 0) return TRAINING_DATA;
   return [];
 }
 
@@ -2623,12 +2637,17 @@ function usarFallback() {
 }
 
 function getEmpleadosList() {
-  // Returns current list - either dynamic or fallback
+  // 1. Firebase dynamic list (loaded via fetchEmpleados)
   if (listasGlobal.empleados && listasGlobal.empleados.length > 0) {
     return listasGlobal.empleados;
   }
-  if (typeof getTrainingData() !== 'undefined') {
-    return getTrainingData().map(function(e){ return e.name; }).sort();
+  // 2. Dynamic training data already loaded
+  if (TRAINING_DATA_DYNAMIC && TRAINING_DATA_DYNAMIC.length > 0) {
+    return TRAINING_DATA_DYNAMIC.map(function(e){ return e.name; }).sort();
+  }
+  // 3. Static fallback
+  if (typeof TRAINING_DATA !== 'undefined' && TRAINING_DATA.length > 0) {
+    return TRAINING_DATA.map(function(e){ return e.name; }).sort();
   }
   return [];
 }
@@ -3513,12 +3532,19 @@ function superTab(tab){
     if(bt) bt.textContent = 'Entrenamientos';
     var el = document.getElementById('super-train-panel');
     if(el) el.style.display = 'block';
-    // Load dynamic training data then init
-    if (!trainingDataCargado) {
-      fetchTrainingData().then(function(){ tpInit(); });
-    } else {
+    // Always load fresh from Firebase then init
+    fetchTrainingData().then(function(data) {
+      if (data && data.length > 0) {
+        tpInit();
+      } else {
+        // Fallback to static data
+        TRAINING_DATA_DYNAMIC = typeof TRAINING_DATA !== 'undefined' ? TRAINING_DATA : [];
+        tpInit();
+      }
+    }).catch(function() {
+      TRAINING_DATA_DYNAMIC = typeof TRAINING_DATA !== 'undefined' ? TRAINING_DATA : [];
       tpInit();
-    }
+    });
   } else if(tab === 'fittest'){
     if(bt) bt.textContent = 'Fit Test';
     var el = document.getElementById('super-fittest-panel');
@@ -4431,13 +4457,14 @@ function safetyTab(tab){
   } else if(tab==='certs'){
     if(bt) bt.textContent='📄 Subir Certificaciones';
     document.getElementById('safety-certs-panel').style.display='block';
+    // Always fetch from Firebase and rebuild when ready
+    fetchEmpleados().then(function(names) {
+      buildDropdown(document.getElementById('sc-empleado'), names, 'Selecciona empleado');
+    });
+    // Show immediately what we have while loading
     var certEmps = getEmpleadosList();
-    buildDropdown(document.getElementById('sc-empleado'), certEmps, 'Selecciona empleado');
-    // Refresh if not yet loaded
-    if (!empleadosCargados) {
-      fetchEmpleados().then(function(names){
-        buildDropdown(document.getElementById('sc-empleado'), names, 'Selecciona empleado');
-      });
+    if (certEmps.length > 0) {
+      buildDropdown(document.getElementById('sc-empleado'), certEmps, 'Selecciona empleado');
     }
     if(!photoStore['sc-cert']) photoStore['sc-cert']=[];
     renderPhotoGrid('sc-cert');
@@ -5101,7 +5128,9 @@ function certsRender() {
   }
 
   var html = '';
-  list.forEach(function(emp) {
+  window._certsListMap = {};
+  list.forEach(function(emp, listIdx) {
+    window._certsListMap[listIdx] = emp;
     var ws = empWorstStatus(emp);
     var statusDot = ws === 'expired' ? '🔴' : ws === 'soon' ? '⚠️' : '✅';
     var certCount = (emp.certs||[]).length;
@@ -5119,7 +5148,7 @@ function certsRender() {
       }
     }
 
-    html += '<div class="card" style="margin-bottom:10px;cursor:pointer;" onclick="certsOpenProfile(' + JSON.stringify(JSON.stringify(emp)) + ')">' +
+    html += '<div class="card" style="margin-bottom:10px;cursor:pointer;" onclick="certsOpenProfile(' + listIdx + ')">' +
       '<div style="display:flex;align-items:center;gap:12px;">' +
       '<div style="width:40px;height:40px;border-radius:50%;background:#0b0b0c;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#fff;flex-shrink:0;">' +
       (emp.firstName ? emp.firstName[0] : emp.name[0]) + (emp.lastName ? emp.lastName[0] : '') +
@@ -5136,8 +5165,14 @@ function certsRender() {
   document.getElementById('certs-list').innerHTML = html;
 }
 
-function certsOpenProfile(empJson) {
-  certCurrentEmp = JSON.parse(empJson);
+function certsOpenProfileByIdx(idx) {
+  if (window._certsListMap && window._certsListMap[idx]) {
+    certsOpenProfile(window._certsListMap[idx]);
+  }
+}
+
+function certsOpenProfile(emp) {
+  certCurrentEmp = emp;
   document.getElementById('certs-dashboard').style.display = 'none';
   document.getElementById('certs-profile').style.display = 'block';
   document.getElementById('certs-bottom-title').textContent = certCurrentEmp.name;
