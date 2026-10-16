@@ -2471,6 +2471,27 @@ function tpCloseDetail(){
 }
 
 
+// ── INSPECTION DATA ──
+const inspItems=[
+  {id:'estructura',name:'Daños de estructura y cubeta',sub:'Golpes, grietas, deformaciones'},
+  {id:'mangueras',name:'Mangueras, cadenas y bandas',sub:'Desgaste, cortes, tensión correcta'},
+  {id:'fugas',name:'Fugas: aceite, combustible, hidráulico',sub:'Sellos, conexiones, depósitos'},
+  {id:'tuberias',name:'Tuberías, empaques y válvulas',sub:'Fugas, sellos, operación de válvulas'},
+  {id:'barras',name:'Barras de agarre, escalones, plataforma',sub:'Firmes, sin corrosión ni daño'},
+  {id:'controles',name:'Controles, botones, cableado eléctrico',sub:'Funcionamiento, cables sin exposición'},
+  {id:'silos',name:'Inspección de silos',sub:'Nivel, fugas y estado estructural'},
+  {id:'pompa',name:'Pompa de agua y mangueras de gruta',sub:'Presión, fugas y estado de mangueras'},
+  {id:'limpieza',name:'Pompa limpia',sub:'Unidad limpia al final del turno'},
+];
+const safetyItems=[
+  'Verifiqué que la máquina está apagada antes de ingresar a zona roja',
+  'Las llaves están en mi bolsillo (no en el switch) al trabajar cerca de aspas/gusanos',
+  'Tengo mi EPP completo: casco, lentes, guantes, botas con casquillo',
+  'El área está despejada y sin derrames de aceite en el piso',
+  'Nadie en zona de riesgo antes de encender el equipo',
+  'Conozco la ruta de evacuación y ubicación del extintor más cercano',
+];
+
 function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');window.scrollTo(0,0);}
 function toggleChip(btn,val){document.querySelectorAll('#swa-chips .chip').forEach(c=>c.classList.remove('selected'));btn.classList.add('selected');swaChipSelected=val;}
 function buildDropdown(sel,opts,ph){if(!sel)return;sel.innerHTML=`<option value="">— ${ph} —</option>`+opts.map(o=>`<option value="${o}">${o}</option>`).join('');}
@@ -2480,6 +2501,17 @@ function buildDropdown(sel,opts,ph){if(!sel)return;sel.innerHTML=`<option value=
 var FB_API_KEY = 'AIzaSyBwxyI21DC0vwAqckyF04vkzh8T_yjKF3A';
 var FB_PROJECT = 'ooi-safety';
 var FB_BASE = 'https://firestore.googleapis.com/v1/projects/' + FB_PROJECT + '/databases/(default)/documents';
+
+// Envío a Apps Script que sí confirma el resultado.
+// Lanza error si la red falla o si el servidor responde con status distinto de 'ok'.
+async function enviarAScript(payload){
+  const res = await fetch(SCRIPT_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)});
+  if(!res.ok) throw new Error('HTTP '+res.status);
+  let data = null;
+  try{ data = await res.json(); }catch(e){ data = null; }
+  if(data && data.status && data.status!=='ok') throw new Error(data.message||'El servidor rechazó el envío');
+  return data || {status:'ok'};
+}
 
 function fbGet(path) {
   return fetch(FB_BASE + '/' + path + '?key=' + FB_API_KEY)
@@ -2893,11 +2925,15 @@ async function submitReport(){
   const msg=document.getElementById('submit-msg');
   msg.style.display='block';msg.textContent='⏳ Enviando inspección...';msg.style.background='var(--info-bg)';msg.style.color='var(--info-text)';
   try{
-    await fetch(SCRIPT_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain'},body:JSON.stringify(report)});
+    await enviarAScript(report);
     if(hasBad){msg.textContent='⚠ Enviado — hay ítems que requieren reparación';msg.style.background='var(--warning-bg)';msg.style.color='var(--warning-text)';}
     else{msg.textContent='✓ Inspección enviada correctamente';msg.style.background='var(--success-bg)';msg.style.color='var(--success-text)';}
-  }catch(err){msg.textContent='⚠ Error de conexión';msg.style.background='var(--danger-bg)';msg.style.color='var(--danger-text)';}
-  window.scrollTo(0,0);setTimeout(clearForm,4000);
+    window.scrollTo(0,0);setTimeout(clearForm,4000);
+  }catch(err){
+    // No limpiar el formulario: el operador debe poder reintentar sin perder datos
+    msg.textContent='⚠ No se pudo enviar. Tu inspección sigue aquí, intenta de nuevo.';msg.style.background='var(--danger-bg)';msg.style.color='var(--danger-text)';
+    window.scrollTo(0,0);
+  }
 }
 async function enviarSWA(){
   const sitio=document.getElementById('swa-sitio').value.trim();
@@ -2912,7 +2948,7 @@ async function enviarSWA(){
   const msg=document.getElementById('swa-msg');
   msg.style.display='block';msg.textContent='⏳ Enviando...';msg.style.background='var(--info-bg)';msg.style.color='var(--info-text)';
   try{
-    await fetch(SCRIPT_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain'},body:JSON.stringify(swaData)});
+    await enviarAScript(swaData);
     msg.style.display='none';
     document.getElementById('swa-form').style.display='none';
     const _foreman=document.getElementById('swa-foreman').value;
@@ -3231,7 +3267,7 @@ async function submitFieldTest(){
   msg.style.background='var(--info-bg)';msg.style.color='var(--info-text)';
 
   try{
-    await fetch(SCRIPT_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain'},body:JSON.stringify(payload)});
+    await enviarAScript(payload);
 
     // Generate PDF
     ftGenerarPDF(payload, resultado, passCount, failCount);
@@ -3638,7 +3674,7 @@ async function enviarFitTest(){
   msg.style.background = 'var(--info-bg)'; msg.style.color = 'var(--info-text)';
 
   try{
-    await fetch(SCRIPT_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain'},body:JSON.stringify(payload)});
+    await enviarAScript(payload);
     msg.style.display = 'none';
     document.getElementById('fittest-form-content').style.display = 'none';
     document.getElementById('fittest-resumen').innerHTML =
@@ -3814,7 +3850,7 @@ async function submitRRHH(){
   msg.style.background='var(--info-bg)';msg.style.color='var(--info-text)';
 
   try{
-    await fetch(SCRIPT_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain'},body:JSON.stringify(payload)});
+    await enviarAScript(payload);
     msg.style.display='none';
     document.getElementById('rrhh-upload-panel').querySelector('.card').style.display='none';
     document.getElementById('rrhh-resumen').innerHTML=
@@ -3897,7 +3933,7 @@ async function enviarTrainingRequest(){
   msg.style.background='var(--info-bg)';msg.style.color='var(--info-text)';
 
   try{
-    const res = await fetch(SCRIPT_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain'},body:JSON.stringify(payload)});
+    const res = await enviarAScript(payload);
     msg.style.display='none';
     document.getElementById('tr-conf-count').textContent=
       'Solicitud para '+entrenamiento+' registrada correctamente para '+empleado+'.';
@@ -4243,7 +4279,7 @@ async function submitIncidentReport(){
     irGenerarPDF(payload);
 
     // Send to script
-    await fetch(SCRIPT_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain'},body:JSON.stringify(payload)});
+    await enviarAScript(payload);
 
     msg.style.display='none';
     document.getElementById('ir-panel-5').querySelector('button.btn-primary').style.display='none';
@@ -4557,7 +4593,7 @@ async function submitAttendance(){
   msg.style.background='var(--info-bg)';msg.style.color='var(--info-text)';
 
   try{
-    await fetch(SCRIPT_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain'},body:JSON.stringify(payload)});
+    await enviarAScript(payload);
 
     // Generate PDF attendance list
     saGenerarPDF(payload);
@@ -4696,7 +4732,7 @@ async function submitCertUpload(){
   msg.style.background='var(--info-bg)';msg.style.color='var(--info-text)';
 
   try{
-    await fetch(SCRIPT_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain'},body:JSON.stringify(payload)});
+    await enviarAScript(payload);
     msg.style.display='none';
     document.getElementById('sc-conf-detail').innerHTML=
       '<strong>'+empleado+'</strong><br>'+tipo+'<br>Fecha: '+fecha+
