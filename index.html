@@ -587,42 +587,80 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
       <div style="background:var(--ooi-orange);color:white;font-size:9px;font-weight:700;padding:3px 10px;border-radius:99px;text-transform:uppercase;letter-spacing:0.08em;font-family:'Inter',system-ui,sans-serif;">🛡️ Safety</div>
     </div>
     <div class="ooi-login-title">OOI Safety System</div>
-    <button class="role-btn swa-btn" onclick="show('s-swa');setToday();" style="margin-bottom:16px;">
-      <div class="role-icon" style="background:var(--swa);">🛑</div>
-      <div style="flex:1"><div style="font-size:16px;font-weight:600;color:var(--swa-dark);">Autoridad de Parar el Trabajo</div><div style="font-size:13px;color:var(--swa-dark);opacity:0.8;">Reportar condición insegura</div></div>
+    <div style="font-size:13px;color:var(--text2);margin-bottom:12px;text-align:center;">Selecciona tu rol para continuar</div>
+    <button class="role-btn" onclick="show('s-trabajador')" style="min-height:84px;">
+      <div class="role-icon" style="background:var(--success-bg);font-size:26px;">👷</div>
+      <div style="flex:1"><div style="font-family:'Sora',sans-serif;font-size:18px;font-weight:800;">Trabajador</div><div style="font-size:13px;color:var(--text2);">Inspección de equipo · Parar el trabajo · DRILS</div></div>
+      <span class="role-arrow">›</span>
+    </button>
+    <button class="role-btn" onclick="selectRole('supervisor')" style="min-height:84px;">
+      <div class="role-icon" style="background:#E9F1FB;font-size:26px;">📋</div>
+      <div style="flex:1"><div style="font-family:'Sora',sans-serif;font-size:18px;font-weight:800;">Supervisor</div><div style="font-size:13px;color:var(--text2);">Foreman y Superintendente · requiere PIN</div></div>
+      <span class="role-arrow">›</span>
+    </button>
+    <button class="role-btn" onclick="selectRole('safety')" style="min-height:84px;border-color:#0F6E56;background:#E1F5EE;">
+      <div class="role-icon" style="background:#E1F5EE;font-size:26px;">🛡️</div>
+      <div style="flex:1"><div style="font-family:'Sora',sans-serif;font-size:18px;font-weight:800;color:#0F6E56;">Safety</div><div style="font-size:13px;color:#0F6E56;opacity:0.85;">Asistencia · Certificaciones · requiere PIN</div></div>
+      <span style="color:#0F6E56;font-size:18px;font-weight:700;">›</span>
+    </button>
+    <button class="role-btn" onclick="selectRole('rrhh')" style="min-height:84px;border-color:#6B21A8;background:#F3E8FF;">
+      <div class="role-icon" style="background:#F3E8FF;font-size:26px;">🏥</div>
+      <div style="flex:1"><div style="font-family:'Sora',sans-serif;font-size:18px;font-weight:800;color:#6B21A8;">Recursos Humanos</div><div style="font-size:13px;color:#7C3AED;">Programa de Respiradores · requiere PIN</div></div>
+      <span style="color:#6B21A8;font-size:18px;font-weight:700;">›</span>
+    </button>
+
+    <div style="text-align:center;margin-top:24px;font-size:12px;color:var(--text3);">v10.0 — Oscar Orduno, Inc.</div>
+  </div>
+</div>
+
+<!-- ── TRABAJADOR (menú sin PIN) ── -->
+<div id="s-trabajador" class="screen">
+  <div class="bottom-nav">
+    <button class="bottom-nav-back" onclick="show('s-login')">← Inicio</button>
+    <span class="bottom-nav-title">Trabajador</span>
+  </div>
+  <div style="height:5px;width:100%;background:linear-gradient(90deg,#0b0b0c 0%,#0b0b0c 55%,#E8611A 55%,#E8611A 100%);position:sticky;top:0;z-index:10;"></div>
+  <div style="background:var(--ooi-black);padding:16px;padding-top:20px;position:sticky;top:5px;z-index:9;">
+    <div style="font-family:'Sora',sans-serif;font-size:20px;font-weight:800;color:#fff;">Trabajador</div>
+    <div style="font-size:11px;color:rgba(255,255,255,0.45);text-transform:uppercase;letter-spacing:0.08em;">Oscar Orduno, Inc. — Safety</div>
+  </div>
+  <div style="max-width:480px;margin:0 auto;padding:20px 16px 80px;">
+    <div style="font-size:11px;font-weight:700;color:var(--ooi-orange);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:14px;">¿Qué necesitas hacer?</div>
+
+    <button class="role-btn swa-btn" onclick="show('s-swa');setToday();" style="min-height:80px;">
+      <div class="role-icon" style="background:var(--swa);width:52px;height:52px;border-radius:12px;font-size:26px;">🛑</div>
+      <div style="flex:1"><div style="font-family:'Sora',sans-serif;font-size:17px;font-weight:800;color:var(--swa-dark);">Parar el trabajo</div><div style="font-size:13px;color:var(--swa-dark);opacity:0.85;margin-top:2px;">Reportar una condición insegura</div></div>
       <span style="color:var(--swa);font-size:20px;">›</span>
     </button>
-    <button class="role-btn" onclick="show('s-drils');initDrils();" style="border-color:#185FA5;background:#e6f1fb;margin-bottom:16px;">
-      <div class="role-icon" style="background:#185FA5;">🏆</div>
-      <div style="flex:1"><div style="font-size:16px;font-weight:600;color:#0c447c;">Reconociendo DRILS</div><div style="font-size:13px;color:#0c447c;opacity:0.8;">Reconoce a un compañero</div></div>
-      <span style="color:#185FA5;font-size:20px;">›</span>
-    </button>
-    <div style="font-size:13px;color:var(--text2);margin-bottom:12px;text-align:center;">Selecciona tu rol para continuar</div>
-    <button class="role-btn" onclick="selectRole('operator')"><div class="role-icon" style="background:var(--success-bg);">🔧</div><div style="flex:1"><div style="font-size:16px;font-weight:500;">Operador</div><div style="font-size:13px;color:var(--text2);">Grout Pump — llenar inspección</div></div><span class="role-arrow">›</span></button>
-    <button class="role-btn" onclick="selectRole('foreman')"><div class="role-icon" style="background:#E9F1FB;">📋</div><div style="flex:1"><div style="font-size:16px;font-weight:500;">Foreman</div><div style="font-size:13px;color:var(--text2);">Portal PTP — Pre-Task Plan</div></div><span class="role-arrow">›</span></button>
-    <button class="role-btn" onclick="selectRole('rrhh')" style="border-color:#6B21A8;background:#F3E8FF;"><div class="role-icon" style="background:#F3E8FF;font-size:22px;">🏥</div><div style="flex:1"><div style="font-size:16px;font-weight:500;color:#6B21A8;">Recursos Humanos</div><div style="font-size:13px;color:#7C3AED;">Programa de Respiradores</div></div><span style="color:#6B21A8;font-size:18px;font-weight:700;">›</span></button>
-    <button class="role-btn" onclick="selectRole('safety')" style="border-color:#0F6E56;background:#E1F5EE;"><div class="role-icon" style="background:#E1F5EE;font-size:22px;">🛡️</div><div style="flex:1"><div style="font-size:16px;font-weight:500;color:#0F6E56;">Safety</div><div style="font-size:13px;color:#0F6E56;opacity:0.8;">Registrar entrenamientos · Certificaciones</div></div><span style="color:#0F6E56;font-size:18px;font-weight:700;">›</span></button>
-    <button class="role-btn" onclick="showCerts(false)" style="border-left:4px solid #E8611A;">
-      <div class="role-icon" style="background:#FDE9DD;">📄</div>
-      <div style="flex:1"><div style="font-family:'Sora',sans-serif;font-size:17px;font-weight:800;">Certificaciones</div>
-      <div style="font-size:13px;color:var(--text2);">Ver certificaciones</div></div>
+
+    <button class="role-btn" onclick="selectRole('operator')" style="min-height:80px;">
+      <div class="role-icon" style="background:var(--success-bg);width:52px;height:52px;border-radius:12px;font-size:26px;">🔧</div>
+      <div style="flex:1"><div style="font-family:'Sora',sans-serif;font-size:17px;font-weight:800;">Inspección de equipo</div><div style="font-size:13px;color:var(--text2);margin-top:2px;">Bomba de gruta o Shotcrete — antes de trabajar</div></div>
       <span class="role-arrow">›</span>
     </button>
 
-    <button class="role-btn" onclick="selectRole('super')"><div class="role-icon" style="background:var(--info-bg);">👷</div><div style="flex:1"><div style="font-size:16px;font-weight:500;">Superintendente</div><div style="font-size:13px;color:var(--text2);">Inspecciones · Entrenamientos</div></div><span class="role-arrow">›</span></button>
+    <button class="role-btn" onclick="show('s-drils');initDrils();" style="min-height:80px;border-color:#185FA5;background:#e6f1fb;">
+      <div class="role-icon" style="background:#185FA5;width:52px;height:52px;border-radius:12px;font-size:26px;">🏆</div>
+      <div style="flex:1"><div style="font-family:'Sora',sans-serif;font-size:17px;font-weight:800;color:#0c447c;">Reconocer a un compañero</div><div style="font-size:13px;color:#0c447c;opacity:0.85;margin-top:2px;">DRILS — valores de seguridad</div></div>
+      <span style="color:#185FA5;font-size:20px;">›</span>
+    </button>
 
-    <div style="text-align:center;margin-top:24px;font-size:12px;color:var(--text3);">v10.0 — Oscar Orduno, Inc.</div>
+    <button class="role-btn" onclick="showCerts(false)" style="min-height:80px;border-left:4px solid #E8611A;">
+      <div class="role-icon" style="background:#FDE9DD;width:52px;height:52px;border-radius:12px;font-size:26px;">📄</div>
+      <div style="flex:1"><div style="font-family:'Sora',sans-serif;font-size:17px;font-weight:800;">Ver certificaciones</div><div style="font-size:13px;color:var(--text2);margin-top:2px;">Consulta tus entrenamientos y vencimientos</div></div>
+      <span class="role-arrow">›</span>
+    </button>
   </div>
 </div>
 
 <!-- ── SWA ── -->
 <div id="s-swa" class="screen">
   <div class="bottom-nav">
-    <button class="bottom-nav-back" onclick="show('s-login')">← Inicio</button>
+    <button class="bottom-nav-back" onclick="show('s-trabajador')">← Inicio</button>
     <span class="bottom-nav-title">🛑 Autoridad de Parar el Trabajo</span>
   </div>
   <div class="container">
-    <div class="header-bar"><button class="btn-icon" onclick="show('s-login')">←</button><div style="flex:1"><div style="font-size:18px;font-weight:600;color:var(--swa);">🛑 Autoridad de Parar el Trabajo</div><div style="font-size:12px;color:var(--text2);">Cualquier trabajador puede parar el trabajo</div></div></div>
+    <div class="header-bar"><button class="btn-icon" onclick="show('s-trabajador')">←</button><div style="flex:1"><div style="font-size:18px;font-weight:600;color:var(--swa);">🛑 Autoridad de Parar el Trabajo</div><div style="font-size:12px;color:var(--text2);">Cualquier trabajador puede parar el trabajo</div></div></div>
     <div style="background:var(--swa);color:white;border-radius:var(--radius);padding:16px;margin-bottom:16px;font-size:14px;line-height:1.6;">
       <div style="font-weight:600;font-size:16px;margin-bottom:8px;">Tu derecho y responsabilidad</div>
       Todo trabajador de OOI tiene la <strong>autoridad y responsabilidad</strong> de parar cualquier trabajo inseguro, sin importar su posición, <strong>sin miedo a represalias</strong>.
@@ -697,7 +735,7 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
       </div>
       <div class="submit-msg" id="swa-msg"></div>
       <button class="btn btn-swa" onclick="enviarSWA()">🛑 Registrar — Parar el Trabajo</button>
-      <button class="btn btn-ghost" onclick="show('s-login')" style="margin-top:10px;">Cancelar</button>
+      <button class="btn btn-ghost" onclick="show('s-trabajador')" style="margin-top:10px;">Cancelar</button>
     </div>
     <div class="swa-confirmacion" id="swa-confirmacion">
       <div style="font-size:48px;margin-bottom:16px;">✅</div>
@@ -2073,12 +2111,12 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
 <!-- ── DRILS SCREEN ── -->
 <div id="s-drils" class="screen">
   <div class="bottom-nav">
-    <button class="bottom-nav-back" onclick="show('s-login')">← Inicio</button>
+    <button class="bottom-nav-back" onclick="show('s-trabajador')">← Inicio</button>
     <span class="bottom-nav-title">🏆 Reconociendo DRILS</span>
   </div>
   <div class="container">
     <div class="header-bar">
-      <button class="btn-icon" onclick="show('s-login')">←</button>
+      <button class="btn-icon" onclick="show('s-trabajador')">←</button>
       <div style="flex:1">
         <div style="font-size:18px;font-weight:600;color:#185FA5;">🏆 Reconociendo DRILS</div>
         <div style="font-size:12px;color:var(--text2);">Reconoce a un compañero — Oscar Orduno, Inc.</div>
@@ -2159,7 +2197,7 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
         <button class="btn" style="background:#185FA5;color:white;border-color:#185FA5;font-size:17px;min-height:58px;font-weight:600;" onclick="enviarDRILS()">
           🏆 Enviar Reconocimiento
         </button>
-        <button class="btn btn-ghost" onclick="show('s-login')" style="margin-top:8px;">Cancelar</button>
+        <button class="btn btn-ghost" onclick="show('s-trabajador')" style="margin-top:8px;">Cancelar</button>
       </div>
 
       <!-- Confirmation -->
@@ -2175,7 +2213,7 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
         <button class="btn" style="background:#185FA5;color:white;border-color:#185FA5;" onclick="resetDRILS()">
           Hacer otro reconocimiento
         </button>
-        <button class="btn btn-ghost" onclick="show('s-login')" style="margin-top:8px;">Salir</button>
+        <button class="btn btn-ghost" onclick="show('s-trabajador')" style="margin-top:8px;">Salir</button>
       </div>
     </div>
 
@@ -2216,8 +2254,8 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
 <script>
 const SCRIPT_URL='https://script.google.com/macros/s/AKfycbxsouup5vWPD-VcaTqPWlltY0jZkwRdfOhSGTmW4a0gBvMGB1InvbYFtxYYyDG1cxkuIA/exec';
 const IMGBB_KEY='23cabfde3affda4781ddf1b5219ca20e';
-const PINS={mechanic:'1234',super:'0000',management:'5678',foreman:'2014',rrhh:'7766',safety:'9999'};
-const ROLES={mechanic:'Mecánico',super:'Superintendente',management:'Management',foreman:'Foreman',rrhh:'Recursos Humanos',safety:'Safety'};
+const PINS={super:'0000',foreman:'2014',rrhh:'7766',safety:'9999'};
+const ROLES={supervisor:'Supervisor',super:'Superintendente',foreman:'Foreman',rrhh:'Recursos Humanos',safety:'Safety'};
 let pinEntry='',currentRole='';
 const photoStore={};
 let listasGlobal={foremen:[],operadores:[],maquinas:[]};
@@ -2501,6 +2539,630 @@ function buildDropdown(sel,opts,ph){if(!sel)return;sel.innerHTML=`<option value=
 var FB_API_KEY = 'AIzaSyBwxyI21DC0vwAqckyF04vkzh8T_yjKF3A';
 var FB_PROJECT = 'ooi-safety';
 var FB_BASE = 'https://firestore.googleapis.com/v1/projects/' + FB_PROJECT + '/databases/(default)/documents';
+
+// ── FUNCIONES RESTAURADAS (DRILS, selector de equipo/Shotcrete, filtros de reportes, PDF Field Test) ──
+// Se perdieron en el commit 4ca1292; recuperadas de 8024359.
+let currentMachine = '';
+
+let currentSuperTab = '';
+
+const DRILS_VALORES = {
+  D:{nombre:'Disciplina',emoji:'💪',color:'#185FA5',bg:'#e6f1fb'},
+  R:{nombre:'Responsabilidad',emoji:'✅',color:'#27500a',bg:'#eaf3de'},
+  I:{nombre:'Igualdad',emoji:'🤝',color:'#633806',bg:'#faeeda'},
+  L:{nombre:'Liderazgo',emoji:'⭐',color:'#791f1f',bg:'#fcebeb'},
+  S:{nombre:'Servicio',emoji:'❤️',color:'#0F6E56',bg:'#E1F5EE'}
+}
+
+function drilsTab(tab){
+  document.getElementById('drils-tab-form').className='tp-chip'+(tab==='form'?' on':'');
+  document.getElementById('drils-tab-wall').className='tp-chip'+(tab==='wall'?' on':'');
+  document.getElementById('drils-form-panel').style.display=tab==='form'?'block':'none';
+  document.getElementById('drils-wall-panel').style.display=tab==='wall'?'block':'none';
+  if(tab==='wall') loadDrilsWall();
+}
+
+let drilsValorSelected = '';
+
+let drilsWallData = [];
+
+function drilsWallFilter(val,btn){
+  drilsWallFilterVal=val;
+  document.querySelectorAll('[id^="dw-f-"]').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  renderDrilsWall();
+}
+
+let drilsWallFilterVal = 'all';
+
+async function enviarDRILS(){
+  const reconocido=document.getElementById('drils-reconocido').value.trim();
+  const por=document.getElementById('drils-por').value.trim();
+  const descripcion=document.getElementById('drils-descripcion').value.trim();
+  if(!reconocido||!por||!descripcion){
+    alert('Por favor llena el nombre del compañero, tu nombre y la descripción.');return;
+  }
+  if(!drilsValorSelected){alert('Por favor selecciona el valor DRILS que demostró.');return;}
+
+  const v=DRILS_VALORES[drilsValorSelected];
+  const payload={
+    tipo:'drils',id:Date.now(),
+    fecha:new Date().toISOString().split('T')[0],
+    reconocido,reconocidoPor:por,
+    valor:v.nombre,
+    descripcion,
+    sitio:document.getElementById('drils-sitio').value.trim()
+  };
+
+  const msg=document.getElementById('drils-msg');
+  msg.style.display='block';
+  msg.textContent='⏳ Enviando reconocimiento...';
+  msg.style.background='var(--info-bg)';msg.style.color='var(--info-text)';
+
+  try{
+    await enviarAScript(payload);
+    msg.style.display='none';
+    document.getElementById('drils-form-content').style.display='none';
+    document.getElementById('drils-conf-emoji').textContent=v.emoji;
+    document.getElementById('drils-conf-msg').textContent=
+      reconocido+' ha sido reconocido por demostrar '+v.nombre+'. ¡Gracias '+por+' por notar y compartir esto!';
+    document.getElementById('drils-conf-detalle').innerHTML=
+      '<strong>Reconocido:</strong> '+reconocido+'<br>'+
+      '<strong>Valor:</strong> '+v.emoji+' '+v.nombre+'<br>'+
+      '<strong>Reconocido por:</strong> '+por+'<br>'+
+      (payload.sitio?'<strong>Sitio:</strong> '+payload.sitio+'<br>':'')+
+      '<br><strong>Acción:</strong><br>'+descripcion;
+    document.getElementById('drils-confirmacion').style.display='block';
+  }catch(err){
+    msg.textContent='⚠ Error de conexión — intenta de nuevo';
+    msg.style.background='var(--danger-bg)';msg.style.color='var(--danger-text)';
+  }
+}
+
+function filterReports(){
+  if(!window._ssReports) return;
+  const q = (document.getElementById('filter-proyecto')?.value||'').toLowerCase().trim();
+  const foreman = document.getElementById('filter-foreman')?.value||'';
+  const today = new Date().toISOString().split('T')[0];
+
+  let list = window._ssReports;
+
+  if(q) list = list.filter(r=>r.proyecto.toLowerCase().includes(q.toLowerCase()));
+  if(foreman) list = list.filter(r=>r.supervisor===foreman);
+  if(statusFilter==='bad') list = list.filter(r=>r.hasBad);
+  if(statusFilter==='ok') list = list.filter(r=>!r.hasBad);
+  if(statusFilter==='today') list = list.filter(r=>String(r.fecha)===today);
+
+  const countEl = document.getElementById('ss-filter-count');
+  if(countEl) countEl.textContent = list.length + ' inspección' + (list.length!==1?'es':'') + ' encontrada' + (list.length!==1?'s':'');
+
+  renderReportsList(list,'ss-total','ss-hoy','ss-ok','ss-bad','ss-rep-list','ss-rep-empty','ss-detail-area');
+}
+
+function ftGenerarPDF(data, resultado, passCount, failCount){
+  try{
+    const {jsPDF}=window.jspdf;
+    const doc=new jsPDF({orientation:'portrait',unit:'mm',format:'letter'});
+    const W=215.9,M=16;let y=0;
+
+    // Header
+    doc.setFillColor(4,52,44);doc.rect(0,0,W,34,'F');
+    doc.setFontSize(18);doc.setFont('helvetica','bold');doc.setTextColor(225,245,238);
+    doc.text('EVALUACION DE OPERADOR',M,12);
+    doc.setFontSize(10);doc.setFont('helvetica','normal');doc.setTextColor(159,225,203);
+    doc.text('Operator Field Evaluation — Oscar Orduno, Inc.',M,20);
+    doc.text('Fecha: '+data.fecha+' | Generado: '+new Date().toLocaleDateString('en-US'),M,27);
+
+    // Result badge
+    const rc=resultado==='PASS'?[15,110,86]:[163,45,45];
+    doc.setFillColor(...rc);doc.roundedRect(W-M-28,6,26,16,3,3,'F');
+    doc.setFontSize(12);doc.setFont('helvetica','bold');doc.setTextColor(255,255,255);
+    doc.text(resultado,W-M-15,17,{align:'center'});
+
+    y=42;
+    // Info box
+    doc.setFillColor(241,239,232);doc.roundedRect(M,y,W-M*2,26,3,3,'F');
+    doc.setFontSize(9);doc.setFont('helvetica','bold');doc.setTextColor(26,26,24);
+    doc.text('Operador: '+data.operador,M+4,y+7);
+    doc.text('Posición: '+(data.posicion||'—'),M+4,y+14);
+    doc.text('Supervisor: '+data.supervisor,M+80,y+7);
+    doc.text('Fecha: '+data.fecha,M+80,y+14);
+    doc.setFont('helvetica','normal');doc.setTextColor(95,94,90);
+    doc.text('Equipo: '+(data.equipoTipo||'—'),M+4,y+21);
+    doc.text((data.equipoMarca||'')+' '+(data.equipoModelo||'')+(data.capacidad?' | '+data.capacidad+' lb':''),M+80,y+21);
+
+    y+=34;
+    // Section 1: Evaluation
+    doc.setFontSize(11);doc.setFont('helvetica','bold');doc.setTextColor(4,52,44);
+    doc.text('SECCIÓN 1 — Criterios de Evaluación',M,y);
+    y+=5;
+    doc.setFillColor(4,52,44);doc.rect(M,y,W-M*2,7,'F');
+    doc.setFontSize(8);doc.setFont('helvetica','bold');doc.setTextColor(225,245,238);
+    doc.text('Criterio',M+3,y+5);
+    doc.text('Resultado',W-M-18,y+5,{align:'right'});
+    y+=8;
+
+    data.evaluacion.forEach((c,i)=>{
+      if(y>245){doc.addPage();y=20;}
+      doc.setFillColor(i%2===0?249:255,i%2===0?249:255,i%2===0?248:255);
+      doc.rect(M,y,W-M*2,7,'F');
+      doc.setFontSize(7.5);doc.setFont('helvetica','normal');doc.setTextColor(46,46,43);
+      const label=(i+1)+'. '+c.criterio;
+      doc.text(label.length>80?label.substring(0,78)+'…':label,M+3,y+5);
+      if(c.resultado==='pass'){doc.setTextColor(15,110,86);doc.setFont('helvetica','bold');}
+      else if(c.resultado==='fail'){doc.setTextColor(163,45,45);doc.setFont('helvetica','bold');}
+      else{doc.setTextColor(150,150,150);}
+      doc.text(c.resultado.toUpperCase(),W-M-3,y+5,{align:'right'});
+      y+=7;
+    });
+
+    y+=4;
+    // Summary box
+    doc.setFillColor(...rc);doc.roundedRect(M,y,W-M*2,12,2,2,'F');
+    doc.setFontSize(10);doc.setFont('helvetica','bold');doc.setTextColor(255,255,255);
+    doc.text('Resultado: '+resultado+' | Pass: '+passCount+' | Fail: '+failCount,M+4,y+8);
+    y+=18;
+
+    // Section 2: Inspection
+    if(y>220){doc.addPage();y=20;}
+    doc.setFontSize(11);doc.setFont('helvetica','bold');doc.setTextColor(4,52,44);
+    doc.text('SECCIÓN 2 — Inspección de Equipos',M,y);
+    y+=5;
+    doc.setFillColor(4,52,44);doc.rect(M,y,W-M*2,7,'F');
+    doc.setFontSize(8);doc.setFont('helvetica','bold');doc.setTextColor(225,245,238);
+    doc.text('Elemento',M+3,y+5);
+    doc.text('✓',W-M-30,y+5,{align:'center'});
+    doc.text('✗',W-M-18,y+5,{align:'center'});
+    doc.text('N/A',W-M-6,y+5,{align:'center'});
+    y+=8;
+
+    data.inspeccion.forEach((item,i)=>{
+      if(y>248){doc.addPage();y=20;}
+      doc.setFillColor(i%2===0?249:255,i%2===0?249:255,i%2===0?248:255);
+      doc.rect(M,y,W-M*2,7,'F');
+      doc.setFontSize(7.5);doc.setFont('helvetica','normal');doc.setTextColor(46,46,43);
+      const lbl=item.nombre.length>70?item.nombre.substring(0,68)+'…':item.nombre;
+      doc.text(lbl,M+3,y+5);
+      const bueno=item.resultado==='bueno';
+      const malo=item.resultado==='malo';
+      const na=item.resultado==='na';
+      if(bueno){doc.setTextColor(15,110,86);doc.setFont('helvetica','bold');}
+      else{doc.setTextColor(180,178,169);}
+      doc.text('✓',W-M-30,y+5,{align:'center'});
+      if(malo){doc.setTextColor(163,45,45);doc.setFont('helvetica','bold');}
+      else{doc.setTextColor(180,178,169);doc.setFont('helvetica','normal');}
+      doc.text('✗',W-M-18,y+5,{align:'center'});
+      doc.setTextColor(na?95:180,na?94:178,na?90:169);
+      doc.setFont('helvetica',na?'bold':'normal');
+      doc.text('●',W-M-6,y+5,{align:'center'});
+      y+=7;
+    });
+
+    // Signatures
+    y+=8;
+    if(y>235){doc.addPage();y=20;}
+    doc.setDrawColor(180,178,169);doc.line(M,y,M+70,y);
+    doc.line(W-M-70,y,W-M,y);
+    doc.setFontSize(8);doc.setFont('helvetica','normal');doc.setTextColor(95,94,90);
+    doc.text('Supervisor: '+(data.firmaSupervisor||'—'),M,y+5);
+    doc.text('Operador: '+(data.firmaOperador||'—'),W-M-70,y+5);
+
+    // Footer
+    doc.setFontSize(7);doc.setTextColor(180,178,169);
+    doc.text('Oscar Orduno, Inc. — Earth Retention Systems | Field Test ID: '+data.id,M,267);
+
+    // Save PDF
+    const fname=data.operador.replace(/[^a-zA-Z0-9]/g,'_')+'_FieldTest_'+data.fecha+'.pdf';
+    doc.save(fname);
+  }catch(err){
+    console.log('PDF error:',err);
+  }
+}
+
+function initDrils(){
+  setToday();
+  drilsValorSelected = '';
+  document.querySelectorAll('.drils-valor-btn').forEach(b=>{
+    b.classList.remove('selected');
+    b.style.borderColor='var(--border2)';
+    b.style.background='var(--bg)';
+  });
+  document.getElementById('drils-form-content').style.display='block';
+  document.getElementById('drils-confirmacion').style.display='none';
+  document.getElementById('drils-msg').style.display='none';
+  ['drils-reconocido','drils-por','drils-sitio','drils-descripcion'].forEach(id=>{
+    const el=document.getElementById(id);if(el)el.value='';
+  });
+  drilsTab('form');
+}
+
+function initShotcrete(){
+  const today = new Date().toISOString().split('T')[0];
+
+  // Set dates
+  ['sc-fecha','sct-fecha'].forEach(id=>{
+    const el=document.getElementById(id);if(el)el.value=today;
+  });
+
+  // Load dropdowns
+  cargarListas();
+  if(listasGlobal.operadores&&listasGlobal.operadores.length>0){
+    poblarTodosLosDropdowns(listasGlobal);
+  } else {
+    cargarListas();
+  }
+
+  // Build compresor items
+  const compEl = document.getElementById('sc-comp-items');
+  if(compEl){
+    compEl.innerHTML = SC_COMP_ITEMS.map((item,i) => `
+      <div class="insp-item" id="sci-${item.id}" data-val="">
+        <div style="display:flex;align-items:flex-start;gap:8px;margin-bottom:6px;">
+          <div style="flex:1;">
+            <div class="insp-name">${item.name}</div>
+            <div class="insp-sub">Frecuencia: ${item.freq}</div>
+          </div>
+        </div>
+        <div class="tog-row">
+          <button class="tog" onclick="setSCItem('comp','${item.id}','ok',this)">✓ OK</button>
+          <button class="tog" onclick="setSCItem('comp','${item.id}','bad',this)">✗ BAD</button>
+          <button class="tog" style="grid-column:1/-1;background:var(--bg2);color:var(--text2);" onclick="setSCItem('comp','${item.id}','na',this)">N/A</button>
+        </div>
+        <div class="obs-area" id="scoa-${item.id}">
+          <textarea rows="2" id="scot-${item.id}" placeholder="Describe el problema..." style="font-size:14px;"></textarea>
+        </div>
+      </div>`).join('');
+  }
+
+  // Build truck items
+  const truckEl = document.getElementById('sc-truck-items');
+  if(truckEl){
+    truckEl.innerHTML = SC_TRUCK_ITEMS.map((item,i) => `
+      <div class="insp-item" id="scti-${i}" data-val="">
+        <div class="insp-name" style="margin-bottom:8px;">${item}</div>
+        <div class="tog-row">
+          <button class="tog" onclick="setSCTruck(${i},'ok',this)">✓ OK</button>
+          <button class="tog" onclick="setSCTruck(${i},'bad',this)">✗ BAD</button>
+          <button class="tog" style="background:var(--bg2);color:var(--text2);" onclick="setSCTruck(${i},'na',this)">N/A</button>
+        </div>
+        <div class="obs-area" id="sctoa-${i}">
+          <textarea rows="2" id="sctot-${i}" placeholder="Observación..." style="font-size:14px;"></textarea>
+        </div>
+      </div>`).join('');
+  }
+}
+
+async function loadDrilsWall(){
+  const listEl=document.getElementById('drils-wall-list');
+  listEl.innerHTML='<div class="loading">⏳ Cargando reconocimientos...</div>';
+  try{
+    const res=await fetch(SCRIPT_URL+'?action=drils&t='+Date.now());
+    const json=await res.json();
+    drilsWallData=json.reconocimientos||[];
+    renderDrilsWall();
+  }catch(err){
+    listEl.innerHTML='<div class="loading">No se pudieron cargar los reconocimientos.</div>';
+  }
+}
+
+async function loadSuperFitTests(){
+  const listEl = document.getElementById('super-fittest-list');
+  try{
+    const res = await fetch(SCRIPT_URL+'?action=fittest&t='+Date.now());
+    const json = await res.json();
+    const all = json.fittests||[];
+    if(!all.length){
+      listEl.innerHTML='<div class="empty-state"><div class="icon">🫁</div><div>No hay solicitudes de Fit Test aún.</div></div>';
+      return;
+    }
+    listEl.innerHTML = all.map(r=>`
+      <div class="card" style="margin-bottom:10px;border-left:3px solid ${r.status==='Completado'?'var(--g5)':r.status==='Agendado'?'var(--a3)':'var(--swa)'};">
+        <div style="display:flex;align-items:flex-start;gap:10px;">
+          <div style="flex:1;">
+            <div style="font-size:15px;font-weight:700;">🫁 ${r.trabajador}</div>
+            <div style="font-size:12px;color:var(--text2);margin-top:2px;">${r.proyecto||'—'} · ${r.razon||'—'}</div>
+            <div style="font-size:11px;color:var(--text3);margin-top:2px;">${r.fecha} · Foreman: ${r.foreman||'—'}</div>
+          </div>
+          <span class="badge ${r.status==='Completado'?'badge-ok':r.status==='Agendado'?'badge-pending':'badge-bad'}">
+            ${r.status==='Completado'?'✅ Completado':r.status==='Agendado'?'🟡 Agendado':'🔴 Pendiente'}
+          </span>
+        </div>
+      </div>`).join('');
+  }catch(err){
+    listEl.innerHTML='<div style="color:var(--danger-text);padding:20px;text-align:center;font-size:13px;">Error cargando registros.</div>';
+  }
+}
+
+function opBack(){
+  const selectEl = document.getElementById('op-machine-select');
+  const groutEl = document.getElementById('op-grout-panel');
+  const shotcreteEl = document.getElementById('op-shotcrete-panel');
+  if(selectEl && selectEl.style.display === 'none'){
+    selectEl.style.display = 'block';
+    if(groutEl) groutEl.style.display = 'none';
+    if(shotcreteEl) shotcreteEl.style.display = 'none';
+    document.getElementById('op-screen-title').textContent = 'Selecciona equipo';
+    const bt = document.getElementById('op-bottom-title');
+    if(bt) bt.textContent = 'Selecciona equipo';
+    currentMachine = '';
+  } else {
+    show('s-trabajador');
+  }
+}
+
+function opTab(tab){
+  // Update tab chips
+  document.querySelectorAll('[id^="op-tab-"]').forEach(b=>b.classList.remove('on'));
+  const activeBtn=document.getElementById('op-tab-'+tab);
+  if(activeBtn)activeBtn.classList.add('on');
+  // Show/hide panels
+  document.querySelectorAll('[id^="op-"][id$="-panel"]').forEach(p=>p.style.display='none');
+  const activePanel=document.getElementById('op-'+tab+'-panel');
+  if(activePanel)activePanel.style.display='block';
+}
+
+function renderDrilsWall(){
+  const listEl=document.getElementById('drils-wall-list');
+  const hoy=new Date().toISOString().split('T')[0].substring(0,7);
+
+  // Stats
+  document.getElementById('dw-total').textContent=drilsWallData.length;
+  document.getElementById('dw-mes').textContent=drilsWallData.filter(r=>r.fecha&&r.fecha.startsWith(hoy)).length;
+
+  // Valores distribution
+  const counts={Disciplina:0,Responsabilidad:0,Igualdad:0,Liderazgo:0,Servicio:0};
+  drilsWallData.forEach(r=>{if(counts[r.valor]!==undefined)counts[r.valor]++;});
+  const valoresBar=document.getElementById('dw-valores-bar');
+  valoresBar.innerHTML=Object.entries(DRILS_VALORES).map(([k,v])=>`
+    <div style="display:flex;align-items:center;gap:4px;font-size:12px;">
+      <span>${v.emoji}</span>
+      <span style="font-weight:600;color:${v.color};">${counts[v.nombre]}</span>
+      <span style="color:var(--text2);">${v.nombre.substring(0,4)}</span>
+    </div>`).join('');
+
+  // Filter
+  let list=drilsWallData;
+  if(drilsWallFilterVal!=='all') list=list.filter(r=>r.valor===drilsWallFilterVal);
+
+  if(!list.length){
+    listEl.innerHTML='<div class="empty-state"><div class="icon">🏆</div><div>No hay reconocimientos aún.<br>¡Sé el primero en reconocer a un compañero!</div></div>';
+    return;
+  }
+
+  listEl.innerHTML=list.map(r=>{
+    const vKey=Object.entries(DRILS_VALORES).find(([k,v])=>v.nombre===r.valor);
+    const v=vKey?vKey[1]:{emoji:'🏆',color:'#185FA5',nombre:r.valor};
+    const letra=vKey?vKey[0]:'D';
+    return`<div class="drils-wall-card ${letra}">
+      <div style="display:flex;align-items:flex-start;gap:10px;">
+        <div style="width:44px;height:44px;border-radius:50%;background:${v.color};display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;">${v.emoji}</div>
+        <div style="flex:1;">
+          <div style="font-size:15px;font-weight:600;margin-bottom:2px;">${r.reconocido}</div>
+          <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;">
+            <span style="font-size:11px;font-weight:600;color:${v.color};background:${v.color}22;padding:2px 8px;border-radius:99px;">${v.nombre}</span>
+            <span style="font-size:11px;color:var(--text3);">${r.fecha}</span>
+          </div>
+          <div style="font-size:13px;color:var(--text);line-height:1.5;margin-bottom:6px;">${r.descripcion}</div>
+          <div style="font-size:11px;color:var(--text2);">Reconocido por: <strong>${r.reconocidoPor}</strong>${r.sitio?' · '+r.sitio:''}</div>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function resetDRILS(){
+  initDrils();
+}
+
+const SC_COMP_ITEMS = [
+  {id:'aceite', name:'Verificar el nivel de aceite (antes de empezar)', freq:'Diario'},
+  {id:'congelante', name:'Verificar el nivel de congelante del radiador', freq:'Diario'},
+  {id:'combustible', name:'Verificar el suministro de combustible (después de empezar)', freq:'Diario'},
+  {id:'filtro_aire', name:'Verificar los elementos de filtro de aire', freq:'Diario'},
+  {id:'fugas', name:'Verificar si hay fugas de aire en el combustible, aceite y agua', freq:'Diario'},
+  {id:'acelerador', name:'Verificar las conexiones de control del acelerador', freq:'50hrs'},
+  {id:'carter', name:'Drenar el agua del carter del compresor', freq:'50hrs'},
+  {id:'tanque', name:'Drenar el agua y los sedimentos del tanque de combustible', freq:'50hrs'},
+  {id:'aceite_filtro', name:'Cambiar el aceite y filtros de aceite del compresor', freq:'50hrs'},
+];
+
+const SC_TRUCK_ITEMS = [
+  'Tracks, Tires / Llantas traques',
+  'Brakes / Frenos',
+  'Lights / Luces',
+  'Horn / Claxon',
+  'Windshield wiper / Parabrisas',
+  'Glass / Vidrios',
+  'Rear View Mirror / Espejos',
+  'Body / Carrocería',
+  'Covers / Tapas',
+  'ROPS / Protección contra rodar',
+  'Dump Mechanism / Mecanismo',
+  'Steering / Automovilismo',
+  'Fire Extinguisher / Extinguidor',
+  'Signal System / Sistemas de señales',
+  'Fuel / Gas Lines / Líneas de Combustible',
+  'Exhaust system / Sistema de escape',
+  'Backup alarm / Alarma de reversa',
+  'Seatbelt / Cinturón de Seguridad',
+  'Grab Bars / Agares, escalones',
+  'Warning Lights / Luces de aviso',
+  'Motor Wiring / Alambrado',
+  'Radiator / Radiador',
+  'Belts / Cintos',
+  'Houses / Mangueras',
+];
+
+function selectMachine(machine){
+  currentMachine = machine;
+  const selectEl = document.getElementById('op-machine-select');
+  const groutEl = document.getElementById('op-grout-panel');
+  const shotcreteEl = document.getElementById('op-shotcrete-panel');
+
+  if(selectEl) selectEl.style.display = 'none';
+  if(groutEl) groutEl.style.display = 'none';
+  if(shotcreteEl) shotcreteEl.style.display = 'none';
+
+  if(machine === 'grout'){
+    document.getElementById('op-screen-title').textContent = 'Bomba de Gruta';
+    const _bt1=document.getElementById('op-bottom-title');if(_bt1)_bt1.textContent='🔧 Bomba de Gruta';
+    buildInspList(); buildSafetyList(); setToday(); cargarListas(); if(listasGlobal.operadores&&listasGlobal.operadores.length>0) poblarTodosLosDropdowns(listasGlobal);
+    if(groutEl) groutEl.style.display = 'block';
+  } else if(machine === 'shotcrete'){
+    document.getElementById('op-screen-title').textContent = 'Shotcrete';
+    const _bt2=document.getElementById('op-bottom-title');if(_bt2)_bt2.textContent='🏗️ Shotcrete';
+    initShotcrete();
+    if(shotcreteEl) shotcreteEl.style.display = 'block';
+    shotcreteTab('comp');
+  }
+  window.scrollTo(0,0);
+}
+
+function selectValor(key, btn){
+  drilsValorSelected = key;
+  const v = DRILS_VALORES[key];
+  document.querySelectorAll('.drils-valor-btn').forEach(b=>{
+    b.classList.remove('selected');
+    b.style.borderColor='var(--border2)';
+    b.style.background='var(--bg)';
+  });
+  btn.classList.add('selected');
+  btn.style.borderColor=v.color;
+  btn.style.background=v.bg;
+}
+
+function setSCItem(type, id, val, btn){
+  const rowId = type === 'comp' ? 'sci-'+id : 'scti-'+id;
+  const row = document.getElementById(rowId);
+  if(!row) return;
+  row.querySelectorAll('.tog').forEach(t=>{
+    t.className = 'tog';
+    if(t.textContent.includes('N/A')) t.style.cssText = 'background:var(--bg2);color:var(--text2);';
+  });
+  btn.className = 'tog ' + (val==='ok'?'ok':val==='bad'?'bad':'');
+  if(val==='na'){btn.style.background='#185FA5';btn.style.color='white';}
+  row.dataset.val = val;
+  const oa = document.getElementById('scoa-'+id);
+  if(oa) oa.style.display = val==='bad'?'block':'none';
+}
+
+function setSCTruck(idx, val, btn){
+  const row = document.getElementById('scti-'+idx);
+  if(!row) return;
+  row.querySelectorAll('.tog').forEach(t=>{
+    t.className = 'tog';
+    t.style.cssText='';
+    if(t.textContent.includes('N/A')) t.style.cssText = 'background:var(--bg2);color:var(--text2);';
+  });
+  btn.className = 'tog ' + (val==='ok'?'ok':val==='bad'?'bad':'');
+  if(val==='na'){btn.style.background='#185FA5';btn.style.color='white';}
+  row.dataset.val = val;
+  const oa = document.getElementById('sctoa-'+idx);
+  if(oa) oa.style.display = val==='bad'?'block':'none';
+}
+
+function setStatusFilter(val, btn){
+  statusFilter = val;
+  document.querySelectorAll('[id^="filter-"]').forEach(b=>{
+    if(b.tagName==='BUTTON') b.classList.remove('on');
+  });
+  btn.classList.add('on');
+  filterReports();
+}
+
+function shotcreteTab(tab){
+  document.getElementById('sc-tab-comp').className = 'tp-chip' + (tab==='comp'?' on':'');
+  document.getElementById('sc-tab-truck').className = 'tp-chip' + (tab==='truck'?' on':'');
+  document.getElementById('sc-comp-panel').style.display = tab==='comp'?'block':'none';
+  document.getElementById('sc-truck-panel').style.display = tab==='truck'?'block':'none';
+  window.scrollTo(0,0);
+}
+
+let statusFilter = 'all';
+
+async function submitShotcrete(type){
+  const msgEl = document.getElementById(type==='comp'?'sc-comp-msg':'sc-truck-msg');
+
+  if(type === 'comp'){
+    const op = document.getElementById('sc-op').value;
+    const proy = document.getElementById('sc-proy').value.trim();
+    if(!op||!proy){alert('Por favor selecciona el operador y llena el proyecto.');return;}
+
+    const items = SC_COMP_ITEMS.map(item=>{
+      const row = document.getElementById('sci-'+item.id);
+      const obs = document.getElementById('scot-'+item.id);
+      return{nombre:item.name, freq:item.freq, resultado:row?row.dataset.val||'sin marcar':'sin marcar', obs:obs?obs.value:''};
+    });
+
+    const hasBad = items.some(i=>i.resultado==='bad');
+    const payload = {
+      tipo:'shotcrete_comp', id:Date.now(),
+      fecha:document.getElementById('sc-fecha').value,
+      operador:op,
+      supervisor:document.getElementById('sc-sup').value,
+      proyecto:proy,
+      firma:document.getElementById('sc-firma-comp').value,
+      obs:document.getElementById('sc-obs-comp').value,
+      items, hasBad
+    };
+
+    msgEl.style.display='block';
+    msgEl.textContent='⏳ Enviando inspección de Compresor...';
+    msgEl.style.background='var(--info-bg)';msgEl.style.color='var(--info-text)';
+
+    try{
+      await enviarAScript(payload);
+      msgEl.textContent = hasBad ? '⚠ Enviado — hay ítems que requieren atención' : '✓ Inspección de Compresor enviada';
+      msgEl.style.background = hasBad?'var(--warning-bg)':'var(--success-bg)';
+      msgEl.style.color = hasBad?'var(--warning-text)':'var(--success-text)';
+    }catch(err){
+      msgEl.textContent='⚠ Error de conexión';
+      msgEl.style.background='var(--danger-bg)';msgEl.style.color='var(--danger-text)';
+    }
+    setTimeout(()=>{msgEl.style.display='none';},4000);
+
+  } else {
+    const op = document.getElementById('sct-op').value;
+    const proy = document.getElementById('sct-proy').value.trim();
+    if(!op||!proy){alert('Por favor selecciona el operador y llena el proyecto.');return;}
+
+    const items = SC_TRUCK_ITEMS.map((nombre,i)=>{
+      const row = document.getElementById('scti-'+i);
+      const obs = document.getElementById('sctot-'+i);
+      return{nombre, resultado:row?row.dataset.val||'sin marcar':'sin marcar', obs:obs?obs.value:''};
+    });
+
+    const hasBad = items.some(i=>i.resultado==='bad');
+    const payload = {
+      tipo:'shotcrete_truck', id:Date.now(),
+      fecha:document.getElementById('sct-fecha').value,
+      operador:op,
+      supervisor:document.getElementById('sct-sup').value,
+      proyecto:proy,
+      equipo:document.getElementById('sct-equipo').value,
+      hi:document.getElementById('sct-hi').value,
+      hf:document.getElementById('sct-hf').value,
+      obs:document.getElementById('sct-obs').value,
+      items, hasBad
+    };
+
+    msgEl.style.display='block';
+    msgEl.textContent='⏳ Enviando inspección de Camión...';
+    msgEl.style.background='var(--info-bg)';msgEl.style.color='var(--info-text)';
+
+    try{
+      await enviarAScript(payload);
+      msgEl.textContent = hasBad ? '⚠ Enviado — hay ítems que requieren atención' : '✓ Inspección de Camión enviada';
+      msgEl.style.background = hasBad?'var(--warning-bg)':'var(--success-bg)';
+      msgEl.style.color = hasBad?'var(--warning-text)':'var(--success-text)';
+    }catch(err){
+      msgEl.textContent='⚠ Error de conexión';
+      msgEl.style.background='var(--danger-bg)';msgEl.style.color='var(--danger-text)';
+    }
+    setTimeout(()=>{msgEl.style.display='none';},4000);
+  }
+}
+
 
 // Envío a Apps Script que sí confirma el resultado.
 // Lanza error si la red falla o si el servidor responde con status distinto de 'ok'.
@@ -2793,6 +3455,10 @@ function pinDel(){pinEntry=pinEntry.slice(0,-1);updateDots();}
 function pinClear(){pinEntry='';updateDots();}
 function updateDots(){for(let i=0;i<4;i++)document.getElementById('d'+i).classList.toggle('filled',i<pinEntry.length);}
 function checkPin(){
+  if(currentRole==='supervisor'){
+    if(pinEntry===PINS.super) currentRole='super';
+    else if(pinEntry===PINS.foreman) currentRole='foreman';
+  }
   if(pinEntry===PINS[currentRole]){
     document.getElementById('pin-err').style.display='none';
     pinEntry='';updateDots();
@@ -2969,7 +3635,7 @@ function resetSWA(){
   document.getElementById('swa-form').style.display='block';
   document.getElementById('swa-confirmacion').style.display='none';
   document.getElementById('swa-msg').style.display='none';
-  setToday();show('s-login');
+  setToday();show('s-trabajador');
 }
 
 async function loadReports(){
@@ -5007,7 +5673,7 @@ function certsBack() {
     dash.style.display = 'block';
     document.getElementById('certs-bottom-title').textContent = '📄 Certificaciones';
   } else {
-    show('s-login');
+    show(isSafetyUser ? 's-safety' : 's-trabajador');
   }
   window.scrollTo(0,0);
 }
