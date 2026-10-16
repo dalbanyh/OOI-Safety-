@@ -2254,7 +2254,13 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
 <script>
 const SCRIPT_URL='https://script.google.com/macros/s/AKfycbxsouup5vWPD-VcaTqPWlltY0jZkwRdfOhSGTmW4a0gBvMGB1InvbYFtxYYyDG1cxkuIA/exec';
 const IMGBB_KEY='23cabfde3affda4781ddf1b5219ca20e';
-const PINS={super:'0000',foreman:'2014',rrhh:'7766',safety:'9999'};
+// Los PIN ya NO están en la app: se validan en el servidor (Apps Script) y devuelven un token de sesión.
+// La sesión vive solo en memoria: al recargar la página o volver al inicio hay que ingresar el PIN otra vez.
+let sesion={token:'',rol:''};
+function guardarSesion(token,rol){sesion={token:token||'',rol:rol||''};}
+function cerrarSesion(){guardarSesion('','');}
+function sesionExpirada(){cerrarSesion();alert('Tu sesión venció o no tienes permiso para esto. Ingresa tu PIN de nuevo.');show('s-login');}
+let pinBusy=false;
 const ROLES={supervisor:'Supervisor',super:'Superintendente',foreman:'Foreman',rrhh:'Recursos Humanos',safety:'Safety'};
 let pinEntry='',currentRole='';
 const photoStore={};
@@ -2483,8 +2489,7 @@ async function tpOpenDetail(_,empIdx){
   document.getElementById('tp-cert-status').textContent='Buscando certificaciones en Google Drive...';
   document.getElementById('tp-cert-list').innerHTML='';
   try{
-    const res=await fetch(SCRIPT_URL+'?action=certs&nombre='+encodeURIComponent(emp.name)+'&t='+Date.now());
-    const json=await res.json();
+    const json=await leerDeScript('certs',{nombre:emp.name});
     if(json.certs&&json.certs.length>0){
       document.getElementById('tp-cert-status').textContent=json.certs.length+' certificado(s) encontrado(s) en Drive';
       document.getElementById('tp-cert-list').innerHTML=json.certs.map(c=>`
@@ -2530,7 +2535,7 @@ const safetyItems=[
   'Conozco la ruta de evacuación y ubicación del extintor más cercano',
 ];
 
-function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');window.scrollTo(0,0);}
+function show(id){if(id==='s-login')cerrarSesion();document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');window.scrollTo(0,0);}
 function toggleChip(btn,val){document.querySelectorAll('#swa-chips .chip').forEach(c=>c.classList.remove('selected'));btn.classList.add('selected');swaChipSelected=val;}
 function buildDropdown(sel,opts,ph){if(!sel)return;sel.innerHTML=`<option value="">— ${ph} —</option>`+opts.map(o=>`<option value="${o}">${o}</option>`).join('');}
 
@@ -2848,8 +2853,7 @@ async function loadDrilsWall(){
 async function loadSuperFitTests(){
   const listEl = document.getElementById('super-fittest-list');
   try{
-    const res = await fetch(SCRIPT_URL+'?action=fittest&t='+Date.now());
-    const json = await res.json();
+    const json = await leerDeScript('fittest');
     const all = json.fittests||[];
     if(!all.length){
       listEl.innerHTML='<div class="empty-state"><div class="icon">🫁</div><div>No hay solicitudes de Fit Test aún.</div></div>';
@@ -3167,12 +3171,25 @@ async function submitShotcrete(type){
 // Envío a Apps Script que sí confirma el resultado.
 // Lanza error si la red falla o si el servidor responde con status distinto de 'ok'.
 async function enviarAScript(payload){
-  const res = await fetch(SCRIPT_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)});
+  // Si hay sesión, el token viaja en el cuerpo del envío (los envíos públicos no lo necesitan).
+  const cuerpo = sesion.token ? Object.assign({}, payload, {token:sesion.token}) : payload;
+  const res = await fetch(SCRIPT_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(cuerpo)});
   if(!res.ok) throw new Error('HTTP '+res.status);
   let data = null;
   try{ data = await res.json(); }catch(e){ data = null; }
+  if(data && data.code==='auth'){ sesionExpirada(); throw new Error('auth'); }
   if(data && data.status && data.status!=='ok') throw new Error(data.message||'El servidor rechazó el envío');
   return data || {status:'ok'};
+}
+
+// Lecturas protegidas: POST con token (el token no viaja en la URL).
+async function leerDeScript(action, extra){
+  const cuerpo = Object.assign({tipo:'leer', action:action, token:sesion.token}, extra||{});
+  const res = await fetch(SCRIPT_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(cuerpo)});
+  if(!res.ok) throw new Error('HTTP '+res.status);
+  const json = await res.json();
+  if(json && json.code==='auth'){ sesionExpirada(); throw new Error('auth'); }
+  return json;
 }
 
 function fbGet(path) {
@@ -3450,35 +3467,45 @@ function selectRole(role){
   else if(role==='super'){pinEntry='';updateDots();document.getElementById('pin-err').style.display='none';document.getElementById('pin-role-name').textContent='Superintendente';show('s-pin');}
   else{pinEntry='';updateDots();document.getElementById('pin-err').style.display='none';document.getElementById('pin-role-name').textContent=ROLES[role];show('s-pin');}
 }
-function pinPress(d){if(pinEntry.length>=4)return;pinEntry+=d;updateDots();if(pinEntry.length===4)setTimeout(checkPin,150);}
+function pinPress(d){if(pinEntry.length>=4||pinBusy)return;pinEntry+=d;updateDots();if(pinEntry.length===4)setTimeout(checkPin,150);}
 function pinDel(){pinEntry=pinEntry.slice(0,-1);updateDots();}
 function pinClear(){pinEntry='';updateDots();}
 function updateDots(){for(let i=0;i<4;i++)document.getElementById('d'+i).classList.toggle('filled',i<pinEntry.length);}
-function checkPin(){
-  if(currentRole==='supervisor'){
-    if(pinEntry===PINS.super) currentRole='super';
-    else if(pinEntry===PINS.foreman) currentRole='foreman';
+async function checkPin(){
+  if(pinBusy)return;
+  pinBusy=true;
+  const err=document.getElementById('pin-err');
+  const rolPedido=currentRole;
+  const pin=pinEntry;
+  err.style.display='none';
+  let res=null;
+  try{
+    const r=await fetch(SCRIPT_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({tipo:'login',rol:rolPedido,pin:pin})});
+    res=await r.json();
+  }catch(e){
+    err.textContent='Sin conexión. Revisa tu internet e intenta de nuevo.';
+    err.style.display='block';pinEntry='';updateDots();pinBusy=false;return;
   }
-  if(pinEntry===PINS[currentRole]){
-    document.getElementById('pin-err').style.display='none';
-    pinEntry='';updateDots();
-    if(currentRole==='super'){
+  pinEntry='';updateDots();pinBusy=false;
+  if(res&&res.status==='ok'&&res.token){
+    guardarSesion(res.token,res.rol);
+    currentRole=res.rol;
+    err.style.display='none';
+    if(res.rol==='super'){
       show('s-super');
       loadSuperReports();
-    } else if(currentRole==='foreman'){
+    } else if(res.rol==='foreman'){
       show('s-foreman');
-    } else if(currentRole==='rrhh'){
+    } else if(res.rol==='rrhh'){
       show('s-respiradores');
       initRespiradoresRRHH();
-    } else if(currentRole==='safety'){
+    } else if(res.rol==='safety'){
       show('s-safety');
       initSafety();
-    } else {
-      document.getElementById('mgr-name').textContent=currentRole==='mechanic'?'Panel del mecánico':'Management — reportes';
-      show('s-manager');loadReports();
     }
   } else {
-    document.getElementById('pin-err').style.display='block';pinEntry='';updateDots();
+    err.textContent=(res&&res.code==='bloqueado')?res.message:'PIN incorrecto, intenta de nuevo';
+    err.style.display='block';
   }
 }
 function setToday(){
@@ -3646,8 +3673,7 @@ async function loadReports(){
   document.getElementById('detail-area').innerHTML='';
   ['s-total','s-hoy','s-ok','s-bad'].forEach(id=>document.getElementById(id).textContent='—');
   try{
-    const res=await fetch(SCRIPT_URL+'?t='+Date.now());
-    const json=await res.json();
+    const json=await leerDeScript('reports');
     loading.style.display='none';
     if(json.listas)listasGlobal=json.listas;
     if(!json.reports||!json.reports.length){empty.style.display='block';return;}
@@ -3664,8 +3690,7 @@ async function loadSuperReports(){
   document.getElementById('ss-detail-area').innerHTML='';
   ['ss-total','ss-hoy','ss-ok','ss-bad'].forEach(id=>document.getElementById(id).textContent='—');
   try{
-    const res=await fetch(SCRIPT_URL+'?t='+Date.now());
-    const json=await res.json();
+    const json=await leerDeScript('reports');
     loading.style.display='none';
     if(json.listas){
       listasGlobal=json.listas;
@@ -4145,8 +4170,7 @@ async function tpOpenDetail(_,empIdx){
   document.getElementById('tp-cert-status').textContent='Buscando certificaciones en Google Drive...';
   document.getElementById('tp-cert-list').innerHTML='';
   try{
-    const res=await fetch(SCRIPT_URL+'?action=certs&nombre='+encodeURIComponent(emp.name)+'&t='+Date.now());
-    const json=await res.json();
+    const json=await leerDeScript('certs',{nombre:emp.name});
     if(json.certs&&json.certs.length>0){
       document.getElementById('tp-cert-status').textContent=json.certs.length+' certificado(s) encontrado(s) en Drive';
       document.getElementById('tp-cert-list').innerHTML=json.certs.map(c=>`
@@ -4374,8 +4398,7 @@ async function loadFitTestHistory(){
   const histEl = document.getElementById('fittest-history');
   if(!histEl) return;
   try{
-    const res = await fetch(SCRIPT_URL+'?action=fittest&t='+Date.now());
-    const json = await res.json();
+    const json = await leerDeScript('fittest');
     const records = json.fittests || [];
     if(!records.length){
       histEl.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text2);font-size:13px;">No hay registros aún.</div>';
@@ -4422,8 +4445,7 @@ function initRespiradoresRRHH(){
 async function loadRRHHPending(){
   const listEl=document.getElementById('rrhh-pending-list');
   try{
-    const res=await fetch(SCRIPT_URL+'?action=fittest&t='+Date.now());
-    const json=await res.json();
+    const json = await leerDeScript('fittest');
     const pending=(json.fittests||[]).filter(r=>r.status!=='Completado');
     if(!pending.length){
       listEl.innerHTML='<div class="empty-state"><div class="icon">✅</div><div>No hay solicitudes pendientes.</div></div>';
@@ -4464,8 +4486,7 @@ function preselect(trabajador){
 async function loadRRHHHistory(){
   const listEl=document.getElementById('rrhh-history-list');
   try{
-    const res=await fetch(SCRIPT_URL+'?action=fittest_completed&t='+Date.now());
-    const json=await res.json();
+    const json = await leerDeScript('fittest_completed');
     const completed=json.completed||[];
     if(!completed.length){
       listEl.innerHTML='<div class="empty-state"><div class="icon">📋</div><div>No hay registros completados aún.</div></div>';
@@ -4625,8 +4646,7 @@ async function loadTrainingRequests(tab){
   const summaryEl = document.getElementById('tr-summary-list');
   const listEl = document.getElementById('tr-all-list');
   try{
-    const res = await fetch(SCRIPT_URL+'?action=training_requests&t='+Date.now());
-    const json = await res.json();
+    const json = await leerDeScript('training_requests');
 
     // Summary view — grouped by training type
     if(tab==='summary'){
@@ -5965,7 +5985,7 @@ function certsSubmitNewEmployee() {
     notas: notas, addedBy: 'Safety'
   };
 
-  fetch(SCRIPT_URL, {method:'POST', body:JSON.stringify(payload)})
+  fetch(SCRIPT_URL, {method:'POST', body:JSON.stringify(Object.assign({token:sesion.token}, payload))})
     .then(function(r){ return r.json(); })
     .then(function(res) {
       if (res.status === 'ok') {
@@ -6063,7 +6083,7 @@ function certsSubmitCert() {
       addedBy: 'Safety'
     };
 
-    fetch(SCRIPT_URL, {method:'POST', body:JSON.stringify(payload)})
+    fetch(SCRIPT_URL, {method:'POST', body:JSON.stringify(Object.assign({token:sesion.token}, payload))})
       .then(function(r){ return r.json(); })
       .then(function(res){
         if (res.status==='ok') {
