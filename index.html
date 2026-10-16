@@ -988,6 +988,36 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
         </div>
         <span class="role-arrow">›</span>
       </button>
+
+      <!-- Tabs del Foreman: desde que el login es uno solo ("Supervisor"), el super tambien los necesita -->
+      <div style="font-size:11px;font-weight:700;color:var(--ooi-orange);text-transform:uppercase;letter-spacing:0.1em;margin:22px 0 14px;">En campo</div>
+
+      <button class="role-btn" onclick="superAForeman('ptp')" style="min-height:80px;">
+        <div class="role-icon" style="background:#E9F1FB;width:52px;height:52px;border-radius:12px;font-size:26px;">📸</div>
+        <div style="flex:1;">
+          <div style="font-family:'Sora',sans-serif;font-size:17px;font-weight:800;">PTP</div>
+          <div style="font-size:13px;color:var(--text2);margin-top:2px;">Subir foto del Pre-Task Plan de la contratista</div>
+        </div>
+        <span class="role-arrow">›</span>
+      </button>
+
+      <button class="role-btn" onclick="superAForeman('fittest')" style="min-height:80px;">
+        <div class="role-icon" style="background:#F3E8FF;width:52px;height:52px;border-radius:12px;font-size:26px;">🫁</div>
+        <div style="flex:1;">
+          <div style="font-family:'Sora',sans-serif;font-size:17px;font-weight:800;">Programa de Respiradores</div>
+          <div style="font-size:13px;color:var(--text2);margin-top:2px;">Solicitar Fit Test para un trabajador</div>
+        </div>
+        <span class="role-arrow">›</span>
+      </button>
+
+      <button class="role-btn" onclick="superAForeman('incident')" style="min-height:80px;border-color:#F3B9B0;background:var(--swa-bg);">
+        <div class="role-icon" style="background:var(--swa-bg);width:52px;height:52px;border-radius:12px;font-size:26px;">🚨</div>
+        <div style="flex:1;">
+          <div style="font-family:'Sora',sans-serif;font-size:17px;font-weight:800;color:var(--swa-dark);">Reporte de Incidente</div>
+          <div style="font-size:13px;color:var(--swa-dark);opacity:0.8;margin-top:2px;">Reportar casi-accidente, lesión o daño a propiedad</div>
+        </div>
+        <span style="color:var(--swa);font-size:18px;font-weight:700;">›</span>
+      </button>
     </div>
   </div>
   <!-- Inspections sub-panel -->
@@ -1489,7 +1519,7 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
       </div>
     </div>
 
-    <button class="btn btn-ghost" onclick="show('s-login')" style="margin-top:8px;">← Salir</button>
+    <button class="btn btn-ghost" onclick="foremanSalir()" style="margin-top:8px;">← Salir</button>
     </div><!-- end foreman-ptp-panel -->
 
     <!-- FIT TEST PANEL -->
@@ -1548,7 +1578,7 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
         <div style="font-size:14px;color:var(--text2);margin-bottom:16px;">Briseida Estrada fue notificada y coordinará la cita en la clínica.</div>
         <div style="background:var(--bg);border-radius:var(--radius);padding:14px;font-size:13px;text-align:left;margin-bottom:16px;" id="fittest-resumen"></div>
         <button class="btn btn-primary" onclick="resetFitTest()">Hacer otra solicitud</button>
-        <button class="btn btn-ghost" onclick="show('s-login')" style="margin-top:8px;">Salir</button>
+        <button class="btn btn-ghost" onclick="foremanSalir()" style="margin-top:8px;">Salir</button>
       </div>
 
       <div style="margin-top:20px;">
@@ -1811,7 +1841,7 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
           <div style="font-family:'Sora',sans-serif;font-size:20px;font-weight:800;color:var(--success-text);margin-bottom:8px;">Reporte enviado</div>
           <div style="font-size:14px;color:var(--text2);margin-bottom:16px;">El reporte fue enviado a safety@oscarordunoinc.com y al superintendente. El PDF fue generado y descargado.</div>
           <button class="btn btn-primary" onclick="resetIncidentReport()">Nuevo reporte</button>
-          <button class="btn btn-ghost" onclick="foremanTab('ptp')" style="margin-top:8px;">Volver al portal</button>
+          <button class="btn btn-ghost" onclick="foremanBack()" style="margin-top:8px;">Volver al portal</button>
         </div>
 
         <button class="btn btn-ghost" onclick="irBack(5)" style="margin-top:8px;">← Atrás</button>
@@ -5094,15 +5124,38 @@ function foremanBack(){
     const el=document.getElementById(p);
     return el && el.style.display !== 'none';
   });
-  if(anyVisible){
+  if(anyVisible && currentRole!=='super'){
     // Go back to selection
     panels.forEach(p=>{const el=document.getElementById(p);if(el)el.style.display='none';});
     if(sel) sel.style.display='block';
     const bt=document.getElementById('foreman-bottom-title');
     if(bt) bt.textContent='Portal del Foreman';
   } else {
+    foremanSalir();
+  }
+}
+
+// El super abre los tabs del Foreman desde su propio panel
+function superAForeman(tab){
+  show('s-foreman');
+  foremanTab(tab);
+}
+
+// "Salir" de un tab del Foreman: el super vuelve a su panel, el foreman al inicio
+function foremanSalir(){
+  const sel=document.getElementById('foreman-selection-screen');
+  ['foreman-ptp-panel','foreman-fittest-panel','foreman-incident-panel'].forEach(p=>{const el=document.getElementById(p);if(el)el.style.display='none';});
+  if(sel) sel.style.display='block';
+  const bt=document.getElementById('foreman-bottom-title');
+  if(bt) bt.textContent='Portal del Foreman';
+  if(currentRole==='super'){
+    const ss=document.getElementById('super-selection-screen');
+    if(ss) ss.style.display='block';
+    show('s-super');
+  } else {
     show('s-login');
   }
+  window.scrollTo(0,0);
 }
 
 
