@@ -1981,8 +1981,8 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
       <button class="role-btn" onclick="safetyTab('certs')" style="min-height:80px;">
         <div class="role-icon" style="background:#E1F5EE;width:52px;height:52px;border-radius:12px;font-size:26px;">📄</div>
         <div style="flex:1;">
-          <div style="font-family:'Sora',sans-serif;font-size:17px;font-weight:800;">Subir Certificaciones</div>
-          <div style="font-size:13px;color:var(--text2);margin-top:2px;">Subir tarjetas de certificación a Drive</div>
+          <div style="font-family:'Sora',sans-serif;font-size:17px;font-weight:800;">Registrar certificados</div>
+          <div style="font-size:13px;color:var(--text2);margin-top:2px;">Uno o varios asistentes · se guarda en Drive y en el Training Log</div>
         </div>
         <span class="role-arrow">›</span>
       </button>
@@ -2073,67 +2073,40 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
     </div>
   </div>
 
-  <!-- CERTS UPLOAD PANEL -->
+  <!-- REGISTRAR CERTIFICADOS (uno o varios asistentes). Servidor: registrarCertificado() en Code.gs -->
   <div id="safety-certs-panel" style="display:none;">
     <div style="max-width:480px;margin:0 auto;padding:14px 16px 80px;">
-      <div style="font-family:'Sora',sans-serif;font-size:18px;font-weight:800;margin-bottom:4px;">📄 Subir Certificación</div>
-      <div style="font-size:12px;color:var(--text2);margin-bottom:16px;">La certificación se guardará en Drive en la carpeta Employee_Certifications</div>
+      <div style="font-family:'Sora',sans-serif;font-size:18px;font-weight:800;margin-bottom:4px;">📄 Registrar certificados</div>
+      <div style="font-size:12px;color:var(--text2);margin-bottom:16px;">Cada certificado se guarda en la carpeta del empleado en <strong>OOI Certificaciones</strong> con el nombre correcto, y la fecha se anota en el EMPLOYEE TRAINING LOG.</div>
 
       <div class="card">
-        <div class="sec-label">Información de la certificación</div>
-        <div class="field"><label>Empleado</label><select id="sc-empleado"><option value="">— Selecciona empleado —</option></select></div>
-        <div class="field">
-          <label>Tipo de certificación</label>
-          <select id="sc-tipo">
-            <option value="">— Selecciona tipo —</option>
-            <option value="Boom Lift">Boom Lift</option>
-            <option value="Scissor Lift">Scissor Lift</option>
-            <option value="Skytrack">Skytrack</option>
-            <option value="Forklift">Forklift</option>
-            <option value="Excavator">Excavator</option>
-            <option value="Confined Space">Confined Space</option>
-            <option value="Fall Protection">Fall Protection</option>
-            <option value="CPR First Aid">CPR First Aid</option>
-            <option value="OSHA 10">OSHA 10</option>
-            <option value="OSHA 30">OSHA 30</option>
-            <option value="Rigging and Signaling">Rigging and Signaling</option>
-            <option value="Silica">Silica</option>
-            <option value="Respiratory Protection">Respiratory Protection</option>
-            <option value="Flagger">Flagger</option>
-            <option value="LOTO">LOTO</option>
-            <option value="Grout Pump Operator">Grout Pump Operator</option>
-            <option value="Pier Drill">Pier Drill</option>
-            <option value="Welding and Cutting">Welding and Cutting</option>
-            <option value="Fire Extinguisher">Fire Extinguisher</option>
-            <option value="Otro">Otro</option>
-          </select>
-        </div>
-        <div class="field"><label>Fecha de la certificación</label><input type="date" id="sc-fecha"/></div>
-        <div class="field"><label>Fecha de vencimiento (si aplica)</label><input type="date" id="sc-vence"/></div>
-        <div class="field" style="margin-bottom:0;">
-          <label>Foto de la certificación / tarjeta</label>
-          <button class="photo-btn" onclick="triggerPhoto('sc-cert','sc-cert-input')">📸 Tomar foto o elegir de galería</button>
-          <input type="file" id="sc-cert-input" accept="image/*" style="display:none" onchange="handlePhotos(this,'sc-cert')" data-storekey="sc-cert"/>
-          <div class="photo-grid" id="sc-cert" style="margin-top:10px;"></div>
-        </div>
+        <div class="sec-label">1. Entrenamiento</div>
+        <div class="field"><label>Certificación</label><select id="rc-cert" onchange="rcActualizarVence()"></select></div>
+        <div class="field"><label>Fecha del entrenamiento</label><input type="date" id="rc-fecha" onchange="rcActualizarVence()"/></div>
+        <div id="rc-vence" style="display:none;font-size:13px;font-weight:600;color:#0F6E56;margin:-4px 0 12px;"></div>
+        <div class="field"><label>Instructor / evaluador (opcional)</label><input type="text" id="rc-instructor" placeholder="Nombre del instructor o proveedor" autocomplete="off"/></div>
+        <div class="field"><label>Proyecto / sitio (opcional)</label><select id="rc-proyecto"><option value="">— Selecciona proyecto —</option></select></div>
+        <div class="field" style="margin-bottom:0;"><label>Notas (opcional)</label><input type="text" id="rc-notas" placeholder="Ej. equipo JLG 600S, Cruz Roja" autocomplete="off"/></div>
       </div>
 
-      <div style="background:#E1F5EE;border:1px solid rgba(15,110,86,0.2);border-radius:var(--radius);padding:12px 14px;margin-bottom:14px;font-size:13px;color:#0F6E56;">
-        📁 El archivo se guardará en Drive con el nombre: <strong>[Empleado] - [Tipo] - [Año].jpg</strong>
+      <div class="card">
+        <div class="sec-label">2. Asistentes</div>
+        <div style="font-size:12px;color:var(--text2);margin-bottom:10px;">Agrega a cada persona que tomó el entrenamiento. A cada una le puedes adjuntar su certificado (foto o PDF).</div>
+        <input type="text" id="rc-buscar" placeholder="🔍 Buscar empleado para agregar..." oninput="rcRenderBusqueda()" autocomplete="off" style="width:100%;padding:10px 12px;border-radius:var(--radius);border:1.5px solid var(--border2);font-family:inherit;font-size:14px;background:var(--bg2);color:var(--text);box-sizing:border-box;"/>
+        <div id="rc-resultados"></div>
+        <div id="rc-seleccionados" style="margin-top:10px;"></div>
       </div>
 
-      <div class="submit-msg" id="sc-msg"></div>
-      <button class="btn" style="background:#0F6E56;color:white;border-color:#0F6E56;font-size:16px;min-height:54px;" onclick="submitCertUpload()">
-        📄 Subir Certificación a Drive
-      </button>
-
-      <div id="sc-confirmacion" style="display:none;background:var(--success-bg);border:1px solid var(--success-border);border-radius:var(--radius-lg);padding:24px;text-align:center;margin-top:14px;">
-        <div style="font-size:48px;margin-bottom:12px;">✅</div>
-        <div style="font-family:'Sora',sans-serif;font-size:20px;font-weight:800;color:var(--success-text);margin-bottom:8px;">Certificación subida</div>
-        <div style="font-size:14px;color:var(--text2);margin-bottom:16px;" id="sc-conf-detail"></div>
-        <button class="btn" style="background:#0F6E56;color:white;border-color:#0F6E56;" onclick="resetCertUpload()">Subir otra certificación</button>
-        <button class="btn btn-ghost" onclick="safetyBack()" style="margin-top:8px;">← Atrás</button>
+      <div class="card">
+        <div class="sec-label">3. Hoja de asistencia (opcional)</div>
+        <div style="font-size:12px;color:var(--text2);margin-bottom:10px;">Foto o PDF de la hoja firmada. Se guarda una sola vez en <strong>Hojas de asistencia</strong> y queda ligada a cada asistente.</div>
+        <label class="photo-btn" id="rc-hoja-btn" style="display:block;text-align:center;cursor:pointer;"><span id="rc-hoja-txt">📎 Adjuntar hoja de asistencia</span><input type="file" id="rc-hoja" accept="image/*,application/pdf" style="display:none" onchange="rcElegirHoja(this)"/></label>
+        <div id="rc-hoja-info" style="font-size:13px;margin-top:8px;"></div>
       </div>
+
+      <div class="submit-msg" id="rc-msg"></div>
+      <button class="btn" id="rc-btn" style="background:#0F6E56;color:white;border-color:#0F6E56;font-size:16px;min-height:54px;" onclick="rcGuardar()">💾 Guardar certificados</button>
+      <button class="btn btn-ghost" id="rc-nuevo" onclick="rcReiniciar()" style="display:none;margin-top:8px;">Registrar otro entrenamiento</button>
     </div>
   </div>
 </div>
@@ -3247,16 +3220,45 @@ function fbFieldArr(doc, field) {
 // ── DYNAMIC EMPLOYEE LIST ──
 var empleadosCargados = false;
 
-function fetchEmpleados() {
-  // Check sessionStorage first (instant)
+// Fuera filas de totales ("281") y repetidos. Los nombres sin coma se quedan: son empleados reales.
+function empleadosValidos(names) {
+  var vistos = {};
+  return (names || []).map(function(n){ return String(n || '').replace(/\s+/g, ' ').trim(); })
+    .filter(function(n){
+      if (!n || !/[A-Za-zÁÉÍÓÚÑáéíóúñ]/.test(n)) return false;
+      var k = n.toUpperCase();
+      if (vistos[k]) return false;
+      vistos[k] = true;
+      return true;
+    })
+    .sort(function(a, b){ return a.localeCompare(b); });
+}
+
+// Selectores de empleados que dependen del EMPLOYEE TRAINING LOG (no de la lista Operadores)
+function poblarSelectoresEmpleados() {
+  var lista = (listasGlobal.empleados && listasGlobal.empleados.length) ? listasGlobal.empleados : (listasGlobal.operadores || []);
+  [['fittest-trabajador', 'Selecciona trabajador'], ['tr-empleado', 'Selecciona empleado']].forEach(function(s) {
+    var el = document.getElementById(s[0]);
+    if (!el) return;
+    var actual = el.value;
+    buildDropdown(el, lista, s[1]);
+    if (actual) el.value = actual;
+  });
+}
+
+var EMPLEADOS_TTL_MS = 15 * 60 * 1000; // la lista se vuelve a pedir cada 15 min aunque la pestana siga abierta
+
+function fetchEmpleados(forzar) {
+  // Check sessionStorage first (instant), solo si es reciente
   try {
     var cached = sessionStorage.getItem('ooi_empleados');
-    if (cached) {
+    if (cached && !forzar) {
       var parsed = JSON.parse(cached);
-      if (parsed && parsed.length > 0) {
-        listasGlobal.empleados = parsed;
+      if (parsed && parsed.t && (Date.now() - parsed.t) < EMPLEADOS_TTL_MS && parsed.names && parsed.names.length > 0) {
+        listasGlobal.empleados = parsed.names;
         empleadosCargados = true;
-        return Promise.resolve(parsed);
+        poblarSelectoresEmpleados();
+        return Promise.resolve(parsed.names);
       }
     }
   } catch(e) {}
@@ -3267,10 +3269,11 @@ function fetchEmpleados() {
       if (doc.fields && doc.fields.names) {
         var vals = doc.fields.names.arrayValue && doc.fields.names.arrayValue.values;
         if (vals && vals.length > 0) {
-          var names = vals.map(function(v) { return v.stringValue || ''; }).filter(Boolean).sort();
+          var names = empleadosValidos(vals.map(function(v) { return v.stringValue || ''; }));
           listasGlobal.empleados = names;
           empleadosCargados = true;
-          try { sessionStorage.setItem('ooi_empleados', JSON.stringify(names)); } catch(e) {}
+          try { sessionStorage.setItem('ooi_empleados', JSON.stringify({t: Date.now(), names: names})); } catch(e) {}
+          poblarSelectoresEmpleados();
           return names;
         }
       }
@@ -3396,7 +3399,7 @@ function getEmpleadosList() {
 function cargarListas(retry){
   if(retry===undefined) retry=0;
   // Start employee fetch in parallel (non-blocking)
-  if(!empleadosCargados) fetchEmpleados();
+  fetchEmpleados(); // usa la cache si tiene menos de 15 min
 
   // Load listas from Firebase (fast, direct)
   fbGet('meta/listas')
@@ -3422,7 +3425,8 @@ function cargarListas(retry){
           superintendentes: getArr('superintendentes'),
           proyectos:        getArr('proyectos'),
           emailsForeman:    getMap('emailsForeman'),
-          emailsSuper:      getMap('emailsSuper')
+          emailsSuper:      getMap('emailsSuper'),
+          empleados:        listasGlobal.empleados || []  // no perder la lista del Training Log si ya llego
         };
         poblarTodosLosDropdowns(listasGlobal);
       } else if(retry<2){
@@ -3436,6 +3440,7 @@ function cargarListas(retry){
           .then(function(res){ return res.json(); })
           .then(function(json){
             if(json.listas){
+              json.listas.empleados = listasGlobal.empleados || [];
               listasGlobal=json.listas;
               poblarTodosLosDropdowns(json.listas);
             }
@@ -3469,12 +3474,13 @@ function poblarTodosLosDropdowns(listas){
   buildDropdown(document.getElementById('sct-sup'), listas.foremen||[], 'Selecciona foreman');
 
   // Fit test foreman
-  buildDropdown(document.getElementById('fittest-trabajador'), listas.operadores||[], 'Selecciona trabajador');
   buildDropdown(document.getElementById('fittest-foreman'), listas.foremen||[], 'Selecciona foreman');
 
   // Training requests
   buildDropdown(document.getElementById('tr-super'), listas.superintendentes||[], 'Selecciona superintendente');
-  buildDropdown(document.getElementById('tr-empleado'), listas.operadores||[], 'Selecciona empleado');
+
+  // Trabajador del Fit Test y empleado de Solicitar Entrenamiento: salen del EMPLOYEE TRAINING LOG
+  poblarSelectoresEmpleados();
 
   // Forms / Field test
   buildDropdown(document.getElementById('ft-operador'), listas.operadores||[], 'Selecciona operador');
@@ -4317,6 +4323,7 @@ function superTab(tab){
     var el = document.getElementById('super-training-panel');
     if(el) el.style.display = 'block';
     loadTrainingRequests();
+    fetchEmpleados(); // refresca la lista si ya tiene mas de 15 min
   }
 
   window.scrollTo(0, 0);
@@ -4354,6 +4361,7 @@ function foremanTab(tab){
 
 
 function initFitTest(){
+  fetchEmpleados(); // refresca la lista si ya tiene mas de 15 min
   const today = new Date().toISOString().split('T')[0];
   const fd = document.getElementById('fittest-fecha');
   if(fd) fd.value = today;
@@ -5174,8 +5182,6 @@ function initSafety(){
   const today = new Date().toISOString().split('T')[0];
   const fd = document.getElementById('sa-fecha');
   if(fd) fd.value = today;
-  const scd = document.getElementById('sc-fecha');
-  if(scd) scd.value = today;
   if(listasGlobal.operadores && listasGlobal.operadores.length > 0){
     poblarTodosLosDropdowns(listasGlobal);
     saEmployees = getEmpleadosList();
@@ -5230,19 +5236,9 @@ function safetyTab(tab){
       fetchEmpleados().then(function(names){ saEmployees = names; renderEmployeeList(); });
     }
   } else if(tab==='certs'){
-    if(bt) bt.textContent='📄 Subir Certificaciones';
+    if(bt) bt.textContent='📄 Registrar certificados';
     document.getElementById('safety-certs-panel').style.display='block';
-    // Always fetch from Firebase and rebuild when ready
-    fetchEmpleados().then(function(names) {
-      buildDropdown(document.getElementById('sc-empleado'), names, 'Selecciona empleado');
-    });
-    // Show immediately what we have while loading
-    var certEmps = getEmpleadosList();
-    if (certEmps.length > 0) {
-      buildDropdown(document.getElementById('sc-empleado'), certEmps, 'Selecciona empleado');
-    }
-    if(!photoStore['sc-cert']) photoStore['sc-cert']=[];
-    renderPhotoGrid('sc-cert');
+    rcIniciar();
   }
   window.scrollTo(0,0);
 }
@@ -5443,58 +5439,319 @@ function saGenerarPDF(data){
   } catch(err){ console.log('PDF error:', err); }
 }
 
-async function submitCertUpload(){
-  const empleado = document.getElementById('sc-empleado').value;
-  const tipo = document.getElementById('sc-tipo').value;
-  const fecha = document.getElementById('sc-fecha').value;
+// ── REGISTRAR CERTIFICADOS (Safety) ──
+// Un envío por asistente (registrar_cert / accion 'empleado'); si hay hoja de asistencia, va antes (accion 'hoja').
+// El servidor guarda el archivo en OOI Certificaciones/Empleados/<OOID - NOMBRE>/CODIGO_AAAA-MM-DD.ext,
+// escribe la fecha en la matriz del EMPLOYEE TRAINING LOG y deja el historial en la pestaña Registros.
+// Misma lista que CATALOGO_CERT en Code.gs: [código, nombre, vigencia en meses (null = no vence)].
+const CATALOGO_CERT_APP = [
+  ['NEWHIRE','New Hire',null], ['OSHA10','OSHA 10',null], ['OSHA30','OSHA 30',null],
+  ['EXCAV','Excavations & Trenches',36], ['CPR','CPR / First Aid',24], ['LOTO','LOTO',36],
+  ['SOILNAIL','Soilnail Drilling - Clase',36], ['SOILNAIL-EVAL','Soilnail Drilling - Evaluación de campo',36],
+  ['TIRE','Tire Service Equipment',36],
+  ['PIERDRILL','Pier Drill - Clase',36], ['PIERDRILL-EVAL','Pier Drill - Evaluación de campo',36],
+  ['FALLPROT','Fall Protection',36],
+  ['BOOM','Boom & Scissor Lift - Clase',36], ['BOOM-EVAL','Boom & Scissor Lift - Evaluación de campo',36],
+  ['RTFL','RTFL - Clase',36], ['RTFL-EVAL','RTFL - Evaluación de campo',36],
+  ['HEAVYEQ','Heavy Equipment - Clase',36], ['HEAVYEQ-EVAL','Heavy Equipment - Evaluación de campo',36],
+  ['DOOSAN','Doosan-Develon (práctica)',36],
+  ['FORKLIFT','Warehouse Forklift - Clase',36], ['FORKLIFT-EVAL','Warehouse Forklift - Prueba de campo',36],
+  ['DRIVER','Driver Safety / Defensive Driving (Amerisure)',36], ['FLEET','Fleet & Driver Safety',36],
+  ['GROUT','Grout Pump Operator',36], ['FLAGGER','Flagger',36], ['SHOTCRETE','Shotcrete Crew Safety',36],
+  ['RIGGING','Rigging & Signaling',36], ['RIGGING-ONLY','Rigging Only',36], ['CRANE','Overhead Crane',36],
+  ['SILICA','Silica',36], ['FIREEXT','Fire Extinguisher',12], ['WELDING','3F & 4F SMAW Welding',36],
+  ['CONFINED','Confined Space',36], ['RESP','Respiratory Protection',12]
+];
+const RC_MAX_BYTES = 10 * 1024 * 1024;
+const RC_MIMES = ['application/pdf','image/jpeg','image/png','image/heic','image/heif','image/webp'];
+let rc = null;
 
-  if(!empleado){alert('Por favor selecciona el empleado.');return;}
-  if(!tipo){alert('Por favor selecciona el tipo de certificación.');return;}
-  if(!fecha){alert('Por favor selecciona la fecha.');return;}
+function rcNuevoEstado(){ return {sel:[], hoja:null, hojaUrl:'', claseId:'', n:0, enviando:false, bloqueado:false, res:[]}; }
+function rcEsc(s){ return String(s==null?'':s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function rcHoy(){ const d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+function rcFechaUS(iso){ const p=String(iso||'').split('-'); return p.length===3 ? (+p[1])+'/'+(+p[2])+'/'+p[0] : String(iso||''); }
+function rcNorm(s){ return String(s||'').normalize('NFD').replace(/\p{M}/gu,'').toLowerCase(); }
+function rcTam(b){ return b>=1048576 ? (b/1048576).toFixed(1)+' MB' : Math.max(1,Math.round(b/1024))+' KB'; }
 
-  const allPhotos = photoStore['sc-cert']||[];
-  if(allPhotos.some(p=>p.uploading)){alert('⏳ La foto se está subiendo, espera un momento...');return;}
-  const certUrls = allPhotos.map(p=>p.url).filter(Boolean);
+function rcIniciar(){
+  if(!rc) rc = rcNuevoEstado();
+  const sel = document.getElementById('rc-cert');
+  if(sel.options.length<2){
+    sel.innerHTML = '<option value="">— Selecciona certificación —</option>' +
+      CATALOGO_CERT_APP.map(c=>'<option value="'+c[0]+'">'+rcEsc(c[1])+'</option>').join('');
+  }
+  const f = document.getElementById('rc-fecha');
+  if(!f.value) f.value = rcHoy();
+  const proy = document.getElementById('rc-proyecto'), proyActual = proy.value;
+  buildDropdown(proy, listasGlobal.proyectos||[], 'Selecciona proyecto');
+  if(proyActual) proy.value = proyActual;
+  if(!empleadosCargados) fetchEmpleados().then(()=>rcRenderBusqueda());
+  rcActualizarVence();
+  rcRender();
+}
 
-  const payload = {
-    tipo: 'cert_upload',
-    id: Date.now(),
-    empleado, tipoEntrenamiento: tipo,
-    fecha,
-    fechaVence: document.getElementById('sc-vence').value||'',
-    certUrls
+// Desde el perfil del empleado (Gestionar certificaciones): abre el formulario con esa persona agregada
+function rcAbrirCon(nombre){
+  show('s-safety');
+  safetyTab('certs');
+  if(nombre) rcAgregar(nombre);
+}
+
+function rcCertSel(){ const v=document.getElementById('rc-cert').value; return CATALOGO_CERT_APP.find(c=>c[0]===v)||null; }
+
+function rcActualizarVence(){
+  const c = rcCertSel(), fecha = document.getElementById('rc-fecha').value, el = document.getElementById('rc-vence');
+  if(!c || !fecha){ el.style.display='none'; return; }
+  if(!c[2]){ el.textContent='No vence'; el.style.display='block'; return; }
+  const p = fecha.split('-').map(Number);
+  const v = new Date(Date.UTC(p[0], p[1]-1+c[2], p[2])).toISOString().slice(0,10);
+  el.textContent = 'Vence: '+rcFechaUS(v)+' ('+c[2]+' meses)';
+  el.style.display='block';
+}
+
+function rcRenderBusqueda(){
+  const out = document.getElementById('rc-resultados');
+  const q = rcNorm(document.getElementById('rc-buscar').value).trim();
+  if(!q){ out.innerHTML=''; rc.res=[]; return; }
+  const ya = {}; rc.sel.forEach(s=>{ ya[s.nombre.toUpperCase()]=1; });
+  const partes = q.split(/[\s,]+/).filter(Boolean);
+  rc.res = getEmpleadosList().filter(n=>!ya[n.toUpperCase()] && partes.every(p=>rcNorm(n).includes(p))).slice(0,8);
+  out.innerHTML = rc.res.length ? rc.res.map((n,i)=>
+    '<div onclick="rcAgregarRes('+i+')" style="display:flex;align-items:center;gap:10px;padding:10px 4px;border-bottom:0.5px solid var(--border);cursor:pointer;">'+
+    '<span style="color:#0F6E56;font-weight:700;font-size:18px;">+</span><span style="font-size:14px;">'+rcEsc(n)+'</span></div>').join('')
+    : '<div style="padding:10px 4px;font-size:13px;color:var(--text2);">No encontré a nadie con ese nombre en el Training Log.</div>';
+}
+
+function rcAgregarRes(i){
+  if(rc.res[i]) rcAgregar(rc.res[i]);
+  document.getElementById('rc-buscar').value='';
+  rcRenderBusqueda();
+}
+
+function rcAgregar(nombre){
+  if(!rc) rc = rcNuevoEstado();
+  if(rc.sel.some(s=>s.nombre.toUpperCase()===String(nombre).toUpperCase())) return;
+  rc.sel.push({nombre:String(nombre), archivo:null, regId:'', ok:false, error:'', r:null});
+  rcRender();
+}
+
+function rcQuitar(i){
+  if(rc.enviando || rc.sel[i].ok) return;
+  rc.sel.splice(i,1);
+  rcRender();
+}
+
+function rcElegirArchivo(i, input){
+  const f = input.files && input.files[0];
+  input.value='';
+  if(!f || !rc.sel[i] || rc.sel[i].ok) return;
+  rc.sel[i].archivo = f;
+  rc.sel[i].error = '';
+  rcRender();
+}
+
+function rcQuitarArchivo(i){
+  if(rc.enviando || !rc.sel[i] || rc.sel[i].ok) return;
+  rc.sel[i].archivo = null;
+  rcRender();
+}
+
+function rcElegirHoja(input){
+  const f = input.files && input.files[0];
+  input.value='';
+  if(!f || rc.hojaUrl) return;
+  rc.hoja = f;
+  rcRender();
+}
+
+function rcQuitarHoja(){
+  if(rc.enviando || rc.hojaUrl) return;
+  rc.hoja = null;
+  rcRender();
+}
+
+function rcRender(){
+  const cont = document.getElementById('rc-seleccionados');
+  if(!rc.sel.length){
+    cont.innerHTML = '<div style="padding:12px 4px;font-size:13px;color:var(--text2);text-align:center;">Todavía no hay asistentes.</div>';
+  } else {
+    cont.innerHTML = '<div style="font-size:12px;color:var(--text2);margin-bottom:6px;">'+rc.sel.length+' asistente'+(rc.sel.length!==1?'s':'')+'</div>' +
+      rc.sel.map((s,i)=>{
+        const icono = s.ok ? '✅' : s.error ? '⚠️' : s.enviando ? '⏳' : '👤';
+        let h = '<div style="border:1px solid '+(s.error?'var(--danger-border)':'var(--border)')+';border-radius:8px;padding:10px 12px;margin-bottom:8px;background:var(--bg);">';
+        h += '<div style="display:flex;align-items:center;gap:8px;"><div style="flex:1;font-weight:600;font-size:14px;">'+icono+' '+rcEsc(s.nombre)+'</div>';
+        if(!s.ok && !rc.enviando) h += '<button onclick="rcQuitar('+i+')" title="Quitar" style="border:none;background:none;color:var(--text2);font-size:18px;cursor:pointer;padding:0 4px;">✕</button>';
+        h += '</div>';
+        if(s.ok){
+          const r = s.r || {};
+          h += '<div style="font-size:12px;color:#0F6E56;margin-top:4px;">Matriz: '+rcEsc(r.matriz||'')+(r.vence?' · Vence '+rcEsc(rcFechaUS(r.vence)):'')+'</div>';
+          const links = [];
+          if(r.documentoUrl) links.push('<a href="'+rcEsc(r.documentoUrl)+'" target="_blank" rel="noopener" style="color:#E8611A;font-weight:600;text-decoration:none;">📄 '+rcEsc(r.documentoNombre||'Ver documento')+'</a>');
+          if(r.carpetaUrl) links.push('<a href="'+rcEsc(r.carpetaUrl)+'" target="_blank" rel="noopener" style="color:#E8611A;font-weight:600;text-decoration:none;">📁 Carpeta</a>');
+          if(links.length) h += '<div style="font-size:12px;margin-top:4px;display:flex;gap:14px;flex-wrap:wrap;">'+links.join('')+'</div>';
+        } else {
+          h += '<div style="display:flex;align-items:center;gap:10px;margin-top:6px;flex-wrap:wrap;">';
+          if(!rc.enviando) h += '<label style="font-size:12px;font-weight:700;color:#0F6E56;border:1px solid #0F6E56;border-radius:99px;padding:4px 10px;cursor:pointer;">📎 '+(s.archivo?'Cambiar':'Adjuntar certificado')+
+            '<input type="file" accept="image/*,application/pdf" style="display:none" onchange="rcElegirArchivo('+i+',this)"/></label>';
+          h += s.archivo
+            ? '<span style="font-size:12px;color:var(--text);">'+rcEsc(s.archivo.name)+' · '+rcTam(s.archivo.size)+(rc.enviando?'':' <a href="javascript:void(0)" onclick="rcQuitarArchivo('+i+')" style="color:var(--text2);">quitar</a>')+'</span>'
+            : '<span style="font-size:12px;color:var(--text2);">Sin certificado: solo se anota la fecha</span>';
+          h += '</div>';
+          if(s.error) h += '<div style="font-size:12px;color:var(--danger-text);margin-top:6px;">'+rcEsc(s.error)+'</div>';
+        }
+        return h + '</div>';
+      }).join('');
+  }
+
+  const info = document.getElementById('rc-hoja-info'), btnHoja = document.getElementById('rc-hoja-btn');
+  if(rc.hojaUrl){
+    info.innerHTML = '✅ Guardada: <a href="'+rcEsc(rc.hojaUrl)+'" target="_blank" rel="noopener" style="color:#E8611A;font-weight:600;">ver hoja de asistencia</a>';
+    btnHoja.style.display='none';
+  } else {
+    // Una vez guardado alguien, la hoja ya no se puede agregar: no quedaría ligada a los ya guardados
+    const fija = rc.enviando || rc.bloqueado;
+    info.innerHTML = rc.hoja ? rcEsc(rc.hoja.name)+' · '+rcTam(rc.hoja.size)+(fija?'':' <a href="javascript:void(0)" onclick="rcQuitarHoja()" style="color:var(--text2);">quitar</a>')
+      : (rc.bloqueado ? '<span style="color:var(--text2);">Sin hoja de asistencia.</span>' : '');
+    btnHoja.style.display = fija ? 'none' : 'block';
+    document.getElementById('rc-hoja-txt').textContent = rc.hoja ? '📎 Cambiar hoja de asistencia' : '📎 Adjuntar hoja de asistencia';
+  }
+
+  ['rc-cert','rc-fecha','rc-instructor','rc-proyecto','rc-notas'].forEach(id=>{ document.getElementById(id).disabled = rc.bloqueado || rc.enviando; });
+  document.getElementById('rc-buscar').disabled = rc.enviando;
+
+  const pendientes = rc.sel.filter(s=>!s.ok).length, btn = document.getElementById('rc-btn');
+  btn.disabled = rc.enviando;
+  btn.style.display = (rc.bloqueado && !pendientes) ? 'none' : 'block';
+  btn.textContent = rc.enviando ? '⏳ Guardando...' : rc.sel.some(s=>s.error) ? '🔁 Reintentar los que faltan' : '💾 Guardar certificados';
+  document.getElementById('rc-nuevo').style.display = (rc.bloqueado && !rc.enviando) ? 'block' : 'none';
+}
+
+function rcMsg(texto, tipo){
+  const m = document.getElementById('rc-msg');
+  if(!texto){ m.style.display='none'; return; }
+  m.style.display='block';
+  m.textContent = texto;
+  m.style.background = tipo==='error' ? 'var(--danger-bg)' : tipo==='ok' ? 'var(--success-bg)' : 'var(--info-bg)';
+  m.style.color = tipo==='error' ? 'var(--danger-text)' : tipo==='ok' ? 'var(--success-text)' : 'var(--info-text)';
+}
+
+function rcLeerBase64(blob){
+  return new Promise((ok,mal)=>{
+    const r = new FileReader();
+    r.onload = ()=>ok(String(r.result).split(',')[1]||'');
+    r.onerror = ()=>mal(new Error('No pude leer el archivo'));
+    r.readAsDataURL(blob);
+  });
+}
+
+function rcMime(file){
+  if(file.type) return file.type.toLowerCase();
+  const ext = (String(file.name).split('.').pop()||'').toLowerCase();
+  return {pdf:'application/pdf',jpg:'image/jpeg',jpeg:'image/jpeg',png:'image/png',heic:'image/heic',heif:'image/heif',webp:'image/webp'}[ext]||'';
+}
+
+// Fotos: se reducen a 2000 px en JPEG para que suban rápido desde la obra. Si no se puede (HEIC), va el original.
+function rcComprimir(file, mime){
+  return new Promise((ok,mal)=>{
+    const url = URL.createObjectURL(file), img = new Image();
+    img.onload = ()=>{
+      URL.revokeObjectURL(url);
+      const k = Math.min(1, 2000/Math.max(img.naturalWidth, img.naturalHeight));
+      const w = Math.round(img.naturalWidth*k), h = Math.round(img.naturalHeight*k);
+      const c = document.createElement('canvas'); c.width=w; c.height=h;
+      const ctx = c.getContext('2d'); ctx.fillStyle='#fff'; ctx.fillRect(0,0,w,h); ctx.drawImage(img,0,0,w,h);
+      c.toBlob(b=>{
+        if(!b) return mal(new Error('canvas'));
+        if(mime==='image/jpeg' && b.size>=file.size) return ok(null);   // el original ya era más liviano
+        rcLeerBase64(b).then(b64=>ok({nombre:String(file.name).replace(/\.[^.]+$/,'')+'.jpg', mime:'image/jpeg', base64:b64}), mal);
+      }, 'image/jpeg', 0.85);
+    };
+    img.onerror = ()=>{ URL.revokeObjectURL(url); mal(new Error('img')); };
+    img.src = url;
+  });
+}
+
+async function rcPrepararArchivo(file){
+  const mime = rcMime(file);
+  if(RC_MIMES.indexOf(mime)<0) throw new Error('"'+file.name+'" no es foto ni PDF.');
+  if(['image/jpeg','image/png','image/webp'].indexOf(mime)>=0){
+    try{ const j = await rcComprimir(file, mime); if(j) return j; }catch(e){}
+  }
+  if(file.size > RC_MAX_BYTES) throw new Error('"'+file.name+'" pesa más de 10 MB.');
+  return {nombre:file.name, mime:mime, base64: await rcLeerBase64(file)};
+}
+
+async function rcGuardar(){
+  if(rc.enviando) return;
+  const c = rcCertSel(), fecha = document.getElementById('rc-fecha').value;
+  if(!c){ alert('Selecciona la certificación.'); return; }
+  if(!fecha){ alert('Pon la fecha del entrenamiento.'); return; }
+  if(fecha > rcHoy()){ alert('La fecha no puede ser futura.'); return; }
+  if(!rc.sel.length){ alert('Agrega al menos un asistente.'); return; }
+  const pend = rc.sel.filter(s=>!s.ok);
+  if(!pend.length) return;
+  if(!rc.claseId) rc.claseId = 'R'+Date.now().toString(36).toUpperCase();
+
+  const comun = {
+    tipo:'registrar_cert', codigo:c[0], fecha:fecha,
+    instructor: document.getElementById('rc-instructor').value.trim(),
+    proyecto: document.getElementById('rc-proyecto').value,
+    notas: document.getElementById('rc-notas').value.trim()
   };
-
-  const msg = document.getElementById('sc-msg');
-  msg.style.display='block';
-  msg.textContent='⏳ Subiendo certificación...';
-  msg.style.background='var(--info-bg)';msg.style.color='var(--info-text)';
-
+  rc.enviando = true;
+  rc.sel.forEach(s=>{ if(!s.ok) s.error=''; });
+  rcRender();
   try{
-    await enviarAScript(payload);
-    msg.style.display='none';
-    document.getElementById('sc-conf-detail').innerHTML=
-      '<strong>'+empleado+'</strong><br>'+tipo+'<br>Fecha: '+fecha+
-      (certUrls.length?'<br>✅ Foto subida':'<br>⚠ Sin foto');
-    document.getElementById('sc-confirmacion').style.display='block';
-  }catch(err){
-    msg.textContent='⚠ Error de conexión';
-    msg.style.background='var(--danger-bg)';msg.style.color='var(--danger-text)';
+    if(rc.hoja && !rc.hojaUrl){
+      rcMsg('⏳ Subiendo la hoja de asistencia...');
+      const a = await rcPrepararArchivo(rc.hoja);
+      const r = await enviarAScript(Object.assign({}, comun, {accion:'hoja', archivo:a, asistentes:rc.sel.map(s=>s.nombre)}));
+      rc.hojaUrl = r.url || '';
+      rc.bloqueado = true;
+    }
+    let i = 0;
+    for(const s of rc.sel){
+      if(s.ok) continue;
+      i++;
+      rcMsg('⏳ Guardando '+i+' de '+pend.length+': '+s.nombre);
+      if(!s.regId) s.regId = rc.claseId+'-'+(++rc.n);
+      s.enviando = true; rcRender();
+      try{
+        const a = s.archivo ? await rcPrepararArchivo(s.archivo) : null;
+        const r = await enviarAScript(Object.assign({}, comun, {accion:'empleado', registroId:s.regId, empleado:s.nombre, archivo:a, hojaUrl:rc.hojaUrl}));
+        s.ok = true; s.r = r; rc.bloqueado = true;
+      }catch(e){
+        if(e.message==='auth') throw e;
+        s.error = /HTTP|fetch|network/i.test(e.message) ? 'Error de conexión. Vuelve a intentar.' : e.message;
+      }finally{ s.enviando = false; rcRender(); }
+    }
+    const malos = rc.sel.filter(s=>!s.ok).length, buenos = rc.sel.length - malos;
+    if(malos) rcMsg('⚠ Se guardaron '+buenos+' de '+rc.sel.length+'. Revisa los marcados con ⚠ y toca "Reintentar".', 'error');
+    else rcMsg('✅ Listo: '+buenos+' certificado'+(buenos!==1?'s':'')+' guardado'+(buenos!==1?'s':'')+'.', 'ok');
+    try { sessionStorage.removeItem('ooi_certs'); } catch(e){}
+  }catch(e){
+    if(e.message==='auth') return;   // sesionExpirada() ya llevó al inicio de sesión
+    rcMsg('⚠ '+(/HTTP|fetch|network/i.test(e.message) ? 'Error de conexión. Vuelve a intentar.' : e.message), 'error');
+  }finally{
+    rc.enviando = false;
+    rcRender();
+    window.scrollTo(0, document.body.scrollHeight);
   }
 }
 
-function resetCertUpload(){
-  document.getElementById('sc-empleado').selectedIndex=0;
-  document.getElementById('sc-tipo').selectedIndex=0;
-  document.getElementById('sc-vence').value='';
-  photoStore['sc-cert']=[];
-  renderPhotoGrid('sc-cert');
-  const today=new Date().toISOString().split('T')[0];
-  document.getElementById('sc-fecha').value=today;
-  document.getElementById('sc-msg').style.display='none';
-  document.getElementById('sc-confirmacion').style.display='none';
+function rcReiniciar(){
+  if(rc && rc.enviando) return;
+  rc = rcNuevoEstado();
+  ['rc-instructor','rc-notas','rc-buscar'].forEach(id=>{ document.getElementById(id).value=''; });
+  document.getElementById('rc-cert').value='';
+  document.getElementById('rc-proyecto').value='';
+  document.getElementById('rc-fecha').value = rcHoy();
+  document.getElementById('rc-resultados').innerHTML='';
+  rcMsg('');
+  rcActualizarVence();
+  rcRender();
+  window.scrollTo(0,0);
 }
-
 
 // ── SIGNATURE PADS ──
 const sigPads = {};
@@ -5720,7 +5977,6 @@ function showCerts(safetyAccess) {
   document.getElementById('certs-dashboard').style.display = 'block';
   document.getElementById('certs-profile').style.display = 'none';
   document.getElementById('certs-add-employee').style.display = 'none';
-  document.getElementById('certs-add-cert').style.display = 'none';
   // Show add employee button for Safety
   document.getElementById('cert-add-emp-btn').style.display = isSafetyUser ? 'block' : 'none';
   certsPopulateCertFilter();
@@ -5730,14 +5986,9 @@ function showCerts(safetyAccess) {
 function certsBack() {
   var profile = document.getElementById('certs-profile');
   var addEmp  = document.getElementById('certs-add-employee');
-  var addCert = document.getElementById('certs-add-cert');
   var dash    = document.getElementById('certs-dashboard');
 
-  if (addCert.style.display !== 'none') {
-    addCert.style.display = 'none';
-    profile.style.display = 'block';
-    document.getElementById('certs-bottom-title').textContent = certCurrentEmp ? certCurrentEmp.name : 'Certificaciones';
-  } else if (addEmp.style.display !== 'none') {
+  if (addEmp.style.display !== 'none') {
     addEmp.style.display = 'none';
     dash.style.display = 'block';
     document.getElementById('certs-bottom-title').textContent = '📄 Certificaciones';
@@ -6062,118 +6313,9 @@ function certsSubmitNewEmployee() {
     .finally(function(){ btn.disabled=false; btn.textContent='Crear Perfil'; });
 }
 
-// ── Add Certification ──
+// ── Agregar certificación: usa el formulario de Safety > Registrar certificados ──
 function certsShowUpload() {
-  document.getElementById('certs-profile').style.display='none';
-  document.getElementById('certs-add-cert').style.display='block';
-  document.getElementById('certs-bottom-title').textContent='Agregar Certificación';
-  document.getElementById('ac-emp-name-hdr').textContent = certCurrentEmp ? certCurrentEmp.name : '';
-  // Populate cert type dropdown
-  var sel = document.getElementById('ac-cert-type');
-  sel.innerHTML = '<option value="">— Selecciona certificación —</option>';
-  OOI_CERTS_CLIENT.forEach(function(c){
-    var opt = document.createElement('option');
-    opt.value = c.name;
-    opt.textContent = c.name + (c.expYears ? ' (' + c.expYears + ' años)' : ' — No expira');
-    sel.appendChild(opt);
-  });
-  // Photo preview
-  document.getElementById('ac-foto').addEventListener('change', function(e){
-    var file = e.target.files[0];
-    if (file) {
-      var reader = new FileReader();
-      reader.onload = function(ev){
-        document.getElementById('ac-preview-img').src = ev.target.result;
-        document.getElementById('ac-preview').style.display='block';
-      };
-      reader.readAsDataURL(file);
-    }
-  });
-  window.scrollTo(0,0);
-}
-
-function acCertChanged() {
-  var certName = document.getElementById('ac-cert-type').value;
-  var certDate = document.getElementById('ac-cert-date').value;
-  var certDef = OOI_CERTS_CLIENT.find(function(c){ return c.name===certName; });
-  if (certDef && certDef.expYears && certDate) {
-    var d = new Date(certDate);
-    d.setFullYear(d.getFullYear() + certDef.expYears);
-    document.getElementById('ac-cert-expiry').value = d.toISOString().substring(0,10);
-    document.getElementById('ac-expiry-field').style.display='block';
-  } else if (certDef && !certDef.expYears) {
-    document.getElementById('ac-cert-expiry').value = 'No expira';
-    document.getElementById('ac-expiry-field').style.display='block';
-  } else {
-    document.getElementById('ac-expiry-field').style.display='none';
-  }
-}
-
-function certsSubmitCert() {
-  var certName   = document.getElementById('ac-cert-type').value;
-  var certDate   = document.getElementById('ac-cert-date').value;
-  var instructor = document.getElementById('ac-instructor').value.trim();
-  var notas      = document.getElementById('ac-notas').value.trim();
-  var fotoInput  = document.getElementById('ac-foto');
-
-  if (!certName) { alert('Selecciona el tipo de certificación.'); return; }
-  if (!certDate) { alert('Ingresa la fecha del entrenamiento.'); return; }
-  if (!certCurrentEmp) { alert('Error: sin empleado seleccionado.'); return; }
-
-  var btn = document.querySelector('#certs-add-cert .btn-primary');
-  btn.disabled=true; btn.textContent='Guardando...';
-
-  function submitWithPhoto(photoUrl) {
-    var payload = {
-      tipo: 'add_cert',
-      docId: certCurrentEmp.docId,
-      empName: certCurrentEmp.name,
-      certName: certName,
-      certDate: certDate,
-      instructor: instructor,
-      notas: notas,
-      photoUrl: photoUrl || '',
-      addedBy: 'Safety'
-    };
-
-    fetch(SCRIPT_URL, {method:'POST', body:JSON.stringify(Object.assign({token:sesion.token}, payload))})
-      .then(function(r){ return r.json(); })
-      .then(function(res){
-        if (res.status==='ok') {
-          alert('✅ Certificación guardada. Vence: ' + (res.expires||'No expira'));
-          try { sessionStorage.removeItem('ooi_certs'); } catch(e){}
-          // Go back to profile
-          document.getElementById('certs-add-cert').style.display='none';
-          document.getElementById('certs-profile').style.display='block';
-          // Reload employee data
-          certsLoadData();
-        } else {
-          alert('Error: ' + (res.message||'Intenta de nuevo.'));
-        }
-      })
-      .catch(function(){ alert('Error de conexión.'); })
-      .finally(function(){ btn.disabled=false; btn.textContent='Guardar Certificación'; });
-  }
-
-  // Upload photo to imgbb if provided
-  if (fotoInput.files && fotoInput.files[0]) {
-    var reader = new FileReader();
-    reader.onload = function(ev) {
-      var b64 = ev.target.result.split(',')[1];
-      var fd = new FormData();
-      fd.append('image', b64);
-      fetch('https://api.imgbb.com/1/upload?key=' + IMGBB_KEY, {method:'POST', body:fd})
-        .then(function(r){ return r.json(); })
-        .then(function(res){
-          var url = res.data && res.data.url ? res.data.url : '';
-          submitWithPhoto(url);
-        })
-        .catch(function(){ submitWithPhoto(''); });
-    };
-    reader.readAsDataURL(fotoInput.files[0]);
-  } else {
-    submitWithPhoto('');
-  }
+  rcAbrirCon(certCurrentEmp ? certCurrentEmp.name : '');
 }
 
 
@@ -6286,39 +6428,6 @@ function certsSubmitCert() {
         <div class="field" style="margin-bottom:0;"><label>Notas</label><textarea id="nce-notas" rows="2" placeholder="Información adicional..."></textarea></div>
       </div>
       <button class="btn btn-primary" onclick="certsSubmitNewEmployee()" style="width:100%;margin-top:14px;">Crear Perfil</button>
-    </div>
-  </div>
-
-  <!-- ADD CERTIFICATION FORM (Safety only) -->
-  <div id="certs-add-cert" style="display:none;">
-    <div style="height:5px;background:linear-gradient(90deg,#0b0b0c 55%,#E8611A 55%);position:sticky;top:0;z-index:10;"></div>
-    <div style="background:#0b0b0c;padding:16px;position:sticky;top:5px;z-index:9;">
-      <div style="font-family:'Sora',sans-serif;font-size:18px;font-weight:800;color:#fff;">Agregar Certificación</div>
-      <div style="font-size:11px;color:rgba(255,255,255,0.45);" id="ac-emp-name-hdr"></div>
-    </div>
-    <div style="max-width:480px;margin:0 auto;padding:14px 16px 80px;">
-      <div class="card">
-        <div class="sec-label">Detalles de la Certificación</div>
-        <div class="field"><label>Tipo de Certificación *</label>
-          <select id="ac-cert-type" style="width:100%;" onchange="acCertChanged()">
-            <option value="">— Selecciona certificación —</option>
-          </select>
-        </div>
-        <div class="field"><label>Fecha del Entrenamiento *</label><input type="date" id="ac-cert-date" onchange="acCertChanged()"/></div>
-        <div class="field" id="ac-expiry-field" style="display:none;">
-          <label>Fecha de Vencimiento (calculada)</label>
-          <input type="text" id="ac-cert-expiry" readonly style="background:var(--bg2);color:var(--text2);"/>
-        </div>
-        <div class="field"><label>Instructor / Entidad</label><input type="text" id="ac-instructor" placeholder="Nombre del instructor o empresa" autocomplete="off"/></div>
-        <div class="field"><label>Foto de la tarjeta</label>
-          <input type="file" id="ac-foto" accept="image/*" capture="environment"/>
-        </div>
-        <div class="field" style="margin-bottom:0;"><label>Notas</label><textarea id="ac-notas" rows="2"></textarea></div>
-      </div>
-      <div id="ac-preview" style="display:none;margin-bottom:14px;">
-        <img id="ac-preview-img" style="width:100%;border-radius:8px;max-height:200px;object-fit:cover;"/>
-      </div>
-      <button class="btn btn-primary" onclick="certsSubmitCert()" style="width:100%;margin-top:14px;">Guardar Certificación</button>
     </div>
   </div>
 </div>
