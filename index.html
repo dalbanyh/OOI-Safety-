@@ -542,6 +542,24 @@ textarea{min-height:88px;resize:vertical;line-height:1.5;}
 /* Select arrow */
 select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23F48120' stroke-width='3'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;padding-right:40px;}
 
+/* Combo con búsqueda (reemplaza visualmente a todos los <select>) */
+.ss-wrap{position:relative;width:100%;}
+.ss-native{display:none!important;}
+.ss-input{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23F48120' stroke-width='3'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;padding-right:40px;text-overflow:ellipsis;cursor:pointer;}
+.ss-input.ss-open{cursor:text;}
+.ss-input.ss-empty{color:var(--text3);}
+.ss-input:disabled{opacity:.55;cursor:not-allowed;}
+.ss-panel{position:fixed;z-index:100000;background:var(--bg);border:1.5px solid var(--ooi-orange);border-radius:var(--radius);box-shadow:var(--shadow-md);overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;font-family:var(--f-body);}
+.ss-opt{padding:12px 14px;font-size:15px;color:var(--text);cursor:pointer;line-height:1.3;border-bottom:1px solid var(--border);}
+.ss-opt:last-child{border-bottom:none;}
+.ss-opt.ss-hl{background:var(--ooi-orange-bg);}
+.ss-opt.ss-sel{font-weight:900;color:var(--ooi-orange-dark);}
+.ss-opt.ss-dis{color:var(--text3);cursor:not-allowed;}
+.ss-opt.ss-ph{color:var(--text2);font-style:italic;}
+.ss-opt mark{background:rgba(244,129,32,0.28);color:inherit;border-radius:3px;padding:0 1px;}
+.ss-group{padding:8px 14px 6px;font-size:11px;font-weight:900;color:var(--text2);text-transform:uppercase;letter-spacing:.09em;background:var(--bg2);position:sticky;top:0;}
+.ss-none{padding:14px;font-size:14px;color:var(--text2);text-align:center;}
+
 /* Training portal */
 .tp-topbar{background:var(--ooi-black);padding:14px 16px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:4px;z-index:10;border-bottom:3px solid var(--ooi-orange);}
 .tp-title{font-family:var(--f-display);font-size:15px;font-weight:900;color:#fff;text-transform:uppercase;letter-spacing:0.06em;}
@@ -6597,6 +6615,303 @@ function certsShowUpload() {
     </div>
   </div>
 </div>
+
+<script>
+/* ── SELECTS CON BÚSQUEDA ──────────────────────────────────────────────
+   Todos los <select> (los de la página y los que se creen después) se
+   muestran como un campo donde se puede abrir la lista o escribir para
+   filtrarla. El <select> original sigue en el DOM, oculto, y es la fuente
+   de verdad: .value, .selectedIndex, onchange y los .options funcionan igual. */
+(function(){
+  if(window.__ooiSelectSearch) return;
+  window.__ooiSelectSearch = true;
+
+  const PV = Object.getOwnPropertyDescriptor(HTMLSelectElement.prototype,'value');
+  const PI = Object.getOwnPropertyDescriptor(HTMLSelectElement.prototype,'selectedIndex');
+
+  // Minúsculas y sin acentos, conservando la longitud para poder resaltar.
+  function norm(s){
+    s = String(s==null?'':s);
+    let o = '';
+    for(let i=0;i<s.length;i++){
+      const n = s[i].normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase();
+      o += n.length===1 ? n : s[i];
+    }
+    return o;
+  }
+  function esc(s){return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+  function highlight(label, tokens){
+    if(!tokens.length) return esc(label);
+    const n = norm(label), marks = new Array(label.length).fill(false);
+    tokens.forEach(t=>{
+      let from = 0, at;
+      while((at = n.indexOf(t, from)) !== -1){
+        for(let i=at;i<at+t.length;i++) marks[i] = true;
+        from = at + t.length;
+      }
+    });
+    let out = '', open = false;
+    for(let i=0;i<label.length;i++){
+      if(marks[i] && !open){out += '<mark>'; open = true;}
+      if(!marks[i] && open){out += '</mark>'; open = false;}
+      out += esc(label[i]);
+    }
+    return out + (open ? '</mark>' : '');
+  }
+
+  let current = null;   // combo con la lista abierta
+
+  function enhance(sel){
+    if(sel._ss || sel.multiple || sel.size>1) return;
+
+    const wrap = document.createElement('div');
+    wrap.className = 'ss-wrap';
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.className = 'ss-input';
+    input.autocomplete = 'off';
+    input.spellcheck = false;
+    input.setAttribute('autocapitalize','off');
+    input.setAttribute('role','combobox');
+    input.setAttribute('aria-autocomplete','list');
+    input.setAttribute('aria-expanded','false');
+    wrap.appendChild(input);
+    sel.parentNode.insertBefore(wrap, sel);
+    sel.classList.add('ss-native');
+    sel.tabIndex = -1;
+
+    const st = {sel, wrap, input, panel:null, rows:[], hl:-1, isOpen:false, query:''};
+    sel._ss = st;
+
+    // ── Texto que se muestra cuando la lista está cerrada ──
+    function placeholderText(){
+      for(const o of sel.options) if(o.value==='') return o.textContent.trim();
+      return 'Selecciona…';
+    }
+    function refresh(){
+      const o = sel.selectedIndex>=0 ? sel.options[sel.selectedIndex] : null;
+      const has = !!(o && o.value!=='');
+      if(!st.isOpen) input.value = has ? o.textContent.trim() : '';
+      input.placeholder = placeholderText();
+      input.classList.toggle('ss-empty', !has);
+      input.disabled = sel.disabled;
+      if(st.isOpen) renderList(false);
+    }
+    st.refresh = refresh;
+
+    // El código de la app asigna .value / .selectedIndex sin disparar eventos.
+    Object.defineProperty(sel,'value',{configurable:true,
+      get(){return PV.get.call(sel);},
+      set(v){PV.set.call(sel,v);refresh();}});
+    Object.defineProperty(sel,'selectedIndex',{configurable:true,
+      get(){return PI.get.call(sel);},
+      set(v){PI.set.call(sel,v);refresh();}});
+    sel.focus = function(){input.focus();};
+
+    new MutationObserver(refresh).observe(sel,{childList:true,subtree:true,characterData:true,attributes:true,attributeFilter:['disabled']});
+
+    // ── Lista ──
+    function buildRows(){
+      const tokens = norm(st.query).split(/\s+/).filter(Boolean);
+      const rows = [];
+      let run = 0, runGroup = undefined;
+      const addOpt = (o, group)=>{
+        if(o.hidden) return;
+        const label = o.textContent.trim();
+        const ph = o.value==='';
+        if(tokens.length && ph) return;
+        const n = norm(label);
+        if(!tokens.every(t=>n.includes(t))) return;
+        // Prefijo primero, luego inicio de palabra, luego el resto
+        const score = !tokens.length ? 0 : n.startsWith(tokens[0]) ? 0 : n.includes(' '+tokens[0]) ? 1 : 2;
+        if(group!==runGroup){run++; runGroup = group;}
+        rows.push({type:'opt', idx:o.index, label, disabled:o.disabled, ph, score, group, run});
+      };
+      Array.from(sel.children).forEach(ch=>{
+        if(ch.tagName==='OPTGROUP'){
+          Array.from(ch.children).forEach(o=>{if(o.tagName==='OPTION') addOpt(o, ch.label);});
+        } else if(ch.tagName==='OPTION') addOpt(ch, null);
+      });
+      if(tokens.length) rows.sort((a,b)=>a.run-b.run || a.score-b.score);   // relevancia dentro de cada grupo (sort estable)
+      // Encabezados de grupo (solo con grupos que tengan resultados)
+      const out = [];
+      let lastGroup = null;
+      rows.forEach(r=>{
+        if(r.group && r.group!==lastGroup) out.push({type:'group', label:r.group});
+        lastGroup = r.group;
+        out.push(r);
+      });
+      return {rows:out, tokens};
+    }
+
+    function renderList(resetHl){
+      const {rows, tokens} = buildRows();
+      st.rows = rows;
+      const panel = st.panel;
+      if(!rows.some(r=>r.type==='opt')){
+        panel.innerHTML = '<div class="ss-none">Sin resultados</div>';
+        st.hl = -1;
+      } else {
+        const selIdx = sel.selectedIndex;
+        panel.innerHTML = rows.map((r,i)=>{
+          if(r.type==='group') return '<div class="ss-group">'+esc(r.label)+'</div>';
+          const cls = 'ss-opt'+(r.idx===selIdx&&!r.ph?' ss-sel':'')+(r.disabled?' ss-dis':'')+(r.ph?' ss-ph':'');
+          return '<div class="'+cls+'" role="option" data-i="'+i+'">'+highlight(r.label,tokens)+'</div>';
+        }).join('');
+        if(resetHl || st.hl<0 || !rows[st.hl] || rows[st.hl].type!=='opt'){
+          let at = -1;
+          if(!tokens.length) at = rows.findIndex(r=>r.type==='opt' && r.idx===selIdx && !r.ph);
+          if(at<0) at = rows.findIndex(r=>r.type==='opt' && !r.disabled && (tokens.length||!r.ph));
+          if(at<0) at = rows.findIndex(r=>r.type==='opt' && !r.disabled);
+          st.hl = at;
+        }
+        paintHl(true);
+      }
+      position();
+    }
+
+    function paintHl(scroll){
+      const els = st.panel.querySelectorAll('.ss-opt');
+      els.forEach(el=>el.classList.toggle('ss-hl', +el.dataset.i===st.hl));
+      if(scroll){
+        const cur = st.panel.querySelector('.ss-hl');
+        if(cur) cur.scrollIntoView({block:'nearest'});
+      }
+    }
+
+    function position(){
+      const panel = st.panel;
+      if(!panel) return;
+      const vv = window.visualViewport;
+      const vh = vv ? vv.height : window.innerHeight;
+      const r = input.getBoundingClientRect();
+      const below = vh - r.bottom - 10, above = r.top - 10;
+      const up = below < 190 && above > below;
+      const maxH = Math.max(120, Math.min(320, up ? above : below));
+      panel.style.maxHeight = maxH + 'px';
+      panel.style.width = r.width + 'px';
+      panel.style.left = r.left + 'px';
+      if(up){
+        panel.style.top = Math.max(4, r.top - panel.offsetHeight - 4) + 'px';
+      } else {
+        panel.style.top = (r.bottom + 4) + 'px';
+      }
+    }
+
+    function open(){
+      if(st.isOpen || sel.disabled) return;
+      if(current && current!==st) current.close();
+      st.isOpen = true;
+      current = st;
+      st.query = '';
+      input.classList.add('ss-open');
+      input.setAttribute('aria-expanded','true');
+      const panel = document.createElement('div');
+      panel.className = 'ss-panel';
+      panel.setAttribute('role','listbox');
+      panel.addEventListener('mousedown',e=>e.preventDefault());   // no quitar el foco al input
+      panel.addEventListener('click',e=>{
+        const el = e.target.closest('.ss-opt');
+        if(el) choose(+el.dataset.i);
+      });
+      panel.addEventListener('mousemove',e=>{
+        const el = e.target.closest('.ss-opt');
+        if(el && !el.classList.contains('ss-dis') && +el.dataset.i!==st.hl){st.hl = +el.dataset.i; paintHl(false);}
+      });
+      document.body.appendChild(panel);
+      st.panel = panel;
+      // Con el valor actual seleccionado para que escribir lo reemplace
+      renderList(true);
+      input.select();
+    }
+
+    function close(){
+      if(!st.isOpen) return;
+      st.isOpen = false;
+      if(current===st) current = null;
+      input.classList.remove('ss-open');
+      input.setAttribute('aria-expanded','false');
+      if(st.panel){st.panel.remove(); st.panel = null;}
+      refresh();
+    }
+    st.close = close;
+    st.position = position;
+
+    function choose(i){
+      const r = st.rows[i];
+      if(!r || r.type!=='opt' || r.disabled) return;
+      const changed = PI.get.call(sel) !== r.idx;
+      PI.set.call(sel, r.idx);
+      close();
+      input.blur();
+      if(changed){
+        sel.dispatchEvent(new Event('input',{bubbles:true}));
+        sel.dispatchEvent(new Event('change',{bubbles:true}));
+      }
+    }
+
+    function move(dir){
+      if(!st.isOpen){open(); return;}
+      let i = st.hl;
+      do { i += dir; } while(st.rows[i] && (st.rows[i].type!=='opt' || st.rows[i].disabled));
+      if(st.rows[i]){st.hl = i; paintHl(true);}
+    }
+
+    input.addEventListener('focus',open);
+    input.addEventListener('click',open);
+    input.addEventListener('input',()=>{
+      if(!st.isOpen) open();
+      st.query = input.value;
+      renderList(true);
+    });
+    input.addEventListener('keydown',e=>{
+      if(e.key==='ArrowDown'){e.preventDefault(); move(1);}
+      else if(e.key==='ArrowUp'){e.preventDefault(); move(-1);}
+      else if(e.key==='Enter'){
+        if(st.isOpen){e.preventDefault(); if(st.hl>=0) choose(st.hl);}
+      }
+      else if(e.key==='Escape'){if(st.isOpen){e.preventDefault(); close(); input.blur();}}
+      else if(e.key==='Tab'){close();}
+    });
+    input.addEventListener('blur',()=>{
+      setTimeout(()=>{if(document.activeElement!==input) close();},120);
+    });
+
+    refresh();
+  }
+
+  // Reposicionar / cerrar al hacer scroll o cambiar el tamaño
+  function reposition(e){
+    if(!current) return;
+    if(e && e.target && current.panel && current.panel.contains(e.target)) return;
+    current.position();
+  }
+  window.addEventListener('scroll',reposition,true);
+  window.addEventListener('resize',reposition);
+  if(window.visualViewport){
+    window.visualViewport.addEventListener('resize',reposition);
+    window.visualViewport.addEventListener('scroll',reposition);
+  }
+  // Tocar fuera de la lista la cierra
+  document.addEventListener('mousedown',e=>{
+    if(current && !current.wrap.contains(e.target) && !(current.panel&&current.panel.contains(e.target))) current.close();
+  },true);
+
+  function scan(root){
+    if(root.nodeType!==1) return;
+    if(root.tagName==='SELECT') enhance(root);
+    else root.querySelectorAll && root.querySelectorAll('select').forEach(enhance);
+  }
+  function init(){
+    document.querySelectorAll('select').forEach(enhance);
+    new MutationObserver(ms=>{
+      ms.forEach(m=>m.addedNodes.forEach(scan));
+    }).observe(document.body,{childList:true,subtree:true});
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',init);
+  else init();
+})();
+</script>
 
 </body>
 </html>
