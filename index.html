@@ -2804,9 +2804,20 @@ function fetchTrainingData() {
     }
   } catch(e) {}
 
-  // Fetch from Firebase Firestore — fast, direct, no Apps Script needed
-  return fbList('empleados', 300)
-    .then(function(res) {
+  // Fetch from Firebase Firestore — fast, direct, no Apps Script needed.
+  // Solo se muestran los que estan en el Training Log (meta/empleados_list): en "empleados" quedan
+  // documentos de gente que ya no esta en la hoja. Si la lista no llega, se muestran todos.
+  var enHoja = null;
+  var lista = fbGet('meta/empleados_list').then(function(doc) {
+    var vals = doc.fields && doc.fields.names && doc.fields.names.arrayValue && doc.fields.names.arrayValue.values;
+    if (vals && vals.length) {
+      enHoja = {};
+      empleadosValidos(vals.map(function(v) { return v.stringValue || ''; })).forEach(function(n) { enHoja[n.toUpperCase()] = true; });
+    }
+  }).catch(function() {});
+  return Promise.all([fbList('empleados', 300), lista])
+    .then(function(r) {
+      var res = r[0];
       if (!res.documents || res.documents.length === 0) {
         TRAINING_DATA_DYNAMIC = typeof TRAINING_DATA !== 'undefined' ? TRAINING_DATA : [];
         return TRAINING_DATA_DYNAMIC;
@@ -2829,6 +2840,7 @@ function fetchTrainingData() {
           trainings: trainings
         };
       }).filter(function(e) { return /[A-Za-z]/.test(e.name); }) // sin letras = fila de totales ("281")
+        .filter(function(e) { return !enHoja || enHoja[e.name.replace(/\s+/g, ' ').trim().toUpperCase()]; })
         .sort(function(a, b) { return a.name.localeCompare(b.name); });
 
       TRAINING_DATA_DYNAMIC = converted;
