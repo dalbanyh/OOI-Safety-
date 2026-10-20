@@ -1658,33 +1658,31 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{outline:none;}
   <div id="safety-emp-panel" style="display:none;">
     <div style="max-width:480px;margin:0 auto;padding:14px 16px 80px;">
       <div style="font-family:var(--f-head);font-size:18px;font-weight:800;margin-bottom:4px;">👷 Empleados</div>
-      <div style="font-size:12px;color:var(--text2);margin-bottom:16px;">El empleado nuevo se agrega al <strong>EMPLOYEE TRAINING LOG</strong> en orden alfabético, con su carpeta en <strong>OOI Certificaciones</strong>. La foto de perfil se guarda en esa carpeta.</div>
+      <div style="font-size:12px;color:var(--text2);margin-bottom:16px;">Los empleados nuevos se agregan al <strong>EMPLOYEE TRAINING LOG</strong> en orden alfabético, cada uno con su carpeta en <strong>OOI Certificaciones</strong>. La foto de perfil se guarda en esa carpeta.</div>
 
       <div id="emp-form">
         <div class="card">
-          <div class="sec-label">Agregar empleado nuevo</div>
-          <label for="emp-foto-nuevo" style="display:block;cursor:pointer;margin:4px 0 6px;"><div class="emp-avatar xl" id="emp-foto-prev">📷</div></label>
-          <input type="file" id="emp-foto-nuevo" accept="image/*" style="display:none" onchange="empElegirFoto(this,'nuevo')"/>
-          <div style="text-align:center;font-size:12px;color:var(--text2);margin-bottom:14px;">Toca el círculo para tomar o elegir la foto (opcional) <span id="emp-foto-quitar" style="display:none;">· <a href="#" onclick="empQuitarFoto();return false;" style="color:var(--danger-text);">quitar</a></span></div>
-          <div class="field"><label>Apellido(s)</label><input type="text" id="emp-apellidos" placeholder="Ej. Garcia Lopez" autocomplete="off" oninput="empVistaPrevia()"/></div>
-          <div class="field"><label>Nombre(s)</label><input type="text" id="emp-nombres" placeholder="Ej. Juan Carlos" autocomplete="off" oninput="empVistaPrevia()"/></div>
-          <div class="field"><label>OOI ID (opcional)</label><input type="text" id="emp-ooi" placeholder="Ej. OOID1323" autocomplete="off" autocapitalize="characters" oninput="empVistaPrevia()"/><div id="emp-ooi-hint" style="font-size:12px;color:var(--text2);margin-top:4px;"></div></div>
+          <div class="sec-label">Datos del grupo</div>
           <div class="field"><label>Fecha de New Hire (opcional)</label><input type="date" id="emp-newhire"/></div>
-          <div class="field"><label>Signing sheet (opcional)</label>
-            <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+          <div class="field" style="margin-bottom:4px;"><label>Signing sheet (opcional)</label>
+            <div id="emp-signing-zona" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
               <label id="emp-signing-btn" style="display:inline-block;margin:0;text-transform:none;letter-spacing:normal;font-size:12px;font-weight:700;color:#0F6E56;border:1px solid #0F6E56;border-radius:99px;padding:6px 12px;cursor:pointer;">📎 <span id="emp-signing-txt">Adjuntar signing sheet</span>
                 <input type="file" id="emp-signing" accept="image/*,application/pdf" style="display:none" onchange="empElegirSigning(this)"/></label>
-              <span id="emp-signing-info" style="font-size:12px;color:var(--text2);">Foto o PDF. Se guarda en la carpeta New Hires.</span>
+              <span id="emp-signing-info" style="font-size:12px;color:var(--text2);"></span>
             </div>
           </div>
-          <div class="safety-chk" style="margin-bottom:4px;"><input type="checkbox" id="emp-rehire"/><label for="emp-rehire">Es REHIRE (ya había trabajado en OOI)</label></div>
-          <div id="emp-vista" style="display:none;font-size:13px;margin-top:12px;padding:10px 12px;border-radius:var(--radius);background:var(--bg);"></div>
+        </div>
+
+        <div class="card">
+          <div class="sec-label">Empleados nuevos</div>
+          <div id="emp-ooi-hint" style="font-size:12px;color:var(--text2);margin-bottom:10px;"></div>
+          <div id="emp-filas"></div>
+          <button class="btn btn-ghost" id="emp-mas" onclick="empAgregarFila()" style="margin-top:4px;">➕ Agregar otro empleado</button>
         </div>
         <div class="submit-msg" id="emp-msg"></div>
         <button class="btn" id="emp-btn" style="background:#0F6E56;color:white;border-color:#0F6E56;font-size:16px;min-height:54px;" onclick="empGuardar()">💾 Agregar al Training Log</button>
+        <button class="btn btn-ghost" id="emp-nuevo" style="display:none;" onclick="empReiniciar()">Agregar otro grupo</button>
       </div>
-
-      <div id="emp-resultado" style="display:none;"></div>
 
       <div class="card" style="margin-top:22px;">
         <div class="sec-label">Foto de un empleado que ya está</div>
@@ -4191,13 +4189,18 @@ function safetyTab(tab){
 
 // ── EMPLEADOS (Safety) ──
 // Alta en el EMPLOYEE TRAINING LOG (tipo 'nuevo_empleado') y foto de perfil (tipo 'foto_perfil').
+// Varios a la vez, como Registrar certificados: la fecha de New Hire y el signing sheet son del grupo.
+// Si hay signing sheet se manda primero (accion 'signing', va a OOI Certificaciones/New Hires) y
+// luego un envío por empleado. Una vez guardado alguien, la fecha y el signing sheet ya no cambian.
 // La foto se recorta cuadrada a 400 px en el celular (~40 KB), así la miniatura de Drive carga rápido.
-// El signing sheet (opcional) va a OOI Certificaciones/New Hires; se prepara igual que en Registrar certificados.
-let empFotoNueva = null, empSigning = null, empEnviando = false, empRes = [], empSel = '';
+let emp = null, empEnviando = false, empRes = [], empSel = '';
 
 function empLimpiar(s){ return String(s||'').replace(/[,;]+/g,' ').replace(/\s+/g,' ').trim(); }
 function empNormOoi(s){ let t=String(s||'').replace(/\s+/g,'').toUpperCase(); if(/^\d{1,6}$/.test(t)) t='OOID'+t; return /^OOID\d{1,6}$/.test(t)?t:''; }
 function empDeNombre(nombre){ const k=sftClave(nombre); return getTrainingData().find(e=>sftClave(e.name)===k) || null; }
+function empNuevaFila(){ return {ap:'', no:'', ooi:'', rehire:false, foto:null, ok:false, error:'', enviando:false, r:null}; }
+function empNombreFila(f){ const ap=empLimpiar(f.ap), no=empLimpiar(f.no); return ap && no ? ap+', '+no : ''; }
+function empFilaVacia(f){ return !f.ap.trim() && !f.no.trim() && !f.ooi.trim() && !f.foto; }
 
 function empMsg(texto, tipo){
   const m = document.getElementById('emp-msg');
@@ -4209,7 +4212,8 @@ function empMsg(texto, tipo){
 }
 
 function empIniciar(){
-  const listo = ()=>{ empVistaPrevia(); empRenderBusqueda(); };
+  if(!emp) empReiniciar();
+  const listo = ()=>{ empActualizarAvisos(); empRenderBusqueda(); };
   if(!empleadosCargados) fetchEmpleados().then(listo);
   if(!trainingDataCargado) fetchTrainingData().then(listo);
   listo();
@@ -4222,23 +4226,109 @@ function empMaxOoi(){
   return max;
 }
 
-function empVistaPrevia(){
-  const ap = empLimpiar(document.getElementById('emp-apellidos').value);
-  const no = empLimpiar(document.getElementById('emp-nombres').value);
-  const ooiTxt = document.getElementById('emp-ooi').value.trim(), ooi = empNormOoi(ooiTxt);
-  const max = empMaxOoi();
-  document.getElementById('emp-ooi-hint').textContent = max ? 'El más alto registrado en la app es OOID'+max+'.' : '';
-  const v = document.getElementById('emp-vista');
-  if(!ap && !no && !ooiTxt){ v.style.display='none'; return; }
-  const avisos = [];
-  const nombre = ap && no ? ap+', '+no : '';
-  if(nombre && getEmpleadosList().some(n=>sftClave(n)===sftClave(nombre))) avisos.push('⚠ Ya hay un empleado con este nombre en el Training Log.');
-  if(ooiTxt && !ooi) avisos.push('⚠ El OOI ID debe ser como OOID1323.');
+// Avisos de una fila: repetido en el Training Log o dentro de la misma lista, OOI ID mal escrito u ocupado
+function empAvisosFila(i){
+  const f = emp.filas[i], avisos = [];
+  const nombre = empNombreFila(f), ooiTxt = f.ooi.trim(), ooi = empNormOoi(ooiTxt);
+  const otras = emp.filas.filter((g,j)=>j!==i && !g.ok);
+  if(nombre && getEmpleadosList().some(n=>sftClave(n)===sftClave(nombre))) avisos.push('Ya hay un empleado con este nombre en el Training Log.');
+  if(nombre && otras.some(g=>sftClave(empNombreFila(g))===sftClave(nombre))) avisos.push('Este nombre está repetido en la lista.');
+  if(ooiTxt && !ooi) avisos.push('El OOI ID debe ser como OOID1323 (o déjalo vacío).');
   const dueno = ooi ? getTrainingData().find(e=>empNormOoi(e.ooi_id)===ooi) : null;
-  if(dueno) avisos.push('⚠ '+ooi+' ya lo tiene '+dueno.name+'.');
-  v.innerHTML = 'Así quedará en el Training Log:<br><strong>'+sftEsc(nombre||'Apellido(s), Nombre(s)')+'</strong>'+(ooi?' · '+ooi:'')+
-    avisos.map(a=>'<div style="color:var(--danger-text);margin-top:6px;">'+sftEsc(a)+'</div>').join('');
-  v.style.display='block';
+  if(dueno) avisos.push(ooi+' ya lo tiene '+dueno.name+'.');
+  if(ooi && otras.some(g=>empNormOoi(g.ooi)===ooi)) avisos.push(ooi+' está repetido en la lista.');
+  return {nombre, ooi, avisos};
+}
+
+function empActualizarAvisos(){
+  if(!emp) return;
+  const max = empMaxOoi();
+  document.getElementById('emp-ooi-hint').textContent = max ? 'OOI ID: el más alto registrado en la app es OOID'+max+'.' : '';
+  emp.filas.forEach((f,i)=>{
+    const el = document.getElementById('emp-vista-'+i);
+    if(!el || f.ok) return;
+    const a = empAvisosFila(i);
+    el.innerHTML = a.nombre || a.avisos.length
+      ? (a.nombre ? 'Quedará como <strong>'+sftEsc(a.nombre)+'</strong>'+(a.ooi?' · '+a.ooi:'') : '')+
+        a.avisos.map(t=>'<div style="color:var(--danger-text);margin-top:4px;">⚠ '+sftEsc(t)+'</div>').join('')
+      : '';
+  });
+}
+
+function empSet(i, campo, valor){
+  const f = emp && emp.filas[i];
+  if(!f || f.ok || emp.enviando) return;
+  f[campo] = valor;
+  if(campo!=='rehire') f.error = '';
+  empActualizarAvisos();
+}
+
+function empAgregarFila(){
+  if(!emp || emp.enviando) return;
+  emp.filas.push(empNuevaFila());
+  empRender();
+  const i = emp.filas.length-1, el = document.getElementById('emp-ap-'+i);
+  if(el){ el.focus(); el.scrollIntoView({block:'center', behavior:'smooth'}); }
+}
+
+function empQuitarFila(i){
+  if(!emp || emp.enviando || !emp.filas[i] || emp.filas[i].ok) return;
+  emp.filas.splice(i,1);
+  if(!emp.filas.some(f=>!f.ok)) emp.filas.push(empNuevaFila());
+  empRender();
+}
+
+function empRenderFila(f, i){
+  const caja = 'border:1px solid '+(f.error?'var(--danger-border)':'var(--border)')+';border-radius:8px;padding:12px;margin-bottom:10px;background:var(--bg);';
+  if(f.ok){
+    const r = f.r || {};
+    const foto = f.foto ? '<img src="'+f.foto+'" alt="">' : '';
+    return '<div style="'+caja+'"><div style="display:flex;align-items:center;gap:12px;">'+
+      '<div class="emp-avatar lg">'+sftEsc(empIniciales(r.empleado))+foto+'</div>'+
+      '<div style="flex:1;min-width:0;"><div style="font-size:15px;font-weight:700;">✅ '+sftEsc(r.empleado)+'</div>'+
+      '<div style="font-size:12px;color:var(--text2);margin-top:2px;">'+sftEsc(r.ooiId||'Sin OOI ID')+(f.rehire?' · REHIRE':'')+' · fila '+sftEsc(r.fila)+' del Training Log</div>'+
+      (r.carpetaUrl ? '<a href="'+sftEsc(r.carpetaUrl)+'" target="_blank" rel="noopener" style="display:inline-block;font-size:12px;color:#F48120;font-weight:600;text-decoration:none;margin-top:4px;">📁 Abrir su carpeta</a>' : '')+
+      '</div></div>'+
+      (r.avisos||[]).map(a=>'<div style="font-size:12px;color:var(--warning-text);margin-top:8px;">⚠ '+sftEsc(a)+'</div>').join('')+
+      '</div>';
+  }
+  const bloq = emp.enviando ? ' disabled' : '';
+  const icono = f.enviando ? '⏳ ' : f.error ? '⚠️ ' : '';
+  const quitar = !emp.enviando && emp.filas.filter(g=>!g.ok).length>1
+    ? '<button onclick="empQuitarFila('+i+')" title="Quitar" style="border:none;background:none;color:var(--text2);font-size:18px;cursor:pointer;padding:0 4px;">✕</button>' : '';
+  return '<div style="'+caja+'">'+
+    '<div style="display:flex;align-items:center;gap:12px;margin-bottom:10px;">'+
+      '<label style="cursor:pointer;flex-shrink:0;'+(emp.enviando?'pointer-events:none;':'')+'"><div class="emp-avatar lg">'+(f.foto?'<img src="'+f.foto+'" alt="">':'📷')+'</div>'+
+        '<input type="file" accept="image/*" style="display:none" onchange="empElegirFoto(this,'+i+')"/></label>'+
+      '<div style="flex:1;min-width:0;"><div style="font-size:14px;font-weight:700;">'+icono+'Empleado '+(i+1)+'</div>'+
+        '<div style="font-size:12px;color:var(--text2);">'+(f.foto
+          ? 'Foto lista'+(emp.enviando?'':' · <a href="javascript:void(0)" onclick="empQuitarFotoFila('+i+')" style="color:var(--danger-text);">quitar</a>')
+          : 'Toca el círculo para la foto (opcional)')+'</div></div>'+
+      quitar+
+    '</div>'+
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">'+
+      '<div class="field" style="margin-bottom:8px;"><label for="emp-ap-'+i+'">Apellido(s)</label><input type="text" id="emp-ap-'+i+'" value="'+sftEsc(f.ap)+'" placeholder="Garcia Lopez" autocomplete="off" oninput="empSet('+i+',\'ap\',this.value)"'+bloq+'/></div>'+
+      '<div class="field" style="margin-bottom:8px;"><label for="emp-no-'+i+'">Nombre(s)</label><input type="text" id="emp-no-'+i+'" value="'+sftEsc(f.no)+'" placeholder="Juan Carlos" autocomplete="off" oninput="empSet('+i+',\'no\',this.value)"'+bloq+'/></div>'+
+    '</div>'+
+    '<div class="field" style="margin-bottom:8px;"><label for="emp-ooi-'+i+'">OOI ID (opcional)</label><input type="text" id="emp-ooi-'+i+'" value="'+sftEsc(f.ooi)+'" placeholder="OOID1323" autocomplete="off" autocapitalize="characters" oninput="empSet('+i+',\'ooi\',this.value)"'+bloq+'/></div>'+
+    '<div class="safety-chk" style="margin-bottom:0;"><input type="checkbox" id="emp-rh-'+i+'"'+(f.rehire?' checked':'')+' onchange="empSet('+i+',\'rehire\',this.checked)"'+bloq+'/><label for="emp-rh-'+i+'">Es REHIRE (ya había trabajado en OOI)</label></div>'+
+    '<div id="emp-vista-'+i+'" style="font-size:12px;margin-top:8px;"></div>'+
+    (f.error ? '<div style="font-size:12px;color:var(--danger-text);margin-top:6px;font-weight:600;">'+sftEsc(f.error)+'</div>' : '')+
+    '</div>';
+}
+
+function empRender(){
+  document.getElementById('emp-filas').innerHTML = emp.filas.map(empRenderFila).join('');
+  empActualizarAvisos();
+  empRenderSigning();
+  document.getElementById('emp-newhire').disabled = emp.bloqueado || emp.enviando;
+  const pend = emp.filas.filter(f=>!f.ok).length, btn = document.getElementById('emp-btn');
+  btn.disabled = emp.enviando;
+  btn.style.display = pend ? 'block' : 'none';
+  btn.textContent = emp.enviando ? '⏳ Guardando...' : emp.filas.some(f=>f.error) ? '🔁 Reintentar los que faltan'
+    : '💾 Agregar '+(pend>1 ? pend+' empleados ' : '')+'al Training Log';
+  document.getElementById('emp-mas').style.display = emp.enviando ? 'none' : 'block';
+  document.getElementById('emp-nuevo').style.display = (emp.bloqueado && !emp.enviando) ? 'block' : 'none';
 }
 
 // Recorte cuadrado al centro, 400 px, JPEG: lo que se ve en el círculo
@@ -4258,6 +4348,7 @@ function fotoPerfilRecortar(file){
   });
 }
 
+// modo: número de fila (empleado nuevo) o 'existente' (Foto de un empleado que ya está)
 async function empElegirFoto(input, modo){
   const f = input.files && input.files[0];
   input.value='';
@@ -4265,42 +4356,48 @@ async function empElegirFoto(input, modo){
   let data;
   try{ data = await fotoPerfilRecortar(f); }
   catch(e){ alert(e.message); return; }
-  if(modo==='nuevo'){
-    empFotoNueva = data;
-    document.getElementById('emp-foto-prev').innerHTML = '<img src="'+data+'" alt="">';
-    document.getElementById('emp-foto-quitar').style.display='inline';
-  } else {
-    empSubirFotoExistente(data);
-  }
+  if(modo==='existente'){ empSubirFotoExistente(data); return; }
+  const fila = emp && emp.filas[modo];
+  if(!fila || fila.ok) return;
+  fila.foto = data;
+  empRender();
 }
 
-function empQuitarFoto(){
-  if(empEnviando) return;
-  empFotoNueva = null;
-  document.getElementById('emp-foto-prev').innerHTML = '📷';
-  document.getElementById('emp-foto-quitar').style.display='none';
+function empQuitarFotoFila(i){
+  if(!emp || emp.enviando || !emp.filas[i] || emp.filas[i].ok) return;
+  emp.filas[i].foto = null;
+  empRender();
 }
 
 function empElegirSigning(input){
   const f = input.files && input.files[0];
   input.value='';
-  if(!f || empEnviando) return;
+  if(!f || !emp || emp.enviando || emp.bloqueado) return;
   if(RC_MIMES.indexOf(rcMime(f))<0){ alert('"'+f.name+'" no es foto ni PDF.'); return; }
-  empSigning = f;
+  emp.signing = f;
   empRenderSigning();
 }
 
 function empQuitarSigning(){
-  if(empEnviando) return;
-  empSigning = null;
+  if(!emp || emp.enviando || emp.bloqueado) return;
+  emp.signing = null;
   empRenderSigning();
 }
 
 function empRenderSigning(){
-  document.getElementById('emp-signing-txt').textContent = empSigning ? 'Cambiar' : 'Adjuntar signing sheet';
-  document.getElementById('emp-signing-info').innerHTML = empSigning
-    ? '<span style="color:var(--text);">'+sftEsc(empSigning.name)+' · '+rcTam(empSigning.size)+'</span> <a href="javascript:void(0)" onclick="empQuitarSigning()" style="color:var(--text2);">quitar</a>'
-    : 'Foto o PDF. Se guarda en la carpeta New Hires.';
+  const info = document.getElementById('emp-signing-info'), btn = document.getElementById('emp-signing-btn');
+  if(emp.signingUrl){
+    info.innerHTML = '✅ Guardado en New Hires: <a href="'+sftEsc(emp.signingUrl)+'" target="_blank" rel="noopener" style="color:#F48120;font-weight:600;">ver signing sheet</a>';
+    btn.style.display = 'none';
+    return;
+  }
+  // Una vez guardado alguien, el signing sheet ya no se puede agregar: no quedaría ligado a los ya guardados
+  const fija = emp.enviando || emp.bloqueado;
+  btn.style.display = fija ? 'none' : 'inline-block';
+  document.getElementById('emp-signing-txt').textContent = emp.signing ? 'Cambiar' : 'Adjuntar signing sheet';
+  info.innerHTML = emp.signing
+    ? '<span style="color:var(--text);">'+sftEsc(emp.signing.name)+' · '+rcTam(emp.signing.size)+'</span>'+(fija?'':' <a href="javascript:void(0)" onclick="empQuitarSigning()" style="color:var(--text2);">quitar</a>')
+    : (emp.bloqueado ? 'Sin signing sheet.' : 'Uno para todo el grupo. Foto o PDF; se guarda en la carpeta New Hires.');
 }
 
 // La app guarda en memoria lo nuevo (lista y foto) y borra su caché, así se ve sin esperar al sync
@@ -4320,66 +4417,71 @@ function empActualizarLocal(nombre, cambios){
 function empError(e){ return /HTTP|fetch|network/i.test(e.message) ? 'Error de conexión. Vuelve a intentar.' : e.message; }
 
 async function empGuardar(){
-  if(empEnviando) return;
-  const ap = empLimpiar(document.getElementById('emp-apellidos').value);
-  const no = empLimpiar(document.getElementById('emp-nombres').value);
-  const ooiTxt = document.getElementById('emp-ooi').value.trim(), ooi = empNormOoi(ooiTxt);
+  if(!emp || emp.enviando || empEnviando) return;
   const fechaNH = document.getElementById('emp-newhire').value;
-  const rehire = document.getElementById('emp-rehire').checked;
-  if(!ap || !no){ alert('Escribe el apellido y el nombre.'); return; }
-  if(ooiTxt && !ooi){ alert('El OOI ID debe ser como OOID1323 (o déjalo vacío).'); return; }
   if(fechaNH && fechaNH > rcHoy()){ alert('La fecha de New Hire no puede ser futura.'); return; }
+  // Las filas en blanco no cuentan
+  if(emp.filas.some(f=>!f.ok && empFilaVacia(f)) && emp.filas.some(f=>!f.ok && !empFilaVacia(f))){
+    emp.filas = emp.filas.filter(f=>f.ok || !empFilaVacia(f));
+    empRender();
+  }
+  const pend = emp.filas.map((f,i)=>({f,i})).filter(x=>!x.f.ok);
+  if(!pend.length) return;
+  for(const {f,i} of pend){
+    if(!empNombreFila(f)){ alert('Empleado '+(i+1)+': escribe el apellido y el nombre.'); return; }
+    const a = empAvisosFila(i);
+    if(f.ooi.trim() && !a.ooi){ alert('Empleado '+(i+1)+': el OOI ID debe ser como OOID1323 (o déjalo vacío).'); return; }
+    if(a.avisos.some(t=>/repetido en la lista/.test(t))){ alert('Empleado '+(i+1)+': '+a.avisos.find(t=>/repetido en la lista/.test(t))); return; }
+  }
 
-  empEnviando = true;
-  const btn = document.getElementById('emp-btn');
-  btn.disabled = true;
-  const extras = [empFotoNueva?'la foto':'', empSigning?'el signing sheet':''].filter(Boolean);
-  empMsg('⏳ Agregando al Training Log'+(extras.length?' y guardando '+extras.join(' y '):'')+'...');
+  emp.enviando = true; empEnviando = true;
+  emp.filas.forEach(f=>{ if(!f.ok) f.error=''; });
+  empRender();
+  let hechos = 0;
   try{
-    const signing = empSigning ? await rcPrepararArchivo(empSigning) : null;
-    const r = await enviarAScript({tipo:'nuevo_empleado', apellidos:ap, nombres:no, ooiId:ooi, rehire:rehire,
-      fechaNewHire:fechaNH, foto: empFotoNueva ? empFotoNueva.split(',')[1] : '', signingSheet:signing});
-    const trainings = fechaNH ? [{name:'New Hire', date:fechaNH, expires:''}] : [];   // New Hire no vence
-    empActualizarLocal(r.empleado, {ooi_id:r.ooiId, foto:r.fotoId||'', trainings:trainings});
-    empMsg('');
-    empMostrarResultado(r);
+    if(emp.signing && !emp.signingUrl){
+      empMsg('⏳ Subiendo el signing sheet...');
+      const a = await rcPrepararArchivo(emp.signing);
+      const r = await enviarAScript({tipo:'nuevo_empleado', accion:'signing', fechaNewHire:fechaNH, signingSheet:a,
+        empleados: pend.map(x=>({nombre:empNombreFila(x.f), ooiId:empNormOoi(x.f.ooi)}))});
+      emp.signingUrl = r.url || '';
+      emp.bloqueado = true;
+    }
+    let n = 0;
+    for(const {f} of pend){
+      n++;
+      empMsg('⏳ Agregando '+n+' de '+pend.length+': '+empNombreFila(f));
+      f.enviando = true; empRender();
+      try{
+        const r = await enviarAScript({tipo:'nuevo_empleado', apellidos:empLimpiar(f.ap), nombres:empLimpiar(f.no), ooiId:empNormOoi(f.ooi),
+          rehire:f.rehire, fechaNewHire:fechaNH, foto: f.foto ? f.foto.split(',')[1] : ''});
+        const trainings = fechaNH ? [{name:'New Hire', date:fechaNH, expires:''}] : [];   // New Hire no vence
+        empActualizarLocal(r.empleado, {ooi_id:r.ooiId, foto:r.fotoId||'', trainings:trainings});
+        f.ok = true; f.r = r; emp.bloqueado = true; hechos++;
+      }catch(e){
+        if(e.message==='auth') throw e;
+        f.error = empError(e);
+      }finally{ f.enviando = false; empRender(); }
+    }
+    const errores = emp.filas.filter(f=>f.error).length;
+    empMsg(errores ? '⚠ '+(hechos?'Se agregaron '+hechos+'. ':'')+errores+' no se pudo'+(errores>1?'eron':'')+' guardar: revisa los marcados y vuelve a intentar.'
+      : '✅ '+(hechos===1?'Se agregó 1 empleado':'Se agregaron '+hechos+' empleados')+' al EMPLOYEE TRAINING LOG.', errores?'error':'ok');
   }catch(e){
     if(e.message==='auth') return;   // sesionExpirada() ya llevó al inicio de sesión
     empMsg('⚠ '+empError(e), 'error');
   }finally{
-    empEnviando = false;
-    btn.disabled = false;
+    emp.enviando = false; empEnviando = false;
+    emp.filas.forEach(f=>{ f.enviando=false; });
+    empRender();
   }
-}
-
-function empMostrarResultado(r){
-  const foto = empFotoNueva ? '<img src="'+empFotoNueva+'" alt="">' : '';
-  const ini = sftEsc(empIniciales(r.empleado));
-  document.getElementById('emp-form').style.display='none';
-  const out = document.getElementById('emp-resultado');
-  out.innerHTML = '<div class="card" style="text-align:center;">'+
-    '<div class="emp-avatar xl" style="margin-bottom:12px;">'+ini+foto+'</div>'+
-    '<div style="font-size:17px;font-weight:700;">'+sftEsc(r.empleado)+'</div>'+
-    '<div style="font-size:13px;color:var(--text2);margin-top:2px;">'+sftEsc(r.ooiId||'Sin OOI ID')+' · fila '+r.fila+' del Training Log</div>'+
-    '<div style="font-size:14px;font-weight:700;color:var(--success-text);margin-top:12px;">✅ Agregado al EMPLOYEE TRAINING LOG</div>'+
-    (r.carpetaUrl ? '<a href="'+sftEsc(r.carpetaUrl)+'" target="_blank" rel="noopener" class="drive-btn" style="margin-top:12px;">📁 Abrir su carpeta</a>' : '')+
-    (r.signingUrl ? '<a href="'+sftEsc(r.signingUrl)+'" target="_blank" rel="noopener" class="drive-btn" style="margin:12px 0 0 8px;">📝 Ver signing sheet (New Hires)</a>' : '')+
-    (r.avisos||[]).map(a=>'<div style="font-size:12px;color:var(--warning-text);margin-top:10px;">⚠ '+sftEsc(a)+'</div>').join('')+
-    '</div><button class="btn btn-ghost" onclick="empReiniciar()">Agregar otro empleado</button>';
-  out.style.display='block';
-  window.scrollTo(0,0);
 }
 
 function empReiniciar(){
   if(empEnviando) return;
-  ['emp-apellidos','emp-nombres','emp-ooi','emp-newhire'].forEach(id=>{ document.getElementById(id).value=''; });
-  document.getElementById('emp-rehire').checked = false;
-  empQuitarFoto();
-  empQuitarSigning();
+  emp = {filas:[empNuevaFila()], signing:null, signingUrl:'', bloqueado:false, enviando:false};
+  document.getElementById('emp-newhire').value = '';
   empMsg('');
-  document.getElementById('emp-resultado').style.display='none';
-  document.getElementById('emp-form').style.display='block';
-  empVistaPrevia();
+  empRender();
   window.scrollTo(0,0);
 }
 
