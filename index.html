@@ -4815,7 +4815,9 @@ async function rcGuardar(){
     const malos = rc.sel.filter(s=>!s.ok).length, buenos = rc.sel.length - malos;
     if(malos) rcMsg('⚠ Se guardaron '+buenos+' de '+rc.sel.length+'. Revisa los marcados con ⚠ y toca "Reintentar".', 'error');
     else rcMsg('✅ Listo: '+buenos+' certificado'+(buenos!==1?'s':'')+' guardado'+(buenos!==1?'s':'')+'.', 'ok');
-    try { sessionStorage.removeItem('ooi_certs'); } catch(e){}
+    // El servidor ya actualizó Firestore: que Entrenamientos vuelva a leerlo en vez de usar la copia de esta sesión
+    try { sessionStorage.removeItem('ooi_certs'); sessionStorage.removeItem('ooi_training_data'); } catch(e){}
+    if(buenos){ TRAINING_DATA_DYNAMIC = null; trainingDataCargado = false; }
   }catch(e){
     if(e.message==='auth') return;   // sesionExpirada() ya llevó al inicio de sesión
     rcMsg('⚠ '+(/HTTP|fetch|network/i.test(e.message) ? 'Error de conexión. Vuelve a intentar.' : e.message), 'error');
