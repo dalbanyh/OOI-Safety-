@@ -2847,26 +2847,6 @@ function fetchTrainingData() {
     });
 }
 
-function calcExpiry(trainingName, dateStr) {
-  if (!dateStr) return '';
-  try {
-    var d = new Date(dateStr);
-    if (isNaN(d.getTime())) return '';
-    var name = trainingName.toLowerCase();
-    var years = 3; // default
-    if (name.includes('osha 10') || name.includes('osha 30')) years = 5;
-    else if (name.includes('new hire') || name.includes('confined') || 
-             name.includes('fall') || name.includes('fire') || 
-             name.includes('loto') || name.includes('respiratory')) years = 1;
-    else if (name.includes('cpr') || name.includes('first aid') || 
-             name.includes('silica') || name.includes('weld') ||
-             name.includes('grout') || name.includes('pier') || 
-             name.includes('flagger')) years = 2;
-    d.setFullYear(d.getFullYear() + years);
-    return d.toISOString().substring(0, 10);
-  } catch(e) { return ''; }
-}
-
 function getTrainingData() {
   // Returns current training data - dynamic or static fallback
   if (TRAINING_DATA_DYNAMIC && TRAINING_DATA_DYNAMIC.length > 0) return TRAINING_DATA_DYNAMIC;
@@ -4321,7 +4301,7 @@ async function empGuardar(){
   try{
     const r = await enviarAScript({tipo:'nuevo_empleado', apellidos:ap, nombres:no, ooiId:ooi, rehire:rehire,
       fechaNewHire:fechaNH, foto: empFotoNueva ? empFotoNueva.split(',')[1] : ''});
-    const trainings = fechaNH ? [{name:'New Hire', date:fechaNH, expires:calcExpiry('New Hire', fechaNH)}] : [];
+    const trainings = fechaNH ? [{name:'New Hire', date:fechaNH, expires:''}] : [];   // New Hire no vence
     empActualizarLocal(r.empleado, {ooi_id:r.ooiId, foto:r.fotoId||'', trainings:trainings});
     empMsg('');
     empMostrarResultado(r);
@@ -4541,18 +4521,12 @@ function sftRender(){
 const CATALOGO_CERT_APP = [
   ['NEWHIRE','New Hire',null], ['OSHA10','OSHA 10',null], ['OSHA30','OSHA 30',null],
   ['EXCAV','Excavations & Trenches',36], ['CPR','CPR / First Aid',24], ['LOTO','LOTO',36],
-  ['SOILNAIL','Soilnail Drilling - Clase',36], ['SOILNAIL-EVAL','Soilnail Drilling - Evaluación de campo',36],
-  ['TIRE','Tire Service Equipment',36],
-  ['PIERDRILL','Pier Drill - Clase',36], ['PIERDRILL-EVAL','Pier Drill - Evaluación de campo',36],
-  ['FALLPROT','Fall Protection',36],
-  ['BOOM','Boom & Scissor Lift - Clase',36], ['BOOM-EVAL','Boom & Scissor Lift - Evaluación de campo',36],
-  ['RTFL','RTFL - Clase',36], ['RTFL-EVAL','RTFL - Evaluación de campo',36],
-  ['HEAVYEQ','Heavy Equipment - Clase',36], ['HEAVYEQ-EVAL','Heavy Equipment - Evaluación de campo',36],
-  ['DOOSAN','Doosan-Develon (práctica)',36],
-  ['FORKLIFT','Warehouse Forklift - Clase',36], ['FORKLIFT-EVAL','Warehouse Forklift - Prueba de campo',36],
-  ['DRIVER','Driver Safety / Defensive Driving (Amerisure)',36], ['FLEET','Fleet & Driver Safety',36],
+  ['SOILNAIL','Soilnail Drilling',36], ['TIRE','Tire Service Equipment',36], ['PIERDRILL','Pier Drill',36],
+  ['FALLPROT','Fall Protection',36], ['BOOM','Boom & Scissor Lift',36], ['RTFL','RTFL',36],
+  ['HEAVYEQ','Heavy Equipment (incluye Doosan-Develon)',36], ['FORKLIFT','Warehouse Forklift',36],
+  ['FLEET','Fleet & Driver Safety (Defensive Driving)',36],
   ['GROUT','Grout Pump Operator',36], ['FLAGGER','Flagger',36], ['SHOTCRETE','Shotcrete Crew Safety',36],
-  ['RIGGING','Rigging & Signaling',36], ['RIGGING-ONLY','Rigging Only',36], ['CRANE','Overhead Crane',36],
+  ['RIGGING','Rigging & Signaling',36], ['CRANE','Overhead Crane',36],
   ['SILICA','Silica',36], ['FIREEXT','Fire Extinguisher',12], ['WELDING','3F & 4F SMAW Welding',36],
   ['CONFINED','Confined Space',36], ['RESP','Respiratory Protection',12]
 ];
