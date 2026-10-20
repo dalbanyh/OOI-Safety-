@@ -1135,12 +1135,6 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{outline:none;}
         <span class="role-arrow"><svg class="ico"><use href="#i-chev"/></svg></span>
       </button>
 
-      <button class="role-btn" onclick="superTab('fittest')">
-        <div class="role-icon"><svg class="ico"><use href="#i-wind"/></svg></div>
-        <div class="rb-body"><div class="rb-title">Fit Test</div><div class="rb-desc">Programa de Respiradores — Historial</div></div>
-        <span class="role-arrow"><svg class="ico"><use href="#i-chev"/></svg></span>
-      </button>
-
       <button class="role-btn" onclick="superTab('training')">
         <div class="role-icon"><svg class="ico"><use href="#i-book"/></svg></div>
         <div class="rb-body"><div class="rb-title">Solicitar Entrenamiento</div><div class="rb-desc">Solicitudes acumuladas — mínimo 8 para agendar</div></div>
@@ -1387,15 +1381,6 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{outline:none;}
     </div>
   </div>
 
-  <!-- FIT TEST sub-panel for super -->
-  <div id="super-fittest-panel" style="display:none;">
-    <div style="max-width:480px;margin:0 auto;padding:14px 16px 80px;">
-      <div style="font-family:var(--f-head);font-size:18px;font-weight:800;margin-bottom:14px;">🫁 Programa de Respiradores</div>
-      <div style="font-size:13px;color:var(--text2);margin-bottom:14px;">Historial de todos los Fit Tests:</div>
-      <div id="super-fittest-list"><div class="loading">⏳ Cargando...</div></div>
-      <button class="btn btn-ghost" onclick="superBack()" style="margin-top:16px;">← Atrás</button>
-    </div>
-  </div>
 </div>
 
 
@@ -1601,7 +1586,7 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{outline:none;}
       </div>
 
       <div style="background:#F3E8FF;border:1px solid rgba(107,33,168,0.2);border-radius:var(--radius);padding:12px 14px;margin-bottom:14px;font-size:13px;color:#6B21A8;">
-        📧 Al completar, se notificará al Departamento de Seguridad y quedará registrado en Google Drive.
+        📧 Al completar, se notificará al Departamento de Seguridad y quedará registrado en Google Drive y en el tab Fit Test de Safety. Si el resultado es PASS, la fecha también se anota en el EMPLOYEE TRAINING LOG (Respiratory Protection).
       </div>
 
       <div class="submit-msg" id="rrhh-msg"></div>
@@ -1646,6 +1631,31 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{outline:none;}
         <div class="rb-body"><div class="rb-title">Registrar certificados</div><div class="rb-desc">Uno o varios asistentes · se guarda en Drive y en el Training Log</div></div>
         <span class="role-arrow"><svg class="ico"><use href="#i-chev"/></svg></span>
       </button>
+
+      <button class="role-btn" onclick="safetyTab('fittest')">
+        <div class="role-icon"><svg class="ico"><use href="#i-wind"/></svg></div>
+        <div class="rb-body"><div class="rb-title">Fit Test</div><div class="rb-desc">Qué trabajadores tienen Fit Test, resultado y vencimiento</div></div>
+        <span class="role-arrow"><svg class="ico"><use href="#i-chev"/></svg></span>
+      </button>
+    </div>
+  </div>
+
+  <!-- FIT TEST: un renglón por trabajador. Datos: hoja FitTests (solicitudes del super/foreman + tarjetas de RRHH) -->
+  <div id="safety-fittest-panel" style="display:none;">
+    <div style="max-width:480px;margin:0 auto;padding:14px 16px 80px;">
+      <div style="font-family:var(--f-head);font-size:18px;font-weight:800;margin-bottom:4px;">🫁 Fit Test</div>
+      <div style="font-size:12px;color:var(--text2);margin-bottom:14px;">Último Fit Test de cada trabajador. Vence a los 12 meses (OSHA 1910.134). Las tarjetas las sube Recursos Humanos.</div>
+      <div class="stat-grid" id="sft-stats"></div>
+      <input type="text" id="sft-buscar" placeholder="🔍 Buscar trabajador..." oninput="sftRender()" autocomplete="off" style="width:100%;padding:10px 12px;border-radius:var(--radius);border:1.5px solid var(--border2);font-family:inherit;font-size:14px;background:var(--bg2);color:var(--text);box-sizing:border-box;margin-bottom:10px;"/>
+      <div id="sft-filtros" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;">
+        <button class="tp-chip on" data-f="todos" onclick="sftFiltro('todos')">Todos</button>
+        <button class="tp-chip" data-f="vigente" onclick="sftFiltro('vigente')">✓ Vigente</button>
+        <button class="tp-chip" data-f="pronto" onclick="sftFiltro('pronto')">🔔 Por vencer</button>
+        <button class="tp-chip" data-f="vencido" onclick="sftFiltro('vencido')">⚠ Vencido</button>
+        <button class="tp-chip" data-f="fail" onclick="sftFiltro('fail')">❌ FAIL</button>
+        <button class="tp-chip" data-f="pendiente" onclick="sftFiltro('pendiente')">🔴 Pendiente</button>
+      </div>
+      <div id="sft-list"><div class="loading">⏳ Cargando...</div></div>
     </div>
   </div>
 
@@ -2323,33 +2333,6 @@ async function loadDrilsWall(){
   }
 }
 
-async function loadSuperFitTests(){
-  const listEl = document.getElementById('super-fittest-list');
-  try{
-    const json = await leerDeScript('fittest');
-    const all = json.fittests||[];
-    if(!all.length){
-      listEl.innerHTML='<div class="empty-state"><div class="icon">🫁</div><div>No hay solicitudes de Fit Test aún.</div></div>';
-      return;
-    }
-    listEl.innerHTML = all.map(r=>`
-      <div class="card" style="margin-bottom:10px;border-left:3px solid ${r.status==='Completado'?'var(--g5)':r.status==='Agendado'?'var(--a3)':'var(--swa)'};">
-        <div style="display:flex;align-items:flex-start;gap:10px;">
-          <div style="flex:1;">
-            <div style="font-size:15px;font-weight:700;">🫁 ${r.trabajador}</div>
-            <div style="font-size:12px;color:var(--text2);margin-top:2px;">${r.proyecto||'—'} · ${r.razon||'—'}</div>
-            <div style="font-size:11px;color:var(--text3);margin-top:2px;">${r.fecha} · Foreman: ${r.foreman||'—'}</div>
-          </div>
-          <span class="badge ${r.status==='Completado'?'badge-ok':r.status==='Agendado'?'badge-pending':'badge-bad'}">
-            ${r.status==='Completado'?'✅ Completado':r.status==='Agendado'?'🟡 Agendado':'🔴 Pendiente'}
-          </span>
-        </div>
-      </div>`).join('');
-  }catch(err){
-    listEl.innerHTML='<div style="color:var(--danger-text);padding:20px;text-align:center;font-size:13px;">Error cargando registros.</div>';
-  }
-}
-
 function opBack(){
   const selectEl = document.getElementById('op-machine-select');
   const groutEl = document.getElementById('op-grout-panel');
@@ -2707,7 +2690,7 @@ function empleadosValidos(names) {
 // Selectores de empleados que dependen del EMPLOYEE TRAINING LOG (no de la lista Operadores)
 function poblarSelectoresEmpleados() {
   var lista = (listasGlobal.empleados && listasGlobal.empleados.length) ? listasGlobal.empleados : (listasGlobal.operadores || []);
-  [['fittest-trabajador', 'Selecciona trabajador'], ['tr-empleado', 'Selecciona empleado']].forEach(function(s) {
+  [['fittest-trabajador', 'Selecciona trabajador'], ['rrhh-trabajador', 'Selecciona trabajador'], ['tr-empleado', 'Selecciona empleado']].forEach(function(s) {
     var el = document.getElementById(s[0]);
     if (!el) return;
     var actual = el.value;
@@ -2794,7 +2777,7 @@ function fetchTrainingData() {
           stc_id:   '',
           trainings: trainings
         };
-      }).filter(function(e) { return e.name; })
+      }).filter(function(e) { return /[A-Za-z]/.test(e.name); }) // sin letras = fila de totales ("281")
         .sort(function(a, b) { return a.name.localeCompare(b.name); });
 
       TRAINING_DATA_DYNAMIC = converted;
@@ -3538,7 +3521,7 @@ function tpCloseDetail(){
 
 function superBack(){
   // Check which panel is visible
-  var panels = ['super-insp-panel','super-train-panel','super-fittest-panel','super-training-panel'];
+  var panels = ['super-insp-panel','super-train-panel','super-training-panel'];
   var anyOpen = panels.some(function(pid){
     var el = document.getElementById(pid);
     return el && el.style.display !== 'none';
@@ -3570,7 +3553,6 @@ function superTab(tab){
   var panels = [
     'super-insp-panel',
     'super-train-panel',
-    'super-fittest-panel',
     'super-training-panel'
   ];
   panels.forEach(function(pid){
@@ -3603,11 +3585,6 @@ function superTab(tab){
       TRAINING_DATA_DYNAMIC = typeof TRAINING_DATA !== 'undefined' ? TRAINING_DATA : [];
       tpInit();
     });
-  } else if(tab === 'fittest'){
-    if(bt) bt.textContent = 'Fit Test';
-    var el = document.getElementById('super-fittest-panel');
-    if(el) el.style.display = 'block';
-    loadFitTestHistory();
   } else if(tab === 'training'){
     if(bt) bt.textContent = 'Solicitar Entrenamiento';
     var el = document.getElementById('super-training-panel');
@@ -3759,8 +3736,9 @@ function initRespiradoresRRHH(){
   rrhhTab('pending');
   const today=new Date().toISOString().split('T')[0];
   const fd=document.getElementById('rrhh-fecha');if(fd)fd.value=today;
-  // Load trabajadores dropdown
-  buildDropdown(document.getElementById('rrhh-trabajador'),listasGlobal.operadores||[],'Selecciona trabajador');
+  // Trabajadores: misma lista del EMPLOYEE TRAINING LOG que usa la solicitud (así el nombre coincide)
+  poblarSelectoresEmpleados();
+  if (!empleadosCargados) fetchEmpleados();
   // Reset photo store
   if(!photoStore['rrhh-card'])photoStore['rrhh-card']=[];
   renderPhotoGrid('rrhh-card');
@@ -3800,9 +3778,14 @@ function preselect(trabajador){
   rrhhTab('upload');
   const sel=document.getElementById('rrhh-trabajador');
   if(sel){
+    // Igual o con otra escritura (acentos, espacios); si no está en la lista, se agrega tal como viene en la solicitud
+    let idx=-1;
     for(let i=0;i<sel.options.length;i++){
-      if(sel.options[i].value===trabajador){sel.selectedIndex=i;break;}
+      if(sel.options[i].value===trabajador){idx=i;break;}
+      if(idx<0 && sel.options[i].value && sftClave(sel.options[i].value)===sftClave(trabajador)) idx=i;
     }
+    if(idx<0){sel.add(new Option(trabajador,trabajador));idx=sel.options.length-1;}
+    sel.selectedIndex=idx;
   }
   window.scrollTo(0,0);
 }
@@ -3862,15 +3845,16 @@ async function submitRRHH(){
   msg.style.background='var(--info-bg)';msg.style.color='var(--info-text)';
 
   try{
-    await enviarAScript(payload);
+    const res=await enviarAScript(payload);
     msg.style.display='none';
     document.getElementById('rrhh-upload-panel').querySelector('.card').style.display='none';
     document.getElementById('rrhh-resumen').innerHTML=
-      '<strong>Trabajador:</strong> '+trabajador+'<br>'+
-      '<strong>Clínica:</strong> '+clinica+'<br>'+
-      '<strong>Resultado:</strong> '+resultado+'<br>'+
-      '<strong>Mascarilla:</strong> '+(mascarilla||'—')+'<br>'+
-      '<strong>Foto:</strong> '+(cardUrls.length?'✅ Subida a Drive':'Sin foto');
+      '<strong>Trabajador:</strong> '+sftEsc(trabajador)+'<br>'+
+      '<strong>Clínica:</strong> '+sftEsc(clinica)+'<br>'+
+      '<strong>Resultado:</strong> '+sftEsc(resultado)+'<br>'+
+      '<strong>Mascarilla:</strong> '+sftEsc(mascarilla||'—')+'<br>'+
+      '<strong>Foto:</strong> '+(cardUrls.length?'✅ Subida a Drive':'Sin foto')+
+      (res&&res.trainingLog?'<br><strong>Training Log:</strong> '+sftEsc(res.trainingLog):'');
     document.getElementById('rrhh-confirmacion').style.display='block';
   }catch(err){
     msg.textContent='⚠ Error de conexión';
@@ -4101,14 +4085,19 @@ function foremanSalir(){
 
 
 // ── SAFETY PORTAL ──
-function initSafety(){
-  // Pantalla de selección visible, panel de certificados oculto
+const SAFETY_PANELES = {certs:'safety-certs-panel', fittest:'safety-fittest-panel'};
+
+function safetyMostrarMenu(){
+  Object.keys(SAFETY_PANELES).forEach(k=>{const p=document.getElementById(SAFETY_PANELES[k]);if(p)p.style.display='none';});
   const sel = document.getElementById('safety-selection-screen');
   if(sel) sel.style.display='block';
-  const cp = document.getElementById('safety-certs-panel');
-  if(cp) cp.style.display='none';
   const bt=document.getElementById('safety-bottom-title');
   if(bt) bt.textContent='Portal de Safety';
+}
+
+function initSafety(){
+  // Pantalla de selección visible, paneles ocultos
+  safetyMostrarMenu();
   if(listasGlobal.operadores && listasGlobal.operadores.length > 0){
     poblarTodosLosDropdowns(listasGlobal);
   } else {
@@ -4119,30 +4108,147 @@ function initSafety(){
 }
 
 function safetyBack(){
-  const cp = document.getElementById('safety-certs-panel');
-  if(cp && cp.style.display !== 'none'){
-    cp.style.display='none';
-    const sel = document.getElementById('safety-selection-screen');
-    if(sel) sel.style.display='block';
-    const bt=document.getElementById('safety-bottom-title');
-    if(bt) bt.textContent='Portal de Safety';
-  } else {
-    show('s-login');
-  }
+  const abierto = Object.keys(SAFETY_PANELES).some(k=>{const p=document.getElementById(SAFETY_PANELES[k]);return p && p.style.display!=='none';});
+  if(abierto) safetyMostrarMenu();
+  else show('s-login');
+  window.scrollTo(0,0);
 }
 
 function safetyTab(tab){
+  safetyMostrarMenu();
   const sel = document.getElementById('safety-selection-screen');
   if(sel) sel.style.display='none';
-  const cp = document.getElementById('safety-certs-panel');
-  if(cp) cp.style.display='none';
   const bt = document.getElementById('safety-bottom-title');
+  const panel = document.getElementById(SAFETY_PANELES[tab]);
+  if(panel) panel.style.display='block';
   if(tab==='certs'){
     if(bt) bt.textContent='📄 Registrar certificados';
-    cp.style.display='block';
     rcIniciar();
+  } else if(tab==='fittest'){
+    if(bt) bt.textContent='🫁 Fit Test';
+    sftCargar();
   }
   window.scrollTo(0,0);
+}
+
+// ── FIT TEST (Safety) ──
+// Lee la hoja FitTests (leer 'fittest'): filas 'Solicitud' (super/foreman) y 'Completado' (tarjeta de RRHH).
+// Se agrupan por trabajador: el último Completado da resultado y vencimiento (12 meses, OSHA 1910.134);
+// una solicitud sin tarjeta con fecha igual o posterior cuenta como pendiente.
+const SFT_MESES = 12, SFT_AVISO_DIAS = 30;
+let sftDatos = [], sftFiltroActual = 'todos';
+
+function sftEsc(s){return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function sftClave(n){return String(n||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toUpperCase().replace(/[^A-Z0-9,]+/g,' ').replace(/\s*,\s*/g,', ').replace(/\s+/g,' ').trim();}
+function sftFechaOk(s){return /^\d{4}-\d{2}-\d{2}$/.test(String(s||''));}
+function sftUS(s){if(!sftFechaOk(s))return s||'—';const p=s.split('-');return (+p[1])+'/'+(+p[2])+'/'+p[0];}
+
+function sftAgrupar(registros){
+  const hoy=new Date(), hoyUTC=Date.UTC(hoy.getFullYear(),hoy.getMonth(),hoy.getDate());
+  const orden=registros.slice().sort((a,b)=>String(b.fecha).localeCompare(String(a.fecha)) || (Number(b.id)||0)-(Number(a.id)||0));
+  const grupos={};
+  orden.forEach(r=>{
+    const k=sftClave(r.trabajador);
+    if(!k) return;
+    (grupos[k]=grupos[k]||{nombre:String(r.trabajador).trim(),regs:[]}).regs.push(r);
+  });
+  return Object.keys(grupos).map(k=>{
+    const g=grupos[k];
+    const ultimo=g.regs.find(r=>r.tipo==='Completado') || null;
+    const pendiente=g.regs.find(r=>r.tipo!=='Completado' && r.status!=='Completado' && !(ultimo && String(ultimo.fecha)>=String(r.fecha))) || null;
+    const w={nombre:g.nombre, ultimo, pendiente, vence:'', dias:null, estado:''};
+    if(ultimo){
+      if(sftFechaOk(ultimo.fecha)){
+        const p=ultimo.fecha.split('-');
+        const v=new Date(Date.UTC(+p[0],+p[1]-1+SFT_MESES,+p[2]));
+        w.vence=v.toISOString().slice(0,10);
+        w.dias=Math.round((v.getTime()-hoyUTC)/86400000);
+      }
+      const res=String(ultimo.resultado||'').toUpperCase();
+      w.estado = res==='FAIL' ? 'fail' : w.dias==null ? 'vigente' : w.dias<0 ? 'vencido' : w.dias<=SFT_AVISO_DIAS ? 'pronto' : 'vigente';
+    } else {
+      w.estado='pendiente';
+    }
+    return w;
+  });
+}
+
+async function sftCargar(){
+  const listEl=document.getElementById('sft-list');
+  listEl.innerHTML='<div class="loading">⏳ Cargando...</div>';
+  document.getElementById('sft-stats').innerHTML='';
+  try{
+    const json=await leerDeScript('fittest');
+    if(!json || json.status!=='ok') throw new Error((json&&json.message)||'Respuesta inválida');
+    sftDatos=sftAgrupar(json.fittests||[]);
+    sftRender();
+  }catch(err){
+    if(String(err&&err.message)==='auth') return;
+    listEl.innerHTML='<div style="color:var(--danger-text);padding:20px;text-align:center;font-size:13px;">No se pudieron cargar los Fit Tests.<br><button class="btn btn-ghost" style="margin-top:10px;" onclick="sftCargar()">Reintentar</button></div>';
+  }
+}
+
+function sftFiltro(f){
+  sftFiltroActual=f;
+  document.querySelectorAll('#sft-filtros .tp-chip').forEach(b=>b.classList.toggle('on',b.dataset.f===f));
+  sftRender();
+}
+
+function sftRender(){
+  const n=e=>sftDatos.filter(w=>w.estado===e).length;
+  const pend=sftDatos.filter(w=>w.pendiente).length;
+  document.getElementById('sft-stats').innerHTML=
+    '<div class="stat-card"><div class="stat-num" style="color:var(--success-text);">'+n('vigente')+'</div><div class="stat-lbl">Vigentes</div></div>'+
+    '<div class="stat-card"><div class="stat-num" style="color:var(--warning-text);">'+n('pronto')+'</div><div class="stat-lbl">Por vencer (30 días)</div></div>'+
+    '<div class="stat-card"><div class="stat-num" style="color:var(--danger-text);">'+(n('vencido')+n('fail'))+'</div><div class="stat-lbl">Vencidos o FAIL</div></div>'+
+    '<div class="stat-card"><div class="stat-num">'+pend+'</div><div class="stat-lbl">Solicitudes pendientes</div></div>';
+
+  const q=sftClave(document.getElementById('sft-buscar').value);
+  const prioridad={vencido:0,fail:1,pendiente:2,pronto:3,vigente:4};
+  const lista=sftDatos
+    .filter(w=>sftFiltroActual==='todos' || (sftFiltroActual==='pendiente' ? !!w.pendiente : w.estado===sftFiltroActual))
+    .filter(w=>!q || sftClave(w.nombre).indexOf(q)>-1)
+    .sort((a,b)=>prioridad[a.estado]-prioridad[b.estado] || a.nombre.localeCompare(b.nombre));
+
+  const listEl=document.getElementById('sft-list');
+  if(!sftDatos.length){listEl.innerHTML='<div class="empty-state"><div class="icon">🫁</div><div>No hay Fit Tests registrados aún.</div></div>';return;}
+  if(!lista.length){listEl.innerHTML='<div class="empty-state"><div class="icon">🔍</div><div>Ningún trabajador coincide.</div></div>';return;}
+
+  const BADGE={
+    vigente:'<span class="badge badge-ok">✓ Vigente</span>',
+    pronto:'<span class="badge badge-pending">🔔 Por vencer</span>',
+    vencido:'<span class="badge badge-bad">⚠ Vencido</span>',
+    fail:'<span class="badge badge-bad">❌ FAIL</span>',
+    pendiente:'<span class="badge badge-bad">🔴 Pendiente</span>'
+  };
+  const BORDE={vigente:'var(--success-text)',pronto:'var(--warning-text)',vencido:'var(--danger-text)',fail:'var(--danger-text)',pendiente:'var(--danger-text)'};
+  listEl.innerHTML=lista.map(w=>{
+    const u=w.ultimo, p=w.pendiente;
+    let html='<div class="card" style="margin-bottom:10px;border-left:3px solid '+BORDE[w.estado]+';">'+
+      '<div style="display:flex;align-items:flex-start;gap:10px;"><div style="flex:1;min-width:0;">'+
+      '<div style="font-size:15px;font-weight:700;">🫁 '+sftEsc(w.nombre)+'</div>';
+    if(u){
+      const det=[sftUS(u.fecha), u.resultado, u.mascarilla, u.clinica].filter(Boolean).map(sftEsc).join(' · ');
+      html+='<div style="font-size:12px;color:var(--text2);margin-top:2px;">Fit Test: '+det+'</div>';
+      if(w.estado==='fail'){
+        html+='<div style="font-size:12px;margin-top:2px;color:var(--danger-text);">No aprobó: necesita repetir el Fit Test</div>';
+      } else if(w.vence){
+        const cuando = w.dias<0 ? 'hace '+(-w.dias)+' días' : w.dias===0 ? 'hoy' : 'en '+w.dias+' días';
+        html+='<div style="font-size:12px;margin-top:2px;color:'+(w.dias<0?'var(--danger-text)':w.dias<=SFT_AVISO_DIAS?'var(--warning-text)':'var(--text3)')+';">Vence: '+sftUS(w.vence)+' ('+cuando+')</div>';
+      }
+    } else {
+      html+='<div style="font-size:12px;color:var(--text2);margin-top:2px;">Sin tarjeta de Fit Test registrada</div>';
+    }
+    if(p){
+      html+='<div style="font-size:12px;color:var(--danger-text);margin-top:4px;">🔴 Solicitud pendiente desde '+sftEsc(sftUS(p.fecha))+'</div>'+
+        '<div style="font-size:11px;color:var(--text3);margin-top:2px;">'+[p.foreman&&('Foreman: '+p.foreman),p.proyecto,p.razon].filter(Boolean).map(sftEsc).join(' · ')+'</div>';
+    }
+    html+='</div>'+BADGE[w.estado]+'</div>';
+    if(u && /^https:\/\/drive\.google\.com\//.test(String(u.driveUrl||''))){
+      html+='<a href="'+sftEsc(u.driveUrl)+'" target="_blank" rel="noopener" class="drive-btn" style="margin-top:8px;display:inline-flex;">📄 Ver tarjeta en Drive</a>';
+    }
+    return html+'</div>';
+  }).join('');
 }
 
 // ── REGISTRAR CERTIFICADOS (Safety) ──
