@@ -1312,7 +1312,11 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{outline:none;}
         <div class="card">
           <div class="sec-label">Información de la solicitud</div>
           <div class="field">
-            <label>Superintendente que solicita</label>
+            <label>Quién solicita</label>
+            <div style="display:flex;gap:6px;margin-bottom:8px;">
+              <button type="button" class="tp-chip on" id="tr-rol-Superintendente" onclick="trSetRol('Superintendente')">Superintendente</button>
+              <button type="button" class="tp-chip" id="tr-rol-Foreman" onclick="trSetRol('Foreman')">Foreman</button>
+            </div>
             <select id="tr-super"><option value="">— Selecciona superintendente —</option></select>
           </div>
           <div class="field">
@@ -2971,8 +2975,8 @@ function poblarTodosLosDropdowns(listas){
   // Fit test foreman
   buildDropdown(document.getElementById('fittest-foreman'), listas.foremen||[], 'Selecciona foreman');
 
-  // Training requests
-  buildDropdown(document.getElementById('tr-super'), listas.superintendentes||[], 'Selecciona superintendente');
+  // Training requests: quien solicita puede ser superintendente o foreman
+  trSetRol(trRol);
 
   // Trabajador del Fit Test y empleado de Solicitar Entrenamiento: salen del EMPLOYEE TRAINING LOG
   poblarSelectoresEmpleados();
@@ -3941,6 +3945,21 @@ function trainingTab(tab){
   if(tab==='summary'||tab==='list') loadTrainingRequests(tab);
 }
 
+// Quién solicita: 'Superintendente' o 'Foreman'; cambia la lista del selector
+var trRol = 'Superintendente';
+function trSetRol(rol){
+  trRol = rol = rol||'Superintendente';
+  ['Superintendente','Foreman'].forEach(r=>{
+    const b=document.getElementById('tr-rol-'+r);
+    if(b) b.className='tp-chip'+(r===rol?' on':'');
+  });
+  const lista = rol==='Foreman' ? (listasGlobal.foremen||[]) : (listasGlobal.superintendentes||[]);
+  buildDropdown(document.getElementById('tr-super'), lista, rol==='Foreman'?'Selecciona foreman':'Selecciona superintendente');
+}
+function trEtiquetaRol(r){
+  return r.rolSolicitante==='Foreman' ? 'Foreman' : 'Super';
+}
+
 function initTraining(){
   trainingTab('request');
   const today=new Date().toISOString().split('T')[0];
@@ -3963,7 +3982,7 @@ async function enviarTrainingRequest(){
   const entrenamiento = document.getElementById('tr-entrenamiento').value;
   const proyecto = document.getElementById('tr-proyecto').value;
 
-  if(!super_){alert('Por favor selecciona el superintendente.');return;}
+  if(!super_){alert(trRol==='Foreman'?'Por favor selecciona el foreman.':'Por favor selecciona el superintendente.');return;}
   if(!empleado){alert('Por favor selecciona el empleado.');return;}
   if(!entrenamiento){alert('Por favor selecciona el tipo de entrenamiento.');return;}
 
@@ -3971,7 +3990,7 @@ async function enviarTrainingRequest(){
     tipo: 'training_request',
     id: Date.now(),
     fecha: new Date().toISOString().split('T')[0],
-    empleado, superintendente: super_,
+    empleado, superintendente: super_, rolSolicitante: trRol,
     entrenamiento, proyecto,
     notas: document.getElementById('tr-notas').value.trim()
   };
@@ -3995,7 +4014,7 @@ async function enviarTrainingRequest(){
 }
 
 function resetTrainingRequest(){
-  document.getElementById('tr-super').selectedIndex=0;
+  trSetRol('Superintendente');
   document.getElementById('tr-empleado').selectedIndex=0;
   document.getElementById('tr-entrenamiento').selectedIndex=0;
   document.getElementById('tr-proyecto').selectedIndex=0;
@@ -4024,7 +4043,7 @@ async function loadTrainingRequests(tab){
       requests.forEach(r=>{
         const tipo = r.entrenamiento||'Sin tipo';
         if(!trainingMap[tipo]) trainingMap[tipo]=[];
-        trainingMap[tipo].push({empleado:r.empleado, superintendente:r.superintendente, fecha:r.fecha, proyecto:r.proyecto});
+        trainingMap[tipo].push({empleado:r.empleado, superintendente:r.superintendente, rolSolicitante:r.rolSolicitante, fecha:r.fecha, proyecto:r.proyecto});
       });
 
       // Sort by count descending
@@ -4041,7 +4060,7 @@ async function loadTrainingRequests(tab){
           <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:0.5px solid var(--border);">
             <div style="font-size:13px;font-weight:600;">👷 ${e.empleado||'—'}</div>
             <div style="text-align:right;">
-              <div style="font-size:12px;color:var(--text2);">Super: ${e.superintendente||'—'}</div>
+              <div style="font-size:12px;color:var(--text2);">${trEtiquetaRol(e)}: ${e.superintendente||'—'}</div>
               <div style="font-size:11px;color:var(--text3);">${e.proyecto||''}</div>
             </div>
           </div>`).join('');
@@ -4085,7 +4104,7 @@ async function loadTrainingRequests(tab){
           <div style="font-size:14px;font-weight:700;">📚 ${r.entrenamiento}</div>
           <div style="font-size:13px;margin-top:4px;">👷 ${r.empleado}</div>
           <div style="font-size:12px;color:var(--text2);margin-top:2px;">${r.proyecto||'Sin proyecto'} · ${r.fecha}</div>
-          <div style="font-size:11px;color:var(--text3);margin-top:2px;">Solicitado por: ${r.superintendente}</div>
+          <div style="font-size:11px;color:var(--text3);margin-top:2px;">Solicitado por: ${r.superintendente} (${trEtiquetaRol(r)})</div>
         </div>`).join('');
     }
   }catch(err){
