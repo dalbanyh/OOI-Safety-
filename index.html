@@ -574,7 +574,12 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
 .emp-card{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-lg);padding:14px;margin-bottom:10px;cursor:pointer;transition:all 0.15s;box-shadow:var(--shadow-sm);}
 .emp-card:active{background:var(--bg2);}
 .emp-card:hover{border-color:var(--ooi-orange);box-shadow:var(--shadow-md);}
-.emp-avatar{width:40px;height:40px;border-radius:10px;background:var(--ooi-black);color:var(--ooi-orange);font-family:var(--f-display);font-size:14px;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0;letter-spacing:.02em;}
+.emp-avatar{position:relative;overflow:hidden;width:40px;height:40px;border-radius:50%;background:var(--ooi-black);color:var(--ooi-orange);font-family:var(--f-display);font-size:14px;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0;letter-spacing:.02em;}
+/* Foto de perfil: tapa las iniciales; si no carga, se quita y quedan las iniciales */
+.emp-avatar img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:var(--ooi-black);}
+.emp-avatar.lg{width:64px;height:64px;font-size:20px;box-shadow:0 0 0 2px var(--ooi-orange);}
+.emp-avatar.lg.con-foto{cursor:zoom-in;}
+.emp-avatar.xl{width:120px;height:120px;font-size:34px;box-shadow:0 0 0 3px var(--ooi-orange);margin:0 auto;}
 .train-badge{display:inline-flex;align-items:center;gap:3px;padding:3px 10px;border-radius:99px;font-size:11px;font-weight:900;letter-spacing:.03em;}
 .train-badge.current{background:var(--g0);color:var(--g7);}
 .train-badge.expired{background:var(--danger-bg);color:var(--danger-text);}
@@ -1262,11 +1267,14 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{outline:none;}
       <!-- Employee detail -->
       <div id="tp-emp-detail" style="display:none;">
         <div style="background:var(--g9);border-radius:var(--radius-lg);padding:16px;margin-bottom:14px;">
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
-            <div style="font-size:17px;font-weight:600;color:#fff;" id="tp-det-name">—</div>
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:4px;">
+            <div id="tp-det-avatar"></div>
+            <div style="flex:1;min-width:0;">
+              <div style="font-size:17px;font-weight:600;color:#fff;" id="tp-det-name">—</div>
+              <div style="font-size:12px;color:var(--g1);margin-top:2px;" id="tp-det-ids">—</div>
+            </div>
             <button class="btn-icon" style="background:rgba(255,255,255,0.1);border-color:transparent;color:#fff;" onclick="tpCloseDetail()">✕</button>
           </div>
-          <div style="font-size:12px;color:var(--g1);" id="tp-det-ids">—</div>
           <div style="margin-top:10px;" id="tp-det-stats"></div>
         </div>
         <!-- Drive cert search -->
@@ -1637,6 +1645,47 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{outline:none;}
         <div class="rb-body"><div class="rb-title">Fit Test</div><div class="rb-desc">Qué trabajadores tienen Fit Test, resultado y vencimiento</div></div>
         <span class="role-arrow"><svg class="ico"><use href="#i-chev"/></svg></span>
       </button>
+
+      <button class="role-btn" onclick="safetyTab('emp')">
+        <div class="role-icon"><svg class="ico"><use href="#i-hardhat"/></svg></div>
+        <div class="rb-body"><div class="rb-title">Empleados</div><div class="rb-desc">Agregar empleado nuevo al Training Log · foto de perfil</div></div>
+        <span class="role-arrow"><svg class="ico"><use href="#i-chev"/></svg></span>
+      </button>
+    </div>
+  </div>
+
+  <!-- EMPLEADOS: alta en el EMPLOYEE TRAINING LOG y foto de perfil. Servidor: agregarEmpleado() / cambiarFotoPerfil() en Code.gs -->
+  <div id="safety-emp-panel" style="display:none;">
+    <div style="max-width:480px;margin:0 auto;padding:14px 16px 80px;">
+      <div style="font-family:var(--f-head);font-size:18px;font-weight:800;margin-bottom:4px;">👷 Empleados</div>
+      <div style="font-size:12px;color:var(--text2);margin-bottom:16px;">El empleado nuevo se agrega al <strong>EMPLOYEE TRAINING LOG</strong> en orden alfabético, con su carpeta en <strong>OOI Certificaciones</strong>. La foto de perfil se guarda en esa carpeta.</div>
+
+      <div id="emp-form">
+        <div class="card">
+          <div class="sec-label">Agregar empleado nuevo</div>
+          <label for="emp-foto-nuevo" style="display:block;cursor:pointer;margin:4px 0 6px;"><div class="emp-avatar xl" id="emp-foto-prev">📷</div></label>
+          <input type="file" id="emp-foto-nuevo" accept="image/*" style="display:none" onchange="empElegirFoto(this,'nuevo')"/>
+          <div style="text-align:center;font-size:12px;color:var(--text2);margin-bottom:14px;">Toca el círculo para tomar o elegir la foto (opcional) <span id="emp-foto-quitar" style="display:none;">· <a href="#" onclick="empQuitarFoto();return false;" style="color:var(--danger-text);">quitar</a></span></div>
+          <div class="field"><label>Apellido(s)</label><input type="text" id="emp-apellidos" placeholder="Ej. Garcia Lopez" autocomplete="off" oninput="empVistaPrevia()"/></div>
+          <div class="field"><label>Nombre(s)</label><input type="text" id="emp-nombres" placeholder="Ej. Juan Carlos" autocomplete="off" oninput="empVistaPrevia()"/></div>
+          <div class="field"><label>OOI ID</label><input type="text" id="emp-ooi" placeholder="Ej. OOID1323" autocomplete="off" autocapitalize="characters" oninput="empVistaPrevia()"/><div id="emp-ooi-hint" style="font-size:12px;color:var(--text2);margin-top:4px;"></div></div>
+          <div class="field"><label>Fecha de New Hire (opcional)</label><input type="date" id="emp-newhire"/></div>
+          <div class="safety-chk" style="margin-bottom:4px;"><input type="checkbox" id="emp-rehire"/><label for="emp-rehire">Es REHIRE (ya había trabajado en OOI)</label></div>
+          <div id="emp-vista" style="display:none;font-size:13px;margin-top:12px;padding:10px 12px;border-radius:var(--radius);background:var(--bg);"></div>
+        </div>
+        <div class="submit-msg" id="emp-msg"></div>
+        <button class="btn" id="emp-btn" style="background:#0F6E56;color:white;border-color:#0F6E56;font-size:16px;min-height:54px;" onclick="empGuardar()">💾 Agregar al Training Log</button>
+      </div>
+
+      <div id="emp-resultado" style="display:none;"></div>
+
+      <div class="card" style="margin-top:22px;">
+        <div class="sec-label">Foto de un empleado que ya está</div>
+        <div style="font-size:12px;color:var(--text2);margin-bottom:10px;">Busca al empleado y elige su foto. Si ya tenía una, se reemplaza.</div>
+        <input type="text" id="emp-buscar" placeholder="🔍 Buscar empleado..." oninput="empRenderBusqueda()" autocomplete="off" style="width:100%;padding:10px 12px;border-radius:var(--radius);border:1.5px solid var(--border2);font-family:inherit;font-size:14px;background:var(--bg2);color:var(--text);box-sizing:border-box;"/>
+        <div id="emp-resultados"></div>
+        <div id="emp-sel"></div>
+      </div>
     </div>
   </div>
 
@@ -2004,7 +2053,7 @@ function tpRender(){
       const initials=emp.name.split(/[,\s]+/).filter(Boolean).map(p=>p[0]||'').slice(0,2).join('').toUpperCase();
       return `<div class="emp-card" onclick="tpOpenDetail(${i+'_'+tpTrainingFilter.replace(/[^a-z0-9]/gi,'_')},${getTrainingData().indexOf(emp)})">
         <div style="display:flex;align-items:center;gap:12px;">
-          <div class="emp-avatar">${initials}</div>
+          ${empAvatarHtml(emp)}
           <div style="flex:1;">
             <div style="font-size:15px;font-weight:500;">${emp.name}</div>
             <div style="font-size:12px;color:var(--text2);margin-top:2px;">${emp.ooi_id||'Sin ID'}</div>
@@ -2027,7 +2076,7 @@ function tpRender(){
     const expiredCount=emp.trainings.filter(t=>{if(!t.expires)return false;return new Date(t.expires)<TODAY;}).length;
     return `<div class="emp-card" onclick="tpOpenDetail(null,${getTrainingData().indexOf(emp)})">
       <div style="display:flex;align-items:center;gap:12px;">
-        <div class="emp-avatar">${initials}</div>
+        ${empAvatarHtml(emp)}
         <div style="flex:1;">
           <div style="font-size:15px;font-weight:500;">${emp.name}</div>
           <div style="font-size:12px;color:var(--text2);margin-top:2px;">${emp.trainings.length} entrenamientos${expiredCount?(' · <span style="color:var(--danger-text);">'+expiredCount+' vencidos</span>'):''}</div>
@@ -2044,6 +2093,7 @@ async function tpOpenDetail(_,empIdx){
   document.getElementById('tp-results').style.display='none';
   document.getElementById('tp-emp-detail').style.display='block';
   const initials=emp.name.split(/[,\s]+/).filter(Boolean).map(p=>p[0]||'').slice(0,2).join('').toUpperCase();
+  document.getElementById('tp-det-avatar').innerHTML=empAvatarHtml(emp,'lg');
   document.getElementById('tp-det-name').textContent=emp.name;
   document.getElementById('tp-det-ids').textContent=(emp.ooi_id?'OOI: '+emp.ooi_id:'')+(emp.stc_id?' · STC: '+emp.stc_id:'');
   
@@ -2775,6 +2825,7 @@ function fetchTrainingData() {
           name:     fbFieldStr(doc, 'name'),
           ooi_id:   fbFieldStr(doc, 'ooi_id'),
           stc_id:   '',
+          foto:     fbFieldStr(doc, 'foto'),   // id de Drive de la foto de perfil ('' = sin foto)
           trainings: trainings
         };
       }).filter(function(e) { return /[A-Za-z]/.test(e.name); }) // sin letras = fila de totales ("281")
@@ -3097,6 +3148,16 @@ function reintentarFoto(key,i){
 function fotoSrc(url,ancho){
   const m=/drive\.google\.com\/(?:file\/d\/|open\?id=|uc\?[^"'\s]*id=)([\w-]+)/.exec(String(url||''));
   return m?'https://drive.google.com/thumbnail?id='+m[1]+'&sz=w'+(ancho||800):url;
+}
+// Foto de perfil (id de Drive en empleados/{doc}.foto) en un círculo; sin foto, o si no carga, quedan las iniciales
+function empIniciales(nombre){ return String(nombre||'').split(/[,\s]+/).filter(Boolean).map(p=>p[0]||'').slice(0,2).join('').toUpperCase(); }
+function empFotoUrl(id,ancho){ return 'https://drive.google.com/thumbnail?id='+encodeURIComponent(id)+'&sz=w'+(ancho||200); }
+function empAvatarHtml(emp,clase){
+  const id = emp && /^[\w-]{10,}$/.test(emp.foto||'') ? emp.foto : '';
+  const grande = clase==='lg' || clase==='xl';
+  const img = id ? '<img src="'+empFotoUrl(id,grande?400:120)+'" alt="" loading="lazy" onerror="this.parentNode.classList.remove(\'con-foto\');this.remove()">' : '';
+  const zoom = id && grande ? ' onclick="openLightbox(\''+empFotoUrl(id,1000)+'\')"' : '';
+  return '<div class="emp-avatar'+(clase?' '+clase:'')+(id?' con-foto':'')+'"'+zoom+'>'+rcEsc(empIniciales(emp&&emp.name))+img+'</div>';
 }
 function abrirFoto(key,i){const p=(photoStore[key]||[])[i];if(p)openLightbox(p.data||fotoSrc(p.url,1600));}
 function renderPhotoGrid(key){
@@ -3422,7 +3483,7 @@ function tpRender(){
       const initials=emp.name.split(/[,\s]+/).filter(Boolean).map(p=>p[0]||'').slice(0,2).join('').toUpperCase();
       return `<div class="emp-card" onclick="tpOpenDetail(${i+'_'+tpTrainingFilter.replace(/[^a-z0-9]/gi,'_')},${getTrainingData().indexOf(emp)})">
         <div style="display:flex;align-items:center;gap:12px;">
-          <div class="emp-avatar">${initials}</div>
+          ${empAvatarHtml(emp)}
           <div style="flex:1;">
             <div style="font-size:15px;font-weight:500;">${emp.name}</div>
             <div style="font-size:12px;color:var(--text2);margin-top:2px;">${emp.ooi_id||'Sin ID'}</div>
@@ -3445,7 +3506,7 @@ function tpRender(){
     const expiredCount=emp.trainings.filter(t=>{if(!t.expires)return false;return new Date(t.expires)<TODAY;}).length;
     return `<div class="emp-card" onclick="tpOpenDetail(null,${getTrainingData().indexOf(emp)})">
       <div style="display:flex;align-items:center;gap:12px;">
-        <div class="emp-avatar">${initials}</div>
+        ${empAvatarHtml(emp)}
         <div style="flex:1;">
           <div style="font-size:15px;font-weight:500;">${emp.name}</div>
           <div style="font-size:12px;color:var(--text2);margin-top:2px;">${emp.trainings.length} entrenamientos${expiredCount?(' · <span style="color:var(--danger-text);">'+expiredCount+' vencidos</span>'):''}</div>
@@ -3462,6 +3523,7 @@ async function tpOpenDetail(_,empIdx){
   document.getElementById('tp-results').style.display='none';
   document.getElementById('tp-emp-detail').style.display='block';
   const initials=emp.name.split(/[,\s]+/).filter(Boolean).map(p=>p[0]||'').slice(0,2).join('').toUpperCase();
+  document.getElementById('tp-det-avatar').innerHTML=empAvatarHtml(emp,'lg');
   document.getElementById('tp-det-name').textContent=emp.name;
   document.getElementById('tp-det-ids').textContent=(emp.ooi_id?'OOI: '+emp.ooi_id:'')+(emp.stc_id?' · STC: '+emp.stc_id:'');
   
@@ -4085,7 +4147,7 @@ function foremanSalir(){
 
 
 // ── SAFETY PORTAL ──
-const SAFETY_PANELES = {certs:'safety-certs-panel', fittest:'safety-fittest-panel'};
+const SAFETY_PANELES = {certs:'safety-certs-panel', fittest:'safety-fittest-panel', emp:'safety-emp-panel'};
 
 function safetyMostrarMenu(){
   Object.keys(SAFETY_PANELES).forEach(k=>{const p=document.getElementById(SAFETY_PANELES[k]);if(p)p.style.display='none';});
@@ -4127,8 +4189,228 @@ function safetyTab(tab){
   } else if(tab==='fittest'){
     if(bt) bt.textContent='🫁 Fit Test';
     sftCargar();
+  } else if(tab==='emp'){
+    if(bt) bt.textContent='👷 Empleados';
+    empIniciar();
   }
   window.scrollTo(0,0);
+}
+
+// ── EMPLEADOS (Safety) ──
+// Alta en el EMPLOYEE TRAINING LOG (tipo 'nuevo_empleado') y foto de perfil (tipo 'foto_perfil').
+// La foto se recorta cuadrada a 400 px en el celular (~40 KB), así la miniatura de Drive carga rápido.
+let empFotoNueva = null, empEnviando = false, empRes = [], empSel = '';
+
+function empLimpiar(s){ return String(s||'').replace(/[,;]+/g,' ').replace(/\s+/g,' ').trim(); }
+function empNormOoi(s){ let t=String(s||'').replace(/\s+/g,'').toUpperCase(); if(/^\d{1,6}$/.test(t)) t='OOID'+t; return /^OOID\d{1,6}$/.test(t)?t:''; }
+function empDeNombre(nombre){ const k=sftClave(nombre); return getTrainingData().find(e=>sftClave(e.name)===k) || null; }
+
+function empMsg(texto, tipo){
+  const m = document.getElementById('emp-msg');
+  if(!texto){ m.style.display='none'; return; }
+  m.style.display='block';
+  m.textContent = texto;
+  m.style.background = tipo==='error' ? 'var(--danger-bg)' : tipo==='ok' ? 'var(--success-bg)' : 'var(--info-bg)';
+  m.style.color = tipo==='error' ? 'var(--danger-text)' : tipo==='ok' ? 'var(--success-text)' : 'var(--info-text)';
+}
+
+function empIniciar(){
+  const listo = ()=>{ empVistaPrevia(); empRenderBusqueda(); };
+  if(!empleadosCargados) fetchEmpleados().then(listo);
+  if(!trainingDataCargado) fetchTrainingData().then(listo);
+  listo();
+}
+
+// Pista del OOI ID: el más alto que hay en la app (lo escribe Safety; no se genera solo)
+function empMaxOoi(){
+  let max = 0;
+  getTrainingData().forEach(e=>{ const m=/OOID\s*(\d+)/i.exec(e.ooi_id||''); if(m && +m[1]>max) max=+m[1]; });
+  return max;
+}
+
+function empVistaPrevia(){
+  const ap = empLimpiar(document.getElementById('emp-apellidos').value);
+  const no = empLimpiar(document.getElementById('emp-nombres').value);
+  const ooiTxt = document.getElementById('emp-ooi').value.trim(), ooi = empNormOoi(ooiTxt);
+  const max = empMaxOoi();
+  document.getElementById('emp-ooi-hint').textContent = max ? 'El más alto registrado en la app es OOID'+max+'.' : '';
+  const v = document.getElementById('emp-vista');
+  if(!ap && !no && !ooiTxt){ v.style.display='none'; return; }
+  const avisos = [];
+  const nombre = ap && no ? ap+', '+no : '';
+  if(nombre && getEmpleadosList().some(n=>sftClave(n)===sftClave(nombre))) avisos.push('⚠ Ya hay un empleado con este nombre en el Training Log.');
+  if(ooiTxt && !ooi) avisos.push('⚠ El OOI ID debe ser como OOID1323.');
+  const dueno = ooi ? getTrainingData().find(e=>empNormOoi(e.ooi_id)===ooi) : null;
+  if(dueno) avisos.push('⚠ '+ooi+' ya lo tiene '+dueno.name+'.');
+  v.innerHTML = 'Así quedará en el Training Log:<br><strong>'+sftEsc(nombre||'Apellido(s), Nombre(s)')+'</strong>'+(ooi?' · '+ooi:'')+
+    avisos.map(a=>'<div style="color:var(--danger-text);margin-top:6px;">'+sftEsc(a)+'</div>').join('');
+  v.style.display='block';
+}
+
+// Recorte cuadrado al centro, 400 px, JPEG: lo que se ve en el círculo
+function fotoPerfilRecortar(file){
+  return new Promise((ok,mal)=>{
+    const url=URL.createObjectURL(file), img=new Image();
+    img.onload=()=>{
+      URL.revokeObjectURL(url);
+      const lado=Math.min(img.naturalWidth,img.naturalHeight), t=Math.min(400,lado);
+      const c=document.createElement('canvas'); c.width=t; c.height=t;
+      const ctx=c.getContext('2d'); ctx.fillStyle='#fff'; ctx.fillRect(0,0,t,t);
+      ctx.drawImage(img,(img.naturalWidth-lado)/2,(img.naturalHeight-lado)/2,lado,lado,0,0,t,t);
+      ok(c.toDataURL('image/jpeg',0.85));
+    };
+    img.onerror=()=>{URL.revokeObjectURL(url);mal(new Error('No se pudo leer la foto. Prueba con otra (JPG o PNG).'));};
+    img.src=url;
+  });
+}
+
+async function empElegirFoto(input, modo){
+  const f = input.files && input.files[0];
+  input.value='';
+  if(!f || empEnviando) return;
+  let data;
+  try{ data = await fotoPerfilRecortar(f); }
+  catch(e){ alert(e.message); return; }
+  if(modo==='nuevo'){
+    empFotoNueva = data;
+    document.getElementById('emp-foto-prev').innerHTML = '<img src="'+data+'" alt="">';
+    document.getElementById('emp-foto-quitar').style.display='inline';
+  } else {
+    empSubirFotoExistente(data);
+  }
+}
+
+function empQuitarFoto(){
+  if(empEnviando) return;
+  empFotoNueva = null;
+  document.getElementById('emp-foto-prev').innerHTML = '📷';
+  document.getElementById('emp-foto-quitar').style.display='none';
+}
+
+// La app guarda en memoria lo nuevo (lista y foto) y borra su caché, así se ve sin esperar al sync
+function empActualizarLocal(nombre, cambios){
+  try { sessionStorage.removeItem('ooi_empleados'); sessionStorage.removeItem('ooi_training_data'); } catch(e){}
+  if(!getEmpleadosList().some(n=>sftClave(n)===sftClave(nombre))){
+    listasGlobal.empleados = empleadosValidos((listasGlobal.empleados||[]).concat([nombre]));
+    poblarSelectoresEmpleados();
+  }
+  if(TRAINING_DATA_DYNAMIC){
+    let e = empDeNombre(nombre);
+    if(!e){ e={name:nombre, ooi_id:'', stc_id:'', foto:'', trainings:[]}; TRAINING_DATA_DYNAMIC.push(e); TRAINING_DATA_DYNAMIC.sort((a,b)=>a.name.localeCompare(b.name)); }
+    Object.assign(e, cambios);
+  }
+}
+
+function empError(e){ return /HTTP|fetch|network/i.test(e.message) ? 'Error de conexión. Vuelve a intentar.' : e.message; }
+
+async function empGuardar(){
+  if(empEnviando) return;
+  const ap = empLimpiar(document.getElementById('emp-apellidos').value);
+  const no = empLimpiar(document.getElementById('emp-nombres').value);
+  const ooi = empNormOoi(document.getElementById('emp-ooi').value);
+  const fechaNH = document.getElementById('emp-newhire').value;
+  const rehire = document.getElementById('emp-rehire').checked;
+  if(!ap || !no){ alert('Escribe el apellido y el nombre.'); return; }
+  if(!ooi){ alert('Escribe el OOI ID (como OOID1323).'); return; }
+  if(fechaNH && fechaNH > rcHoy()){ alert('La fecha de New Hire no puede ser futura.'); return; }
+
+  empEnviando = true;
+  const btn = document.getElementById('emp-btn');
+  btn.disabled = true;
+  empMsg('⏳ Agregando al Training Log'+(empFotoNueva?' y guardando la foto':'')+'...');
+  try{
+    const r = await enviarAScript({tipo:'nuevo_empleado', apellidos:ap, nombres:no, ooiId:ooi, rehire:rehire,
+      fechaNewHire:fechaNH, foto: empFotoNueva ? empFotoNueva.split(',')[1] : ''});
+    const trainings = fechaNH ? [{name:'New Hire', date:fechaNH, expires:calcExpiry('New Hire', fechaNH)}] : [];
+    empActualizarLocal(r.empleado, {ooi_id:r.ooiId, foto:r.fotoId||'', trainings:trainings});
+    empMsg('');
+    empMostrarResultado(r);
+  }catch(e){
+    if(e.message==='auth') return;   // sesionExpirada() ya llevó al inicio de sesión
+    empMsg('⚠ '+empError(e), 'error');
+  }finally{
+    empEnviando = false;
+    btn.disabled = false;
+  }
+}
+
+function empMostrarResultado(r){
+  const foto = empFotoNueva ? '<img src="'+empFotoNueva+'" alt="">' : '';
+  const ini = sftEsc(empIniciales(r.empleado));
+  document.getElementById('emp-form').style.display='none';
+  const out = document.getElementById('emp-resultado');
+  out.innerHTML = '<div class="card" style="text-align:center;">'+
+    '<div class="emp-avatar xl" style="margin-bottom:12px;">'+ini+foto+'</div>'+
+    '<div style="font-size:17px;font-weight:700;">'+sftEsc(r.empleado)+'</div>'+
+    '<div style="font-size:13px;color:var(--text2);margin-top:2px;">'+sftEsc(r.ooiId)+' · fila '+r.fila+' del Training Log</div>'+
+    '<div style="font-size:14px;font-weight:700;color:var(--success-text);margin-top:12px;">✅ Agregado al EMPLOYEE TRAINING LOG</div>'+
+    (r.carpetaUrl ? '<a href="'+sftEsc(r.carpetaUrl)+'" target="_blank" rel="noopener" class="drive-btn" style="margin-top:12px;">📁 Abrir su carpeta</a>' : '')+
+    (r.avisos||[]).map(a=>'<div style="font-size:12px;color:var(--warning-text);margin-top:10px;">⚠ '+sftEsc(a)+'</div>').join('')+
+    '</div><button class="btn btn-ghost" onclick="empReiniciar()">Agregar otro empleado</button>';
+  out.style.display='block';
+  window.scrollTo(0,0);
+}
+
+function empReiniciar(){
+  if(empEnviando) return;
+  ['emp-apellidos','emp-nombres','emp-ooi','emp-newhire'].forEach(id=>{ document.getElementById(id).value=''; });
+  document.getElementById('emp-rehire').checked = false;
+  empQuitarFoto();
+  empMsg('');
+  document.getElementById('emp-resultado').style.display='none';
+  document.getElementById('emp-form').style.display='block';
+  empVistaPrevia();
+  window.scrollTo(0,0);
+}
+
+function empRenderBusqueda(){
+  const out = document.getElementById('emp-resultados');
+  const q = rcNorm(document.getElementById('emp-buscar').value).trim();
+  if(!q){ out.innerHTML=''; empRes=[]; return; }
+  const partes = q.split(/[\s,]+/).filter(Boolean);
+  empRes = getEmpleadosList().filter(n=>partes.every(p=>rcNorm(n).includes(p))).slice(0,8);
+  out.innerHTML = empRes.length ? empRes.map((n,i)=>
+    '<div onclick="empElegir('+i+')" style="display:flex;align-items:center;gap:10px;padding:8px 4px;border-bottom:0.5px solid var(--border);cursor:pointer;">'+
+    empAvatarHtml(empDeNombre(n)||{name:n})+'<span style="font-size:14px;">'+sftEsc(n)+'</span></div>').join('')
+    : '<div style="padding:10px 4px;font-size:13px;color:var(--text2);">No encontré a nadie con ese nombre en el Training Log.</div>';
+}
+
+function empElegir(i){
+  if(!empRes[i] || empEnviando) return;
+  empSel = empRes[i];
+  document.getElementById('emp-buscar').value='';
+  empRenderBusqueda();
+  empRenderSel('');
+}
+
+function empRenderSel(estado, tipo){
+  const el = document.getElementById('emp-sel');
+  if(!empSel){ el.innerHTML=''; return; }
+  const e = empDeNombre(empSel) || {name:empSel};
+  const color = tipo==='error' ? 'var(--danger-text)' : tipo==='ok' ? 'var(--success-text)' : 'var(--text2)';
+  el.innerHTML = '<div style="display:flex;align-items:center;gap:12px;margin-top:14px;">'+empAvatarHtml(e,'lg')+
+    '<div style="flex:1;min-width:0;"><div style="font-size:15px;font-weight:600;">'+sftEsc(e.name)+'</div>'+
+    '<div style="font-size:12px;color:var(--text2);">'+sftEsc(e.ooi_id||'Sin ID')+' · '+(e.foto?'tiene foto':'sin foto')+'</div></div></div>'+
+    '<label class="photo-btn" style="display:block;text-align:center;cursor:pointer;margin-top:12px;'+(empEnviando?'opacity:.5;pointer-events:none;':'')+'">📷 '+(e.foto?'Cambiar foto':'Poner foto')+
+    '<input type="file" accept="image/*" style="display:none" onchange="empElegirFoto(this,\'existente\')"/></label>'+
+    (estado ? '<div style="font-size:13px;font-weight:600;margin-top:8px;color:'+color+';">'+sftEsc(estado)+'</div>' : '');
+}
+
+async function empSubirFotoExistente(data){
+  if(!empSel || empEnviando) return;
+  const nombre = empSel;
+  empEnviando = true;
+  empRenderSel('⏳ Guardando la foto...');
+  try{
+    const r = await enviarAScript({tipo:'foto_perfil', empleado:nombre, foto:data.split(',')[1]});
+    empActualizarLocal(nombre, {foto:r.fotoId});
+    empEnviando = false;
+    empRenderSel('✅ Foto guardada.', 'ok');
+  }catch(e){
+    empEnviando = false;
+    if(e.message==='auth') return;
+    empRenderSel('⚠ '+empError(e), 'error');
+  }
 }
 
 // ── FIT TEST (Safety) ──
