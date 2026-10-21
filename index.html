@@ -466,6 +466,10 @@ textarea{min-height:88px;resize:vertical;line-height:1.5;}
 .tog:active{transform:scale(0.97);}
 .tog.ok{background:var(--success-bg);color:var(--success-text);border-color:var(--success-text);}
 .tog.bad{background:var(--danger-bg);color:var(--danger-text);border-color:var(--swa);}
+.tog-row.tres{grid-template-columns:1fr 1fr 0.6fr;}
+.tog.na{background:var(--bg2);color:var(--text);border-color:var(--text2);}
+.insp-seccion{font-size:12px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--text2);margin:18px 0 6px;}
+.insp-seccion:first-child{margin-top:0;}
 
 /* Inspection items */
 .insp-item{padding:16px 0;border-bottom:1px solid var(--border);}
@@ -587,6 +591,36 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
 .tp-chip{padding:8px 15px;border-radius:99px;border:1.5px solid var(--border2);background:var(--bg);font-family:var(--f-body);font-size:12px;font-weight:900;color:var(--text2);cursor:pointer;white-space:nowrap;transition:all 0.15s;letter-spacing:.03em;}
 .tp-chip:hover{border-color:var(--ooi-orange);color:var(--ooi-orange-dark);}
 .tp-chip.on{background:var(--ooi-orange);border-color:var(--ooi-orange);color:white;}
+
+/* Inspecciones: semana, resumen por proyecto y tabla máquina × día */
+.ins-semana{display:flex;align-items:center;gap:10px;padding:12px 14px;}
+.ins-link{background:none;border:none;color:var(--ooi-orange);font-family:var(--f-body);font-size:12px;font-weight:800;cursor:pointer;padding:2px 4px;}
+.ins-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-bottom:12px;}
+.ins-stat{background:var(--bg2);border-radius:var(--radius);padding:10px 12px;}
+.ins-stat b{display:block;font-size:22px;line-height:1.2;}
+.ins-stat span{font-size:12px;color:var(--text2);}
+.ins-proy{display:flex;align-items:center;gap:10px;}
+.ins-proy-nums{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px;}
+.ins-pill{font-size:12px;font-weight:700;padding:3px 9px;border-radius:99px;background:var(--bg2);color:var(--text2);}
+.ins-pill.bad{background:var(--warning-bg);color:var(--warning-text);}
+.ins-pill.falta{background:var(--danger-bg);color:var(--danger-text);}
+.ins-tabla-wrap{overflow-x:auto;margin:0 -4px;}
+.ins-tabla{width:100%;border-collapse:collapse;font-size:13px;}
+.ins-tabla th{font-size:12px;font-weight:800;color:var(--text2);padding:6px 2px;text-align:center;}
+.ins-tabla th.hoy{color:var(--ooi-orange);}
+.ins-tabla th:first-child,.ins-tabla td:first-child{text-align:left;padding-left:4px;min-width:92px;}
+.ins-tabla td{border-top:1px solid var(--border);padding:7px 1px;text-align:center;}
+.ins-tabla tr.ins-grupo td{border-top:none;padding-top:14px;font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--text2);}
+.ins-maq{font-weight:700;}
+.ins-maq small{display:block;font-weight:400;font-size:12px;color:var(--text2);}
+.ins-c{display:inline-flex;width:28px;height:28px;border-radius:8px;align-items:center;justify-content:center;font-size:15px;font-weight:900;border:none;font-family:var(--f-body);}
+button.ins-c{cursor:pointer;}
+.ins-c.ok{background:var(--success-bg);color:var(--success-text);}
+.ins-c.bad{background:var(--warning-bg);color:var(--warning-text);}
+.ins-c.falta{background:var(--danger-bg);color:var(--danger-text);}
+.ins-c.nada{color:var(--text3);background:none;}
+.ins-leyenda{display:flex;gap:12px;flex-wrap:wrap;font-size:12px;color:var(--text2);margin-top:10px;}
+.ins-leyenda .ins-c{width:18px;height:18px;font-size:11px;border-radius:5px;vertical-align:middle;margin-right:3px;}
 .tp-chip:active{transform:scale(0.97);}
 .tp-chips-row{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;margin-bottom:14px;-webkit-overflow-scrolling:touch;}
 .tp-chips-row::-webkit-scrollbar{display:none;}
@@ -980,7 +1014,7 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{outline:none;}
 
       <button class="role-btn" onclick="selectMachine('grout')">
         <div class="role-icon"><svg class="ico"><use href="#i-wrench"/></svg></div>
-        <div class="rb-body"><div class="rb-title">Bomba de Gruta</div><div class="rb-desc">Inspección diaria — Grout Pump</div></div>
+        <div class="rb-body"><div class="rb-title">Equipo de proyecto</div><div class="rb-desc">Grout Pump · Excavadora · Drill · Loader · Skytrack…</div></div>
         <span class="role-arrow"><svg class="ico"><use href="#i-chev"/></svg></span>
       </button>
 
@@ -993,12 +1027,21 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{outline:none;}
 
     <!-- GROUT PUMP PANEL -->
     <div id="op-grout-panel" style="display:none;">
-    <div class="zona-roja">⚠️<div><div style="font-weight:600;margin-bottom:3px;">ZONA ROJA — Peligro de atrapamiento</div>Apagar máquina y llaves al bolsillo antes de meter la mano en: <strong>Aspas · Gusanos · Olla · Cilindro · Pistón · Agitador</strong></div></div>
+    <div class="card">
+      <div class="sec-label">Máquina</div>
+      <div class="field"><label>Tipo de máquina</label><input type="text" id="f-tipo" list="tipos-maquina" placeholder="Escribe: Grout Pump, Drill, Loader…" autocomplete="off" oninput="inspTipoCambio()"/>
+        <datalist id="tipos-maquina"><option value="Grout Pump"><option value="Excavadora"><option value="Drill"><option value="Loader"><option value="Skytrack"><option value="Boom Lift"></datalist></div>
+      <div class="field"><label>Número / ID de la máquina</label><input type="text" id="f-maq" placeholder="Ej. GP-02, D-115" autocomplete="off"/></div>
+      <div class="grid2" id="f-makemodel" style="display:none;">
+        <div class="field"><label>Fabricante</label><input type="text" id="f-fab" placeholder="Ej. CAT" autocomplete="off"/></div>
+        <div class="field"><label>Modelo</label><input type="text" id="f-mod" placeholder="Ej. 320" autocomplete="off"/></div>
+      </div>
+    </div>
+    <div class="zona-roja" id="f-zona-roja">⚠️<div><div style="font-weight:600;margin-bottom:3px;">ZONA ROJA — Peligro de atrapamiento</div>Apagar máquina y llaves al bolsillo antes de meter la mano en: <strong>Aspas · Gusanos · Olla · Cilindro · Pistón · Agitador</strong></div></div>
     <div class="card">
       <div class="sec-label">Información general</div>
       <div class="field"><label>Nombre del operador</label><select id="f-op"><option value="">— Selecciona operador —</option></select></div>
       <div class="field"><label>Supervisor / Foreman</label><select id="f-sup"><option value="">— Selecciona foreman —</option></select></div>
-      <div class="field"><label>Número de máquina</label><select id="f-maq"><option value="">— Selecciona máquina —</option></select></div>
       <div class="field"><label>Proyecto activo</label><select id="f-proy"><option value="">— Selecciona proyecto —</option></select></div>
       <div class="field"><label>Fecha</label><input type="date" id="f-fecha"/></div>
       <div class="grid2">
@@ -1037,6 +1080,7 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{outline:none;}
           <div class="field"><label>Operador</label><select id="sc-op"><option value="">— Selecciona operador —</option></select></div>
           <div class="field"><label>Supervisor / Foreman</label><select id="sc-sup"><option value="">— Selecciona foreman —</option></select></div>
           <div class="field"><label>Proyecto activo</label><select id="sc-proy"><option value="">— Selecciona proyecto —</option></select></div>
+          <div class="field"><label>Número de compresor</label><input type="text" id="sc-equipo" placeholder="Ej. C-03" autocomplete="off"/></div>
           <div class="field"><label>Fecha</label><input type="date" id="sc-fecha"/></div>
         </div>
 
@@ -1171,37 +1215,54 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{outline:none;}
         <div style="font-family:var(--f-head);font-size:18px;font-weight:800;">📋 Inspecciones</div>
       </div>
 
+      <!-- Equipo de proyecto (por proyecto) o Shotcrete (por unidad, sin proyecto) -->
+      <div style="display:flex;gap:6px;margin-bottom:12px;">
+        <button class="tp-chip on" id="ins-modo-proy" onclick="insSetModo('proyectos')">Equipo de proyecto</button>
+        <button class="tp-chip" id="ins-modo-sc" onclick="insSetModo('shotcrete')">Shotcrete</button>
+      </div>
+
+      <!-- Semana -->
+      <div class="card ins-semana" style="margin-bottom:14px;">
+        <button class="btn-icon" onclick="insMoverSemana(-1)" aria-label="Semana anterior">‹</button>
+        <div style="flex:1;text-align:center;">
+          <div id="ins-semana-txt" style="font-weight:800;font-size:15px;">—</div>
+          <button class="ins-link" id="ins-semana-hoy" onclick="insMoverSemana(0)">Ir a esta semana</button>
+        </div>
+        <button class="btn-icon" onclick="insMoverSemana(1)" aria-label="Semana siguiente">›</button>
+      </div>
+
       <!-- FILTERS CARD -->
       <div class="card" style="margin-bottom:14px;">
-        <div class="sec-label">🔍 Filtrar inspecciones</div>
-        <div class="field">
+        <div class="field" id="ins-campo-proy">
           <label>Jobsite / Proyecto</label>
           <select id="filter-proyecto" onchange="filterReports()">
             <option value="">— Todos los proyectos —</option>
           </select>
         </div>
-        <div class="field">
+        <div class="field" style="margin-bottom:0;">
           <label>Foreman / Supervisor</label>
           <select id="filter-foreman" onchange="filterReports()">
             <option value="">— Todos los foremen —</option>
           </select>
         </div>
-        <div class="field" style="margin-bottom:0;">
-          <label>Estado</label>
-          <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:4px;">
-            <button class="tp-chip on" id="filter-all" onclick="setStatusFilter('all',this)">Todos</button>
-            <button class="tp-chip" id="filter-bad" onclick="setStatusFilter('bad',this)">⚠ Con problemas</button>
-            <button class="tp-chip" id="filter-ok" onclick="setStatusFilter('ok',this)">✓ Sin problemas</button>
-            <button class="tp-chip" id="filter-today" onclick="setStatusFilter('today',this)">📅 Hoy</button>
-          </div>
-        </div>
+      </div>
+
+      <!-- Resumen por proyecto, o tabla máquina × día -->
+      <div id="ins-resumen"></div>
+
+      <div class="sec-label" style="margin-top:22px;">Inspecciones de la semana</div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin:4px 0 12px;">
+        <button class="tp-chip on" id="filter-all" onclick="setStatusFilter('all',this)">Todos</button>
+        <button class="tp-chip" id="filter-bad" onclick="setStatusFilter('bad',this)">⚠ Con problemas</button>
+        <button class="tp-chip" id="filter-ok" onclick="setStatusFilter('ok',this)">✓ Sin problemas</button>
+        <button class="tp-chip" id="filter-today" onclick="setStatusFilter('today',this)">📅 Hoy</button>
       </div>
 
       <!-- Results count -->
       <div id="ss-filter-count" style="font-size:12px;color:var(--text2);margin-bottom:10px;font-weight:600;"></div>
 
       <div class="stat-grid">
-        <div class="stat-card"><div class="stat-num" id="ss-total">—</div><div class="stat-lbl">Total reportes</div></div>
+        <div class="stat-card"><div class="stat-num" id="ss-total">—</div><div class="stat-lbl">En la semana</div></div>
         <div class="stat-card"><div class="stat-num" id="ss-hoy">—</div><div class="stat-lbl">Hoy</div></div>
         <div class="stat-card"><div class="stat-num" style="color:var(--success-text);" id="ss-ok">—</div><div class="stat-lbl">Sin problemas</div></div>
         <div class="stat-card"><div class="stat-num" style="color:var(--danger-text);" id="ss-bad">—</div><div class="stat-lbl">Necesitan revisión</div></div>
@@ -1913,8 +1974,12 @@ const photoStore={};
 let listasGlobal={foremen:[],operadores:[],maquinas:[]};
 let swaChipSelected='';
 
+// Fecha local 'yyyy-mm-dd'. toISOString() da la fecha UTC: en Texas, después de las 7 pm ya es "mañana".
+function fechaLocal(d){ d=d||new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+function hoyLocal(){ return fechaLocal(new Date()); }
+
 // ── TRAINING DATA ──
-const TODAY_STR=new Date().toISOString().split('T')[0];
+const TODAY_STR=hoyLocal();
 const TODAY=new Date(TODAY_STR);
 const SOON_DAYS=90;
 
@@ -2182,6 +2247,110 @@ const inspItems=[
   {id:'pompa',name:'Pompa de agua y mangueras de gruta',sub:'Presión, fugas y estado de mangueras'},
   {id:'limpieza',name:'Pompa limpia',sub:'Unidad limpia al final del turno'},
 ];
+// Hoja "Inspección de Equipos" de OOI: la que se usa para excavadora, drill, boom lift, loader, Skytrack…
+// seccion = encabezado que se pinta antes del ítem. N/A permitido.
+const inspItemsGeneral=[
+  {id:'g_tracks',name:'Traques (tensión, limpieza) / Llantas',sub:'Tracks / Tires',seccion:'Elementos de inspección'},
+  {id:'g_implemento',name:'Horquillas, cucharón, barrenas, martillo',sub:'Picos, cubeta, brocas, martillo'},
+  {id:'g_barandal',name:'Sistema de barandal',sub:'Railing system'},
+  {id:'g_carroceria',name:'Daño de carrocería',sub:'Body damage'},
+  {id:'g_mangueras',name:'Mangueras, cadenas, bandas',sub:'Hoses, chains, belts'},
+  {id:'g_fugas',name:'Fugas y niveles: aceite, combustible, hidráulico',sub:'Oil, fuel, hydraulic'},
+  {id:'g_agarre',name:'Barras de agarre, escalones',sub:'Grab bars, steps'},
+  {id:'g_extintor',name:'Extinguidor de incendios',sub:'Fire extinguisher'},
+  {id:'g_direccion',name:'Sistema de dirección',sub:'Steering system'},
+  {id:'g_frenos',name:'Frenos',sub:'Brakes'},
+  {id:'g_controles',name:'Controles operativos',sub:'Operating controls'},
+  {id:'g_claxon',name:'Claxon',sub:'Horn'},
+  {id:'g_luces',name:'Luces y torretas estrobo',sub:'Lights and strobes'},
+  {id:'g_reversa',name:'Alarma de reversa',sub:'Backup alarm'},
+  {id:'g_ventanas',name:'Ventanas',sub:'Windows'},
+  {id:'g_espejos',name:'Espejos delanteros y traseros',sub:'Front and rear mirrors'},
+  {id:'g_cinturon',name:'Cinturón de seguridad',sub:'Seatbelt'},
+  {id:'g_manual',name:'Manual del operador',sub:'Operator manual'},
+  {id:'g_descensos',name:'Descensos, bajadas o agujeros',sub:'Drop-offs or holes',seccion:'Inspección del área de trabajo'},
+  {id:'g_rampas',name:'Rampas, piedras, topes, escombro',sub:'Slopes, bumps, debris'},
+  {id:'g_aereas',name:'Obstrucciones aéreas, líneas eléctricas, árboles',sub:'Overhead obstructions'},
+  {id:'g_suelo',name:'Obstrucciones en el suelo, utilidades subterráneas',sub:'Ground obstructions'},
+  {id:'g_clima',name:'Condiciones climáticas',sub:'Weather conditions'},
+];
+const safetyItemsGeneral=[
+  'Hice la caminata de 360° alrededor del equipo antes de usarlo (mono amarillo)',
+];
+// Puntos extra por tipo (clave = nombre de insTipoComun), propuestos el 20 oct 2026 a partir de OSHA
+// y guías de fabricantes. Se suman a la hoja general antes del área de trabajo; "ocultar" quita de la
+// hoja general lo que no aplica a ese tipo. Un tipo que no esté aquí usa solo la hoja general.
+const INSP_EXTRAS={
+  'Excavadora':{items:[
+    {id:'x_acoplador',name:'Acoplador rápido trabado y con su pin de seguridad',sub:'Quick coupler locked, safety pin in'},
+    {id:'x_bloqueo',name:'Palanca de bloqueo hidráulico: al levantarla los controles no responden',sub:'Hydraulic lockout lever'},
+    {id:'x_pasadores',name:'Pasadores de pluma, brazo y cucharón con seguros y engrasados',sub:'Boom, stick and bucket pins'},
+    {id:'x_deriva',name:'Cilindros: la pluma no baja sola (sostener 1 minuto)',sub:'Cylinder drift'},
+    {id:'x_giro',name:'Giro sin ruido ni juego; seguro de giro funciona',sub:'Swing bearing and swing lock'},
+    {id:'x_contrapeso',name:'Zona de giro del contrapeso libre de personas y objetos',sub:'Tail swing clearance'},
+  ]},
+  'Drill':{items:[
+    {id:'d_paros',name:'Paros de emergencia (también el remoto): el motor se apaga',sub:'Emergency stops tested'},
+    {id:'d_guardas',name:'Guardas o barrera de partes que giran y área de exclusión marcada',sub:'Rotating parts guarding, exclusion zone'},
+    {id:'d_mastil',name:'Mástil sin grietas; pasadores y seguro del mástil en su lugar',sub:'Mast, pins and mast lock'},
+    {id:'d_cabezal',name:'Cabezal de rotación sin fugas y con su nivel de aceite',sub:'Rotary head'},
+    {id:'d_mordazas',name:'Mordazas y llave de quiebre: insertos en buen estado',sub:'Clamps and breakout'},
+    {id:'d_barras',name:'Barras, brocas, casing y coples sin grietas, roscas buenas',sub:'Rods, bits, casing, couplings'},
+    {id:'d_estabilizadores',name:'Estabilizadores o gatos apoyados en piso firme',sub:'Outriggers / jacks on firm ground'},
+    {id:'d_kelly',name:'Si aplica (pier drill): cable del malacate sin hilos rotos, gancho con seguro, kelly con sus seguros',sub:'Winch rope, hook latch, kelly locks'},
+  ]},
+  'Boom Lift':{ocultar:['g_implemento','g_ventanas','g_espejos','g_cinturon'],items:[
+    {id:'b_controles',name:'Prueba de controles de canastilla y de tierra (OSHA: cada día)',sub:'Platform and ground controls function test'},
+    {id:'b_paros',name:'Paro de emergencia en canastilla y en tierra',sub:'Emergency stops'},
+    {id:'b_bajada',name:'Bajada de emergencia (auxiliar) funciona',sub:'Emergency / auxiliary lowering'},
+    {id:'b_pedal',name:'Pedal de hombre muerto y alarma de inclinación',sub:'Footswitch and tilt alarm'},
+    {id:'b_canastilla',name:'Barandales completos, puerta cierra sola, puntos de anclaje bien',sub:'Guardrails, gate, anchor points'},
+    {id:'b_arnes',name:'Arnés y línea corta revisados y enganchados al anclaje',sub:'Harness and lanyard'},
+    {id:'b_calcas',name:'Calcomanías de capacidad legibles',sub:'Capacity decals'},
+  ]},
+  'Loader':{items:[
+    {id:'l_acoplador',name:'Acoplador rápido trabado y con su pin de seguridad',sub:'Quick coupler locked, safety pin in'},
+    {id:'l_articulacion',name:'Junta de articulación: pasador sin juego; barra de bloqueo guardada',sub:'Articulation joint and lock bar'},
+    {id:'l_varillaje',name:'Pasadores y varillaje del cucharón con seguros',sub:'Bucket linkage pins'},
+    {id:'l_llantas',name:'Llantas sin cortes ni bultos; tuercas de rueda completas',sub:'Tires and wheel nuts'},
+    {id:'l_deriva',name:'Cilindros: los brazos no bajan solos',sub:'Cylinder drift'},
+  ]},
+  'Skytrack':{items:[
+    {id:'s_horquillas',name:'Horquillas sin grietas ni dobleces, con sus seguros puestos',sub:'Forks and fork locks'},
+    {id:'s_implemento',name:'Implemento bien trabado al carro (pin de bloqueo)',sub:'Attachment locked to carriage'},
+    {id:'s_tabla',name:'Tabla de carga en cabina, legible y del implemento puesto',sub:'Load chart'},
+    {id:'s_indicador',name:'Indicador de carga y alarma de estabilidad funcionan',sub:'Load indicator / stability alarm'},
+    {id:'s_nivelacion',name:'Nivelación del chasis funciona',sub:'Frame leveling'},
+    {id:'s_estabilizadores',name:'Estabilizadores (si tiene) suben y bajan; zapatas bien',sub:'Outriggers'},
+    {id:'s_pluma',name:'Pluma sin grietas; no baja sola',sub:'Boom condition, drift'},
+    {id:'s_canastilla',name:'Si usa canastilla: aprobada por el fabricante y trabada',sub:'Work platform attachment'},
+  ]},
+};
+// La Grout Pump conserva su lista propia (inspItems / safetyItems); cualquier otro tipo usa la general.
+function esGroutPump(tipo){ return /grout|gruta|bomba/.test(normBusqueda(tipo)); }
+function inspEsGrout(){ return esGroutPump(document.getElementById('f-tipo')?.value||'Grout Pump'); }
+function inspExtras(){ return inspEsGrout()?null:INSP_EXTRAS[insTipoComun(document.getElementById('f-tipo')?.value||'')]||null; }
+function itemsInsp(){
+  if(inspEsGrout()) return inspItems;
+  const ex=inspExtras(); if(!ex) return inspItemsGeneral;
+  const base=inspItemsGeneral.filter(i=>!(ex.ocultar||[]).includes(i.id));
+  const iArea=base.findIndex(i=>i.id==='g_descensos');
+  const extras=ex.items.map((it,k)=>k===0?Object.assign({seccion:'Puntos de '+insTipoComun(document.getElementById('f-tipo').value)},it):it);
+  return [...base.slice(0,iArea),...extras,...base.slice(iArea)];
+}
+function itemsSafety(){ return inspEsGrout()?safetyItems:safetyItemsGeneral; }
+// Qué lista está pintada: 'grout', 'general' o el tipo con puntos extra.
+function inspClaveLista(){ return inspEsGrout()?'grout':(inspExtras()?insTipoComun(document.getElementById('f-tipo').value):'general'); }
+let inspListaActual='grout';
+function inspTipoCambio(){
+  const grout=inspEsGrout();
+  const zr=document.getElementById('f-zona-roja');if(zr)zr.style.display=grout?'':'none';
+  const mm=document.getElementById('f-makemodel');if(mm)mm.style.display=grout?'none':'';
+  // Solo se reconstruye la lista cuando cambia cuál toca; lo ya marcado se conserva (buildInspList).
+  if(inspClaveLista()!==inspListaActual) buildInspList(true);
+  if(grout!==inspSafetyGrout) buildSafetyList();
+}
+
 const safetyItems=[
   'Verifiqué que la máquina está apagada antes de ingresar a zona roja',
   'Las llaves están en mi bolsillo (no en el switch) al trabajar cerca de aspas/gusanos',
@@ -2263,7 +2432,7 @@ async function enviarDRILS(){
   const v=DRILS_VALORES[drilsValorSelected];
   const payload={
     tipo:'drils',id:Date.now(),
-    fecha:new Date().toISOString().split('T')[0],
+    fecha:hoyLocal(),
     reconocido,reconocidoPor:por,
     valor:v.nombre,
     descripcion,
@@ -2295,22 +2464,200 @@ async function enviarDRILS(){
   }
 }
 
+// ── INSPECCIONES POR SEMANA ──
+// Se piden al servidor la semana que se ve y las 2 anteriores: con eso se sabe qué máquinas
+// trabajan en cada proyecto (las que se inspeccionaron ahí) sin mantener ninguna lista.
+const INS_DIAS_ATRAS=14;
+const INS_DIAS=['L','M','M','J','V','S','D'];
+const INS_MESES=['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+let insModo='proyectos';      // 'proyectos' | 'shotcrete'
+let insLunes='';
+let insDatos=[];              // inspecciones del rango pedido, ya con tipoComun
+let insPedido=0;
+let insResumenProyectos=[];
+
+function insFecha(s){ const [y,m,d]=s.split('-').map(Number); return new Date(y,m-1,d); }
+function insSumarDias(s,n){ const d=insFecha(s); d.setDate(d.getDate()+n); return fechaLocal(d); }
+function insLunesDe(s){ const d=insFecha(s); d.setDate(d.getDate()-(d.getDay()+6)%7); return fechaLocal(d); }
+function insEsc(s){ return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+// Tipo escrito libre → nombre común, para que "drill", "Drill " y "perforadora" queden juntos.
+// Lo que no reconoce se muestra como lo escribieron; no hace falta agregar tipos nuevos aquí.
+const INS_TIPOS=[[/grout|gruta|bomba/,'Grout Pump'],[/excav/,'Excavadora'],[/drill|perfor|taladr/,'Drill'],
+  [/loader|cargador/,'Loader'],[/sky|telehand|telescop/,'Skytrack'],[/boom|man ?lift|elevador/,'Boom Lift'],
+  [/compres/,'Compresor'],[/camion|truck/,'Camión']];
+function insTipoComun(t){
+  const n=normBusqueda(t).trim().replace(/\s+/g,' ');
+  for(const [re,nombre] of INS_TIPOS) if(re.test(n)) return nombre;
+  return n ? n.replace(/(^|\s)\S/g,c=>c.toUpperCase()) : 'Sin tipo';
+}
+// "GP-02", "gp 02" y "GP02" son la misma máquina. Sin número (registros viejos) se separa por operador.
+function insIdComun(m){ return String(m||'').toUpperCase().replace(/[^A-Z0-9]/g,''); }
+function insClave(r){ const id=insIdComun(r.maquina); return r.tipoComun+'|'+(id||'?'+normBusqueda(r.operador)); }
+
+// Máquinas de un grupo de inspecciones y el estado de cada día de la semana.
+// todos: todas las inspecciones del rango, para saber si la máquina se fue a otro proyecto.
+function insMaquinas(rows, todos){
+  const hoy=hoyLocal(), dias=[...Array(7)].map((_,i)=>insSumarDias(insLunes,i));
+  const mapa={};
+  rows.forEach(r=>{
+    const k=insClave(r);
+    const m=mapa[k]||(mapa[k]={clave:k,tipo:r.tipoComun,id:String(r.maquina||'').trim().toUpperCase(),primero:r.fecha,ultimo:r.fecha,porDia:{},ult:r,proyectos:{}});
+    if(r.fecha<m.primero) m.primero=r.fecha;
+    if(r.fecha>=m.ultimo){ m.ultimo=r.fecha; m.ult=r; }
+    (m.porDia[r.fecha]=m.porDia[r.fecha]||[]).push(r);
+  });
+  return Object.values(mapa).map(m=>{
+    // Si después de su última inspección aquí aparece en otro proyecto, desde ese día ya no "falta" aquí.
+    let movido='';
+    if(todos) todos.forEach(r=>{ if(r.fecha>m.ultimo && insClave(r)===m.clave && !rows.includes(r) && (!movido||r.fecha<movido)) movido=r.fecha; });
+    m.celdas=dias.map((dia,i)=>{
+      const rs=m.porDia[dia];
+      if(rs){ const r=rs.slice().sort((a,b)=>String(b.timestamp).localeCompare(String(a.timestamp)))[0];
+        return {dia,estado:rs.some(x=>x.hasBad)?'bad':'ok',r}; }
+      // Solo se espera inspección de lunes a viernes, desde que la máquina llegó, hasta hoy.
+      const espera=i<5 && dia<=hoy && dia>=m.primero && (!movido||dia<movido);
+      return {dia,estado:espera?'falta':'nada'};
+    });
+    m.cuenta={ok:0,bad:0,falta:0};
+    m.celdas.forEach(c=>{ if(m.cuenta[c.estado]!==undefined) m.cuenta[c.estado]++; });
+    return m;
+  }).sort((a,b)=>a.tipo.localeCompare(b.tipo)||(!a.id)-(!b.id)||a.id.localeCompare(b.id,undefined,{numeric:true}));
+}
+
+function insPintarSemana(){
+  const dom=insSumarDias(insLunes,6), a=insFecha(insLunes), b=insFecha(dom);
+  const txt=a.getMonth()===b.getMonth()
+    ? `Semana del ${a.getDate()} al ${b.getDate()} de ${INS_MESES[b.getMonth()]}`
+    : `Semana del ${a.getDate()} ${INS_MESES[a.getMonth()]} al ${b.getDate()} ${INS_MESES[b.getMonth()]}`;
+  document.getElementById('ins-semana-txt').textContent=txt;
+  document.getElementById('ins-semana-hoy').style.visibility=insLunes===insLunesDe(hoyLocal())?'hidden':'visible';
+}
+function insMoverSemana(n){
+  insLunes = n===0 ? insLunesDe(hoyLocal()) : insSumarDias(insLunes,7*n);
+  loadSuperReports();
+}
+function insSetModo(modo){
+  insModo=modo;
+  document.getElementById('ins-modo-proy').classList.toggle('on',modo==='proyectos');
+  document.getElementById('ins-modo-sc').classList.toggle('on',modo==='shotcrete');
+  // Shotcrete anda en varios proyectos al día: se ve por unidad, sin proyecto.
+  document.getElementById('ins-campo-proy').style.display=modo==='shotcrete'?'none':'';
+  loadSuperReports();
+}
+function insElegirProyecto(i){
+  const p=insResumenProyectos[i]; if(!p) return;
+  const sel=document.getElementById('filter-proyecto');
+  sel.value=p; filterReports();
+  document.getElementById('ins-resumen').scrollIntoView({behavior:'smooth',block:'start'});
+}
+function insVerDetalle(id){
+  const r=insDatos.find(x=>String(x.id)===String(id)); if(!r) return;
+  window._insSel=[r];
+  showDetail(0,'ss-detail-area','_insSel');
+}
+
+function insCelda(c){
+  if(c.estado==='nada') return '<td><span class="ins-c nada">·</span></td>';
+  if(c.estado==='falta') return '<td><span class="ins-c falta" title="Falta">✗</span></td>';
+  return `<td><button class="ins-c ${c.estado}" onclick="insVerDetalle('${insEsc(c.r.id)}')" title="${c.estado==='bad'?'Con problema':'Hecha'}">${c.estado==='bad'?'⚠':'✓'}</button></td>`;
+}
+function insPintarTabla(rows, titulo, todos){
+  const cont=document.getElementById('ins-resumen');
+  const maqs=insMaquinas(rows, todos);
+  if(!maqs.length){
+    cont.innerHTML=`<div class="card" style="text-align:center;color:var(--text2);">No hay inspecciones ${insModo==='shotcrete'?'de Shotcrete':'en este proyecto'} en estas 3 semanas.</div>`;
+    return;
+  }
+  const hoy=hoyLocal(), dias=maqs[0].celdas.map(c=>c.dia);
+  const conDomingo=maqs.some(m=>m.celdas[6].estado!=='nada');
+  const nDias=conDomingo?7:6;
+  const tot={ok:0,bad:0,falta:0}; maqs.forEach(m=>{tot.ok+=m.cuenta.ok;tot.bad+=m.cuenta.bad;tot.falta+=m.cuenta.falta;});
+  const iHoy=dias.indexOf(hoy);
+  let hoyTxt='';
+  if(iHoy>=0){
+    const esperadas=maqs.filter(m=>m.celdas[iHoy].estado!=='nada');
+    const hechas=esperadas.filter(m=>m.celdas[iHoy].estado!=='falta').length;
+    if(esperadas.length) hoyTxt=`<div style="font-size:13px;color:var(--text2);margin-bottom:10px;">Hoy: <strong>${hechas} de ${esperadas.length}</strong> máquinas inspeccionadas</div>`;
+  }
+  let grupo='', filas='';
+  maqs.forEach(m=>{
+    if(m.tipo!==grupo){ grupo=m.tipo; const n=maqs.filter(x=>x.tipo===grupo).length;
+      filas+=`<tr class="ins-grupo"><td colspan="${nDias+1}">${insEsc(grupo)}${n>1?' · '+n:''}</td></tr>`; }
+    const sub=insModo==='shotcrete' ? [m.ult.operador,m.ult.proyecto].filter(Boolean).join(' · ') : m.ult.operador;
+    filas+=`<tr><td><div class="ins-maq">${insEsc(m.id||'Sin número')}<small>${insEsc(sub||'')}</small></div></td>${m.celdas.slice(0,nDias).map(insCelda).join('')}</tr>`;
+  });
+  cont.innerHTML=`<div class="card">
+    <div style="font-weight:800;font-size:16px;margin-bottom:2px;">${insEsc(titulo)}</div>
+    <div style="font-size:12px;color:var(--text2);margin-bottom:12px;">${maqs.length} ${insModo==='shotcrete'?'unidad'+(maqs.length!==1?'es':'')+' con inspecciones':'máquina'+(maqs.length!==1?'s':'')+' inspeccionadas aquí'} en las últimas 3 semanas</div>
+    <div class="ins-stats">
+      <div class="ins-stat"><b>${tot.ok+tot.bad}</b><span>Hechas</span></div>
+      <div class="ins-stat"><b style="color:var(--warning-text);">${tot.bad}</b><span>Con problema</span></div>
+      <div class="ins-stat"><b style="color:var(--danger-text);">${tot.falta}</b><span>Faltan</span></div>
+    </div>
+    ${hoyTxt}
+    <div class="ins-tabla-wrap"><table class="ins-tabla">
+      <tr><th>Máquina</th>${dias.slice(0,nDias).map((d,i)=>`<th class="${d===hoy?'hoy':''}">${INS_DIAS[i]}<br>${insFecha(d).getDate()}</th>`).join('')}</tr>
+      ${filas}
+    </table></div>
+    <div class="ins-leyenda">
+      <span><span class="ins-c ok">✓</span>Hecha</span><span><span class="ins-c bad">⚠</span>Con problema</span>
+      <span><span class="ins-c falta">✗</span>Falta (lun–vie)</span><span>Toca un cuadro para abrir la inspección</span>
+    </div>
+  </div>`;
+}
+function insPintarResumen(base){
+  const cont=document.getElementById('ins-resumen');
+  const dom=insSumarDias(insLunes,6);
+  const porProy={};
+  base.forEach(r=>{ const p=r.proyecto||'Sin proyecto'; (porProy[p]=porProy[p]||[]).push(r); });
+  const proys=Object.keys(porProy).map(p=>{
+    const maqs=insMaquinas(porProy[p], base);
+    const t={ok:0,bad:0,falta:0}; maqs.forEach(m=>{t.ok+=m.cuenta.ok;t.bad+=m.cuenta.bad;t.falta+=m.cuenta.falta;});
+    const foremen=[...new Set(porProy[p].filter(r=>r.fecha>=insLunes&&r.fecha<=dom).map(r=>r.supervisor).filter(Boolean))];
+    return {p,maqs:maqs.length,t,foremen};
+  }).filter(x=>x.t.ok+x.t.bad+x.t.falta>0)
+    .sort((a,b)=>b.t.falta-a.t.falta||b.t.bad-a.t.bad||a.p.localeCompare(b.p));
+  insResumenProyectos=proys.map(x=>x.p);
+  if(!proys.length){
+    cont.innerHTML='<div class="card" style="text-align:center;color:var(--text2);">No hay inspecciones de equipo esta semana.</div>';
+    return;
+  }
+  cont.innerHTML=`<div style="font-size:12px;color:var(--text2);margin-bottom:8px;font-weight:600;">${proys.length} proyecto${proys.length!==1?'s':''} · primero los que tienen faltantes o problemas</div>`+
+    proys.map((x,i)=>`<div class="report-card" onclick="insElegirProyecto(${i})"><div class="ins-proy">
+      <div style="flex:1;min-width:0;">
+        <div style="font-size:15px;font-weight:700;">${insEsc(x.p)}</div>
+        ${x.foremen.length?`<div style="font-size:12px;color:var(--text3);margin-top:2px;">${insEsc(x.foremen.join(', '))}</div>`:''}
+        <div class="ins-proy-nums">
+          <span class="ins-pill">${x.maqs} máquina${x.maqs!==1?'s':''}</span>
+          <span class="ins-pill">${x.t.ok+x.t.bad} hecha${x.t.ok+x.t.bad!==1?'s':''}</span>
+          ${x.t.bad?`<span class="ins-pill bad">⚠ ${x.t.bad} con problema</span>`:''}
+          ${x.t.falta?`<span class="ins-pill falta">✗ ${x.t.falta} falta${x.t.falta!==1?'n':''}</span>`:''}
+        </div>
+      </div><span class="role-arrow"><svg class="ico"><use href="#i-chev"/></svg></span></div></div>`).join('');
+}
+
 function filterReports(){
-  if(!window._ssReports) return;
-  const q = (document.getElementById('filter-proyecto')?.value||'').toLowerCase().trim();
-  const foreman = document.getElementById('filter-foreman')?.value||'';
-  const today = new Date().toISOString().split('T')[0];
+  const proy=insModo==='shotcrete'?'':(document.getElementById('filter-proyecto')?.value||'');
+  const foreman=document.getElementById('filter-foreman')?.value||'';
+  const today=hoyLocal(), dom=insSumarDias(insLunes,6);
+  document.getElementById('ss-detail-area').innerHTML='';
 
-  let list = window._ssReports;
+  let base=insDatos;
+  if(foreman) base=base.filter(r=>r.supervisor===foreman);
+  if(insModo==='shotcrete') insPintarTabla(base,'Unidades de Shotcrete');
+  else if(proy) insPintarTabla(base.filter(r=>r.proyecto===proy), proy, base);
+  else insPintarResumen(base);
 
-  if(q) list = list.filter(r=>coincideBusqueda(q,r.proyecto||''));
-  if(foreman) list = list.filter(r=>r.supervisor===foreman);
+  let list=base.filter(r=>r.fecha>=insLunes&&r.fecha<=dom);
+  if(proy) list=list.filter(r=>r.proyecto===proy);
   if(statusFilter==='bad') list = list.filter(r=>r.hasBad);
   if(statusFilter==='ok') list = list.filter(r=>!r.hasBad);
   if(statusFilter==='today') list = list.filter(r=>String(r.fecha)===today);
+  window._ssReports=list;
 
   const countEl = document.getElementById('ss-filter-count');
-  if(countEl) countEl.textContent = list.length + ' inspección' + (list.length!==1?'es':'') + ' encontrada' + (list.length!==1?'s':'');
+  if(countEl) countEl.textContent = list.length + (list.length!==1?' inspecciones encontradas':' inspección encontrada');
 
   renderReportsList(list,'ss-total','ss-hoy','ss-ok','ss-bad','ss-rep-list','ss-rep-empty','ss-detail-area');
 }
@@ -2333,7 +2680,7 @@ function initDrils(){
 }
 
 function initShotcrete(){
-  const today = new Date().toISOString().split('T')[0];
+  const today = hoyLocal();
 
   // Set dates
   ['sc-fecha','sct-fecha'].forEach(id=>{
@@ -2431,7 +2778,7 @@ function opTab(tab){
 
 function renderDrilsWall(){
   const listEl=document.getElementById('drils-wall-list');
-  const hoy=new Date().toISOString().split('T')[0].substring(0,7);
+  const hoy=hoyLocal().substring(0,7);
 
   // Stats
   document.getElementById('dw-total').textContent=drilsWallData.length;
@@ -2532,9 +2879,9 @@ function selectMachine(machine){
   if(shotcreteEl) shotcreteEl.style.display = 'none';
 
   if(machine === 'grout'){
-    document.getElementById('op-screen-title').textContent = 'Bomba de Gruta';
-    const _bt1=document.getElementById('op-bottom-title');if(_bt1)_bt1.textContent='🔧 Bomba de Gruta';
-    buildInspList(); buildSafetyList(); setToday(); cargarListas(); if(listasGlobal.operadores&&listasGlobal.operadores.length>0) poblarTodosLosDropdowns(listasGlobal);
+    document.getElementById('op-screen-title').textContent = 'Equipo de proyecto';
+    const _bt1=document.getElementById('op-bottom-title');if(_bt1)_bt1.textContent='🔧 Equipo de proyecto';
+    buildInspList(); buildSafetyList(); inspTipoCambio(); setToday(); cargarListas(); if(listasGlobal.operadores&&listasGlobal.operadores.length>0) poblarTodosLosDropdowns(listasGlobal);
     if(groutEl) groutEl.style.display = 'block';
   } else if(machine === 'shotcrete'){
     document.getElementById('op-screen-title').textContent = 'Shotcrete';
@@ -2629,6 +2976,7 @@ async function submitShotcrete(type){
       operador:op,
       supervisor:document.getElementById('sc-sup').value,
       proyecto:proy,
+      equipo:document.getElementById('sc-equipo').value.trim().toUpperCase(),
       firma:document.getElementById('sc-firma-comp').value,
       obs:document.getElementById('sc-obs-comp').value,
       items, hasBad
@@ -2963,7 +3311,6 @@ function poblarTodosLosDropdowns(listas){
   // Operator screen
   buildDropdown(document.getElementById('f-op'), listas.operadores||[], 'Selecciona operador');
   buildDropdown(document.getElementById('f-sup'), listas.foremen||[], 'Selecciona foreman');
-  buildDropdown(document.getElementById('f-maq'), listas.maquinas||[], 'Selecciona maquina');
 
   // SWA
   buildDropdown(document.getElementById('swa-foreman'), listas.foremen||[], 'Selecciona foreman');
@@ -3045,18 +3392,26 @@ async function checkPin(){
   }
 }
 function setToday(){
-  const t=new Date().toISOString().split('T')[0];
+  const t=hoyLocal();
   const fd=document.getElementById('f-fecha');if(fd)fd.value=t;
   const sd=document.getElementById('swa-fecha');if(sd)sd.value=t;
 }
-function buildInspList(){
+// conservar=true: al cambiar el tipo de máquina, lo ya marcado en los puntos que siguen en la lista se queda.
+function buildInspList(conservar){
   const c=document.getElementById('insp-list');if(!c)return;
-  inspItems.forEach(item=>{if(!photoStore['ph-'+item.id])photoStore['ph-'+item.id]=[];});
-  c.innerHTML=inspItems.map(item=>`<div class="insp-item" id="ir-${item.id}" data-val="">
+  const previo={};
+  if(conservar) c.querySelectorAll('.insp-item').forEach(row=>{
+    const id=row.id.slice(3); previo[id]={val:row.dataset.val, obs:document.getElementById('ot-'+id)?.value||''};
+  });
+  const lista=itemsInsp(), conNA=!inspEsGrout();
+  inspListaActual=inspClaveLista();
+  lista.forEach(item=>{if(!photoStore['ph-'+item.id])photoStore['ph-'+item.id]=[];});
+  c.innerHTML=lista.map(item=>`${item.seccion?`<div class="insp-seccion">${item.seccion}</div>`:''}<div class="insp-item" id="ir-${item.id}" data-val="">
     <div class="insp-name">${item.name}</div><div class="insp-sub">${item.sub}</div>
-    <div class="tog-row">
+    <div class="tog-row${conNA?' tres':''}">
       <button class="tog" onclick="setItem('${item.id}','ok',this)">✓ OK — Bien</button>
       <button class="tog" onclick="setItem('${item.id}','bad',this)">✗ BAD — Mal</button>
+      ${conNA?`<button class="tog" onclick="setItem('${item.id}','na',this)">N/A</button>`:''}
     </div>
     <div class="obs-area" id="oa-${item.id}">
       <textarea rows="2" id="ot-${item.id}" placeholder="Describe el problema..." style="font-size:14px;margin-bottom:10px;"></textarea>
@@ -3064,10 +3419,19 @@ function buildInspList(){
       <input type="file" id="pi-${item.id}" accept="image/*" multiple style="display:none" onchange="handlePhotos(this,'ph-${item.id}')" data-storekey="ph-${item.id}"/>
       <div class="photo-grid" id="ph-${item.id}" style="margin-top:8px"></div>
     </div></div>`).join('');
+  Object.keys(previo).forEach(id=>{
+    const row=document.getElementById('ir-'+id); if(!row) return;
+    const btn=row.querySelectorAll('.tog')[{ok:0,bad:1,na:2}[previo[id].val]];
+    if(btn) setItem(id,previo[id].val,btn);
+    document.getElementById('ot-'+id).value=previo[id].obs;
+    if(photoStore['ph-'+id]&&photoStore['ph-'+id].length) renderPhotoGrid('ph-'+id);
+  });
 }
+let inspSafetyGrout=true;
 function buildSafetyList(){
   const c=document.getElementById('safety-list');if(!c)return;
-  c.innerHTML=safetyItems.map((s,i)=>`
+  inspSafetyGrout=inspEsGrout();
+  c.innerHTML=itemsSafety().map((s,i)=>`
     <div class="safety-chk" id="sch-${i}">
       <input type="checkbox" id="sc${i}" onchange="toggleSafetyCheck(${i})"/>
       <label for="sc${i}">${s}</label>
@@ -3089,7 +3453,7 @@ function toggleSafetyCheck(i){
     row.style.paddingRight='';
   }
 }
-function setItem(id,val,btn){const row=document.getElementById('ir-'+id);row.querySelectorAll('.tog').forEach(t=>{t.className='tog';});btn.className='tog '+(val==='ok'?'ok':'bad');row.dataset.val=val;const oa=document.getElementById('oa-'+id);if(oa)oa.style.display=val==='bad'?'block':'none';}
+function setItem(id,val,btn){const row=document.getElementById('ir-'+id);row.querySelectorAll('.tog').forEach(t=>{t.className='tog';});btn.className='tog '+val;row.dataset.val=val;const oa=document.getElementById('oa-'+id);if(oa)oa.style.display=val==='bad'?'block':'none';}
 function triggerPhoto(sk,iid){const inp=document.getElementById(iid);inp.dataset.storekey=sk;inp.click();}
 // ── FOTOS → Google Drive ──
 // El celular reduce la foto (máx. 1600 px, JPEG) y la sube de inmediato a Apps Script, que la guarda en Drive.
@@ -3178,22 +3542,26 @@ function deletePhoto(key,idx){if(photoStore[key])photoStore[key].splice(idx,1);r
 function openLightbox(src){if(!src)return;document.getElementById('lb-img').src=src;document.getElementById('lightbox').classList.add('active');}
 function closeLightbox(){document.getElementById('lightbox').classList.remove('active');}
 function clearForm(){
-  ['f-proy','f-hi','f-hf','f-tools','f-obs','f-sobs'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
-  ['f-op','f-sup','f-maq'].forEach(id=>{const el=document.getElementById(id);if(el)el.selectedIndex=0;});
+  ['f-proy','f-hi','f-hf','f-tools','f-obs','f-sobs','f-tipo','f-maq','f-fab','f-mod'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  ['f-op','f-sup'].forEach(id=>{const el=document.getElementById(id);if(el)el.selectedIndex=0;});
   Object.keys(photoStore).forEach(k=>{photoStore[k]=[];});
-  buildInspList();buildSafetyList();setToday();
+  buildInspList();buildSafetyList();inspTipoCambio();setToday();
   const msg=document.getElementById('submit-msg');if(msg)msg.style.display='none';
   renderPhotoGrid('general-photos');
 }
 async function submitReport(){
   const proy=document.getElementById('f-proy').value.trim();
   const op=document.getElementById('f-op').value;
+  // "drill", "Drill " o "perforadora" se guardan como "Drill" para que la hoja quede pareja.
+  const tipoMaquina=insTipoComun(document.getElementById('f-tipo').value);
+  const maquina=document.getElementById('f-maq').value.trim().toUpperCase();
+  if(!document.getElementById('f-tipo').value.trim()||!maquina){alert('Escribe el tipo de máquina y su número.');return;}
   if(!proy||!op){alert('Por favor llena el nombre del proyecto y selecciona el operador.');return;}
   const allPhotos=Object.keys(photoStore).filter(k=>k==='general-photos'||k.startsWith('ph-')).map(k=>photoStore[k]).flat();
   if(allPhotos.some(p=>p.uploading)){alert('⏳ Espera — las fotos se están subiendo...');return;}
   if(allPhotos.some(p=>p.error)){alert('⚠ Una foto no se pudo subir. Tócala para reintentar o quítala con la ×.');return;}
   const items={};let hasBad=false;
-  inspItems.forEach(item=>{
+  itemsInsp().forEach(item=>{
     const row=document.getElementById('ir-'+item.id);
     const v=row?row.dataset.val:'';
     const obs=document.getElementById('ot-'+item.id);
@@ -3201,9 +3569,9 @@ async function submitReport(){
     items[item.id]={val:v||'pending',obs:obs?obs.value:'',name:item.name,photoUrls:photos};
     if(v==='bad')hasBad=true;
   });
-  const safety=safetyItems.map((s,i)=>({label:s,checked:document.getElementById('sc'+i)?.checked||false}));
+  const safety=itemsSafety().map((s,i)=>({label:s,checked:document.getElementById('sc'+i)?.checked||false}));
   const genPhotoUrls=(photoStore['general-photos']||[]).map(p=>p.url).filter(Boolean);
-  const report={id:Date.now(),fecha:document.getElementById('f-fecha').value,proyecto:proy,operador:op,supervisor:document.getElementById('f-sup').value,maquina:document.getElementById('f-maq').value,hi:document.getElementById('f-hi').value,hf:document.getElementById('f-hf').value,tools:document.getElementById('f-tools').value,obs:document.getElementById('f-obs').value,safetyObs:document.getElementById('f-sobs').value,items,safety,hasBad,genPhotoUrls};
+  const report={id:Date.now(),fecha:document.getElementById('f-fecha').value,proyecto:proy,operador:op,supervisor:document.getElementById('f-sup').value,tipoMaquina,maquina,fabricante:document.getElementById('f-fab').value.trim(),modelo:document.getElementById('f-mod').value.trim(),hi:document.getElementById('f-hi').value,hf:document.getElementById('f-hf').value,tools:document.getElementById('f-tools').value,obs:document.getElementById('f-obs').value,safetyObs:document.getElementById('f-sobs').value,items,safety,hasBad,genPhotoUrls};
   const msg=document.getElementById('submit-msg');
   msg.style.display='block';msg.textContent='⏳ Enviando inspección...';msg.style.background='var(--info-bg)';msg.style.color='var(--info-text)';
   try{
@@ -3283,35 +3651,47 @@ async function loadSuperReports(){
   const list=document.getElementById('ss-rep-list');
   const loading=document.getElementById('ss-rep-loading');
   const empty=document.getElementById('ss-rep-empty');
-  list.innerHTML='';loading.style.display='block';empty.style.display='none';
+  const resumen=document.getElementById('ins-resumen');
+  const pedido=++insPedido;
+  if(!insLunes) insLunes=insLunesDe(hoyLocal());
+  insPintarSemana();
+  list.innerHTML='';resumen.innerHTML='';loading.style.display='block';empty.style.display='none';
   document.getElementById('ss-detail-area').innerHTML='';
   ['ss-total','ss-hoy','ss-ok','ss-bad'].forEach(id=>document.getElementById(id).textContent='—');
+  const desde=insSumarDias(insLunes,-INS_DIAS_ATRAS), hasta=insSumarDias(insLunes,6);
   try{
-    const json=await leerDeScript('reports');
+    const json=await leerDeScript(insModo==='shotcrete'?'shotcrete':'reports',{desde,hasta});
+    if(pedido!==insPedido) return;   // ya se pidió otra semana
     loading.style.display='none';
+    if(json.status && json.status!=='ok') throw new Error(json.message||'error');
+    // El select conserva lo elegido al recargar (cambiar de semana no debe soltar el proyecto).
+    const llenar=(sel,vals,vacio)=>{ if(!sel||!vals) return; const prev=sel.value;
+      sel.innerHTML=`<option value="">${vacio}</option>`+vals.map(v=>`<option value="${insEsc(v)}">${insEsc(v)}</option>`).join('');
+      sel.value=prev; };
     if(json.listas){
       listasGlobal=json.listas;
-      const fsel=document.getElementById('filter-foreman');
-      if(fsel && json.listas.foremen){
-        fsel.innerHTML='<option value="">— Todos los foremen —</option>'+
-          json.listas.foremen.map(f=>`<option value="${f}">${f}</option>`).join('');
-      }
-      const psel=document.getElementById('filter-proyecto');
-      if(psel && json.listas.proyectos){
-        psel.innerHTML='<option value="">— Todos los proyectos —</option>'+
-          json.listas.proyectos.map(p=>`<option value="${p}">${p}</option>`).join('');
-      }
+      llenar(document.getElementById('filter-foreman'),json.listas.foremen,'— Todos los foremen —');
+      llenar(document.getElementById('filter-proyecto'),json.listas.proyectos,'— Todos los proyectos —');
     }
-    if(!json.reports||!json.reports.length){empty.style.display='block';return;}
-    window._ssReports=json.reports;
-    const countEl=document.getElementById('ss-filter-count');
-    if(countEl) countEl.textContent=json.reports.length+' inspecciones totales';
-    renderReportsList(json.reports,'ss-total','ss-hoy','ss-ok','ss-bad','ss-rep-list','ss-rep-empty','ss-detail-area');
-  }catch(err){loading.style.display='none';}
+    insDatos=(json.reports||[])
+      .map(r=>insModo==='shotcrete'?Object.assign({},r,{tipoMaquina:r.tipo,maquina:r.equipo}):r)
+      .filter(r=>r.fecha>=desde&&r.fecha<=hasta)   // el servidor anterior manda todo
+      .map(r=>Object.assign(r,{tipoComun:insTipoComun(r.tipoMaquina||'Grout Pump')}));
+    // Proyectos escritos que no están en la lista oficial también se pueden elegir.
+    const psel=document.getElementById('filter-proyecto');
+    if(psel){ const hay=new Set([...psel.options].map(o=>o.value));
+      [...new Set(insDatos.map(r=>r.proyecto).filter(p=>p&&!hay.has(p)))].sort()
+        .forEach(p=>psel.add(new Option(p,p))); }
+    filterReports();
+  }catch(err){
+    if(pedido!==insPedido) return;
+    loading.style.display='none';
+    resumen.innerHTML='<div class="card" style="text-align:center;color:var(--text2);">No se pudieron cargar las inspecciones. Intenta de nuevo.</div>';
+  }
 }
 
 function renderReportsList(reports,idTotal,idHoy,idOk,idBad,idList,idEmpty,idDetail){
-  const today=new Date().toISOString().split('T')[0];
+  const today=hoyLocal();
   document.getElementById(idTotal).textContent=reports.length;
   document.getElementById(idHoy).textContent=reports.filter(r=>String(r.fecha)===today).length;
   document.getElementById(idOk).textContent=reports.filter(r=>!r.hasBad).length;
@@ -3321,12 +3701,12 @@ function renderReportsList(reports,idTotal,idHoy,idOk,idBad,idList,idEmpty,idDet
     <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;">
       <div style="flex:1;">
         <div style="font-size:15px;font-weight:500;">${r.operador}</div>
-        <div style="font-size:13px;color:var(--text2);margin-top:2px;">${r.proyecto} · ${r.maquina||'Sin #'}</div>
+        <div style="font-size:13px;color:var(--text2);margin-top:2px;">${r.proyecto} · ${[r.tipoComun,r.maquina].filter(Boolean).join(' ')||'Sin #'}</div>
         <div style="font-size:12px;color:var(--text3);margin-top:2px;">${r.fecha} · ${r.supervisor||'Sin foreman'}${r.photoUrls&&r.photoUrls.length?' · 📷 '+r.photoUrls.length:''}</div>
       </div>
       <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;">
         <span class="badge ${r.hasBad?'badge-bad':'badge-ok'}">${r.hasBad?'⚠ Revisar':'✓ OK'}</span>
-        <span class="role-arrow">›</span>
+        <span class="role-arrow"><svg class="ico"><use href="#i-chev"/></svg></span>
       </div>
     </div>
   </div>`).join('');
@@ -3335,15 +3715,23 @@ function renderReportsList(reports,idTotal,idHoy,idOk,idBad,idList,idEmpty,idDet
 function showDetail(idx,detailId,reportsKey){
   const r=window[reportsKey][idx];if(!r)return;
   const da=document.getElementById(detailId);
-  const inspHtml=[
-    {k:'estructura',n:'Estructura y cubeta'},{k:'mangueras',n:'Mangueras/cadenas'},
-    {k:'fugas',n:'Fugas'},{k:'tuberias',n:'Tuberías/válvulas'},
-    {k:'barras',n:'Barras/escalones'},{k:'controles',n:'Controles/cableado'},
-    {k:'silos',n:'Silos'},{k:'pompa',n:'Pompa de agua'},{k:'limpieza',n:'Limpieza'}
-  ].map(item=>{
-    const val=r[item.k]||'—';const isBad=val.includes('BAD');const isOk=val.includes('OK');
-    return`<div class="detail-row"><span style="flex:1;font-size:14px;">${item.n}</span><span class="badge ${isOk?'badge-ok':isBad?'badge-bad':'badge-pending'}">${val}</span></div>`;
-  }).join('');
+  const filaItem=(n,val)=>{val=val||'—';const isBad=val.includes('BAD');const isOk=val.includes('OK');
+    return`<div class="detail-row"><span style="flex:1;font-size:14px;">${n}</span><span class="badge ${isOk?'badge-ok':isBad?'badge-bad':'badge-pending'}">${val}</span></div>`;};
+  let inspHtml;
+  if(r.itemsBad!==undefined){
+    // Shotcrete: la hoja solo guarda los ítems en BAD.
+    inspHtml=r.itemsBad?String(r.itemsBad).split(/,\s*/).map(n=>filaItem(n,'BAD')).join(''):filaItem('Todos los ítems','OK');
+  } else if(r.itemsTexto){
+    // Desde la lista general, cada línea es "Nombre: OK | BAD: obs | N/A | --".
+    inspHtml=String(r.itemsTexto).split('\n').filter(Boolean).map(l=>{const i=l.indexOf(': ');return i<0?filaItem(l,''):filaItem(l.slice(0,i),l.slice(i+2));}).join('');
+  } else {
+    inspHtml=[
+      {k:'estructura',n:'Estructura y cubeta'},{k:'mangueras',n:'Mangueras/cadenas'},
+      {k:'fugas',n:'Fugas'},{k:'tuberias',n:'Tuberías/válvulas'},
+      {k:'barras',n:'Barras/escalones'},{k:'controles',n:'Controles/cableado'},
+      {k:'silos',n:'Silos'},{k:'pompa',n:'Pompa de agua'},{k:'limpieza',n:'Limpieza'}
+    ].map(item=>filaItem(item.n,r[item.k])).join('');
+  }
   const photosHtml=r.photoUrls&&r.photoUrls.length
     ?`<div class="sec-label" style="margin-top:14px;">📷 Fotos (${r.photoUrls.length})</div>
       <div class="photo-row">${r.photoUrls.map(url=>`<img class="photo-preview" src="${fotoSrc(url,400)}" onclick="openLightbox('${fotoSrc(url,1600)}')" />`).join('')}</div>`:'';
@@ -3354,7 +3742,7 @@ function showDetail(idx,detailId,reportsKey){
     </div>
     <div class="grid2" style="margin-bottom:14px;font-size:13px;gap:10px;">
       <div><span style="color:var(--text2);">Proyecto</span><br><strong>${r.proyecto}</strong></div>
-      <div><span style="color:var(--text2);">Máquina</span><br><strong>${r.maquina||'—'}</strong></div>
+      <div><span style="color:var(--text2);">Máquina</span><br><strong>${[r.tipoComun,r.maquina].filter(Boolean).join(' ')||'—'}</strong>${r.fabricante||r.modelo?`<br><span style="font-size:12px;color:var(--text2);">${[r.fabricante,r.modelo].filter(Boolean).join(' ')}</span>`:''}</div>
       <div><span style="color:var(--text2);">Foreman</span><br>${r.supervisor||'—'}</div>
       <div><span style="color:var(--text2);">Safety</span><br><strong>${r.safetyChecks||'—'}</strong></div>
       <div><span style="color:var(--text2);">Horas</span><br>${r.hi||'—'} → ${r.hf||'—'}</div>
@@ -3478,7 +3866,7 @@ function foremanTab(tab){
 
 function initFitTest(){
   fetchEmpleados(); // refresca la lista si ya tiene mas de 15 min
-  const today = new Date().toISOString().split('T')[0];
+  const today = hoyLocal();
   const fd = document.getElementById('fittest-fecha');
   if(fd) fd.value = today;
 
@@ -3544,7 +3932,7 @@ function resetFitTest(){
   document.getElementById('fittest-msg').style.display = 'none';
   document.getElementById('fittest-form-content').style.display = 'block';
   document.getElementById('fittest-confirmacion').style.display = 'none';
-  const today = new Date().toISOString().split('T')[0];
+  const today = hoyLocal();
   document.getElementById('fittest-fecha').value = today;
 }
 
@@ -3587,7 +3975,7 @@ function rrhhTab(tab){
 
 function initRespiradoresRRHH(){
   rrhhTab('pending');
-  const today=new Date().toISOString().split('T')[0];
+  const today=hoyLocal();
   const fd=document.getElementById('rrhh-fecha');if(fd)fd.value=today;
   // Trabajadores: misma lista del EMPLOYEE TRAINING LOG que usa la solicitud (así el nombre coincide)
   poblarSelectoresEmpleados();
@@ -3723,7 +4111,7 @@ function resetRRHH(){
   document.getElementById('rrhh-notas').value='';
   photoStore['rrhh-card']=[];
   renderPhotoGrid('rrhh-card');
-  const today=new Date().toISOString().split('T')[0];
+  const today=hoyLocal();
   document.getElementById('rrhh-fecha').value=today;
   document.getElementById('rrhh-confirmacion').style.display='none';
   const cards=document.getElementById('rrhh-upload-panel').querySelectorAll('.card');
@@ -3758,7 +4146,7 @@ function trEtiquetaRol(r){
 
 function initTraining(){
   trainingTab('request');
-  const today=new Date().toISOString().split('T')[0];
+  const today=hoyLocal();
   // Load dropdowns - use cached listas or reload
   if(listasGlobal.operadores&&listasGlobal.operadores.length>0){
     poblarTodosLosDropdowns(listasGlobal);
@@ -3785,7 +4173,7 @@ async function enviarTrainingRequest(){
   const payload = {
     tipo: 'training_request',
     id: Date.now(),
-    fecha: new Date().toISOString().split('T')[0],
+    fecha: hoyLocal(),
     empleado, superintendente: super_, rolSolicitante: trRol,
     entrenamiento, proyecto,
     notas: document.getElementById('tr-notas').value.trim()
