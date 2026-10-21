@@ -468,6 +468,7 @@ textarea{min-height:88px;resize:vertical;line-height:1.5;}
 .tog.bad{background:var(--danger-bg);color:var(--danger-text);border-color:var(--swa);}
 .tog-row.tres{grid-template-columns:1fr 1fr 0.6fr;}
 .tog.na{background:var(--bg2);color:var(--text);border-color:var(--text2);}
+.insp-vacio{font-size:14px;color:var(--text2);padding:14px;border:1px dashed var(--border);border-radius:var(--radius);text-align:center;}
 .insp-seccion{font-size:12px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--text2);margin:18px 0 6px;}
 .insp-seccion:first-child{margin-top:0;}
 
@@ -1029,8 +1030,9 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{outline:none;}
     <div id="op-grout-panel" style="display:none;">
     <div class="card">
       <div class="sec-label">Máquina</div>
-      <div class="field"><label>Tipo de máquina</label><input type="text" id="f-tipo" list="tipos-maquina" placeholder="Escribe: Grout Pump, Drill, Loader…" autocomplete="off" oninput="inspTipoCambio()"/>
-        <datalist id="tipos-maquina"><option value="Grout Pump"><option value="Excavadora"><option value="Drill"><option value="Loader"><option value="Skytrack"><option value="Boom Lift"></datalist></div>
+      <div class="field"><label>Tipo de máquina</label><select id="f-tipo" onchange="inspTipoCambio()">
+        <option value="">— Selecciona la máquina —</option><option>Grout Pump</option><option>Excavadora</option><option>Drill</option><option>Loader</option><option>Skytrack</option><option>Boom Lift</option><option value="Otra">Otra máquina</option></select></div>
+      <div class="field" id="f-tipo-otro-wrap" style="display:none;"><label>¿Qué máquina es?</label><input type="text" id="f-tipo-otro" placeholder="Ej. Rodillo, Minicargador" autocomplete="off" oninput="inspTipoCambio()"/></div>
       <div class="field"><label>Número / ID de la máquina</label><input type="text" id="f-maq" placeholder="Ej. GP-02, D-115" autocomplete="off"/></div>
       <div class="grid2" id="f-makemodel" style="display:none;">
         <div class="field"><label>Fabricante</label><input type="text" id="f-fab" placeholder="Ej. CAT" autocomplete="off"/></div>
@@ -2288,9 +2290,10 @@ const safetyItemsGeneral=[
 ];
 // Puntos extra por tipo (clave = nombre de insTipoComun), propuestos el 20 oct 2026 a partir de OSHA
 // y guías de fabricantes. Se suman a la hoja general antes del área de trabajo; "ocultar" quita de la
-// hoja general lo que no aplica a ese tipo. Un tipo que no esté aquí usa solo la hoja general.
+// hoja general lo que no aplica a ese tipo y "cambiar" ajusta el texto de un punto general a esa
+// máquina. Un tipo que no esté aquí ("Otra máquina") usa solo la hoja general.
 const INSP_EXTRAS={
-  'Excavadora':{items:[
+  'Excavadora':{cambiar:{g_implemento:{name:'Cucharón, dientes y martillo (si tiene)',sub:'Bucket, teeth, hammer'}},items:[
     {id:'x_acoplador',name:'Acoplador rápido trabado y con su pin de seguridad',sub:'Quick coupler locked, safety pin in'},
     {id:'x_bloqueo',name:'Palanca de bloqueo hidráulico: al levantarla los controles no responden',sub:'Hydraulic lockout lever'},
     {id:'x_pasadores',name:'Pasadores de pluma, brazo y cucharón con seguros y engrasados',sub:'Boom, stick and bucket pins'},
@@ -2298,7 +2301,7 @@ const INSP_EXTRAS={
     {id:'x_giro',name:'Giro sin ruido ni juego; seguro de giro funciona',sub:'Swing bearing and swing lock'},
     {id:'x_contrapeso',name:'Zona de giro del contrapeso libre de personas y objetos',sub:'Tail swing clearance'},
   ]},
-  'Drill':{items:[
+  'Drill':{ocultar:['g_implemento'],items:[
     {id:'d_paros',name:'Paros de emergencia (también el remoto): el motor se apaga',sub:'Emergency stops tested'},
     {id:'d_guardas',name:'Guardas o barrera de partes que giran y área de exclusión marcada',sub:'Rotating parts guarding, exclusion zone'},
     {id:'d_mastil',name:'Mástil sin grietas; pasadores y seguro del mástil en su lugar',sub:'Mast, pins and mast lock'},
@@ -2308,7 +2311,7 @@ const INSP_EXTRAS={
     {id:'d_estabilizadores',name:'Estabilizadores o gatos apoyados en piso firme',sub:'Outriggers / jacks on firm ground'},
     {id:'d_kelly',name:'Si aplica (pier drill): cable del malacate sin hilos rotos, gancho con seguro, kelly con sus seguros',sub:'Winch rope, hook latch, kelly locks'},
   ]},
-  'Boom Lift':{ocultar:['g_implemento','g_ventanas','g_espejos','g_cinturon'],items:[
+  'Boom Lift':{ocultar:['g_implemento','g_barandal','g_ventanas','g_espejos','g_cinturon'],items:[
     {id:'b_controles',name:'Prueba de controles de canastilla y de tierra (OSHA: cada día)',sub:'Platform and ground controls function test'},
     {id:'b_paros',name:'Paro de emergencia en canastilla y en tierra',sub:'Emergency stops'},
     {id:'b_bajada',name:'Bajada de emergencia (auxiliar) funciona',sub:'Emergency / auxiliary lowering'},
@@ -2317,14 +2320,14 @@ const INSP_EXTRAS={
     {id:'b_arnes',name:'Arnés y línea corta revisados y enganchados al anclaje',sub:'Harness and lanyard'},
     {id:'b_calcas',name:'Calcomanías de capacidad legibles',sub:'Capacity decals'},
   ]},
-  'Loader':{items:[
+  'Loader':{cambiar:{g_implemento:{name:'Cucharón u horquillas: sin grietas, dientes completos',sub:'Bucket / forks'}},items:[
     {id:'l_acoplador',name:'Acoplador rápido trabado y con su pin de seguridad',sub:'Quick coupler locked, safety pin in'},
     {id:'l_articulacion',name:'Junta de articulación: pasador sin juego; barra de bloqueo guardada',sub:'Articulation joint and lock bar'},
     {id:'l_varillaje',name:'Pasadores y varillaje del cucharón con seguros',sub:'Bucket linkage pins'},
     {id:'l_llantas',name:'Llantas sin cortes ni bultos; tuercas de rueda completas',sub:'Tires and wheel nuts'},
     {id:'l_deriva',name:'Cilindros: los brazos no bajan solos',sub:'Cylinder drift'},
   ]},
-  'Skytrack':{items:[
+  'Skytrack':{ocultar:['g_implemento','g_barandal'],items:[
     {id:'s_horquillas',name:'Horquillas sin grietas ni dobleces, con sus seguros puestos',sub:'Forks and fork locks'},
     {id:'s_implemento',name:'Implemento bien trabado al carro (pin de bloqueo)',sub:'Attachment locked to carriage'},
     {id:'s_tabla',name:'Tabla de carga en cabina, legible y del implemento puesto',sub:'Load chart'},
@@ -2337,27 +2340,37 @@ const INSP_EXTRAS={
 };
 // La Grout Pump conserva su lista propia (inspItems / safetyItems); cualquier otro tipo usa la general.
 function esGroutPump(tipo){ return /grout|gruta|bomba/.test(normBusqueda(tipo)); }
-function inspEsGrout(){ return esGroutPump(document.getElementById('f-tipo')?.value||'Grout Pump'); }
-function inspExtras(){ return inspEsGrout()?null:INSP_EXTRAS[insTipoComun(document.getElementById('f-tipo')?.value||'')]||null; }
+// Tipo elegido en el dropdown; con "Otra máquina" es lo que escriben abajo. Vacío = aún no eligen.
+function inspTipo(){
+  const v=document.getElementById('f-tipo')?.value||'';
+  return v==='Otra'?(document.getElementById('f-tipo-otro')?.value||'').trim():v;
+}
+function inspHayTipo(){ return !!document.getElementById('f-tipo')?.value; }
+function inspEsGrout(){ return inspHayTipo()&&esGroutPump(inspTipo()); }
+function inspExtras(){ return !inspHayTipo()||inspEsGrout()?null:INSP_EXTRAS[insTipoComun(inspTipo())]||null; }
 function itemsInsp(){
+  if(!inspHayTipo()) return [];
   if(inspEsGrout()) return inspItems;
   const ex=inspExtras(); if(!ex) return inspItemsGeneral;
-  const base=inspItemsGeneral.filter(i=>!(ex.ocultar||[]).includes(i.id));
+  const base=inspItemsGeneral.filter(i=>!(ex.ocultar||[]).includes(i.id))
+    .map(i=>ex.cambiar&&ex.cambiar[i.id]?Object.assign({},i,ex.cambiar[i.id]):i);
   const iArea=base.findIndex(i=>i.id==='g_descensos');
-  const extras=ex.items.map((it,k)=>k===0?Object.assign({seccion:'Puntos de '+insTipoComun(document.getElementById('f-tipo').value)},it):it);
+  const extras=ex.items.map((it,k)=>k===0?Object.assign({seccion:'Puntos de '+insTipoComun(inspTipo())},it):it);
   return [...base.slice(0,iArea),...extras,...base.slice(iArea)];
 }
-function itemsSafety(){ return inspEsGrout()?safetyItems:safetyItemsGeneral; }
-// Qué lista está pintada: 'grout', 'general' o el tipo con puntos extra.
-function inspClaveLista(){ return inspEsGrout()?'grout':(inspExtras()?insTipoComun(document.getElementById('f-tipo').value):'general'); }
-let inspListaActual='grout';
+function itemsSafety(){ return !inspHayTipo()?[]:inspEsGrout()?safetyItems:safetyItemsGeneral; }
+// Qué lista está pintada: '' (sin máquina), 'grout', 'general' o el tipo con puntos extra.
+function inspClaveLista(){ return !inspHayTipo()?'':inspEsGrout()?'grout':(inspExtras()?insTipoComun(inspTipo()):'general'); }
+function inspClaveSafety(){ return !inspHayTipo()?'':inspEsGrout()?'grout':'general'; }
+let inspListaActual=null;
 function inspTipoCambio(){
-  const grout=inspEsGrout();
+  const hay=inspHayTipo(), grout=inspEsGrout();
+  const ow=document.getElementById('f-tipo-otro-wrap');if(ow)ow.style.display=document.getElementById('f-tipo')?.value==='Otra'?'':'none';
   const zr=document.getElementById('f-zona-roja');if(zr)zr.style.display=grout?'':'none';
-  const mm=document.getElementById('f-makemodel');if(mm)mm.style.display=grout?'none':'';
+  const mm=document.getElementById('f-makemodel');if(mm)mm.style.display=hay&&!grout?'':'none';
   // Solo se reconstruye la lista cuando cambia cuál toca; lo ya marcado se conserva (buildInspList).
   if(inspClaveLista()!==inspListaActual) buildInspList(true);
-  if(grout!==inspSafetyGrout) buildSafetyList();
+  if(inspClaveSafety()!==inspSafetyActual) buildSafetyList();
 }
 
 const safetyItems=[
@@ -3422,6 +3435,7 @@ function buildInspList(conservar){
   });
   const lista=itemsInsp(), conNA=!inspEsGrout();
   inspListaActual=inspClaveLista();
+  if(!lista.length){c.innerHTML='<div class="insp-vacio">Primero selecciona la máquina arriba; aquí saldrán solo los puntos que le tocan.</div>';return;}
   lista.forEach(item=>{if(!photoStore['ph-'+item.id])photoStore['ph-'+item.id]=[];});
   c.innerHTML=lista.map(item=>`${item.seccion?`<div class="insp-seccion">${item.seccion}</div>`:''}<div class="insp-item" id="ir-${item.id}" data-val="">
     <div class="insp-name">${item.name}</div><div class="insp-sub">${item.sub}</div>
@@ -3444,10 +3458,11 @@ function buildInspList(conservar){
     if(photoStore['ph-'+id]&&photoStore['ph-'+id].length) renderPhotoGrid('ph-'+id);
   });
 }
-let inspSafetyGrout=true;
+let inspSafetyActual=null;
 function buildSafetyList(){
   const c=document.getElementById('safety-list');if(!c)return;
-  inspSafetyGrout=inspEsGrout();
+  inspSafetyActual=inspClaveSafety();
+  if(!inspSafetyActual){c.innerHTML='<div class="insp-vacio">Selecciona la máquina para ver estos puntos.</div>';return;}
   c.innerHTML=itemsSafety().map((s,i)=>`
     <div class="safety-chk" id="sch-${i}">
       <input type="checkbox" id="sc${i}" onchange="toggleSafetyCheck(${i})"/>
@@ -3559,7 +3574,7 @@ function deletePhoto(key,idx){if(photoStore[key])photoStore[key].splice(idx,1);r
 function openLightbox(src){if(!src)return;document.getElementById('lb-img').src=src;document.getElementById('lightbox').classList.add('active');}
 function closeLightbox(){document.getElementById('lightbox').classList.remove('active');}
 function clearForm(){
-  ['f-proy','f-hi','f-hf','f-tools','f-obs','f-sobs','f-tipo','f-maq','f-fab','f-mod'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  ['f-proy','f-hi','f-hf','f-tools','f-obs','f-sobs','f-tipo','f-tipo-otro','f-maq','f-fab','f-mod'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
   ['f-op','f-sup'].forEach(id=>{const el=document.getElementById(id);if(el)el.selectedIndex=0;});
   Object.keys(photoStore).forEach(k=>{photoStore[k]=[];});
   buildInspList();buildSafetyList();inspTipoCambio();setToday();
@@ -3570,9 +3585,11 @@ async function submitReport(){
   const proy=document.getElementById('f-proy').value.trim();
   const op=document.getElementById('f-op').value;
   // "drill", "Drill " o "perforadora" se guardan como "Drill" para que la hoja quede pareja.
-  const tipoMaquina=insTipoComun(document.getElementById('f-tipo').value);
+  const tipoMaquina=insTipoComun(inspTipo());
   const maquina=document.getElementById('f-maq').value.trim().toUpperCase();
-  if(!document.getElementById('f-tipo').value.trim()||!maquina){alert('Escribe el tipo de máquina y su número.');return;}
+  if(!inspHayTipo()){alert('Selecciona el tipo de máquina.');return;}
+  if(!inspTipo()){alert('Escribe qué máquina es.');return;}
+  if(!maquina){alert('Escribe el número de la máquina.');return;}
   if(!proy||!op){alert('Por favor llena el nombre del proyecto y selecciona el operador.');return;}
   const allPhotos=Object.keys(photoStore).filter(k=>k==='general-photos'||k.startsWith('ph-')).map(k=>photoStore[k]).flat();
   if(allPhotos.some(p=>p.uploading)){alert('⏳ Espera — las fotos se están subiendo...');return;}
