@@ -1186,7 +1186,7 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{outline:none;}
 
       <button class="role-btn" onclick="superTab('training')">
         <div class="role-icon"><svg class="ico"><use href="#i-book"/></svg></div>
-        <div class="rb-body"><div class="rb-title">Solicitar Entrenamiento</div><div class="rb-desc">Solicitudes acumuladas — mínimo 8 para agendar</div></div>
+        <div class="rb-body"><div class="rb-title">Solicitar Entrenamiento</div><div class="rb-desc">Solicitudes acumuladas — mínimo 12 para agendar</div></div>
         <span class="role-arrow"><svg class="ico"><use href="#i-chev"/></svg></span>
       </button>
 
@@ -1359,7 +1359,7 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{outline:none;}
   <div id="super-training-panel" style="display:none;">
     <div style="max-width:480px;margin:0 auto;padding:14px 16px 80px;">
       <div style="font-family:var(--f-head);font-size:18px;font-weight:800;margin-bottom:4px;">📚 Solicitar Entrenamiento</div>
-      <div style="font-size:12px;color:var(--text2);margin-bottom:16px;">Notificación automática cuando se acumulen 8 solicitudes del mismo tipo</div>
+      <div style="font-size:12px;color:var(--text2);margin-bottom:16px;">Notificación automática cuando se acumulen 12 solicitudes del mismo tipo</div>
 
       <!-- Sub-tabs -->
       <div style="display:flex;gap:6px;margin-bottom:16px;">
@@ -1421,7 +1421,7 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{outline:none;}
         </div>
 
         <div style="background:var(--g0);border:1px solid var(--g3);border-radius:var(--radius);padding:12px 14px;margin-bottom:14px;font-size:13px;color:var(--g7);">
-          📧 Cuando se acumulen <strong>8 solicitudes</strong> del mismo tipo de entrenamiento, se notificará automáticamente a Safety para agendar la capacitación.
+          📧 Cuando se acumulen <strong>12 solicitudes</strong> del mismo tipo de entrenamiento, se notificará automáticamente a Safety para agendar la capacitación.
         </div>
 
         <div class="submit-msg" id="tr-msg"></div>
@@ -1433,7 +1433,7 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{outline:none;}
           <div style="font-size:40px;margin-bottom:10px;">✅</div>
           <div style="font-family:var(--f-head);font-size:18px;font-weight:800;color:var(--success-text);margin-bottom:6px;">Solicitud registrada</div>
           <div style="font-size:13px;color:var(--text2);margin-bottom:4px;" id="tr-conf-count"></div>
-          <div style="font-size:12px;color:var(--text2);">Se notificará cuando se alcancen 8 solicitudes del mismo tipo.</div>
+          <div style="font-size:12px;color:var(--text2);">Se notificará cuando se alcancen 12 solicitudes del mismo tipo.</div>
           <button class="btn" style="background:var(--g7);color:white;border-color:var(--g7);margin-top:14px;" onclick="resetTrainingRequest()">Hacer otra solicitud</button>
         </div>
       </div>
@@ -1856,9 +1856,18 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{outline:none;}
             <label>Tu nombre (quién reconoce)</label>
             <input type="text" id="drils-por" placeholder="Tu nombre" autocomplete="off"/>
           </div>
-          <div class="field" style="margin-bottom:0;">
+          <div class="field">
             <label>Proyecto / Sitio</label>
             <input type="text" id="drils-sitio" placeholder="¿En qué proyecto ocurrió?" autocomplete="off"/>
+          </div>
+          <div class="field">
+            <label>Foreman / Supervisor</label>
+            <select id="drils-foreman"><option value="">— Selecciona foreman —</option></select>
+          </div>
+          <div class="field" style="margin-bottom:0;">
+            <label>Superintendente</label>
+            <select id="drils-super"><option value="">— Selecciona superintendente —</option></select>
+            <div style="font-size:12px;color:var(--text2);margin-top:6px;">Elige al menos uno: le llega un correo con el reconocimiento.</div>
           </div>
         </div>
 
@@ -2427,6 +2436,9 @@ async function enviarDRILS(){
   if(!reconocido||!por||!descripcion){
     alert('Por favor llena el nombre del compañero, tu nombre y la descripción.');return;
   }
+  const foreman=document.getElementById('drils-foreman').value;
+  const superintendente=document.getElementById('drils-super').value;
+  if(!foreman&&!superintendente){alert('Elige al menos el foreman o el superintendente: le llega un correo con el reconocimiento.');return;}
   if(!drilsValorSelected){alert('Por favor selecciona el valor DRILS que demostró.');return;}
 
   const v=DRILS_VALORES[drilsValorSelected];
@@ -2436,7 +2448,8 @@ async function enviarDRILS(){
     reconocido,reconocidoPor:por,
     valor:v.nombre,
     descripcion,
-    sitio:document.getElementById('drils-sitio').value.trim()
+    sitio:document.getElementById('drils-sitio').value.trim(),
+    foreman,superintendente
   };
 
   const msg=document.getElementById('drils-msg');
@@ -2456,6 +2469,7 @@ async function enviarDRILS(){
       '<strong>Valor:</strong> '+v.emoji+' '+v.nombre+'<br>'+
       '<strong>Reconocido por:</strong> '+por+'<br>'+
       (payload.sitio?'<strong>Sitio:</strong> '+payload.sitio+'<br>':'')+
+      '<strong>Notificado:</strong> '+['Safety',foreman,superintendente].filter(Boolean).join(', ')+'<br>'+
       '<br><strong>Acción:</strong><br>'+descripcion;
     document.getElementById('drils-confirmacion').style.display='block';
   }catch(err){
@@ -2676,6 +2690,7 @@ function initDrils(){
   ['drils-reconocido','drils-por','drils-sitio','drils-descripcion'].forEach(id=>{
     const el=document.getElementById(id);if(el)el.value='';
   });
+  ['drils-foreman','drils-super'].forEach(id=>{const el=document.getElementById(id);if(el)el.selectedIndex=0;});
   drilsTab('form');
 }
 
@@ -3315,6 +3330,8 @@ function poblarTodosLosDropdowns(listas){
   // SWA
   buildDropdown(document.getElementById('swa-foreman'), listas.foremen||[], 'Selecciona foreman');
   buildDropdown(document.getElementById('swa-super'), listas.superintendentes||[], 'Selecciona superintendente');
+  buildDropdown(document.getElementById('drils-foreman'), listas.foremen||[], 'Selecciona foreman');
+  buildDropdown(document.getElementById('drils-super'), listas.superintendentes||[], 'Selecciona superintendente');
 
   // Projects everywhere
   const proyectos = listas.proyectos||[];
@@ -4207,6 +4224,8 @@ function resetTrainingRequest(){
   document.getElementById('tr-msg').style.display='none';
 }
 
+// Solicitudes del mismo entrenamiento para avisar a Safety (igual que MIN_TRAINING_COUNT en Code.gs).
+const MIN_SOLICITUDES=12;
 async function loadTrainingRequests(tab){
   const summaryEl = document.getElementById('tr-summary-list');
   const listEl = document.getElementById('tr-all-list');
@@ -4236,9 +4255,10 @@ async function loadTrainingRequests(tab){
       summaryEl.innerHTML=sorted.map(tipo=>{
         const entries = trainingMap[tipo];
         const count = entries.length;
-        const pct = Math.min(100,Math.round((count/8)*100));
-        const isReady = count>=8;
-        const barColor = isReady?'var(--g5)':count>=5?'var(--a3)':'var(--swa)';
+        const pct = Math.min(100,Math.round((count/MIN_SOLICITUDES)*100));
+        const isReady = count>=MIN_SOLICITUDES;
+        const cerca = count>=Math.round(MIN_SOLICITUDES*2/3);
+        const barColor = isReady?'var(--g5)':cerca?'var(--a3)':'var(--swa)';
 
         const empRows = entries.map(e=>`
           <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:0.5px solid var(--border);">
@@ -4256,15 +4276,15 @@ async function loadTrainingRequests(tab){
                 <div style="font-family:var(--f-head);font-size:17px;font-weight:800;">📚 ${tipo}</div>
                 <div style="font-size:12px;color:var(--text2);margin-top:2px;">${count} empleado${count!==1?'s':''} solicitado${count!==1?'s':''}</div>
               </div>
-              <span style="background:${isReady?'var(--success-bg)':count>=5?'var(--warning-bg)':'var(--danger-bg)'};color:${isReady?'var(--success-text)':count>=5?'var(--warning-text)':'var(--danger-text)'};font-family:var(--f-head);font-size:16px;font-weight:800;padding:8px 14px;border-radius:99px;">
-                ${count}/8${isReady?' ✅':''}
+              <span style="background:${isReady?'var(--success-bg)':cerca?'var(--warning-bg)':'var(--danger-bg)'};color:${isReady?'var(--success-text)':cerca?'var(--warning-text)':'var(--danger-text)'};font-family:var(--f-head);font-size:16px;font-weight:800;padding:8px 14px;border-radius:99px;">
+                ${count}/${MIN_SOLICITUDES}${isReady?' ✅':''}
               </span>
             </div>
             <div style="background:var(--bg2);border-radius:99px;height:10px;overflow:hidden;margin-bottom:4px;">
               <div style="height:100%;width:${pct}%;background:${barColor};border-radius:99px;"></div>
             </div>
             <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text3);margin-top:4px;">
-              <span>${isReady?'✅ Listo para agendar':'Faltan '+(8-count)+' para notificar'}</span>
+              <span>${isReady?'✅ Listo para agendar':'Faltan '+(MIN_SOLICITUDES-count)+' para notificar'}</span>
               <span style="color:var(--ooi-orange);font-weight:700;">Ver ${count} empleado${count!==1?'s':''} ▾</span>
             </div>
           </div>
