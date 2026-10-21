@@ -1921,6 +1921,16 @@ const SOON_DAYS=90;
 let tpVencFilter='all';
 let tpTrainingFilter='';
 
+// Búsqueda flexible: sin acentos ni mayúsculas, y cada palabra puede ir en cualquier orden
+// ("juan cuenca" encuentra "Cuenca, Juan").
+function normBusqueda(s){ return String(s||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase(); }
+function coincideBusqueda(q, ...textos){
+  const partes = normBusqueda(q).split(/[\s,]+/).filter(Boolean);
+  if(!partes.length) return true;
+  const n = normBusqueda(textos.join(' '));
+  return partes.every(p=>n.includes(p));
+}
+
 
 function tpPopulateDropdown() {
   var sel = document.getElementById('tp-training-select');
@@ -1994,7 +2004,7 @@ function tpSetVencFilter(v,btn){
 }
 
 function tpRender(){
-  const q=(document.getElementById('tp-search')?.value||'').toLowerCase().trim();
+  const q=(document.getElementById('tp-search')?.value||'').trim();
   const resultsEl=document.getElementById('tp-results');
   const detailEl=document.getElementById('tp-emp-detail');
   if(detailEl&&detailEl.style.display!=='none')return;
@@ -2005,7 +2015,7 @@ function tpRender(){
   let list=getTrainingData();
 
   // Filter by employee name
-  if(q) list=list.filter(e=>e.name.toLowerCase().includes(q)||(e.ooi_id||'').toLowerCase().includes(q));
+  if(q) list=list.filter(e=>coincideBusqueda(q,e.name,e.ooi_id||''));
 
   // Filter by training type
   if(tpTrainingFilter){
@@ -2293,7 +2303,7 @@ function filterReports(){
 
   let list = window._ssReports;
 
-  if(q) list = list.filter(r=>r.proyecto.toLowerCase().includes(q.toLowerCase()));
+  if(q) list = list.filter(r=>coincideBusqueda(q,r.proyecto||''));
   if(foreman) list = list.filter(r=>r.supervisor===foreman);
   if(statusFilter==='bad') list = list.filter(r=>r.hasBad);
   if(statusFilter==='ok') list = list.filter(r=>!r.hasBad);
@@ -3362,220 +3372,6 @@ function showDetail(idx,detailId,reportsKey){
 setToday();
 cargarListas();
 
-function tpInit(){
-  const total=getTrainingData().length;
-  let expired=0,soon=0,ok=0;
-  getTrainingData().forEach(emp=>{
-    const status=tpEmpStatus(emp);
-    if(status==='expired')expired++;
-    else if(status==='soon')soon++;
-    else ok++;
-  });
-  document.getElementById('tp-total').textContent=total;
-  document.getElementById('tp-expired').textContent=expired;
-  document.getElementById('tp-soon').textContent=soon;
-  document.getElementById('tp-ok').textContent=ok;
-  // Reset filters
-  tpVencFilter='all';
-  tpTrainingFilter='';
-  const sel=document.getElementById('tp-training-select');
-  if(sel)sel.value='';
-  document.querySelectorAll('[id^="vf-"]').forEach(b=>b.classList.remove('on'));
-  const allBtn=document.getElementById('vf-all');
-  if(allBtn)allBtn.classList.add('on');
-  const srch=document.getElementById('tp-search');
-  if(srch)srch.value='';
-  tpRender();
-}
-
-function tpEmpStatus(emp){
-  let hasExpired=false, hasSoon=false;
-  emp.trainings.forEach(t=>{
-    if(t.expires){
-      const exp=new Date(t.expires);
-      const diffDays=(exp-TODAY)/(1000*60*60*24);
-      if(diffDays<0)hasExpired=true;
-      else if(diffDays<SOON_DAYS)hasSoon=true;
-    }
-  });
-  if(hasExpired)return 'expired';
-  if(hasSoon)return 'soon';
-  return 'ok';
-}
-
-function tpSetVencFilter(v,btn){
-  tpVencFilter=v;
-  document.querySelectorAll('[id^="vf-"]').forEach(b=>b.classList.remove('on'));
-  btn.classList.add('on');
-  tpRender();
-}
-
-function tpRender(){
-  const q=(document.getElementById('tp-search')?.value||'').toLowerCase().trim();
-  const resultsEl=document.getElementById('tp-results');
-  const detailEl=document.getElementById('tp-emp-detail');
-  if(detailEl&&detailEl.style.display!=='none')return;
-
-  const selVal=(document.getElementById('tp-training-select')?.value||'');
-  tpTrainingFilter=selVal;
-
-  let list=getTrainingData();
-
-  // Filter by employee name
-  if(q) list=list.filter(e=>e.name.toLowerCase().includes(q)||(e.ooi_id||'').toLowerCase().includes(q));
-
-  // Filter by training type
-  if(tpTrainingFilter){
-    list=list.filter(e=>e.trainings.some(t=>t.name===tpTrainingFilter));
-  }
-
-  // Filter by expiry status
-  if(tpVencFilter==='expired'){
-    list=list.filter(e=>e.trainings.some(t=>{
-      if(!t.expires)return false;
-      const exp=new Date(t.expires);
-      return(!tpTrainingFilter||t.name===tpTrainingFilter)&&exp<TODAY;
-    }));
-  } else if(tpVencFilter==='60'){
-    list=list.filter(e=>e.trainings.some(t=>{
-      if(!t.expires)return false;
-      const exp=new Date(t.expires);
-      const d=(exp-TODAY)/(1000*60*60*24);
-      return(!tpTrainingFilter||t.name===tpTrainingFilter)&&d>=0&&d<=60;
-    }));
-  } else if(tpVencFilter==='90'){
-    list=list.filter(e=>e.trainings.some(t=>{
-      if(!t.expires)return false;
-      const exp=new Date(t.expires);
-      const d=(exp-TODAY)/(1000*60*60*24);
-      return(!tpTrainingFilter||t.name===tpTrainingFilter)&&d>=0&&d<=90;
-    }));
-  } else if(tpVencFilter==='ok'){
-    list=list.filter(e=>e.trainings.some(t=>{
-      if(!t.expires)return true;
-      const exp=new Date(t.expires);
-      const d=(exp-TODAY)/(1000*60*60*24);
-      return(!tpTrainingFilter||t.name===tpTrainingFilter)&&d>90;
-    }));
-  }
-
-  const countEl=document.getElementById('tp-results-count');
-  if(countEl)countEl.textContent=list.length+' empleado'+(list.length!==1?'s':'')+' encontrado'+(list.length!==1?'s':'');
-  if(!list.length){
-    resultsEl.innerHTML='<div class="empty-state"><div class="icon">🔍</div><div>No se encontraron resultados</div></div>';
-    return;
-  }
-
-  // If filtering by training type, show training-centric view
-  if(tpTrainingFilter){
-    resultsEl.innerHTML='<div class="tp-section">'+(list.length)+' empleados con este entrenamiento</div>'+
-    list.map((emp,i)=>{
-      const t=emp.trainings.find(x=>x.name===tpTrainingFilter);
-      const exp=t&&t.expires?new Date(t.expires):null;
-      const diffDays=exp?(exp-TODAY)/(1000*60*60*24):null;
-      const isExp=diffDays!==null&&diffDays<0;
-      const isSoon=diffDays!==null&&diffDays>=0&&diffDays<SOON_DAYS;
-      const initials=emp.name.split(/[,\s]+/).filter(Boolean).map(p=>p[0]||'').slice(0,2).join('').toUpperCase();
-      return `<div class="emp-card" onclick="tpOpenDetail(${i+'_'+tpTrainingFilter.replace(/[^a-z0-9]/gi,'_')},${getTrainingData().indexOf(emp)})">
-        <div style="display:flex;align-items:center;gap:12px;">
-          ${empAvatarHtml(emp)}
-          <div style="flex:1;">
-            <div style="font-size:15px;font-weight:500;">${emp.name}</div>
-            <div style="font-size:12px;color:var(--text2);margin-top:2px;">${emp.ooi_id||'Sin ID'}</div>
-          </div>
-          <div style="text-align:right;">
-            ${t?`<div class="train-badge ${isExp?'expired':isSoon?'current':'current'}" style="${isExp?'background:var(--danger-bg);color:var(--danger-text)':isSoon?'background:var(--warning-bg);color:var(--warning-text)':''}">${t.date}</div>
-            ${t.expires?`<div style="font-size:11px;color:${isExp?'var(--danger-text)':isSoon?'var(--warning-text)':'var(--text2)'};margin-top:3px;">Vence: ${t.expires}</div>`:''}` :'<span class="train-badge nodate">Sin registro</span>'}
-          </div>
-        </div>
-      </div>`;
-    }).join('');
-    return;
-  }
-
-  resultsEl.innerHTML='<div class="tp-section">'+(list.length)+' empleados</div>'+
-  list.map((emp,i)=>{
-    const status=tpEmpStatus(emp);
-    const initials=emp.name.split(/[,\s]+/).filter(Boolean).map(p=>p[0]||'').slice(0,2).join('').toUpperCase();
-    const badge=status==='expired'?'<span class="badge badge-bad">⚠ Vencido</span>':status==='soon'?'<span class="badge badge-pending">🔔 Pronto</span>':'<span class="badge badge-ok">✓ Al corriente</span>';
-    const expiredCount=emp.trainings.filter(t=>{if(!t.expires)return false;return new Date(t.expires)<TODAY;}).length;
-    return `<div class="emp-card" onclick="tpOpenDetail(null,${getTrainingData().indexOf(emp)})">
-      <div style="display:flex;align-items:center;gap:12px;">
-        ${empAvatarHtml(emp)}
-        <div style="flex:1;">
-          <div style="font-size:15px;font-weight:500;">${emp.name}</div>
-          <div style="font-size:12px;color:var(--text2);margin-top:2px;">${emp.trainings.length} entrenamientos${expiredCount?(' · <span style="color:var(--danger-text);">'+expiredCount+' vencidos</span>'):''}</div>
-        </div>
-        <div>${badge}<div style="color:var(--text3);font-size:20px;text-align:right;margin-top:4px;">›</div></div>
-      </div>
-    </div>`;
-  }).join('');
-}
-
-async function tpOpenDetail(_,empIdx){
-  const emp=getTrainingData()[empIdx];
-  if(!emp)return;
-  document.getElementById('tp-results').style.display='none';
-  document.getElementById('tp-emp-detail').style.display='block';
-  const initials=emp.name.split(/[,\s]+/).filter(Boolean).map(p=>p[0]||'').slice(0,2).join('').toUpperCase();
-  document.getElementById('tp-det-avatar').innerHTML=empAvatarHtml(emp,'lg');
-  document.getElementById('tp-det-name').textContent=emp.name;
-  document.getElementById('tp-det-ids').textContent=(emp.ooi_id?'OOI: '+emp.ooi_id:'')+(emp.stc_id?' · STC: '+emp.stc_id:'');
-  
-  const expiredCount=emp.trainings.filter(t=>{if(!t.expires)return false;return new Date(t.expires)<TODAY;}).length;
-  const soonCount=emp.trainings.filter(t=>{if(!t.expires)return false;const d=(new Date(t.expires)-TODAY)/(1000*60*60*24);return d>=0&&d<SOON_DAYS;}).length;
-  document.getElementById('tp-det-stats').innerHTML=
-    `<span class="badge badge-ok" style="margin-right:6px;">${emp.trainings.length} entrenamientos</span>`+
-    (expiredCount?`<span class="badge badge-bad" style="margin-right:6px;">${expiredCount} vencidos</span>`:'') +
-    (soonCount?`<span class="badge badge-pending">${soonCount} vencen pronto</span>`:'');
-
-  // Training list
-  const sorted=[...emp.trainings].sort((a,b)=>b.date.localeCompare(a.date));
-  document.getElementById('tp-det-trainings').innerHTML=sorted.map(t=>{
-    const exp=t.expires?new Date(t.expires):null;
-    const diffDays=exp?(exp-TODAY)/(1000*60*60*24):null;
-    const isExp=diffDays!==null&&diffDays<0;
-    const isSoon=diffDays!==null&&diffDays>=0&&diffDays<SOON_DAYS;
-    const dotClass=isExp?'exp':isSoon?'soon':'ok';
-    const dateClass=isExp?'expired':isSoon?'expiring':'';
-    return `<div class="cert-row">
-      <div class="cert-dot ${dotClass}"></div>
-      <div class="cert-name">${t.name}</div>
-      <div>
-        <div class="cert-date">${t.date}</div>
-        ${t.expires?`<div class="cert-date ${dateClass}" style="font-size:10px;">Vence: ${t.expires}</div>`:''}
-      </div>
-    </div>`;
-  }).join('') || '<div style="color:var(--text2);font-size:13px;padding:8px 0;">Sin registros de entrenamiento.</div>';
-
-  // Drive cert search
-  document.getElementById('tp-cert-status').textContent='Buscando certificaciones en Google Drive...';
-  document.getElementById('tp-cert-list').innerHTML='';
-  try{
-    const json=await leerDeScript('certs',{nombre:emp.name});
-    if(json.certs&&json.certs.length>0){
-      document.getElementById('tp-cert-status').textContent=json.certs.length+' certificado(s) encontrado(s) en Drive';
-      document.getElementById('tp-cert-list').innerHTML=json.certs.map(c=>`
-        <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:0.5px solid var(--border);">
-          <div style="flex:1;">
-            <div style="font-size:13px;font-weight:500;">${c.entrenamiento}</div>
-            <div style="font-size:11px;color:var(--text2);">${c.anio} · ${c.ext}</div>
-          </div>
-          <a href="${c.viewUrl}" target="_blank" class="drive-btn">📄 Ver</a>
-        </div>`).join('');
-    } else {
-      document.getElementById('tp-cert-status').textContent='Sin archivos en Drive para este empleado';
-    }
-  }catch(err){
-    document.getElementById('tp-cert-status').textContent='No se pudo conectar con Drive';
-  }
-}
-
-function tpCloseDetail(){
-  document.getElementById('tp-emp-detail').style.display='none';
-  document.getElementById('tp-results').style.display='block';
-}
-
 function superBack(){
   // Check which panel is visible
   var panels = ['super-insp-panel','super-train-panel','super-training-panel'];
@@ -4626,11 +4422,11 @@ function sftRender(){
     '<div class="stat-card"><div class="stat-num" style="color:var(--danger-text);">'+(n('vencido')+n('fail'))+'</div><div class="stat-lbl">Vencidos o FAIL</div></div>'+
     '<div class="stat-card"><div class="stat-num">'+pend+'</div><div class="stat-lbl">Solicitudes pendientes</div></div>';
 
-  const q=sftClave(document.getElementById('sft-buscar').value);
+  const q=document.getElementById('sft-buscar').value.trim();
   const prioridad={vencido:0,fail:1,pendiente:2,pronto:3,vigente:4};
   const lista=sftDatos
     .filter(w=>sftFiltroActual==='todos' || (sftFiltroActual==='pendiente' ? !!w.pendiente : w.estado===sftFiltroActual))
-    .filter(w=>!q || sftClave(w.nombre).indexOf(q)>-1)
+    .filter(w=>coincideBusqueda(q,w.nombre))
     .sort((a,b)=>prioridad[a.estado]-prioridad[b.estado] || a.nombre.localeCompare(b.nombre));
 
   const listEl=document.getElementById('sft-list');
@@ -5179,7 +4975,7 @@ function pdfNewPage(doc) {
 
     // ── Lista ──
     function buildRows(){
-      const tokens = norm(st.query).split(/\s+/).filter(Boolean);
+      const tokens = norm(st.query).split(/[\s,]+/).filter(Boolean);
       const rows = [];
       let run = 0, runGroup = undefined;
       const addOpt = (o, group)=>{
