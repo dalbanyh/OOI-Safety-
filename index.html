@@ -982,8 +982,8 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{outline:none;}
     <span class="bottom-nav-title" id="pin-bottom-title">PIN de acceso</span>
   </div>
   <div class="container" style="padding-top:32px;">
-    <div class="header-bar"><button class="btn-icon" onclick="show('s-login')">←</button><div><div style="font-size:18px;font-weight:500;" id="pin-role-name">PIN de acceso</div><div style="font-size:13px;color:var(--text2);">Ingresa tu PIN de 4 dígitos</div></div></div>
-    <div class="pin-dots" id="pin-dots"><div class="pin-dot" id="d0"></div><div class="pin-dot" id="d1"></div><div class="pin-dot" id="d2"></div><div class="pin-dot" id="d3"></div></div>
+    <div class="header-bar"><button class="btn-icon" onclick="show('s-login')">←</button><div><div style="font-size:18px;font-weight:500;" id="pin-role-name">PIN de acceso</div><div style="font-size:13px;color:var(--text2);">Ingresa tu PIN de 6 dígitos</div></div></div>
+    <div class="pin-dots" id="pin-dots"><div class="pin-dot" id="d0"></div><div class="pin-dot" id="d1"></div><div class="pin-dot" id="d2"></div><div class="pin-dot" id="d3"></div><div class="pin-dot" id="d4"></div><div class="pin-dot" id="d5"></div></div>
     <div id="pin-err" style="text-align:center;color:var(--danger-text);font-size:14px;margin-bottom:10px;display:none;">PIN incorrecto, intenta de nuevo</div>
     <div class="numpad">
       <button class="num-btn" onclick="pinPress('1')">1</button><button class="num-btn" onclick="pinPress('2')">2</button><button class="num-btn" onclick="pinPress('3')">3</button>
@@ -1566,7 +1566,7 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{outline:none;}
         </div>
 
         <div style="background:var(--ooi-orange-bg);border:1px solid rgba(244,129,32,0.2);border-radius:var(--radius);padding:12px 14px;margin-bottom:14px;font-size:13px;color:var(--text2);">
-          📧 Al enviar, se notificará automáticamente a <strong>Briseida Estrada — Recursos Humanos</strong> para coordinar la cita en la clínica.
+          📧 Al enviar, se notificará automáticamente a <strong>Recursos Humanos</strong> para coordinar la cita en la clínica.
         </div>
 
         <div class="submit-msg" id="fittest-msg"></div>
@@ -1578,7 +1578,7 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{outline:none;}
       <div id="fittest-confirmacion" style="display:none;background:var(--success-bg);border:1px solid var(--success-border);border-radius:var(--radius-lg);padding:24px;text-align:center;margin-top:14px;">
         <div style="font-size:48px;margin-bottom:12px;">✅</div>
         <div style="font-family:var(--f-head);font-size:20px;font-weight:800;color:var(--success-text);margin-bottom:8px;">Solicitud enviada</div>
-        <div style="font-size:14px;color:var(--text2);margin-bottom:16px;">Briseida Estrada fue notificada y coordinará la cita en la clínica.</div>
+        <div style="font-size:14px;color:var(--text2);margin-bottom:16px;">Recursos Humanos fue notificado y coordinará la cita en la clínica.</div>
         <div style="background:var(--bg);border-radius:var(--radius);padding:14px;font-size:13px;text-align:left;margin-bottom:16px;" id="fittest-resumen"></div>
         <button class="btn btn-primary" onclick="resetFitTest()">Hacer otra solicitud</button>
         <button class="btn btn-ghost" onclick="foremanSalir()" style="margin-top:8px;">Salir</button>
@@ -1982,7 +1982,7 @@ let pinBusy=false;
 const ROLES={supervisor:'Supervisor',super:'Superintendente',foreman:'Foreman',rrhh:'Recursos Humanos',safety:'Safety'};
 let pinEntry='',currentRole='';
 const photoStore={};
-let listasGlobal={foremen:[],operadores:[],maquinas:[]};
+let listasGlobal={foremen:[],operadores:[]};
 let swaChipSelected='';
 
 // Fecha local 'yyyy-mm-dd'. toISOString() da la fecha UTC: en Texas, después de las 7 pm ya es "mañana".
@@ -2717,7 +2717,7 @@ function initShotcrete(){
 
   // Load dropdowns
   cargarListas();
-  if(listasGlobal.operadores&&listasGlobal.operadores.length>0){
+  if(listasGlobal.foremen&&listasGlobal.foremen.length>0){
     poblarTodosLosDropdowns(listasGlobal);
   } else {
     cargarListas();
@@ -2909,7 +2909,7 @@ function selectMachine(machine){
   if(machine === 'grout'){
     document.getElementById('op-screen-title').textContent = 'Equipo de proyecto';
     const _bt1=document.getElementById('op-bottom-title');if(_bt1)_bt1.textContent='🔧 Equipo de proyecto';
-    buildInspList(); buildSafetyList(); inspTipoCambio(); setToday(); cargarListas(); if(listasGlobal.operadores&&listasGlobal.operadores.length>0) poblarTodosLosDropdowns(listasGlobal);
+    buildInspList(); buildSafetyList(); inspTipoCambio(); setToday(); cargarListas(); if(listasGlobal.foremen&&listasGlobal.foremen.length>0) poblarTodosLosDropdowns(listasGlobal);
     if(groutEl) groutEl.style.display = 'block';
   } else if(machine === 'shotcrete'){
     document.getElementById('op-screen-title').textContent = 'Shotcrete';
@@ -3131,10 +3131,12 @@ function empleadosValidos(names) {
     .sort(function(a, b){ return a.localeCompare(b); });
 }
 
-// Selectores de empleados que dependen del EMPLOYEE TRAINING LOG (no de la lista Operadores)
+// Selectores de empleados y operadores: salen del EMPLOYEE TRAINING LOG.
+// listasGlobal.operadores es la misma lista que manda el servidor, por si la de empleados aun no llega.
 function poblarSelectoresEmpleados() {
   var lista = (listasGlobal.empleados && listasGlobal.empleados.length) ? listasGlobal.empleados : (listasGlobal.operadores || []);
-  [['fittest-trabajador', 'Selecciona trabajador'], ['rrhh-trabajador', 'Selecciona trabajador'], ['tr-empleado', 'Selecciona empleado']].forEach(function(s) {
+  [['fittest-trabajador', 'Selecciona trabajador'], ['rrhh-trabajador', 'Selecciona trabajador'], ['tr-empleado', 'Selecciona empleado'],
+   ['f-op', 'Selecciona operador'], ['sc-op', 'Selecciona operador'], ['sct-op', 'Selecciona operador']].forEach(function(s) {
     var el = document.getElementById(s[0]);
     if (!el) return;
     var actual = el.value;
@@ -3296,21 +3298,11 @@ function cargarListas(retry){
           var vals = f[field].arrayValue && f[field].arrayValue.values;
           return vals ? vals.map(function(v){ return v.stringValue||''; }).filter(Boolean) : [];
         }
-        function getMap(field){
-          if(!f[field] || !f[field].mapValue) return {};
-          var fields = f[field].mapValue.fields || {};
-          var result = {};
-          Object.keys(fields).forEach(function(k){ result[k] = fields[k].stringValue||''; });
-          return result;
-        }
         listasGlobal = {
           foremen:          getArr('foremen'),
           operadores:       getArr('operadores'),
-          maquinas:         getArr('maquinas'),
           superintendentes: getArr('superintendentes'),
           proyectos:        getArr('proyectos'),
-          emailsForeman:    getMap('emailsForeman'),
-          emailsSuper:      getMap('emailsSuper'),
           empleados:        listasGlobal.empleados || []  // no perder la lista del Training Log si ya llego
         };
         poblarTodosLosDropdowns(listasGlobal);
@@ -3336,8 +3328,7 @@ function cargarListas(retry){
 }
 
 function poblarTodosLosDropdowns(listas){
-  // Operator screen
-  buildDropdown(document.getElementById('f-op'), listas.operadores||[], 'Selecciona operador');
+  // Operator screen (el operador sale del Training Log: ver poblarSelectoresEmpleados)
   buildDropdown(document.getElementById('f-sup'), listas.foremen||[], 'Selecciona foreman');
 
   // SWA
@@ -3354,9 +3345,7 @@ function poblarTodosLosDropdowns(listas){
   });
 
   // Shotcrete
-  buildDropdown(document.getElementById('sc-op'), listas.operadores||[], 'Selecciona operador');
   buildDropdown(document.getElementById('sc-sup'), listas.foremen||[], 'Selecciona foreman');
-  buildDropdown(document.getElementById('sct-op'), listas.operadores||[], 'Selecciona operador');
   buildDropdown(document.getElementById('sct-sup'), listas.foremen||[], 'Selecciona foreman');
 
   // Fit test foreman
@@ -3368,8 +3357,6 @@ function poblarTodosLosDropdowns(listas){
   // Trabajador del Fit Test y empleado de Solicitar Entrenamiento: salen del EMPLOYEE TRAINING LOG
   poblarSelectoresEmpleados();
 
-  // RRHH
-  buildDropdown(document.getElementById('rrhh-trabajador'), listas.operadores||[], 'Selecciona trabajador');
 }
 
 function selectRole(role){
@@ -3380,10 +3367,11 @@ function selectRole(role){
   else if(role==='super'){pinEntry='';updateDots();document.getElementById('pin-err').style.display='none';document.getElementById('pin-role-name').textContent='Superintendente';show('s-pin');}
   else{pinEntry='';updateDots();document.getElementById('pin-err').style.display='none';document.getElementById('pin-role-name').textContent=ROLES[role];show('s-pin');}
 }
-function pinPress(d){if(pinEntry.length>=4||pinBusy)return;pinEntry+=d;updateDots();if(pinEntry.length===4)setTimeout(checkPin,150);}
+const PIN_LARGO=6; // igual que PIN_LARGO en Code.gs; los PIN se cambian en el archivo de Configuración
+function pinPress(d){if(pinEntry.length>=PIN_LARGO||pinBusy)return;pinEntry+=d;updateDots();if(pinEntry.length===PIN_LARGO)setTimeout(checkPin,150);}
 function pinDel(){pinEntry=pinEntry.slice(0,-1);updateDots();}
 function pinClear(){pinEntry='';updateDots();}
-function updateDots(){for(let i=0;i<4;i++)document.getElementById('d'+i).classList.toggle('filled',i<pinEntry.length);}
+function updateDots(){for(let i=0;i<PIN_LARGO;i++)document.getElementById('d'+i).classList.toggle('filled',i<pinEntry.length);}
 async function checkPin(){
   if(pinBusy)return;
   pinBusy=true;
@@ -3872,7 +3860,7 @@ function superTab(tab){
 }
 
 // ── FIT TEST ──
-const EMAIL_BRISEIDA = 'bestrada@oscarordunoinc.com';
+// El correo de quien recibe las solicitudes (Briseida) está en el archivo de Configuración, pestaña Avisos.
 
 function foremanTab(tab){
   // Hide selection screen
@@ -3905,7 +3893,7 @@ function initFitTest(){
   if(fd) fd.value = today;
 
   // Load dropdowns - use cached listas or reload
-  if(listasGlobal.operadores&&listasGlobal.operadores.length>0){
+  if(listasGlobal.foremen&&listasGlobal.foremen.length>0){
     poblarTodosLosDropdowns(listasGlobal);
   } else {
     cargarListas();
@@ -4182,7 +4170,7 @@ function initTraining(){
   trainingTab('request');
   const today=hoyLocal();
   // Load dropdowns - use cached listas or reload
-  if(listasGlobal.operadores&&listasGlobal.operadores.length>0){
+  if(listasGlobal.foremen&&listasGlobal.foremen.length>0){
     poblarTodosLosDropdowns(listasGlobal);
   } else {
     cargarListas();
@@ -4391,7 +4379,7 @@ function safetyMostrarMenu(){
 function initSafety(){
   // Pantalla de selección visible, paneles ocultos
   safetyMostrarMenu();
-  if(listasGlobal.operadores && listasGlobal.operadores.length > 0){
+  if(listasGlobal.foremen && listasGlobal.foremen.length > 0){
     poblarTodosLosDropdowns(listasGlobal);
   } else {
     cargarListas();
