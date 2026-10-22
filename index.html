@@ -984,6 +984,7 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{outline:none;}
   <div class="container" style="padding-top:32px;">
     <div class="header-bar"><button class="btn-icon" onclick="show('s-login')">←</button><div><div style="font-size:18px;font-weight:500;" id="pin-role-name">PIN de acceso</div><div style="font-size:13px;color:var(--text2);">Ingresa tu PIN de 6 dígitos</div></div></div>
     <div class="pin-dots" id="pin-dots"><div class="pin-dot" id="d0"></div><div class="pin-dot" id="d1"></div><div class="pin-dot" id="d2"></div><div class="pin-dot" id="d3"></div><div class="pin-dot" id="d4"></div><div class="pin-dot" id="d5"></div></div>
+    <div id="pin-wait" style="text-align:center;color:var(--text2);font-size:14px;margin-bottom:10px;display:none;">Verificando PIN…</div>
     <div id="pin-err" style="text-align:center;color:var(--danger-text);font-size:14px;margin-bottom:10px;display:none;">PIN incorrecto, intenta de nuevo</div>
     <div class="numpad">
       <button class="num-btn" onclick="pinPress('1')">1</button><button class="num-btn" onclick="pinPress('2')">2</button><button class="num-btn" onclick="pinPress('3')">3</button>
@@ -1973,9 +1974,41 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{outline:none;}
 <script>
 const SCRIPT_URL='https://script.google.com/macros/s/AKfycbxsouup5vWPD-VcaTqPWlltY0jZkwRdfOhSGTmW4a0gBvMGB1InvbYFtxYYyDG1cxkuIA/exec';
 // Los PIN ya NO están en la app: se validan en el servidor (Apps Script) y devuelven un token de sesión.
-// La sesión vive solo en memoria: al recargar la página o volver al inicio hay que ingresar el PIN otra vez.
+// La sesión se guarda en el teléfono por el turno (casi las 6 h que dura el token en el servidor): recargar o
+// cerrar el navegador no pide el PIN otra vez. Volver al inicio (← Inicio / Salir) la cierra.
 let sesion={token:'',rol:''};
-function guardarSesion(token,rol){sesion={token:token||'',rol:rol||''};}
+const SESION_CLAVE='ooi_sesion', SESION_MS=(6*60-5)*60*1000;
+function guardarSesion(token,rol){
+  sesion={token:token||'',rol:rol||''};
+  try{
+    if(sesion.token) localStorage.setItem(SESION_CLAVE,JSON.stringify({token:sesion.token,rol:sesion.rol,t:Date.now()}));
+    else localStorage.removeItem(SESION_CLAVE);
+  }catch(e){}
+}
+function restaurarSesion(){
+  let s=null;
+  try{s=JSON.parse(localStorage.getItem(SESION_CLAVE)||'null');}catch(e){}
+  if(!s||!s.token||!ROLES[s.rol]||!(Date.now()-s.t<SESION_MS)){cerrarSesion();return;}
+  sesion={token:s.token,rol:s.rol};
+  currentRole=s.rol;
+  entrarAlPanel(s.rol);
+}
+// Id al azar de este teléfono: el servidor bloquea por dispositivo tras 5 PIN malos, no a todo el grupo.
+function idDispositivo(){
+  try{
+    let id=localStorage.getItem('ooi_disp');
+    if(!id){id=(crypto.randomUUID?crypto.randomUUID():Math.random().toString(36).slice(2)+Date.now().toString(36)).replace(/-/g,'');localStorage.setItem('ooi_disp',id);}
+    return id;
+  }catch(e){return '';}
+}
+// Apps Script tarda unos segundos en "despertar" si nadie lo usó en un rato. Un GET mínimo al abrir la
+// pantalla del PIN lo despierta mientras la persona teclea, y el login responde más rápido.
+let ultimoDespertar=0;
+function despertarServidor(){
+  if(Date.now()-ultimoDespertar<60000) return;
+  ultimoDespertar=Date.now();
+  fetch(SCRIPT_URL+'?action=ping',{mode:'no-cors',cache:'no-store'}).catch(()=>{});
+}
 function cerrarSesion(){guardarSesion('','');}
 function sesionExpirada(){cerrarSesion();alert('Tu sesión venció o no tienes permiso para esto. Ingresa tu PIN de nuevo.');show('s-login');}
 let pinBusy=false;
@@ -3361,6 +3394,7 @@ function poblarTodosLosDropdowns(listas){
 
 function selectRole(role){
   currentRole=role;
+  if(role!=='operator') despertarServidor();
   if(role==='operator'){buildInspList();buildSafetyList();setToday();cargarListas();show('s-operator');}else if(role==='foreman'){pinEntry='';updateDots();document.getElementById('pin-err').style.display='none';document.getElementById('pin-role-name').textContent='Foreman';show('s-pin');return;}
   else if(role==='rrhh'){pinEntry='';updateDots();document.getElementById('pin-err').style.display='none';document.getElementById('pin-role-name').textContent='Recursos Humanos';show('s-pin');return;}
   else if(role==='safety'){pinEntry='';updateDots();document.getElementById('pin-err').style.display='none';document.getElementById('pin-role-name').textContent='Safety';show('s-pin');return;}
@@ -3378,35 +3412,43 @@ async function checkPin(){
   const err=document.getElementById('pin-err');
   const rolPedido=currentRole;
   const pin=pinEntry;
-  err.style.display='none';
+  const espera=document.getElementById('pin-wait');
+  err.style.display='none';espera.style.display='block';
   let res=null;
+  // Si el servidor no contesta en 25 s se corta, para que nadie se quede mirando la pantalla sin saber qué pasa.
+  const ctrl=new AbortController(), corte=setTimeout(()=>ctrl.abort(),25000);
   try{
-    const r=await fetch(SCRIPT_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({tipo:'login',rol:rolPedido,pin:pin})});
+    const r=await fetch(SCRIPT_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({tipo:'login',rol:rolPedido,pin:pin,disp:idDispositivo()}),signal:ctrl.signal});
     res=await r.json();
   }catch(e){
-    err.textContent='Sin conexión. Revisa tu internet e intenta de nuevo.';
+    clearTimeout(corte);espera.style.display='none';
+    err.textContent=e.name==='AbortError'?'El servidor tardó demasiado. Intenta de nuevo.':'Sin conexión. Revisa tu internet e intenta de nuevo.';
     err.style.display='block';pinEntry='';updateDots();pinBusy=false;return;
   }
+  clearTimeout(corte);espera.style.display='none';
   pinEntry='';updateDots();pinBusy=false;
   if(res&&res.status==='ok'&&res.token){
     guardarSesion(res.token,res.rol);
     currentRole=res.rol;
     err.style.display='none';
-    if(res.rol==='super'){
-      show('s-super');
-      loadSuperReports();
-    } else if(res.rol==='foreman'){
-      show('s-foreman');
-    } else if(res.rol==='rrhh'){
-      show('s-respiradores');
-      initRespiradoresRRHH();
-    } else if(res.rol==='safety'){
-      show('s-safety');
-      initSafety();
-    }
+    entrarAlPanel(res.rol);
   } else {
     err.textContent=(res&&res.code==='bloqueado')?res.message:'PIN incorrecto, intenta de nuevo';
     err.style.display='block';
+  }
+}
+function entrarAlPanel(rol){
+  if(rol==='super'){
+    show('s-super');
+    loadSuperReports();
+  } else if(rol==='foreman'){
+    show('s-foreman');
+  } else if(rol==='rrhh'){
+    show('s-respiradores');
+    initRespiradoresRRHH();
+  } else if(rol==='safety'){
+    show('s-safety');
+    initSafety();
   }
 }
 function setToday(){
@@ -3781,6 +3823,8 @@ function showDetail(idx,detailId,reportsKey){
 // Init
 setToday();
 cargarListas();
+// Sesión guardada del turno: se abre el panel cuando ya cargaron todos los scripts.
+document.addEventListener('DOMContentLoaded',restaurarSesion);
 
 function superBack(){
   // Check which panel is visible
