@@ -1212,13 +1212,7 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{outline:none;}
 
       <button class="role-btn" onclick="superAForeman('fittest')">
         <div class="role-icon"><svg class="ico"><use href="#i-wind"/></svg></div>
-        <div class="rb-body"><div class="rb-title">Programa de Respiradores</div><div class="rb-desc">Solicitar Fit Test para un trabajador</div></div>
-        <span class="role-arrow"><svg class="ico"><use href="#i-chev"/></svg></span>
-      </button>
-
-      <button class="role-btn" onclick="superAForeman('ftestado')">
-        <div class="role-icon"><svg class="ico"><use href="#i-file"/></svg></div>
-        <div class="rb-body"><div class="rb-title">Fit Test del personal</div><div class="rb-desc">Quién está vigente, vencimientos y la tarjeta</div></div>
+        <div class="rb-body"><div class="rb-title">Programa de Respiradores</div><div class="rb-desc">Solicitar Fit Test y ver el Fit Test del personal</div></div>
         <span class="role-arrow"><svg class="ico"><use href="#i-chev"/></svg></span>
       </button>
     </div>
@@ -1496,13 +1490,7 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{outline:none;}
 
       <button class="role-btn" onclick="foremanTab('fittest')">
         <div class="role-icon"><svg class="ico"><use href="#i-wind"/></svg></div>
-        <div class="rb-body"><div class="rb-title">Programa de Respiradores</div><div class="rb-desc">Solicitar Fit Test para un trabajador</div></div>
-        <span class="role-arrow"><svg class="ico"><use href="#i-chev"/></svg></span>
-      </button>
-
-      <button class="role-btn" onclick="foremanTab('ftestado')">
-        <div class="role-icon"><svg class="ico"><use href="#i-file"/></svg></div>
-        <div class="rb-body"><div class="rb-title">Fit Test del personal</div><div class="rb-desc">Quién está vigente, vencimientos y la tarjeta</div></div>
+        <div class="rb-body"><div class="rb-title">Programa de Respiradores</div><div class="rb-desc">Solicitar Fit Test y ver el Fit Test del personal</div></div>
         <span class="role-arrow"><svg class="ico"><use href="#i-chev"/></svg></span>
       </button>
     </div>
@@ -1565,6 +1553,12 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{outline:none;}
 
     <button class="btn btn-ghost" onclick="foremanSalir()" style="margin-top:8px;">← Salir</button>
     </div><!-- end foreman-ptp-panel -->
+
+    <!-- PROGRAMA DE RESPIRADORES: una sola entrada con dos pestañas (solicitar / estado del personal) -->
+    <div id="foreman-resp-tabs" style="display:none;gap:6px;margin:4px 0 16px;flex-wrap:wrap;">
+      <button class="tp-chip on" id="resp-tab-fittest" onclick="foremanTab('fittest')">Solicitar Fit Test</button>
+      <button class="tp-chip" id="resp-tab-ftestado" onclick="foremanTab('ftestado')">Fit Test del personal</button>
+    </div>
 
     <!-- FIT TEST PANEL -->
     <div id="foreman-fittest-panel" style="display:none;">
@@ -1656,7 +1650,6 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{outline:none;}
     <!-- FIT TEST DEL PERSONAL (foreman y super): un renglón por trabajador. Datos: hoja FitTests (solicitudes + tarjetas de RRHH).
          La tarjeta se abre con leer 'fittest_tarjeta': el servidor la manda, así se ve aunque no tengan acceso a la carpeta de Drive. -->
     <div id="foreman-ftestado-panel" style="display:none;">
-      <div style="font-family:var(--f-head);font-size:18px;font-weight:800;margin:14px 0 4px;">Fit Test del personal</div>
       <div style="font-size:12px;color:var(--text2);margin-bottom:14px;">Último Fit Test de cada trabajador. Vence a los 12 meses (OSHA 1910.134). Las tarjetas las sube Recursos Humanos.</div>
       <div class="stat-grid" id="sft-stats"></div>
       <input type="text" id="sft-buscar" placeholder="Buscar trabajador..." oninput="sftRender()" autocomplete="off" style="width:100%;padding:10px 12px;border-radius:var(--radius);border:1.5px solid var(--border2);font-family:inherit;font-size:14px;background:var(--bg2);color:var(--text);box-sizing:border-box;margin-bottom:10px;"/>
@@ -1730,14 +1723,12 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{outline:none;}
           <input type="text" id="rrhh-mascarilla" placeholder="Ej. N95, Half-face, Full-face" autocomplete="off"/>
         </div>
         <div class="field" style="margin-bottom:0;">
-          <label>Tarjeta de Fit Test (PDF de la clínica o foto)</label>
-          <!-- PDF: viaja en el mismo envío (archivo) y el servidor lo guarda en FitTests Tarjetas. Fotos: se suben una por una como siempre. -->
-          <label class="photo-btn" style="display:block;text-align:center;cursor:pointer;margin-bottom:8px;"><svg class="ico ico-in"><use href="#i-clip"/></svg><span id="rrhh-pdf-txt">Adjuntar PDF de la tarjeta</span>
-            <input type="file" id="rrhh-pdf" accept="application/pdf,.pdf" style="display:none" onchange="rrhhElegirPdf(this)"/></label>
-          <div id="rrhh-pdf-info" style="font-size:12px;color:var(--text2);margin-bottom:8px;"></div>
-          <button class="photo-btn" onclick="triggerPhoto('rrhh-card','rrhh-card-input')"><svg class="ico"><use href="#i-camera"/></svg>Tomar foto o elegir de galería</button>
-          <input type="file" id="rrhh-card-input" accept="image/*" multiple style="display:none" onchange="handlePhotos(this,'rrhh-card')" data-storekey="rrhh-card"/>
-          <div class="photo-grid" id="rrhh-card" style="margin-top:10px;"></div>
+          <label>Tarjeta de Fit Test</label>
+          <!-- Un solo archivo de cualquier tipo (PDF, foto, etc.): sin "accept", el celular ofrece cámara, galería y archivos.
+               Viaja en el mismo envío (archivo) y el servidor lo guarda en FitTests Tarjetas. -->
+          <label class="photo-btn" style="display:block;text-align:center;cursor:pointer;margin-bottom:8px;"><svg class="ico ico-in"><use href="#i-clip"/></svg><span id="rrhh-pdf-txt">Adjuntar tarjeta (PDF, foto o archivo)</span>
+            <input type="file" id="rrhh-pdf" style="display:none" onchange="rrhhElegirPdf(this)"/></label>
+          <div id="rrhh-pdf-info" style="font-size:12px;color:var(--text2);"></div>
         </div>
       </div>
 
@@ -3589,9 +3580,9 @@ function triggerPhoto(sk,iid){const inp=document.getElementById(iid);inp.dataset
 // El celular reduce la foto (máx. 1600 px, JPEG) y la sube de inmediato a Apps Script, que la guarda en Drive.
 // Cada foto queda con su enlace (p.url); si falla, queda marcada para reintentar.
 const FOTO_MAX={'swa-fotos':3,'ptp-fotos':5};   // tope de fotos por grupo (los demás no tienen tope)
-function fotoDestino(key){return key==='rrhh-card'?'fittest':key==='swa-fotos'?'swa':key==='ptp-fotos'?'ptp':'inspeccion';}
+function fotoDestino(key){return key==='swa-fotos'?'swa':key==='ptp-fotos'?'ptp':'inspeccion';}
 function fotoEtiqueta(key){
-  const el=document.getElementById(key==='rrhh-card'?'rrhh-trabajador':key==='swa-fotos'?'swa-sitio':key==='ptp-fotos'?'ptp-quien':'f-proy');
+  const el=document.getElementById(key==='swa-fotos'?'swa-sitio':key==='ptp-fotos'?'ptp-quien':'f-proy');
   return el&&el.value?String(el.value).slice(0,40):'';
 }
 function fotoComprimir(file){
@@ -3978,7 +3969,7 @@ function superTab(tab){
 // El correo de quien recibe las solicitudes (Briseida) está en el archivo de Configuración, pestaña Avisos.
 
 // Paneles de la pantalla del Foreman (también los abre el super desde "En campo")
-const FOREMAN_PANELES = ['foreman-ptp-panel','foreman-fittest-panel','foreman-ftestado-panel'];
+const FOREMAN_PANELES = ['foreman-ptp-panel','foreman-resp-tabs','foreman-fittest-panel','foreman-ftestado-panel'];
 
 function foremanTab(tab){
   // Hide selection screen
@@ -3996,14 +3987,13 @@ function foremanTab(tab){
     if(bt) bt.textContent='PTP';
     const el=document.getElementById('foreman-ptp-panel');if(el)el.style.display='block';
     initPTP();
-  } else if(tab==='fittest'){
+  } else if(tab==='fittest' || tab==='ftestado'){
+    // Programa de Respiradores: las dos pestañas comparten la entrada del menú
     if(bt) bt.textContent='Programa de Respiradores';
-    const el=document.getElementById('foreman-fittest-panel');if(el)el.style.display='block';
-    initFitTest();
-  } else if(tab==='ftestado'){
-    if(bt) bt.textContent='Fit Test del personal';
-    const el=document.getElementById('foreman-ftestado-panel');if(el)el.style.display='block';
-    sftCargar();
+    const tabs=document.getElementById('foreman-resp-tabs');if(tabs)tabs.style.display='flex';
+    ['fittest','ftestado'].forEach(t=>{const c=document.getElementById('resp-tab-'+t);if(c)c.classList.toggle('on',t===tab);});
+    const el=document.getElementById('foreman-'+tab+'-panel');if(el)el.style.display='block';
+    if(tab==='fittest') initFitTest(); else sftCargar();
   }
   window.scrollTo(0,0);
 }
@@ -4213,9 +4203,6 @@ function initRespiradoresRRHH(){
   // Trabajadores: misma lista del EMPLOYEE TRAINING LOG que usa la solicitud (así el nombre coincide)
   poblarSelectoresEmpleados();
   if (!empleadosCargados) fetchEmpleados();
-  // Reset photo store
-  if(!photoStore['rrhh-card'])photoStore['rrhh-card']=[];
-  renderPhotoGrid('rrhh-card');
 }
 
 // "10/24/2026 · 9:00 AM" de la cita que agendó RRHH
@@ -4367,26 +4354,34 @@ async function loadRRHHHistory(){
   }
 }
 
-// PDF de la tarjeta (el que entrega la clínica). Se lee aquí y viaja en el envío de fittest_completed.
+// Tarjeta del Fit Test: UN archivo de cualquier tipo (PDF de la clínica, foto, etc.). Se lee aquí y viaja en el envío de fittest_completed.
+// Las fotos se reducen como en Registrar certificados; lo demás va tal cual (máx. 10 MB).
 let rrhhPdf=null;
+async function rrhhPrepararTarjeta(f){
+  const mime=rcMime(f)||'application/octet-stream';
+  if(['image/jpeg','image/png','image/webp'].indexOf(mime)>=0){
+    try{ const j=await rcComprimir(f,mime); if(j) return j; }catch(e){}
+  }
+  if(f.size>RC_MAX_BYTES) throw new Error('"'+f.name+'" pesa más de 10 MB.');
+  return {nombre:f.name, mime:mime, base64:await rcLeerBase64(f)};
+}
 async function rrhhElegirPdf(input){
   const f=input.files&&input.files[0];
   input.value='';
   if(!f) return;
   try{
-    if(rcMime(f)!=='application/pdf') throw new Error('"'+f.name+'" no es un PDF. Para fotos usa el botón de abajo.');
-    rrhhPdf=await rcPrepararArchivo(f);
-    document.getElementById('rrhh-pdf-txt').textContent='Cambiar PDF';
+    rrhhPdf=await rrhhPrepararTarjeta(f);
+    document.getElementById('rrhh-pdf-txt').textContent='Cambiar archivo';
     document.getElementById('rrhh-pdf-info').innerHTML=ico('file')+' '+sftEsc(f.name)+
       ' <button onclick="rrhhQuitarPdf()" style="border:none;background:none;color:var(--danger-text);font-weight:700;cursor:pointer;font-family:inherit;">Quitar</button>';
   }catch(err){
     rrhhQuitarPdf();
-    alert(err.message||'No se pudo leer el PDF.');
+    alert(err.message||'No se pudo leer el archivo.');
   }
 }
 function rrhhQuitarPdf(){
   rrhhPdf=null;
-  const t=document.getElementById('rrhh-pdf-txt'); if(t) t.textContent='Adjuntar PDF de la tarjeta';
+  const t=document.getElementById('rrhh-pdf-txt'); if(t) t.textContent='Adjuntar tarjeta (PDF, foto o archivo)';
   const i=document.getElementById('rrhh-pdf-info'); if(i) i.innerHTML='';
 }
 
@@ -4401,20 +4396,14 @@ async function submitRRHH(){
   if(!clinica){alert('Por favor ingresa la clínica.');return;}
   if(!resultado){alert('Por favor selecciona el resultado.');return;}
 
-  const allPhotos=photoStore['rrhh-card']||[];
-  if(allPhotos.some(p=>p.uploading)){alert('Espera — la foto se está subiendo...');return;}
-  if(allPhotos.some(p=>p.error)){alert('La foto no se pudo subir. Tócala para reintentar o quítala con la ×.');return;}
-
-  const cardUrls=allPhotos.map(p=>p.url).filter(Boolean);
   // Con PASS la tarjeta es obligatoria: es lo que abren los supervisores en "Fit Test del personal"
-  if(resultado==='PASS' && !rrhhPdf && !cardUrls.length){alert('Adjunta el PDF de la tarjeta o una foto.');return;}
+  if(resultado==='PASS' && !rrhhPdf){alert('Adjunta la tarjeta (PDF, foto o archivo).');return;}
 
   const payload={
     tipo:'fittest_completed',
     id:Date.now(),
     fecha, trabajador, clinica, resultado, mascarilla,
     notas:document.getElementById('rrhh-notas').value.trim(),
-    cardUrls,
     archivo: rrhhPdf || undefined
   };
 
@@ -4432,7 +4421,7 @@ async function submitRRHH(){
       '<strong>Clínica:</strong> '+sftEsc(clinica)+'<br>'+
       '<strong>Resultado:</strong> '+sftEsc(resultado)+'<br>'+
       '<strong>Mascarilla:</strong> '+sftEsc(mascarilla||'—')+'<br>'+
-      '<strong>Tarjeta:</strong> '+([rrhhPdf?'PDF':'', cardUrls.length?cardUrls.length+' foto(s)':''].filter(Boolean).join(' + ')||'Sin tarjeta')+
+      '<strong>Tarjeta:</strong> '+(rrhhPdf?sftEsc(rrhhPdf.nombre):'Sin tarjeta')+
       (res&&res.trainingLog?'<br><strong>Training Log:</strong> '+sftEsc(res.trainingLog):'');
     document.getElementById('rrhh-confirmacion').style.display='block';
   }catch(err){
@@ -4449,8 +4438,6 @@ function resetRRHH(){
   document.getElementById('rrhh-resultado').selectedIndex=0;
   document.getElementById('rrhh-mascarilla').value='';
   document.getElementById('rrhh-notas').value='';
-  photoStore['rrhh-card']=[];
-  renderPhotoGrid('rrhh-card');
   rrhhQuitarPdf();
   const today=hoyLocal();
   document.getElementById('rrhh-fecha').value=today;
@@ -5226,12 +5213,13 @@ function sftAbrirVisor(reg, archivos){
     for(let k=0;k<bin.length;k++) bytes[k]=bin.charCodeAt(k);
     const url=URL.createObjectURL(new Blob([bytes],{type:a.mime}));
     sftVisorUrls.push(url);
-    if(a.mime==='application/pdf'){
-      return '<div class="card" style="text-align:center;">'+ico('file')+' <strong>'+sftEsc(a.nombre)+'</strong>'+
-        '<a class="btn btn-primary" href="'+url+'" target="_blank" rel="noopener" style="margin-top:12px;text-decoration:none;">Abrir PDF</a>'+
-        '<a class="btn btn-ghost" href="'+url+'" download="'+sftEsc(a.nombre)+'" style="margin-top:6px;text-decoration:none;">Descargar</a></div>';
+    // Fotos que el navegador sabe mostrar van en grande; PDF y cualquier otro archivo (HEIC, Word...) se abren o descargan
+    if(['image/jpeg','image/png','image/webp','image/gif'].indexOf(a.mime)>=0){
+      return '<img src="'+url+'" alt="Tarjeta '+(i+1)+'" style="width:100%;border-radius:var(--radius);margin-bottom:12px;display:block;"/>';
     }
-    return '<img src="'+url+'" alt="Tarjeta '+(i+1)+'" style="width:100%;border-radius:var(--radius);margin-bottom:12px;display:block;"/>';
+    return '<div class="card" style="text-align:center;">'+ico('file')+' <strong>'+sftEsc(a.nombre)+'</strong>'+
+      '<a class="btn btn-primary" href="'+url+'" target="_blank" rel="noopener" style="margin-top:12px;text-decoration:none;">'+(a.mime==='application/pdf'?'Abrir PDF':'Abrir archivo')+'</a>'+
+      '<a class="btn btn-ghost" href="'+url+'" download="'+sftEsc(a.nombre)+'" style="margin-top:6px;text-decoration:none;">Descargar</a></div>';
   }).join('');
   const v=document.createElement('div');
   v.id='sft-visor';
