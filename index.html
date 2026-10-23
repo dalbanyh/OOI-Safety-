@@ -3191,6 +3191,19 @@ function fbList(collection, pageSize) {
   return fetch(url).then(function(r) { return r.json(); });
 }
 
+// Todas las paginas de una coleccion (Firestore entrega maximo 300 por pagina; "empleados" ya va en ~296)
+function fbListTodo(collection) {
+  var docs = [];
+  function pagina(token) {
+    var url = FB_BASE + '/' + collection + '?key=' + FB_API_KEY + '&pageSize=300' + (token ? '&pageToken=' + encodeURIComponent(token) : '');
+    return fetch(url).then(function(r) { return r.json(); }).then(function(res) {
+      docs = docs.concat(res.documents || []);
+      return res.nextPageToken ? pagina(res.nextPageToken) : {documents: docs};
+    });
+  }
+  return pagina('');
+}
+
 function fbFieldStr(doc, field) {
   return doc.fields && doc.fields[field] ? doc.fields[field].stringValue || '' : '';
 }
@@ -3272,18 +3285,21 @@ function fetchEmpleados(forzar) {
 
 // ── DYNAMIC TRAINING DATA ──
 var trainingDataCargado = false;
+var trainingDataT = 0;   // cuando llego de Firestore; pasado EMPLEADOS_TTL_MS se vuelve a pedir (fotos de perfil, entrenamientos)
 var TRAINING_DATA_DYNAMIC = null;
 
 function fetchTrainingData() {
-  // Check sessionStorage first (instant)
+  // Check sessionStorage first (instant), solo si es reciente: en el celular la sesion dura dias
+  // y sin limite nunca se veian las fotos ni los entrenamientos nuevos
   try {
-    var cached = sessionStorage.getItem('ooi_training_data_v2');
+    var cached = sessionStorage.getItem('ooi_training_data_v3');
     if (cached) {
       var parsed = JSON.parse(cached);
-      if (parsed && parsed.length > 0) {
-        TRAINING_DATA_DYNAMIC = parsed;
+      if (parsed && parsed.t && (Date.now() - parsed.t) < EMPLEADOS_TTL_MS && parsed.data && parsed.data.length > 0) {
+        TRAINING_DATA_DYNAMIC = parsed.data;
         trainingDataCargado = true;
-        return Promise.resolve(parsed);
+        trainingDataT = parsed.t;
+        return Promise.resolve(parsed.data);
       }
     }
   } catch(e) {}
@@ -3299,7 +3315,7 @@ function fetchTrainingData() {
       empleadosValidos(vals.map(function(v) { return v.stringValue || ''; })).forEach(function(n) { enHoja[n.toUpperCase()] = true; });
     }
   }).catch(function() {});
-  return Promise.all([fbList('empleados', 300), lista])
+  return Promise.all([fbListTodo('empleados'), lista])
     .then(function(r) {
       var res = r[0];
       if (!res.documents || res.documents.length === 0) {
@@ -3329,12 +3345,13 @@ function fetchTrainingData() {
 
       TRAINING_DATA_DYNAMIC = converted;
       trainingDataCargado = true;
+      trainingDataT = Date.now();
       // Also populate employee names as side effect
       if (!listasGlobal.empleados || listasGlobal.empleados.length === 0) {
         listasGlobal.empleados = converted.map(function(e){ return e.name; }).sort();
         empleadosCargados = true;
       }
-      try { sessionStorage.setItem('ooi_training_data_v2', JSON.stringify(converted)); } catch(e) {}
+      try { sessionStorage.setItem('ooi_training_data_v3', JSON.stringify({t: trainingDataT, data: converted})); } catch(e) {}
       return converted;
     })
     .catch(function() {
@@ -4746,7 +4763,7 @@ function empIniciar(){
   if(!emp) empReiniciar();
   const listo = ()=>{ empActualizarAvisos(); empRenderBusqueda(); };
   if(!empleadosCargados) fetchEmpleados().then(listo);
-  if(!trainingDataCargado) fetchTrainingData().then(listo);
+  if(!trainingDataCargado || Date.now()-trainingDataT > EMPLEADOS_TTL_MS) fetchTrainingData().then(listo);
   listo();
 }
 
@@ -4933,7 +4950,7 @@ function empRenderSigning(){
 
 // La app guarda en memoria lo nuevo (lista y foto) y borra su caché, así se ve sin esperar al sync
 function empActualizarLocal(nombre, cambios){
-  try { sessionStorage.removeItem('ooi_empleados'); sessionStorage.removeItem('ooi_training_data_v2'); } catch(e){}
+  try { sessionStorage.removeItem('ooi_empleados'); sessionStorage.removeItem('ooi_training_data_v3'); } catch(e){}
   if(!getEmpleadosList().some(n=>sftClave(n)===sftClave(nombre))){
     listasGlobal.empleados = empleadosValidos((listasGlobal.empleados||[]).concat([nombre]));
     poblarSelectoresEmpleados();
@@ -5518,7 +5535,7 @@ async function rcGuardar(){
     if(malos) rcMsg('Se guardaron '+buenos+' de '+rc.sel.length+'. Revisa los marcados con y toca "Reintentar".', 'error');
     else rcMsg('Listo: '+buenos+' certificado'+(buenos!==1?'s':'')+' guardado'+(buenos!==1?'s':'')+'.', 'ok');
     // El servidor ya actualizó Firestore: que Entrenamientos vuelva a leerlo en vez de usar la copia de esta sesión
-    try { sessionStorage.removeItem('ooi_certs'); sessionStorage.removeItem('ooi_training_data_v2'); } catch(e){}
+    try { sessionStorage.removeItem('ooi_certs'); sessionStorage.removeItem('ooi_training_data_v3'); } catch(e){}
     if(buenos){ TRAINING_DATA_DYNAMIC = null; trainingDataCargado = false; }
   }catch(e){
     if(e.message==='auth') return;   // sesionExpirada() ya llevó al inicio de sesión
