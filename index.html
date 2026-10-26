@@ -589,6 +589,24 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
 .emp-avatar img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:var(--ooi-black);}
 .emp-avatar.lg{width:64px;height:64px;font-size:20px;box-shadow:0 0 0 2px var(--ooi-orange);}
 .emp-avatar.lg.con-foto{cursor:zoom-in;}
+
+/* SDS: carpeta de hojas de seguridad (letras como separadores de carpeta) y lector de PDF */
+.sds-letra{font-family:var(--f-display);font-size:13px;font-weight:900;color:var(--ooi-orange-dark);letter-spacing:.08em;margin:16px 0 8px;padding-bottom:4px;border-bottom:2px solid var(--ooi-orange);}
+.sds-item{display:flex;align-items:center;gap:12px;width:100%;text-align:left;font-family:inherit;color:var(--text);}
+.sds-item .sds-txt{flex:1;min-width:0;}
+.sds-item .sds-prod{display:block;font-size:15px;font-weight:700;overflow-wrap:anywhere;}
+.sds-item .sds-meta{display:block;font-size:12px;color:var(--text2);margin-top:2px;}
+#sds-lector{position:fixed;inset:0;z-index:9999;background:#525659;display:flex;flex-direction:column;}
+#sds-lector .sds-barra{background:var(--ooi-black);border-bottom:3px solid var(--ooi-orange);padding:10px 12px;display:flex;align-items:center;gap:8px;color:#fff;flex:none;}
+#sds-lector .sds-barra button,#sds-lector .sds-barra a{background:rgba(255,255,255,.12);color:#fff;border:none;border-radius:8px;min-width:40px;height:40px;padding:0 10px;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;text-decoration:none;flex:none;}
+#sds-lector .sds-barra button:disabled{opacity:.4;cursor:default;}
+#sds-lector .sds-titulo{flex:1;min-width:0;}
+#sds-lector .sds-titulo div{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+#sds-lector-body{flex:1;overflow:auto;-webkit-overflow-scrolling:touch;}
+#sds-paginas{margin:0 auto;padding:10px 8px 40px;box-sizing:border-box;}
+.sds-pag{background:#fff;margin:0 auto 10px;width:100%;box-shadow:0 2px 8px rgba(0,0,0,.35);}
+.sds-pag canvas{display:block;width:100%;height:100%;}
+.sds-sub-fila{border:1px solid var(--border);border-radius:var(--radius);padding:10px;margin-bottom:10px;background:var(--bg);}
 .emp-avatar.xl{width:120px;height:120px;font-size:34px;box-shadow:0 0 0 3px var(--ooi-orange);margin:0 auto;}
 .train-badge{display:inline-flex;align-items:center;gap:3px;padding:3px 10px;border-radius:99px;font-size:11px;font-weight:900;letter-spacing:.03em;}
 .train-badge.current{background:var(--g0);color:var(--g7);}
@@ -795,6 +813,8 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{outline:none;}
   <symbol id="i-folder" viewBox="0 0 24 24"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2z"/></symbol>
   <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 0 0-16 0"/></symbol>
   <symbol id="i-plus" viewBox="0 0 24 24"><path d="M5 12h14M12 5v14"/></symbol>
+  <symbol id="i-download" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5M12 15V3"/></symbol>
+  <symbol id="i-flask" viewBox="0 0 24 24"><path d="M10 2v7.53a2 2 0 0 1-.21.9L4.72 20.55a1 1 0 0 0 .9 1.45h12.76a1 1 0 0 0 .9-1.45l-5.07-10.12a2 2 0 0 1-.21-.9V2"/><path d="M8.5 2h7M7 16h10"/></symbol>
   <symbol id="i-upload" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m17 8-5-5-5 5M12 3v12"/></symbol>
 </svg>
 
@@ -819,7 +839,7 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{outline:none;}
     <main class="login-body">
       <button class="role-btn" onclick="show('s-trabajador')">
         <div class="role-icon"><svg class="ico"><use href="#i-hardhat"/></svg></div>
-        <div class="rb-body"><div class="rb-title">Trabajador</div><div class="rb-desc">Inspección de equipo · Observación de Seguridad · DRILS</div></div>
+        <div class="rb-body"><div class="rb-title">Trabajador</div><div class="rb-desc">Inspección de equipo · Observación de Seguridad · DRILS · SDS</div></div>
         <span class="role-arrow"><svg class="ico"><use href="#i-chev"/></svg></span>
       </button>
       <button class="role-btn" onclick="selectRole('supervisor')">
@@ -829,7 +849,7 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{outline:none;}
       </button>
       <button class="role-btn" onclick="selectRole('safety')">
         <div class="role-icon"><svg class="ico"><use href="#i-shield"/></svg></div>
-        <div class="rb-body"><div class="rb-title">Safety</div><div class="rb-desc">Registrar certificados · requiere PIN</div></div>
+        <div class="rb-body"><div class="rb-title">Safety</div><div class="rb-desc">Registrar certificados · SDS · requiere PIN</div></div>
         <span class="role-arrow"><svg class="ico"><use href="#i-chev"/></svg></span>
       </button>
       <button class="role-btn" onclick="selectRole('rrhh')">
@@ -869,6 +889,28 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{outline:none;}
       <div class="rb-body"><div class="rb-title">Reconocer a un compañero</div><div class="rb-desc">DRILS — valores de seguridad</div></div>
       <span class="role-arrow"><svg class="ico"><use href="#i-chev"/></svg></span>
     </button>
+
+    <button class="role-btn" onclick="show('s-sds');sdsIniciar();">
+      <div class="role-icon"><svg class="ico"><use href="#i-flask"/></svg></div>
+      <div class="rb-body"><div class="rb-title">Hojas de Seguridad (SDS)</div><div class="rb-desc">Químicos y productos: riesgos, EPP y primeros auxilios</div></div>
+      <span class="role-arrow"><svg class="ico"><use href="#i-chev"/></svg></span>
+    </button>
+  </div>
+</div>
+
+<!-- ── SDS: carpeta de Hojas de Datos de Seguridad (sin PIN). Servidor: listaSDS_() / pdfSDS_() en Code.gs ── -->
+<div id="s-sds" class="screen">
+  <div class="bottom-nav">
+    <button class="bottom-nav-back" onclick="sdsCerrarLector();show('s-trabajador')">← Inicio</button>
+    <span class="bottom-nav-title">Hojas de Seguridad (SDS)</span>
+  </div>
+  <div class="ooi-brandbar"><div class="ooi-logo" role="img" aria-label="Oscar Orduno, Inc."></div></div>
+  <div class="page-hero"><div class="eyebrow">Oscar Orduno, Inc. — Safety</div><h1>Hojas de Seguridad</h1></div>
+  <div style="max-width:480px;margin:0 auto;padding:16px 16px 80px;">
+    <div style="font-size:13px;color:var(--text2);margin-bottom:14px;">Antes de usar un químico, revisa su hoja: <strong>riesgos (Sección 2)</strong>, <strong>primeros auxilios (Sección 4)</strong> y <strong>EPP (Sección 8)</strong>. Si tienes dudas, pregunta a tu foreman.</div>
+    <div class="tp-search"><svg class="ico" style="color:var(--text2);flex:none;"><use href="#i-search"/></svg><input type="text" id="sds-buscar" placeholder="Buscar producto o fabricante..." oninput="sdsRender()" autocomplete="off"/></div>
+    <div id="sds-estado" style="font-size:12px;color:var(--text2);margin:-4px 0 6px;"></div>
+    <div id="sds-lista"><div class="loading">Cargando hojas de seguridad...</div></div>
   </div>
 </div>
 
@@ -1789,6 +1831,34 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{outline:none;}
         <div class="rb-body"><div class="rb-title">Empleados</div><div class="rb-desc">Agregar empleado nuevo al Training Log · foto de perfil</div></div>
         <span class="role-arrow"><svg class="ico"><use href="#i-chev"/></svg></span>
       </button>
+
+      <button class="role-btn" onclick="safetyTab('sds')">
+        <div class="role-icon"><svg class="ico"><use href="#i-flask"/></svg></div>
+        <div class="rb-body"><div class="rb-title">Hojas de Seguridad (SDS)</div><div class="rb-desc">Subir o quitar PDF · los trabajadores las ven sin PIN</div></div>
+        <span class="role-arrow"><svg class="ico"><use href="#i-chev"/></svg></span>
+      </button>
+    </div>
+  </div>
+
+  <!-- SDS: subir PDF (uno o varios) y quitar. Servidor: subirSDS_() / archivarSDS_() en Code.gs, carpeta Drive SDS y hoja 'SDS' -->
+  <div id="safety-sds-panel" style="display:none;">
+    <div style="max-width:480px;margin:0 auto;padding:14px 16px 80px;">
+      <div style="font-family:var(--f-head);font-size:18px;font-weight:800;margin-bottom:4px;">Hojas de Seguridad (SDS)</div>
+      <div style="font-size:12px;color:var(--text2);margin-bottom:16px;">Los PDF se guardan en la carpeta <strong>SDS</strong> de Drive y aparecen en <strong>Trabajador &gt; Hojas de Seguridad</strong>. Si subes otra hoja con el mismo producto y fabricante, reemplaza a la anterior. Lo que quites pasa a <strong>SDS/Archivadas</strong>; no se borra.</div>
+
+      <div class="card">
+        <div class="sec-label">Subir SDS</div>
+        <label class="photo-btn" style="display:block;text-align:center;cursor:pointer;"><svg class="ico ico-in"><use href="#i-upload"/></svg>Elegir PDF (puedes elegir varios)<input type="file" id="sds-archivos" accept="application/pdf,.pdf" multiple style="display:none" onchange="sdsElegir(this)"/></label>
+        <div id="sds-filas" style="margin-top:10px;"></div>
+        <div class="submit-msg" id="sds-msg"></div>
+        <button class="btn btn-primary" id="sds-btn" style="display:none;font-size:16px;min-height:54px;" onclick="sdsSubir()">Subir</button>
+      </div>
+
+      <div class="card" style="margin-top:22px;">
+        <div class="sec-label">En la carpeta</div>
+        <div class="tp-search" style="height:44px;"><svg class="ico" style="color:var(--text2);flex:none;"><use href="#i-search"/></svg><input type="text" id="sds-adm-buscar" placeholder="Buscar..." oninput="sdsAdmRender()" autocomplete="off"/></div>
+        <div id="sds-adm-lista"><div class="loading">Cargando...</div></div>
+      </div>
     </div>
   </div>
 
@@ -4701,7 +4771,7 @@ function foremanSalir(){
 
 
 // ── SAFETY PORTAL ──
-const SAFETY_PANELES = {certs:'safety-certs-panel', emp:'safety-emp-panel'};
+const SAFETY_PANELES = {certs:'safety-certs-panel', emp:'safety-emp-panel', sds:'safety-sds-panel'};
 
 function safetyMostrarMenu(){
   Object.keys(SAFETY_PANELES).forEach(k=>{const p=document.getElementById(SAFETY_PANELES[k]);if(p)p.style.display='none';});
@@ -4743,6 +4813,9 @@ function safetyTab(tab){
   } else if(tab==='emp'){
     if(bt) bt.textContent='Empleados';
     empIniciar();
+  } else if(tab==='sds'){
+    if(bt) bt.textContent='Hojas de Seguridad (SDS)';
+    sdsAdmIniciar();
   }
   window.scrollTo(0,0);
 }
@@ -5268,6 +5341,407 @@ function sftCerrarVisor(){
   if(v) v.remove();
   sftVisorUrls.forEach(u=>URL.revokeObjectURL(u));
   sftVisorUrls=[];
+}
+
+// ── SDS: HOJAS DE DATOS DE SEGURIDAD ──
+// Trabajador (sin PIN): lista pública (GET ?action=sds) y lector dentro de la app con PDF.js (GET ?action=sds_pdf&id=).
+// El PDF lo manda Apps Script, así nadie necesita cuenta de Google. Safety sube (sds_subir) y quita (sds_archivar).
+// La lista queda en localStorage y cada PDF abierto en Cache Storage: si se va la señal en la obra, lo ya abierto
+// se sigue viendo. Un id nunca cambia de PDF (reemplazar crea otro id), por eso el PDF guardado no caduca.
+const SDS_MAX_BYTES = 15 * 1024 * 1024;
+const SDS_LS = 'ooi_sds_lista';
+const SDS_CACHE = 'ooi-sds-v1';
+const PDFJS_URL = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/';
+const SDS_ZOOMS = [1, 1.5, 2, 3];
+let sdsLista = null, sdsCargandoProm = null, sdsError = '', sdsLector = null, sdsPdfjsProm = null;
+let sdsSub = {filas:[], enviando:false};
+
+function sdsLeerGuardada(){
+  try{ const j = JSON.parse(localStorage.getItem(SDS_LS)||'null'); return Array.isArray(j) ? j : null; }catch(e){ return null; }
+}
+
+function sdsUrlPdf(id){ return SCRIPT_URL+'?action=sds_pdf&id='+encodeURIComponent(id); }
+
+// Trae la lista del servidor. Mientras tanto se muestra la guardada en el teléfono.
+function sdsCargar(){
+  if(!sdsLista) sdsLista = sdsLeerGuardada();
+  if(sdsCargandoProm) return sdsCargandoProm;
+  sdsCargandoProm = (async ()=>{
+    try{
+      const res = await fetch(SCRIPT_URL+'?action=sds&t='+Date.now());
+      const json = await res.json();
+      if(!json || json.status!=='ok') throw new Error((json&&json.message)||'Respuesta inválida');
+      sdsLista = json.sds || [];
+      sdsError = '';
+      try{ localStorage.setItem(SDS_LS, JSON.stringify(sdsLista)); }catch(e){}
+      sdsLimpiarCache();
+    }catch(err){
+      sdsError = sdsLista ? 'Sin conexión: se muestra la última lista guardada en este teléfono.' : 'No se pudieron cargar las hojas de seguridad. Revisa tu conexión.';
+    }finally{
+      sdsCargandoProm = null;
+    }
+  })();
+  return sdsCargandoProm;
+}
+
+// Borra del teléfono los PDF de hojas que Safety ya quitó o reemplazó
+async function sdsLimpiarCache(){
+  try{
+    const c = await caches.open(SDS_CACHE), vivas = new Set((sdsLista||[]).map(s=>sdsUrlPdf(s.id)));
+    for(const req of await c.keys()) if(!vivas.has(req.url)) await c.delete(req);
+  }catch(e){}
+}
+
+function sdsMeta(s){
+  return [s.fabricante, s.fechaSds ? 'SDS del '+rcFechaUS(s.fechaSds) : ''].filter(Boolean).map(sftEsc).join(' · ');
+}
+
+function sdsFiltradas(q){
+  return (sdsLista||[]).filter(s=>coincideBusqueda(q, s.producto, s.fabricante));
+}
+
+async function sdsIniciar(){
+  sdsRender();
+  await sdsCargar();
+  sdsRender();
+}
+
+// Lista del trabajador, por letra como los separadores de una carpeta
+function sdsRender(){
+  const el = document.getElementById('sds-lista'), est = document.getElementById('sds-estado');
+  if(!el) return;
+  est.textContent = sdsError || (sdsLista ? sdsLista.length+(sdsLista.length===1?' hoja':' hojas')+' en la carpeta' : '');
+  est.style.color = sdsError ? 'var(--danger-text)' : 'var(--text2)';
+  if(!sdsLista){
+    el.innerHTML = sdsError ? '' : '<div class="loading">Cargando hojas de seguridad...</div>';
+    return;
+  }
+  if(!sdsLista.length){
+    el.innerHTML = '<div class="empty-state"><div class="icon">'+ico('flask')+'</div><div>Todavía no hay hojas de seguridad.<br>Safety las está cargando.</div></div>';
+    return;
+  }
+  const lista = sdsFiltradas(document.getElementById('sds-buscar').value);
+  if(!lista.length){
+    el.innerHTML = '<div class="empty-state"><div class="icon">'+ico('search')+'</div><div>Ningún producto coincide.<br>Si no está, avisa a tu foreman o a Safety.</div></div>';
+    return;
+  }
+  let letra = '', html = '';
+  lista.forEach(s=>{
+    const l = rcNorm(s.producto).charAt(0).toUpperCase();
+    const grupo = /[A-Z]/.test(l) ? l : '#';
+    if(grupo!==letra){ letra = grupo; html += '<div class="sds-letra">'+grupo+'</div>'; }
+    html += '<button class="emp-card sds-item" onclick="sdsAbrir(\''+sftEsc(s.id)+'\')">'+
+      '<span class="ico-tile sm">'+ico('file')+'</span>'+
+      '<span class="sds-txt"><span class="sds-prod">'+sftEsc(s.producto)+'</span>'+(sdsMeta(s)?'<span class="sds-meta">'+sdsMeta(s)+'</span>':'')+'</span>'+
+      '<span class="role-arrow">'+ico('chev')+'</span></button>';
+  });
+  el.innerHTML = html;
+}
+
+// ── Lector ──
+function sdsPdfjs(){
+  if(window.pdfjsLib) return Promise.resolve(window.pdfjsLib);
+  if(!sdsPdfjsProm) sdsPdfjsProm = new Promise((ok, mal)=>{
+    const sc = document.createElement('script');
+    sc.src = PDFJS_URL+'pdf.min.js';
+    sc.onload = ()=>{
+      if(!window.pdfjsLib){ sdsPdfjsProm = null; return mal(new Error('pdfjs')); }
+      window.pdfjsLib.GlobalWorkerOptions.workerSrc = PDFJS_URL+'pdf.worker.min.js';
+      ok(window.pdfjsLib);
+    };
+    sc.onerror = ()=>{ sdsPdfjsProm = null; mal(new Error('pdfjs')); };
+    document.head.appendChild(sc);
+  });
+  return sdsPdfjsProm;
+}
+
+async function sdsBytes(id){
+  const clave = sdsUrlPdf(id);
+  try{
+    const r = await (await caches.open(SDS_CACHE)).match(clave);
+    if(r) return new Uint8Array(await r.arrayBuffer());
+  }catch(e){}
+  const res = await fetch(clave);
+  const json = await res.json();
+  if(!json || json.status!=='ok') throw new Error((json&&json.message)||'No se pudo abrir la hoja.');
+  const bin = atob(json.base64||''), bytes = new Uint8Array(bin.length);
+  for(let k=0;k<bin.length;k++) bytes[k] = bin.charCodeAt(k);
+  try{ await (await caches.open(SDS_CACHE)).put(clave, new Response(new Blob([bytes],{type:'application/pdf'}))); }catch(e){}
+  return bytes;
+}
+
+async function sdsAbrir(id){
+  const s = (sdsLista||[]).find(x=>x.id===id);
+  if(!s) return;
+  const conHistorial = !!(sdsLector && sdsLector.historial);   // "Intentar de nuevo" reusa el paso de historial
+  sdsLimpiarLector();
+  const v = document.createElement('div');
+  v.id = 'sds-lector';
+  v.innerHTML = '<div class="sds-barra">'+
+      '<button onclick="sdsCerrarLector()" aria-label="Cerrar">←</button>'+
+      '<div class="sds-titulo"><div style="font-family:var(--f-head);font-size:15px;font-weight:800;">'+sftEsc(s.producto)+'</div>'+
+      '<div style="font-size:11px;color:rgba(255,255,255,.6);">'+(sdsMeta(s)||'Hoja de Datos de Seguridad')+'</div></div>'+
+      '<button id="sds-zm" onclick="sdsZoom(-1)" disabled aria-label="Alejar">−</button>'+
+      '<button id="sds-zp" onclick="sdsZoom(1)" disabled aria-label="Acercar">+</button>'+
+      '<a id="sds-dl" style="display:none;" aria-label="Descargar">'+ico('download')+'</a>'+
+    '</div>'+
+    '<div id="sds-lector-body"><div id="sds-paginas"><div class="loading" style="color:#fff;">Abriendo hoja de seguridad...</div></div></div>';
+  document.body.appendChild(v);
+  // El botón Atrás del teléfono cierra el lector en vez de salir de la app
+  let historial = conHistorial;
+  if(!historial) try{ history.pushState({sdsLector:1}, ''); historial = true; }catch(e){}
+  const L = sdsLector = {id:id, zoom:0, pdf:null, url:'', obs:null, pintadas:{}, vuelta:0, historial:historial};
+  try{
+    const [bytes, lib] = await Promise.all([sdsBytes(id), sdsPdfjs().catch(()=>null)]);
+    if(sdsLector!==L) return;
+    L.url = URL.createObjectURL(new Blob([bytes],{type:'application/pdf'}));
+    const dl = document.getElementById('sds-dl');
+    dl.href = L.url; dl.download = (s.producto+(s.fabricante?' - '+s.fabricante:'')).replace(/[\/\\:*?"<>|]+/g,'-')+'.pdf'; dl.style.display='';
+    if(!lib){ sdsSinLector(); return; }
+    L.pdf = await lib.getDocument({data: bytes}).promise;
+    if(sdsLector!==L){ L.pdf.destroy(); return; }
+    await sdsPreparar();
+  }catch(err){
+    if(sdsLector!==L) return;
+    const cont = document.getElementById('sds-paginas');
+    cont.innerHTML = '<div style="background:var(--bg);border-radius:var(--radius);padding:20px;margin:20px auto;max-width:420px;text-align:center;">'+
+      '<div style="font-weight:700;margin-bottom:6px;">No se pudo abrir la hoja</div>'+
+      '<div style="font-size:13px;color:var(--text2);margin-bottom:14px;">'+sftEsc(err instanceof TypeError ? 'Error de conexión. Revisa tu señal e intenta de nuevo.' : (err.message||'Intenta de nuevo.'))+'</div>'+
+      '<button class="btn btn-primary" onclick="sdsAbrir(\''+sftEsc(id)+'\')">Intentar de nuevo</button></div>';
+  }
+}
+
+// Si PDF.js no carga (sin señal la primera vez), el PDF se abre con el visor del teléfono
+function sdsSinLector(){
+  document.getElementById('sds-paginas').innerHTML = '<div style="background:var(--bg);border-radius:var(--radius);padding:20px;margin:20px auto;max-width:420px;text-align:center;">'+
+    '<div style="font-size:13px;color:var(--text2);margin-bottom:14px;">No se pudo cargar el lector. Abre la hoja con el visor de PDF del teléfono.</div>'+
+    '<a class="btn btn-primary" href="'+sdsLector.url+'" target="_blank" rel="noopener" style="text-decoration:none;">Abrir PDF</a></div>';
+}
+
+// Una caja por página con su proporción; cada página se dibuja cuando está por verse (ahorra memoria en el teléfono)
+async function sdsPreparar(){
+  const L = sdsLector, cont = document.getElementById('sds-paginas');
+  const cajas = [];
+  for(let n=1; n<=L.pdf.numPages; n++){
+    const vp = (await L.pdf.getPage(n)).getViewport({scale:1});
+    const caja = document.createElement('div');
+    caja.className = 'sds-pag'; caja.dataset.n = n;
+    caja.style.aspectRatio = vp.width+' / '+vp.height;
+    cajas.push(caja);
+  }
+  if(sdsLector!==L) return;
+  cont.innerHTML = '';
+  cajas.forEach(c=>cont.appendChild(c));
+  L.obs = new IntersectionObserver(entradas=>{
+    entradas.forEach(en=>{ if(en.isIntersecting) sdsPintar(Number(en.target.dataset.n), en.target); });
+  }, {root: document.getElementById('sds-lector-body'), rootMargin:'800px 0px'});
+  cajas.forEach(c=>L.obs.observe(c));
+  sdsBotonesZoom();
+}
+
+async function sdsPintar(n, caja){
+  const L = sdsLector;
+  if(!L || !L.pdf || L.pintadas[n]===L.vuelta) return;
+  L.pintadas[n] = L.vuelta;
+  const vuelta = L.vuelta;
+  try{
+    const page = await L.pdf.getPage(n);
+    const base = page.getViewport({scale:1});
+    const dpr = Math.min(window.devicePixelRatio||1, 2);
+    const escala = Math.min(caja.clientWidth*dpr/base.width, 4096/base.width);
+    const vp = page.getViewport({scale: escala});
+    const canvas = document.createElement('canvas');
+    canvas.width = Math.floor(vp.width); canvas.height = Math.floor(vp.height);
+    await page.render({canvasContext: canvas.getContext('2d'), viewport: vp}).promise;
+    if(sdsLector!==L || L.vuelta!==vuelta) return;
+    caja.innerHTML = '';
+    caja.appendChild(canvas);
+  }catch(e){
+    if(sdsLector===L && L.vuelta===vuelta) delete L.pintadas[n];
+  }
+}
+
+function sdsBotonesZoom(){
+  const L = sdsLector;
+  document.getElementById('sds-zm').disabled = !L.pdf || L.zoom<=0;
+  document.getElementById('sds-zp').disabled = !L.pdf || L.zoom>=SDS_ZOOMS.length-1;
+}
+
+// Zoom con botones (la app no deja pellizcar): se agranda el ancho y se vuelven a dibujar las páginas a esa resolución
+function sdsZoom(paso){
+  const L = sdsLector;
+  if(!L || !L.pdf) return;
+  const nuevo = Math.max(0, Math.min(SDS_ZOOMS.length-1, L.zoom+paso));
+  if(nuevo===L.zoom) return;
+  const body = document.getElementById('sds-lector-body');
+  const proporcion = body.scrollTop/Math.max(1, body.scrollHeight);
+  L.zoom = nuevo; L.vuelta++;
+  document.getElementById('sds-paginas').style.width = (SDS_ZOOMS[nuevo]*100)+'%';
+  body.scrollTop = proporcion*body.scrollHeight;
+  document.querySelectorAll('#sds-paginas .sds-pag').forEach(c=>{ L.obs.unobserve(c); L.obs.observe(c); });
+  sdsBotonesZoom();
+}
+
+// Botón ← del lector: regresa el paso de historial y popstate lo cierra (igual que el botón Atrás del teléfono)
+function sdsCerrarLector(){
+  const L = sdsLector;
+  if(!L) return;
+  if(L.historial){ L.historial = false; history.back(); return; }
+  sdsLimpiarLector();
+}
+
+function sdsLimpiarLector(){
+  const L = sdsLector;
+  sdsLector = null;
+  const v = document.getElementById('sds-lector');
+  if(v) v.remove();
+  if(!L) return;
+  if(L.obs) L.obs.disconnect();
+  if(L.pdf) try{ L.pdf.destroy(); }catch(e){}
+  if(L.url) URL.revokeObjectURL(L.url);
+}
+
+window.addEventListener('popstate', ()=>{ if(sdsLector) sdsLimpiarLector(); });
+
+// ── Safety: subir y quitar ──
+function sdsAdmIniciar(){
+  sdsSubRender();
+  sdsAdmRender();
+  sdsCargar().then(()=>{ sdsAdmRender(); sdsSubRender(); });
+}
+
+function sdsAdmRender(){
+  const el = document.getElementById('sds-adm-lista');
+  if(!el) return;
+  if(!sdsLista){ el.innerHTML = sdsError ? '<div class="loading">'+sftEsc(sdsError)+'</div>' : '<div class="loading">Cargando...</div>'; return; }
+  if(!sdsLista.length){ el.innerHTML = '<div style="font-size:13px;color:var(--text2);padding:8px 0;">Todavía no hay hojas. Sube la primera arriba.</div>'; return; }
+  const lista = sdsFiltradas(document.getElementById('sds-adm-buscar').value);
+  el.innerHTML = '<div style="font-size:12px;color:var(--text2);margin-bottom:8px;">'+sdsLista.length+' en total'+(lista.length!==sdsLista.length?' · '+lista.length+' coinciden':'')+'</div>'+
+    lista.map(s=>'<div style="display:flex;align-items:center;gap:8px;padding:10px 0;border-top:1px solid var(--border);">'+
+      '<div style="flex:1;min-width:0;"><div style="font-size:14px;font-weight:700;overflow-wrap:anywhere;">'+sftEsc(s.producto)+'</div>'+
+      '<div style="font-size:12px;color:var(--text2);">'+[sdsMeta(s), s.kb?rcTam(s.kb*1024):'', s.subida?'subida '+rcFechaUS(s.subida):''].filter(Boolean).join(' · ')+'</div></div>'+
+      '<button class="btn btn-ghost" style="width:auto;margin:0;padding:6px 12px;min-height:0;font-size:12px;" onclick="sdsAbrir(\''+sftEsc(s.id)+'\')">Ver</button>'+
+      '<button class="btn btn-ghost" style="width:auto;margin:0;padding:6px 12px;min-height:0;font-size:12px;color:var(--danger-text);" onclick="sdsQuitar(\''+sftEsc(s.id)+'\', this)">Quitar</button>'+
+    '</div>').join('');
+}
+
+async function sdsQuitar(id, btn){
+  const s = (sdsLista||[]).find(x=>x.id===id);
+  if(!s) return;
+  if(!confirm('¿Quitar la hoja de "'+s.producto+'"?\n\nDeja de verse en la app. El PDF se guarda en SDS/Archivadas en Drive.')) return;
+  btn.disabled = true; btn.textContent = 'Quitando...';
+  try{
+    await enviarAScript({tipo:'sds_archivar', id:id});
+    sdsLista = sdsLista.filter(x=>x.id!==id);
+    try{ localStorage.setItem(SDS_LS, JSON.stringify(sdsLista)); }catch(e){}
+    sdsAdmRender();
+  }catch(err){
+    if(String(err&&err.message)!=='auth') alert(err instanceof TypeError ? 'Error de conexión — intenta de nuevo' : (err.message||'No se pudo quitar.'));
+    btn.disabled = false; btn.textContent = 'Quitar';
+  }
+}
+
+// "SDS_Hilti_HIT-RE_500 (1).pdf" -> "Hilti HIT-RE 500" (Safety lo corrige si hace falta)
+function sdsNombreDeArchivo(nombre){
+  return String(nombre||'').replace(/\.pdf$/i,'').replace(/\(\d+\)\s*$/,'').replace(/^(m?sds|hds|ficha)[\s_-]+/i,'').replace(/_+/g,' ').replace(/\s+/g,' ').trim().slice(0,120);
+}
+
+function sdsElegir(input){
+  const malos = [];
+  Array.from(input.files||[]).forEach(f=>{
+    if(rcMime(f)!=='application/pdf'){ malos.push('"'+f.name+'" no es PDF.'); return; }
+    if(f.size > SDS_MAX_BYTES){ malos.push('"'+f.name+'" pesa más de 15 MB.'); return; }
+    sdsSub.filas.push({file:f, producto:sdsNombreDeArchivo(f.name), fabricante:'', fecha:'', ok:false, error:'', reemplazo:false});
+  });
+  input.value = '';
+  if(malos.length) alert(malos.join('\n'));
+  sdsSubMsg('');
+  sdsSubRender();
+}
+
+function sdsYaExiste(f){
+  const k = sftClave(f.producto)+'|'+sftClave(f.fabricante);
+  return (sdsLista||[]).some(s=>sftClave(s.producto)+'|'+sftClave(s.fabricante)===k);
+}
+
+function sdsSubSet(i, campo, valor){
+  const f = sdsSub.filas[i];
+  if(!f || f.ok) return;
+  f[campo] = valor;
+  const aviso = document.getElementById('sds-aviso-'+i);
+  if(aviso) aviso.style.display = sdsYaExiste(f) ? 'block' : 'none';
+}
+
+function sdsSubQuitarFila(i){
+  if(sdsSub.enviando) return;
+  sdsSub.filas.splice(i,1);
+  sdsSubRender();
+}
+
+function sdsSubRender(){
+  const el = document.getElementById('sds-filas');
+  if(!el) return;
+  const bloq = sdsSub.enviando;
+  el.innerHTML = sdsSub.filas.map((f,i)=>{
+    if(f.ok) return '<div class="sds-sub-fila" style="border-color:var(--success-text);"><div style="font-size:14px;font-weight:700;">'+ico('check')+' '+sftEsc(f.producto)+'</div>'+
+      '<div style="font-size:12px;color:var(--success-text);">Subida'+(f.reemplazo?' · reemplazó la hoja anterior':'')+'</div></div>';
+    const dis = bloq ? ' disabled' : '';
+    return '<div class="sds-sub-fila">'+
+      '<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;"><div style="flex:1;min-width:0;font-size:12px;color:var(--text2);overflow-wrap:anywhere;">'+ico('file')+' '+sftEsc(f.file.name)+' · '+rcTam(f.file.size)+'</div>'+
+      '<button class="btn-icon" style="flex:none;" onclick="sdsSubQuitarFila('+i+')"'+dis+' aria-label="Quitar">✕</button></div>'+
+      '<div class="field" style="margin-bottom:8px;"><label>Producto</label><input type="text" value="'+sftEsc(f.producto)+'" oninput="sdsSubSet('+i+',\'producto\',this.value)" placeholder="Nombre del producto" autocomplete="off"'+dis+'/></div>'+
+      '<div class="field" style="margin-bottom:8px;"><label>Fabricante (opcional)</label><input type="text" value="'+sftEsc(f.fabricante)+'" oninput="sdsSubSet('+i+',\'fabricante\',this.value)" placeholder="Ej. Sika, Hilti" autocomplete="off"'+dis+'/></div>'+
+      '<div class="field" style="margin-bottom:0;"><label>Fecha de la SDS (opcional)</label><input type="date" value="'+sftEsc(f.fecha)+'" onchange="sdsSubSet('+i+',\'fecha\',this.value)"'+dis+'/></div>'+
+      '<div id="sds-aviso-'+i+'" style="display:'+(sdsYaExiste(f)?'block':'none')+';font-size:12px;color:var(--ooi-orange-dark);margin-top:8px;">Ya hay una hoja de este producto: esta la reemplaza.</div>'+
+      (f.error ? '<div style="font-size:12px;color:var(--danger-text);margin-top:8px;">'+sftEsc(f.error)+'</div>' : '')+
+    '</div>';
+  }).join('');
+  const pend = sdsSub.filas.filter(f=>!f.ok).length;
+  const btn = document.getElementById('sds-btn');
+  btn.style.display = pend ? 'block' : 'none';
+  btn.disabled = bloq;
+  btn.textContent = bloq ? 'Subiendo...' : 'Subir '+pend+(pend===1?' hoja':' hojas');
+}
+
+function sdsSubMsg(texto, tipo){
+  const m = document.getElementById('sds-msg');
+  if(!texto){ m.style.display='none'; return; }
+  m.style.display = 'block';
+  m.textContent = texto;
+  m.style.background = tipo==='error' ? 'var(--danger-bg)' : tipo==='ok' ? 'var(--success-bg)' : 'var(--info-bg)';
+  m.style.color = tipo==='error' ? 'var(--danger-text)' : tipo==='ok' ? 'var(--success-text)' : 'var(--info-text)';
+}
+
+async function sdsSubir(){
+  if(sdsSub.enviando) return;
+  const pend = sdsSub.filas.filter(f=>!f.ok);
+  pend.forEach(f=>{ f.producto = String(f.producto).replace(/\s+/g,' ').trim(); f.fabricante = String(f.fabricante).replace(/\s+/g,' ').trim(); });
+  if(pend.some(f=>!f.producto)){ alert('Escribe el nombre del producto de cada hoja.'); return; }
+  sdsSub.enviando = true;
+  pend.forEach(f=>{ f.error=''; });
+  sdsSubRender();
+  let ok = 0, n = 0;
+  for(const f of pend){
+    n++;
+    sdsSubMsg('Subiendo '+n+' de '+pend.length+': '+f.producto+'...');
+    try{
+      const res = await enviarAScript({tipo:'sds_subir', producto:f.producto, fabricante:f.fabricante, fechaSds:f.fecha,
+        archivo:{nombre:f.file.name, mime:'application/pdf', base64: await rcLeerBase64(f.file)}});
+      f.ok = true; f.reemplazo = !!(res && res.reemplazadas); ok++;
+    }catch(err){
+      if(String(err&&err.message)==='auth'){ sdsSub.enviando = false; return; }
+      f.error = err instanceof TypeError ? 'Error de conexión — intenta de nuevo.' : (err.message||'No se pudo subir.');
+    }
+    sdsSubRender();
+  }
+  sdsSub.enviando = false;
+  const fallaron = pend.length - ok;
+  sdsSubMsg(fallaron ? ok+' subidas, '+fallaron+' con error. Revisa las marcadas y vuelve a intentar.' : (ok===1?'Hoja subida. Ya la ven los trabajadores.':ok+' hojas subidas. Ya las ven los trabajadores.'), fallaron ? 'error' : 'ok');
+  sdsSubRender();
+  await sdsCargar();
+  sdsAdmRender();
+  // Las subidas ya salen en la lista de abajo: se quitan de la tarjeta en unos segundos
+  setTimeout(()=>{ if(!sdsSub.enviando){ sdsSub.filas = sdsSub.filas.filter(f=>!f.ok); sdsSubRender(); } }, 6000);
 }
 
 // ── REGISTRAR CERTIFICADOS (Safety) ──
