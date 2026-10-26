@@ -4189,11 +4189,11 @@ async function loadFitTestHistory(){
             <div style="font-size:14px;font-weight:700;">${r.trabajador}</div>
             <div style="font-size:12px;color:var(--text2);margin-top:2px;">${r.proyecto} · ${r.razon}</div>
             ${r.desde?`<div style="font-size:12px;color:var(--text2);margin-top:2px;">${sftEsc(r.clinicaCercana)} · ${ftVentana(r)}</div>`:''}
-            ${r.status==='Agendado'&&r.citaFecha?`<div style="font-size:12px;color:var(--warning-text);margin-top:2px;"><strong>Cita:</strong> ${ftCita(r)} · ${sftEsc(r.citaDireccion)}</div>`:''}
+            ${r.status==='Agendado'&&ftTieneCita(r)?`<div style="font-size:12px;color:var(--warning-text);margin-top:2px;"><strong>Autorizado:</strong> ${ftCita(r)} · ${sftEsc(r.citaDireccion)}</div>`:''}
             <div style="font-size:11px;color:var(--text3);margin-top:2px;">${r.fecha} · Foreman: ${r.foreman}</div>
           </div>
           ${r.status==='Agendado'
-            ?'<span class="badge" style="background:var(--warning-bg);color:var(--warning-text);">Agendado</span>'
+            ?'<span class="badge" style="background:var(--warning-bg);color:var(--warning-text);">Autorizado</span>'
             :'<span class="badge" style="background:var(--info-bg);color:var(--info-text);">Enviado</span>'}
         </div>
       </div>`).join('');
@@ -4229,13 +4229,18 @@ function ftHora12(h){
   const n=+m[1];
   return (n%12||12)+':'+m[2]+' '+(n>=12?'PM':'AM');
 }
+// Autorización de RRHH: "10/26/2026 – vence 11/9/2026 · Conf. #A1234". Las filas viejas traen fecha y hora fija.
+function ftTieneCita(r){ return !!(r && (r.autVence || r.citaFecha)); }
 function ftCita(r){
-  if(!r || !r.citaFecha) return '';
+  if(!r) return '';
+  if(r.autVence) return sftEsc((r.autDesde?sftUS(r.autDesde)+' – ':'')+'vence '+sftUS(r.autVence)+(r.confirmacion?' · Conf. #'+r.confirmacion:''));
+  if(!r.citaFecha) return '';
   return sftEsc(sftUS(r.citaFecha)+(r.citaHora?' · '+ftHora12(r.citaHora):''));
 }
 
-// Pendientes de RRHH. "Cita agendada" guarda fecha, hora y dirección (fittest_agendado) y el servidor le
-// manda el correo al foreman de la solicitud. Si ya estaba agendada, el mismo botón la cambia.
+// Pendientes de RRHH. "Registrar autorización" guarda el periodo (desde / vence), el número de confirmación
+// y la dirección (fittest_agendado) y el servidor le manda el correo al foreman de la solicitud.
+// Si ya estaba autorizada, el mismo botón la cambia.
 let rrhhPend=[], rrhhAviso=null;
 async function loadRRHHPending(){
   const listEl=document.getElementById('rrhh-pending-list');
@@ -4259,25 +4264,26 @@ async function loadRRHHPending(){
             <div style="font-size:12px;color:var(--text2);margin-top:2px;">${sftEsc(r.proyecto)} · ${sftEsc(r.razon)}</div>
             ${r.clinicaCercana?`<div style="font-size:12px;color:var(--text);margin-top:4px;"><strong>Clínica:</strong> ${sftEsc(r.clinicaCercana)}</div>`:''}
             ${r.desde?`<div style="font-size:12px;color:var(--text);margin-top:2px;"><strong>Puede ir:</strong> ${ftVentana(r)}</div>`:''}
-            ${ag&&r.citaFecha?`<div style="font-size:12px;color:var(--warning-text);margin-top:4px;"><strong>Cita:</strong> ${ftCita(r)}${r.citaDireccion&&r.citaDireccion!==r.clinicaCercana?' · '+sftEsc(r.citaDireccion):''}</div>`:''}
+            ${ag&&ftTieneCita(r)?`<div style="font-size:12px;color:var(--warning-text);margin-top:4px;"><strong>Autorizado:</strong> ${ftCita(r)}${r.citaDireccion&&r.citaDireccion!==r.clinicaCercana?' · '+sftEsc(r.citaDireccion):''}</div>`:''}
             <div style="font-size:11px;color:var(--text3);margin-top:2px;">Enviado: ${sftEsc(r.fecha)} · Foreman: ${sftEsc(r.foreman)}</div>
           </div>
           <span class="badge" style="background:${ag?'var(--warning-bg)':'var(--danger-bg)'};color:${ag?'var(--warning-text)':'var(--danger-text)'};">
-            ${ag?'Agendado':'Pendiente'}
+            ${ag?'Autorizado':'Pendiente'}
           </span>
         </div>
         <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;">
           <button onclick="rrhhAbrirCita(${i})" style="padding:8px 16px;border-radius:99px;border:1px solid var(--ooi-orange);background:${ag?'var(--bg)':'var(--ooi-orange)'};color:${ag?'var(--ooi-orange)':'#fff'};font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;">
-            ${ag?'Cambiar cita':'Cita agendada'}
+            ${ag?'Cambiar autorización':'Registrar autorización'}
           </button>
           <button onclick="preselect(rrhhPend[${i}].trabajador)" style="padding:8px 16px;border-radius:99px;border:1px solid var(--ooi-orange);background:var(--ooi-orange-bg);color:var(--ooi-orange-dark);font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;">
             Subir tarjeta para este trabajador
           </button>
         </div>
         <div id="rrhh-cita-${i}" style="display:none;margin-top:12px;padding-top:12px;border-top:1px solid var(--border);">
+          <div class="field"><label>Número de confirmación</label><input type="text" id="rrhh-cita-conf-${i}" autocomplete="off" placeholder="El que da la clínica"/></div>
           <div class="grid2">
-            <div class="field" style="min-width:0;"><label>Fecha de la cita</label><input type="date" id="rrhh-cita-fecha-${i}" style="width:100%;min-width:0;box-sizing:border-box;"/></div>
-            <div class="field" style="min-width:0;"><label>Hora</label><input type="time" id="rrhh-cita-hora-${i}" style="width:100%;min-width:0;box-sizing:border-box;"/></div>
+            <div class="field" style="min-width:0;"><label>Puede ir desde</label><input type="date" id="rrhh-cita-desde-${i}" style="width:100%;min-width:0;box-sizing:border-box;"/></div>
+            <div class="field" style="min-width:0;"><label>Vence el</label><input type="date" id="rrhh-cita-vence-${i}" style="width:100%;min-width:0;box-sizing:border-box;"/></div>
           </div>
           <div class="field"><label>Dirección de la clínica</label><input type="text" id="rrhh-cita-dir-${i}" autocomplete="off"/></div>
           <div class="submit-msg" id="rrhh-cita-msg-${i}"></div>
@@ -4296,8 +4302,11 @@ function rrhhAbrirCita(i){
   const abrir=box.style.display==='none';
   box.style.display=abrir?'block':'none';
   if(!abrir) return;
-  document.getElementById('rrhh-cita-fecha-'+i).value=r.citaFecha||'';
-  document.getElementById('rrhh-cita-hora-'+i).value=r.citaHora||'';
+  // Nueva: desde hoy y vence en la fecha límite de la solicitud (si sigue vigente); RRHH la ajusta a lo que dio la clínica
+  const hoy=hoyLocal();
+  document.getElementById('rrhh-cita-conf-'+i).value=r.confirmacion||'';
+  document.getElementById('rrhh-cita-desde-'+i).value=r.autDesde||hoy;
+  document.getElementById('rrhh-cita-vence-'+i).value=r.autVence||(r.hasta&&r.hasta>=hoy?r.hasta:'');
   document.getElementById('rrhh-cita-dir-'+i).value=r.citaDireccion||r.clinicaCercana||'';
   document.getElementById('rrhh-cita-msg-'+i).style.display='none';
 }
@@ -4305,21 +4314,24 @@ function rrhhAbrirCita(i){
 async function rrhhConfirmarCita(i){
   const r=rrhhPend[i];
   if(!r) return;
-  const citaFecha=document.getElementById('rrhh-cita-fecha-'+i).value;
-  const citaHora=document.getElementById('rrhh-cita-hora-'+i).value;
+  const confirmacion=document.getElementById('rrhh-cita-conf-'+i).value.trim();
+  const autDesde=document.getElementById('rrhh-cita-desde-'+i).value;
+  const autVence=document.getElementById('rrhh-cita-vence-'+i).value;
   const citaDireccion=document.getElementById('rrhh-cita-dir-'+i).value.trim();
-  if(!citaFecha){alert('Por favor indica la fecha de la cita.');return;}
-  if(!citaHora){alert('Por favor indica la hora de la cita.');return;}
+  if(!confirmacion){alert('Por favor escribe el número de confirmación.');return;}
+  if(!autDesde){alert('Por favor indica desde cuándo puede ir.');return;}
+  if(!autVence){alert('Por favor indica la fecha de vencimiento.');return;}
+  if(autVence<autDesde){alert('La fecha de vencimiento no puede ser antes de la fecha de inicio.');return;}
   if(!citaDireccion){alert('Por favor escribe la dirección de la clínica.');return;}
   const msg=document.getElementById('rrhh-cita-msg-'+i), btn=document.getElementById('rrhh-cita-btn-'+i);
-  msg.style.display='block'; msg.textContent='Guardando cita...';
+  msg.style.display='block'; msg.textContent='Guardando autorización...';
   msg.style.background='var(--info-bg)'; msg.style.color='var(--info-text)';
   btn.disabled=true;
   try{
-    const res=await enviarAScript({tipo:'fittest_agendado', id:r.id, trabajador:r.trabajador, citaFecha, citaHora, citaDireccion});
+    const res=await enviarAScript({tipo:'fittest_agendado', id:r.id, trabajador:r.trabajador, confirmacion, autDesde, autVence, citaDireccion});
     rrhhAviso = res && res.correo==='sin_correo'
-      ? {ok:false, texto:'Cita guardada para '+r.trabajador+', pero el foreman '+(r.foreman||'(sin nombre)')+' no tiene correo en el archivo de Configuración: avísale por teléfono.'}
-      : {ok:true, texto:'Cita guardada para '+r.trabajador+'. Se le envió el correo a '+(r.foreman||'el foreman')+'.'};
+      ? {ok:false, texto:'Autorización guardada para '+r.trabajador+' (Conf. #'+confirmacion+'), pero el foreman '+(r.foreman||'(sin nombre)')+' no tiene correo en el archivo de Configuración: avísale por teléfono.'}
+      : {ok:true, texto:'Autorización guardada para '+r.trabajador+' (Conf. #'+confirmacion+'). Se le envió el correo a '+(r.foreman||'el foreman')+'.'};
     await loadRRHHPending();
     window.scrollTo(0,0);
   }catch(err){
@@ -5195,7 +5207,7 @@ function sftRender(){
       html+='<div style="font-size:12px;color:var(--danger-text);margin-top:4px;">Solicitud pendiente desde '+sftEsc(sftUS(p.fecha))+'</div>'+
         '<div style="font-size:11px;color:var(--text3);margin-top:2px;">'+[p.foreman&&('Foreman: '+p.foreman),p.proyecto,p.razon].filter(Boolean).map(sftEsc).join(' · ')+'</div>'+
         (p.desde?'<div style="font-size:11px;color:var(--text3);margin-top:2px;">'+(p.clinicaCercana?sftEsc(p.clinicaCercana)+' · ':'')+'Puede ir: '+ftVentana(p)+'</div>':'')+
-        (p.status==='Agendado'&&p.citaFecha?'<div style="font-size:11px;color:var(--warning-text);margin-top:2px;">Cita agendada: '+ftCita(p)+'</div>':'');
+        (p.status==='Agendado'&&ftTieneCita(p)?'<div style="font-size:11px;color:var(--warning-text);margin-top:2px;">Autorizado: '+ftCita(p)+'</div>':'');
     }
     html+='</div>'+BADGE[w.estado]+'</div>';
     if(u && (u.tarjetas&&u.tarjetas.length || /^https:\/\/drive\.google\.com\//.test(String(u.driveUrl||'')))){
