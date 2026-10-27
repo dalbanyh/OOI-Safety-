@@ -592,10 +592,18 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
 
 /* SDS: carpeta de hojas de seguridad (letras como separadores de carpeta) y lector de PDF */
 .sds-letra{font-family:var(--f-display);font-size:13px;font-weight:900;color:var(--ooi-orange-dark);letter-spacing:.08em;margin:16px 0 8px;padding-bottom:4px;border-bottom:2px solid var(--ooi-orange);}
-.sds-item{display:flex;align-items:center;gap:12px;width:100%;text-align:left;font-family:inherit;color:var(--text);}
-.sds-item .sds-txt{flex:1;min-width:0;}
-.sds-item .sds-prod{display:block;font-size:15px;font-weight:700;overflow-wrap:anywhere;}
-.sds-item .sds-meta{display:block;font-size:12px;color:var(--text2);margin-top:2px;}
+.sds-chips{display:flex;gap:8px;overflow-x:auto;-webkit-overflow-scrolling:touch;padding:2px 0 8px;scrollbar-width:none;}
+.sds-chips::-webkit-scrollbar{display:none;}
+.sds-chip{flex:none;border:1.5px solid var(--border2);background:var(--bg);color:var(--text);border-radius:99px;padding:7px 12px;font-family:inherit;font-size:13px;font-weight:700;white-space:nowrap;cursor:pointer;}
+.sds-chip span{color:var(--ooi-orange-dark);margin-left:6px;}
+.sds-chip.on{background:var(--ooi-black);border-color:var(--ooi-black);color:#fff;}
+.sds-chip.on span{color:var(--ooi-orange);}
+.sds-card .sds-prod{font-size:15px;font-weight:800;overflow-wrap:anywhere;}
+.sds-card .sds-meta{font-size:12px;color:var(--text2);margin-top:2px;}
+.sds-card .sds-res{font-size:13px;color:var(--text);margin-top:6px;line-height:1.4;}
+.sds-langs{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;}
+.sds-lang{display:inline-flex;align-items:center;gap:6px;border:1.5px solid var(--ooi-orange);background:var(--ooi-orange-bg);color:var(--ooi-orange-dark);border-radius:99px;padding:8px 16px;font-family:inherit;font-size:13px;font-weight:800;cursor:pointer;}
+.sds-lang .ico{width:16px;height:16px;}
 #sds-lector{position:fixed;inset:0;z-index:9999;background:#525659;display:flex;flex-direction:column;}
 #sds-lector .sds-barra{background:var(--ooi-black);border-bottom:3px solid var(--ooi-orange);padding:10px 12px;display:flex;align-items:center;gap:8px;color:#fff;flex:none;}
 #sds-lector .sds-barra button,#sds-lector .sds-barra a{background:rgba(255,255,255,.12);color:#fff;border:none;border-radius:8px;min-width:40px;height:40px;padding:0 10px;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;text-decoration:none;flex:none;}
@@ -909,7 +917,8 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{outline:none;}
   <div style="max-width:480px;margin:0 auto;padding:16px 16px 80px;">
     <div style="font-size:13px;color:var(--text2);margin-bottom:14px;">Antes de usar un químico, revisa su hoja: <strong>riesgos (Sección 2)</strong>, <strong>primeros auxilios (Sección 4)</strong> y <strong>EPP (Sección 8)</strong>. Si tienes dudas, pregunta a tu foreman.</div>
     <div class="tp-search"><svg class="ico" style="color:var(--text2);flex:none;"><use href="#i-search"/></svg><input type="text" id="sds-buscar" placeholder="Buscar producto o fabricante..." oninput="sdsRender()" autocomplete="off"/></div>
-    <div id="sds-estado" style="font-size:12px;color:var(--text2);margin:-4px 0 6px;"></div>
+    <div id="sds-chips" class="sds-chips"></div>
+    <div id="sds-estado" style="font-size:12px;color:var(--text2);margin:2px 0 6px;"></div>
     <div id="sds-lista"><div class="loading">Cargando hojas de seguridad...</div></div>
   </div>
 </div>
@@ -1844,7 +1853,7 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{outline:none;}
   <div id="safety-sds-panel" style="display:none;">
     <div style="max-width:480px;margin:0 auto;padding:14px 16px 80px;">
       <div style="font-family:var(--f-head);font-size:18px;font-weight:800;margin-bottom:4px;">Hojas de Seguridad (SDS)</div>
-      <div style="font-size:12px;color:var(--text2);margin-bottom:16px;">Los PDF se guardan en la carpeta <strong>SDS</strong> de Drive y aparecen en <strong>Trabajador &gt; Hojas de Seguridad</strong>. Si subes otra hoja con el mismo producto y fabricante, reemplaza a la anterior. Lo que quites pasa a <strong>SDS/Archivadas</strong>; no se borra.</div>
+      <div style="font-size:12px;color:var(--text2);margin-bottom:16px;">Los PDF se guardan en la unidad compartida de Safety, en <strong>SDS/&lt;categoría&gt;</strong>, y aparecen en <strong>Trabajador &gt; Hojas de Seguridad</strong> con su título y resumen. El mismo producto en español e inglés sale en una sola tarjeta. Si subes otra hoja con el mismo título, fabricante e idioma, reemplaza a la anterior. Lo que quites pasa a <strong>SDS/Archivadas</strong>; no se borra.</div>
 
       <div class="card">
         <div class="sec-label">Subir SDS</div>
@@ -5348,23 +5357,31 @@ function sftCerrarVisor(){
 // El PDF lo manda Apps Script, así nadie necesita cuenta de Google. Safety sube (sds_subir) y quita (sds_archivar).
 // La lista queda en localStorage y cada PDF abierto en Cache Storage: si se va la señal en la obra, lo ya abierto
 // se sigue viendo. Un id nunca cambia de PDF (reemplazar crea otro id), por eso el PDF guardado no caduca.
+// Cada hoja trae categoría (las carpetas del zip "SDS. 2026"), idioma ES/EN y un resumen corto; el mismo
+// producto en español e inglés sale en UNA tarjeta con un botón por idioma.
 const SDS_MAX_BYTES = 15 * 1024 * 1024;
-const SDS_LS = 'ooi_sds_lista';
+const SDS_LS = 'ooi_sds_v2';
 const SDS_CACHE = 'ooi-sds-v1';
 const PDFJS_URL = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/';
 const SDS_ZOOMS = [1, 1.5, 2, 3];
-let sdsLista = null, sdsCargandoProm = null, sdsError = '', sdsLector = null, sdsPdfjsProm = null;
+const SDS_IDIOMA = {ES:'Español', EN:'English'};
+const SDS_SIN_CAT = 'Sin categoría';
+let sdsLista = null, sdsCategorias = [], sdsCat = '', sdsCargandoProm = null, sdsError = '', sdsLector = null, sdsPdfjsProm = null;
 let sdsSub = {filas:[], enviando:false};
 
 function sdsLeerGuardada(){
-  try{ const j = JSON.parse(localStorage.getItem(SDS_LS)||'null'); return Array.isArray(j) ? j : null; }catch(e){ return null; }
+  try{ const j = JSON.parse(localStorage.getItem(SDS_LS)||'null'); return j && Array.isArray(j.sds) ? j : null; }catch(e){ return null; }
+}
+
+function sdsGuardarLocal(){
+  try{ localStorage.setItem(SDS_LS, JSON.stringify({sds:sdsLista, categorias:sdsCategorias})); }catch(e){}
 }
 
 function sdsUrlPdf(id){ return SCRIPT_URL+'?action=sds_pdf&id='+encodeURIComponent(id); }
 
 // Trae la lista del servidor. Mientras tanto se muestra la guardada en el teléfono.
 function sdsCargar(){
-  if(!sdsLista) sdsLista = sdsLeerGuardada();
+  if(!sdsLista){ const g = sdsLeerGuardada(); if(g){ sdsLista = g.sds; sdsCategorias = g.categorias || []; } }
   if(sdsCargandoProm) return sdsCargandoProm;
   sdsCargandoProm = (async ()=>{
     try{
@@ -5372,8 +5389,9 @@ function sdsCargar(){
       const json = await res.json();
       if(!json || json.status!=='ok') throw new Error((json&&json.message)||'Respuesta inválida');
       sdsLista = json.sds || [];
+      sdsCategorias = json.categorias || [];
       sdsError = '';
-      try{ localStorage.setItem(SDS_LS, JSON.stringify(sdsLista)); }catch(e){}
+      sdsGuardarLocal();
       sdsLimpiarCache();
     }catch(err){
       sdsError = sdsLista ? 'Sin conexión: se muestra la última lista guardada en este teléfono.' : 'No se pudieron cargar las hojas de seguridad. Revisa tu conexión.';
@@ -5393,11 +5411,42 @@ async function sdsLimpiarCache(){
 }
 
 function sdsMeta(s){
-  return [s.fabricante, s.fechaSds ? 'SDS del '+rcFechaUS(s.fechaSds) : ''].filter(Boolean).map(sftEsc).join(' · ');
+  return [SDS_IDIOMA[s.idioma], s.fabricante, s.fechaSds ? 'SDS del '+rcFechaUS(s.fechaSds) : ''].filter(Boolean).map(sftEsc).join(' · ');
 }
 
-function sdsFiltradas(q){
-  return (sdsLista||[]).filter(s=>coincideBusqueda(q, s.producto, s.fabricante));
+function sdsFiltradas(q, cat){
+  return (sdsLista||[]).filter(s=>(!cat || sdsCatDe(s)===cat) && coincideBusqueda(q, s.producto, s.fabricante, s.resumen, s.categoria));
+}
+
+function sdsCatDe(s){ return s.categoria || SDS_SIN_CAT; }
+
+// Categorías en el orden de Safety (las del zip); lo que no tenga categoría va al final
+function sdsCatsOrden(){
+  const cats = sdsCategorias.slice();
+  if((sdsLista||[]).some(s=>!s.categoria || cats.indexOf(s.categoria)<0)) cats.push(SDS_SIN_CAT);
+  return cats;
+}
+
+// [{cat, productos:[{producto, fabricante, resumen, hojas:[ES primero]}]}] en el orden de las categorías
+function sdsAgrupar(lista){
+  const porCat = {};
+  lista.forEach(s=>{
+    const cat = sdsCategorias.indexOf(s.categoria)>=0 ? s.categoria : SDS_SIN_CAT;
+    const prods = porCat[cat] = porCat[cat] || {};
+    const k = sftClave(s.producto)+'|'+sftClave(s.fabricante);
+    (prods[k] = prods[k] || {producto:s.producto, fabricante:s.fabricante, resumen:'', hojas:[]}).hojas.push(s);
+    if(!prods[k].resumen) prods[k].resumen = s.resumen || '';
+  });
+  return sdsCatsOrden().filter(c=>porCat[c]).map(c=>({
+    cat: c,
+    productos: Object.values(porCat[c]).sort((a,b)=>a.producto.localeCompare(b.producto))
+      .map(p=>Object.assign(p, {hojas: p.hojas.sort((a,b)=>(a.idioma==='ES'?0:1)-(b.idioma==='ES'?0:1))}))
+  }));
+}
+
+function sdsSetCat(i){
+  sdsCat = i<0 ? '' : (sdsCatsOrden()[i]||'');
+  sdsRender();
 }
 
 async function sdsIniciar(){
@@ -5406,36 +5455,46 @@ async function sdsIniciar(){
   sdsRender();
 }
 
-// Lista del trabajador, por letra como los separadores de una carpeta
+// Lista del trabajador: chips de categoría arriba y una sección por categoría, como los separadores de una carpeta
 function sdsRender(){
-  const el = document.getElementById('sds-lista'), est = document.getElementById('sds-estado');
+  const el = document.getElementById('sds-lista'), est = document.getElementById('sds-estado'), chips = document.getElementById('sds-chips');
   if(!el) return;
-  est.textContent = sdsError || (sdsLista ? sdsLista.length+(sdsLista.length===1?' hoja':' hojas')+' en la carpeta' : '');
   est.style.color = sdsError ? 'var(--danger-text)' : 'var(--text2)';
   if(!sdsLista){
+    est.textContent = sdsError;
+    chips.innerHTML = '';
     el.innerHTML = sdsError ? '' : '<div class="loading">Cargando hojas de seguridad...</div>';
     return;
   }
   if(!sdsLista.length){
+    est.textContent = sdsError;
+    chips.innerHTML = '';
     el.innerHTML = '<div class="empty-state"><div class="icon">'+ico('flask')+'</div><div>Todavía no hay hojas de seguridad.<br>Safety las está cargando.</div></div>';
     return;
   }
-  const lista = sdsFiltradas(document.getElementById('sds-buscar').value);
-  if(!lista.length){
+  const q = document.getElementById('sds-buscar').value;
+  const cats = sdsCatsOrden();
+  if(sdsCat && cats.indexOf(sdsCat)<0) sdsCat = '';
+  // Los números de los chips cuentan productos (español e inglés juntos) que coinciden con la búsqueda
+  const todos = sdsAgrupar(sdsFiltradas(q, ''));
+  const cuenta = {}; let total = 0;
+  todos.forEach(g=>{ cuenta[g.cat] = g.productos.length; total += g.productos.length; });
+  chips.innerHTML = '<button class="sds-chip'+(sdsCat?'':' on')+'" onclick="sdsSetCat(-1)">Todas<span>'+total+'</span></button>'+
+    cats.map((c,i)=>'<button class="sds-chip'+(sdsCat===c?' on':'')+'" onclick="sdsSetCat('+i+')">'+sftEsc(c)+'<span>'+(cuenta[c]||0)+'</span></button>').join('');
+  est.textContent = sdsError || (total+(total===1?' producto':' productos')+(q.trim()?' encontrados':' en la carpeta'));
+  const grupos = sdsCat ? todos.filter(g=>g.cat===sdsCat) : todos;
+  if(!grupos.length){
     el.innerHTML = '<div class="empty-state"><div class="icon">'+ico('search')+'</div><div>Ningún producto coincide.<br>Si no está, avisa a tu foreman o a Safety.</div></div>';
     return;
   }
-  let letra = '', html = '';
-  lista.forEach(s=>{
-    const l = rcNorm(s.producto).charAt(0).toUpperCase();
-    const grupo = /[A-Z]/.test(l) ? l : '#';
-    if(grupo!==letra){ letra = grupo; html += '<div class="sds-letra">'+grupo+'</div>'; }
-    html += '<button class="emp-card sds-item" onclick="sdsAbrir(\''+sftEsc(s.id)+'\')">'+
-      '<span class="ico-tile sm">'+ico('file')+'</span>'+
-      '<span class="sds-txt"><span class="sds-prod">'+sftEsc(s.producto)+'</span>'+(sdsMeta(s)?'<span class="sds-meta">'+sdsMeta(s)+'</span>':'')+'</span>'+
-      '<span class="role-arrow">'+ico('chev')+'</span></button>';
-  });
-  el.innerHTML = html;
+  el.innerHTML = grupos.map(g=>'<div class="sds-letra">'+sftEsc(g.cat)+' <span style="color:var(--text2);font-weight:700;">'+g.productos.length+'</span></div>'+
+    g.productos.map(p=>'<div class="emp-card sds-card" style="cursor:default;">'+
+      '<div class="sds-prod">'+sftEsc(p.producto)+'</div>'+
+      (p.fabricante?'<div class="sds-meta">'+sftEsc(p.fabricante)+'</div>':'')+
+      (p.resumen?'<div class="sds-res">'+sftEsc(p.resumen)+'</div>':'')+
+      '<div class="sds-langs">'+p.hojas.map(s=>'<button class="sds-lang" onclick="sdsAbrir(\''+sftEsc(s.id)+'\')">'+ico('file')+
+        sftEsc(SDS_IDIOMA[s.idioma]||'Abrir')+'</button>').join('')+'</div>'+
+    '</div>').join('')).join('');
 }
 
 // ── Lector ──
@@ -5496,7 +5555,7 @@ async function sdsAbrir(id){
     if(sdsLector!==L) return;
     L.url = URL.createObjectURL(new Blob([bytes],{type:'application/pdf'}));
     const dl = document.getElementById('sds-dl');
-    dl.href = L.url; dl.download = (s.producto+(s.fabricante?' - '+s.fabricante:'')).replace(/[\/\\:*?"<>|]+/g,'-')+'.pdf'; dl.style.display='';
+    dl.href = L.url; dl.download = (s.producto+(s.fabricante?' - '+s.fabricante:'')+(s.idioma?' ('+s.idioma+')':'')).replace(/[\/\\:*?"<>|]+/g,'-')+'.pdf'; dl.style.display='';
     if(!lib){ sdsSinLector(); return; }
     L.pdf = await lib.getDocument({data: bytes}).promise;
     if(sdsLector!==L){ L.pdf.destroy(); return; }
@@ -5615,14 +5674,16 @@ function sdsAdmRender(){
   if(!el) return;
   if(!sdsLista){ el.innerHTML = sdsError ? '<div class="loading">'+sftEsc(sdsError)+'</div>' : '<div class="loading">Cargando...</div>'; return; }
   if(!sdsLista.length){ el.innerHTML = '<div style="font-size:13px;color:var(--text2);padding:8px 0;">Todavía no hay hojas. Sube la primera arriba.</div>'; return; }
-  const lista = sdsFiltradas(document.getElementById('sds-adm-buscar').value);
-  el.innerHTML = '<div style="font-size:12px;color:var(--text2);margin-bottom:8px;">'+sdsLista.length+' en total'+(lista.length!==sdsLista.length?' · '+lista.length+' coinciden':'')+'</div>'+
-    lista.map(s=>'<div style="display:flex;align-items:center;gap:8px;padding:10px 0;border-top:1px solid var(--border);">'+
-      '<div style="flex:1;min-width:0;"><div style="font-size:14px;font-weight:700;overflow-wrap:anywhere;">'+sftEsc(s.producto)+'</div>'+
-      '<div style="font-size:12px;color:var(--text2);">'+[sdsMeta(s), s.kb?rcTam(s.kb*1024):'', s.subida?'subida '+rcFechaUS(s.subida):''].filter(Boolean).join(' · ')+'</div></div>'+
-      '<button class="btn btn-ghost" style="width:auto;margin:0;padding:6px 12px;min-height:0;font-size:12px;" onclick="sdsAbrir(\''+sftEsc(s.id)+'\')">Ver</button>'+
-      '<button class="btn btn-ghost" style="width:auto;margin:0;padding:6px 12px;min-height:0;font-size:12px;color:var(--danger-text);" onclick="sdsQuitar(\''+sftEsc(s.id)+'\', this)">Quitar</button>'+
-    '</div>').join('');
+  const lista = sdsFiltradas(document.getElementById('sds-adm-buscar').value, '');
+  el.innerHTML = '<div style="font-size:12px;color:var(--text2);margin-bottom:4px;">'+sdsLista.length+' hojas en total'+(lista.length!==sdsLista.length?' · '+lista.length+' coinciden':'')+'</div>'+
+    sdsAgrupar(lista).map(g=>'<div class="sds-letra">'+sftEsc(g.cat)+'</div>'+
+      g.productos.map(p=>p.hojas.map(s=>'<div style="display:flex;align-items:center;gap:8px;padding:10px 0;border-top:1px solid var(--border);">'+
+        '<div style="flex:1;min-width:0;"><div style="font-size:14px;font-weight:700;overflow-wrap:anywhere;">'+sftEsc(s.producto)+'</div>'+
+        '<div style="font-size:12px;color:var(--text2);">'+[sdsMeta(s), s.kb?rcTam(s.kb*1024):'', s.subida?'subida '+rcFechaUS(s.subida):''].filter(Boolean).join(' · ')+'</div>'+
+        (s.resumen ? '<div style="font-size:12px;margin-top:2px;">'+sftEsc(s.resumen)+'</div>' : '<div style="font-size:12px;color:var(--danger-text);margin-top:2px;">Sin resumen: escríbelo en la hoja SDS (columna Resumen).</div>')+'</div>'+
+        '<button class="btn btn-ghost" style="width:auto;margin:0;padding:6px 12px;min-height:0;font-size:12px;" onclick="sdsAbrir(\''+sftEsc(s.id)+'\')">Ver</button>'+
+        '<button class="btn btn-ghost" style="width:auto;margin:0;padding:6px 12px;min-height:0;font-size:12px;color:var(--danger-text);" onclick="sdsQuitar(\''+sftEsc(s.id)+'\', this)">Quitar</button>'+
+      '</div>').join('')).join('')).join('');
 }
 
 async function sdsQuitar(id, btn){
@@ -5633,7 +5694,7 @@ async function sdsQuitar(id, btn){
   try{
     await enviarAScript({tipo:'sds_archivar', id:id});
     sdsLista = sdsLista.filter(x=>x.id!==id);
-    try{ localStorage.setItem(SDS_LS, JSON.stringify(sdsLista)); }catch(e){}
+    sdsGuardarLocal();
     sdsAdmRender();
   }catch(err){
     if(String(err&&err.message)!=='auth') alert(err instanceof TypeError ? 'Error de conexión — intenta de nuevo' : (err.message||'No se pudo quitar.'));
@@ -5641,9 +5702,19 @@ async function sdsQuitar(id, btn){
   }
 }
 
-// "SDS_Hilti_HIT-RE_500 (1).pdf" -> "Hilti HIT-RE 500" (Safety lo corrige si hace falta)
+// "SDS_Hilti_HIT-RE_500-SPA (1).pdf" -> "Hilti HIT-RE 500" (Safety lo corrige: es el título que ve el trabajador)
 function sdsNombreDeArchivo(nombre){
-  return String(nombre||'').replace(/\.pdf$/i,'').replace(/\(\d+\)\s*$/,'').replace(/^(m?sds|hds|ficha)[\s_-]+/i,'').replace(/_+/g,' ').replace(/\s+/g,' ').trim().slice(0,120);
+  return String(nombre||'').replace(/\.pdf$/i,'').replace(/\(\d+\)\s*$/,'').replace(/_+/g,' ')
+    .replace(/\b(m?sds|hds|eng|english|spa|spanish|espa[nñ]ol|ingl[eé]s)\b/gi,' ')
+    .replace(/\s*-\s*(?=-|$)/g,'').replace(/^[\s.\-]+|[\s.\-]+$/g,'').replace(/\s+/g,' ').trim().slice(0,120);
+}
+
+// Idioma que dice el nombre del archivo; si no dice nada, Safety lo elige
+function sdsIdiomaDeArchivo(nombre){
+  const n = String(nombre||'');
+  if(/(spa|spanish|espa[nñ]ol)/i.test(n)) return 'ES';
+  if(/(\beng\b|english|ingl[eé]s)/i.test(n)) return 'EN';
+  return '';
 }
 
 function sdsElegir(input){
@@ -5651,7 +5722,8 @@ function sdsElegir(input){
   Array.from(input.files||[]).forEach(f=>{
     if(rcMime(f)!=='application/pdf'){ malos.push('"'+f.name+'" no es PDF.'); return; }
     if(f.size > SDS_MAX_BYTES){ malos.push('"'+f.name+'" pesa más de 15 MB.'); return; }
-    sdsSub.filas.push({file:f, producto:sdsNombreDeArchivo(f.name), fabricante:'', fecha:'', ok:false, error:'', reemplazo:false});
+    sdsSub.filas.push({file:f, producto:sdsNombreDeArchivo(f.name), fabricante:'', fecha:'', categoria:'', idioma:sdsIdiomaDeArchivo(f.name),
+      resumen:'', ok:false, error:'', reemplazo:false});
   });
   input.value = '';
   if(malos.length) alert(malos.join('\n'));
@@ -5660,8 +5732,9 @@ function sdsElegir(input){
 }
 
 function sdsYaExiste(f){
-  const k = sftClave(f.producto)+'|'+sftClave(f.fabricante);
-  return (sdsLista||[]).some(s=>sftClave(s.producto)+'|'+sftClave(s.fabricante)===k);
+  if(!f.idioma) return false;
+  const k = sftClave(f.producto)+'|'+sftClave(f.fabricante)+'|'+f.idioma;
+  return (sdsLista||[]).some(s=>sftClave(s.producto)+'|'+sftClave(s.fabricante)+'|'+s.idioma===k);
 }
 
 function sdsSubSet(i, campo, valor){
@@ -5689,10 +5762,16 @@ function sdsSubRender(){
     return '<div class="sds-sub-fila">'+
       '<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;"><div style="flex:1;min-width:0;font-size:12px;color:var(--text2);overflow-wrap:anywhere;">'+ico('file')+' '+sftEsc(f.file.name)+' · '+rcTam(f.file.size)+'</div>'+
       '<button class="btn-icon" style="flex:none;" onclick="sdsSubQuitarFila('+i+')"'+dis+' aria-label="Quitar">✕</button></div>'+
-      '<div class="field" style="margin-bottom:8px;"><label>Producto</label><input type="text" value="'+sftEsc(f.producto)+'" oninput="sdsSubSet('+i+',\'producto\',this.value)" placeholder="Nombre del producto" autocomplete="off"'+dis+'/></div>'+
-      '<div class="field" style="margin-bottom:8px;"><label>Fabricante (opcional)</label><input type="text" value="'+sftEsc(f.fabricante)+'" oninput="sdsSubSet('+i+',\'fabricante\',this.value)" placeholder="Ej. Sika, Hilti" autocomplete="off"'+dis+'/></div>'+
+      '<div class="field" style="margin-bottom:8px;"><label>Título (lo que ve el trabajador)</label><input type="text" value="'+sftEsc(f.producto)+'" oninput="sdsSubSet('+i+',\'producto\',this.value)" placeholder="Ej. Sika AIR, Gasolina, WD-40" autocomplete="off"'+dis+'/></div>'+
+      '<div class="field" style="margin-bottom:8px;"><label>Fabricante (opcional)</label><input type="text" value="'+sftEsc(f.fabricante)+'" oninput="sdsSubSet('+i+',\'fabricante\',this.value)" placeholder="Ej. Sika, Chevron" autocomplete="off"'+dis+'/></div>'+
+      '<div class="field" style="margin-bottom:8px;"><label>Categoría</label><select onchange="sdsSubSet('+i+',\'categoria\',this.value)"'+dis+'>'+
+        '<option value="">'+(sdsCategorias.length?'— Elige la categoría —':'Cargando categorías...')+'</option>'+
+        sdsCategorias.map(c=>'<option'+(f.categoria===c?' selected':'')+'>'+sftEsc(c)+'</option>').join('')+'</select></div>'+
+      '<div class="field" style="margin-bottom:8px;"><label>Idioma de la hoja</label><select onchange="sdsSubSet('+i+',\'idioma\',this.value)"'+dis+'>'+
+        '<option value="">— Elige —</option>'+Object.keys(SDS_IDIOMA).map(k=>'<option value="'+k+'"'+(f.idioma===k?' selected':'')+'>'+SDS_IDIOMA[k]+'</option>').join('')+'</select></div>'+
+      '<div class="field" style="margin-bottom:8px;"><label>Resumen (qué es y para qué sirve)</label><textarea rows="2" maxlength="160" oninput="sdsSubSet('+i+',\'resumen\',this.value)" placeholder="Ej. Aceite hidráulico para equipo y maquinaria."'+dis+'>'+sftEsc(f.resumen)+'</textarea></div>'+
       '<div class="field" style="margin-bottom:0;"><label>Fecha de la SDS (opcional)</label><input type="date" value="'+sftEsc(f.fecha)+'" onchange="sdsSubSet('+i+',\'fecha\',this.value)"'+dis+'/></div>'+
-      '<div id="sds-aviso-'+i+'" style="display:'+(sdsYaExiste(f)?'block':'none')+';font-size:12px;color:var(--ooi-orange-dark);margin-top:8px;">Ya hay una hoja de este producto: esta la reemplaza.</div>'+
+      '<div id="sds-aviso-'+i+'" style="display:'+(sdsYaExiste(f)?'block':'none')+';font-size:12px;color:var(--ooi-orange-dark);margin-top:8px;">Ya hay una hoja de este producto en este idioma: esta la reemplaza.</div>'+
       (f.error ? '<div style="font-size:12px;color:var(--danger-text);margin-top:8px;">'+sftEsc(f.error)+'</div>' : '')+
     '</div>';
   }).join('');
@@ -5715,8 +5794,12 @@ function sdsSubMsg(texto, tipo){
 async function sdsSubir(){
   if(sdsSub.enviando) return;
   const pend = sdsSub.filas.filter(f=>!f.ok);
-  pend.forEach(f=>{ f.producto = String(f.producto).replace(/\s+/g,' ').trim(); f.fabricante = String(f.fabricante).replace(/\s+/g,' ').trim(); });
-  if(pend.some(f=>!f.producto)){ alert('Escribe el nombre del producto de cada hoja.'); return; }
+  pend.forEach(f=>{ ['producto','fabricante','resumen'].forEach(c=>{ f[c] = String(f[c]).replace(/\s+/g,' ').trim(); }); });
+  const falta = pend.find(f=>!f.producto || !f.categoria || !f.idioma || !f.resumen);
+  if(falta){
+    alert('Falta '+(!falta.producto?'el título':!falta.categoria?'la categoría':!falta.idioma?'el idioma':'el resumen')+' de "'+falta.file.name+'".\n\nCada hoja necesita título, categoría, idioma y resumen.');
+    return;
+  }
   sdsSub.enviando = true;
   pend.forEach(f=>{ f.error=''; });
   sdsSubRender();
@@ -5726,6 +5809,7 @@ async function sdsSubir(){
     sdsSubMsg('Subiendo '+n+' de '+pend.length+': '+f.producto+'...');
     try{
       const res = await enviarAScript({tipo:'sds_subir', producto:f.producto, fabricante:f.fabricante, fechaSds:f.fecha,
+        categoria:f.categoria, idioma:f.idioma, resumen:f.resumen,
         archivo:{nombre:f.file.name, mime:'application/pdf', base64: await rcLeerBase64(f.file)}});
       f.ok = true; f.reemplazo = !!(res && res.reemplazadas); ok++;
     }catch(err){
