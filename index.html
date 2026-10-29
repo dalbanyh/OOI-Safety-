@@ -307,6 +307,21 @@ textarea{min-height:88px;resize:vertical;line-height:1.5;}
 .obs-card-meta{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:12px;color:var(--text2);border-top:1px solid var(--border);padding-top:8px;}
 .obs-card-meta b{color:var(--text);font-weight:700;}
 .obs-card-temas{color:var(--ooi-orange-dark);}
+/* Cierre de observaciones: antes / después, días abierta y formulario */
+.obs-dias{display:inline-block;border-radius:99px;padding:2px 9px;font-size:11px;font-weight:800;background:var(--warning-bg);color:var(--warning-text);white-space:nowrap;}
+.obs-dias.tarde{background:var(--danger-bg);color:var(--danger-text);}
+.obs-antes-despues{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:8px 0;}
+.obs-antes-despues > div{min-width:0;}
+.obs-ad-lbl{font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:.06em;color:var(--text2);margin-bottom:4px;}
+.obs-ad-lbl.despues{color:var(--success-text);}
+.obs-antes-despues .obs-fotos{margin:0;}
+.obs-antes-despues .obs-fotos img{width:100%;max-width:160px;height:auto;aspect-ratio:1;}
+.obs-cierre{background:var(--success-bg);border-radius:var(--radius);padding:10px 12px;margin:8px 0;font-size:13px;line-height:1.5;}
+.obs-cierre-quien{font-size:12px;font-weight:700;color:var(--success-text);margin-bottom:4px;}
+.obs-cierre-accion{white-space:pre-wrap;color:var(--text);}
+.obs-cerrar-btn{margin:8px 0 4px;width:100%;}
+.obs-cierre-form{border-top:1px solid var(--border);margin-top:10px;padding-top:12px;}
+.obs-cierre-form .field textarea{min-height:76px;}
 .btn-icon{
   width:42px;height:42px;min-height:42px;
   border-radius:var(--radius);
@@ -1330,6 +1345,12 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{outline:none;}
         <div class="rb-body"><div class="rb-title">Programa de Respiradores</div><div class="rb-desc">Solicitar Fit Test y ver el Fit Test del personal</div></div>
         <span class="role-arrow"><svg class="ico"><use href="#i-chev"/></svg></span>
       </button>
+
+      <button class="role-btn" onclick="superAForeman('obs')">
+        <div class="role-icon"><svg class="ico"><use href="#i-alert"/></svg></div>
+        <div class="rb-body"><div class="rb-title">Observaciones pendientes</div><div class="rb-desc">Cerrar con foto lo que reportó tu gente</div></div>
+        <span class="role-arrow"><svg class="ico"><use href="#i-chev"/></svg></span>
+      </button>
     </div>
   </div>
   <!-- Inspections sub-panel -->
@@ -1608,6 +1629,12 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{outline:none;}
         <div class="rb-body"><div class="rb-title">Programa de Respiradores</div><div class="rb-desc">Solicitar Fit Test y ver el Fit Test del personal</div></div>
         <span class="role-arrow"><svg class="ico"><use href="#i-chev"/></svg></span>
       </button>
+
+      <button class="role-btn" onclick="foremanTab('obs')">
+        <div class="role-icon"><svg class="ico"><use href="#i-alert"/></svg></div>
+        <div class="rb-body"><div class="rb-title">Observaciones pendientes</div><div class="rb-desc">Cerrar con foto lo que reportó tu gente</div></div>
+        <span class="role-arrow"><svg class="ico"><use href="#i-chev"/></svg></span>
+      </button>
     </div>
 
     <!-- Hidden tab IDs for compatibility -->
@@ -1779,6 +1806,21 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{outline:none;}
       <div id="sft-list"><div class="loading">Cargando...</div></div>
       <button class="btn btn-ghost" onclick="foremanSalir()" style="margin-top:8px;">← Salir</button>
     </div><!-- end foreman-ftestado-panel -->
+
+    <!-- OBSERVACIONES PENDIENTES (foreman y super): las de su gente, para cerrarlas con foto. Datos: hoja SWA (leer:swa);
+         el cierre va como tipo 'swa_cierre' (cerrarSWA_ en Code.gs). Safety ve lo mismo en su tablero. -->
+    <div id="foreman-obs-panel" style="display:none;">
+      <div style="font-size:12px;color:var(--text2);margin-bottom:14px;">Lo que reportaron los trabajadores y sigue pendiente. Ciérrala cuando ya esté corregida: escribe qué se hizo y toma una foto de cómo quedó.</div>
+      <div class="field"><label>Ver las de</label><select id="obsc-persona" onchange="obsCampoPersona(this.value)"><option value="">Todas las observaciones</option></select></div>
+      <div class="stat-grid" id="obsc-stats"></div>
+      <div id="obsc-vista" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;">
+        <button class="tp-chip on" data-v="pendientes" onclick="obsCampoVista('pendientes')">Pendientes (<span id="obsc-n-pend">0</span>)</button>
+        <button class="tp-chip" data-v="cerradas" onclick="obsCampoVista('cerradas')">Cerradas (<span id="obsc-n-cerr">0</span>)</button>
+        <button class="tp-chip" onclick="obsCargar(true,'campo')" style="margin-left:auto;">Actualizar</button>
+      </div>
+      <div id="obsc-lista"><div class="loading">Cargando observaciones...</div></div>
+      <button class="btn btn-ghost" onclick="foremanSalir()" style="margin-top:8px;">← Salir</button>
+    </div><!-- end foreman-obs-panel -->
 
   </div>
 </div>
@@ -3750,9 +3792,10 @@ function triggerPhoto(sk,iid){const inp=document.getElementById(iid);inp.dataset
 // ── FOTOS → Google Drive ──
 // El celular reduce la foto (máx. 1600 px, JPEG) y la sube de inmediato a Apps Script, que la guarda en Drive.
 // Cada foto queda con su enlace (p.url); si falla, queda marcada para reintentar.
-const FOTO_MAX={'swa-fotos':3,'ptp-fotos':5};   // tope de fotos por grupo (los demás no tienen tope)
-function fotoDestino(key){return key==='swa-fotos'?'swa':key==='ptp-fotos'?'ptp':'inspeccion';}
+const FOTO_MAX={'swa-fotos':3,'ptp-fotos':5,'cierre-fotos':3};   // tope de fotos por grupo (los demás no tienen tope)
+function fotoDestino(key){return key==='swa-fotos'?'swa':key==='ptp-fotos'?'ptp':key==='cierre-fotos'?'swa_cierre':'inspeccion';}
 function fotoEtiqueta(key){
+  if(key==='cierre-fotos') return 'Cierre '+String(obsCierreSitio()).slice(0,33);
   const el=document.getElementById(key==='swa-fotos'?'swa-sitio':key==='ptp-fotos'?'ptp-quien':key.startsWith('scph-')?'sc-proy':'f-proy');
   return el&&el.value?String(el.value).slice(0,40):'';
 }
@@ -4177,7 +4220,7 @@ function superTab(tab){
 // El correo de quien recibe las solicitudes (Briseida) está en el archivo de Configuración, pestaña Avisos.
 
 // Paneles de la pantalla del Foreman (también los abre el super desde "En campo")
-const FOREMAN_PANELES = ['foreman-ptp-panel','foreman-resp-tabs','foreman-fittest-panel','foreman-ftestado-panel'];
+const FOREMAN_PANELES = ['foreman-ptp-panel','foreman-resp-tabs','foreman-fittest-panel','foreman-ftestado-panel','foreman-obs-panel'];
 
 function foremanTab(tab){
   // Hide selection screen
@@ -4202,6 +4245,11 @@ function foremanTab(tab){
     ['fittest','ftestado'].forEach(t=>{const c=document.getElementById('resp-tab-'+t);if(c)c.classList.toggle('on',t===tab);});
     const el=document.getElementById('foreman-'+tab+'-panel');if(el)el.style.display='block';
     if(tab==='fittest') initFitTest(); else sftCargar();
+  } else if(tab==='obs'){
+    if(bt) bt.textContent='Observaciones pendientes';
+    const el=document.getElementById('foreman-obs-panel');if(el)el.style.display='block';
+    if(!(listasGlobal.foremen&&listasGlobal.foremen.length)) cargarListas();   // nombres para "Quién la cierra"
+    obsCampoIniciar();
   }
   window.scrollTo(0,0);
 }
@@ -4948,7 +4996,6 @@ const OBS_TIPOS = {
 const OBS_SIN_TIPO = 'Sin tipo (reportes viejos)';
 // Temas por palabras clave en la descripción y la acción (sin acentos; incluye faltas de ortografía comunes).
 const OBS_TEMAS = [
-  {n:'Cómo se sienten', p:['miedo','preocup','nervio','estres','molest','no me gusta','triste','enoj','frustr','incomod','inseguro de','me siento','no aguanto']},
   {n:'Calor e hidratación', p:['calor','agua','hidrat','sombra','desmay','temperatura','insolac','sol ']},
   {n:'Cansancio y salud', p:['cansad','fatiga','dolor','mare','enferm','sueno','desvel','lastim']},
   {n:'Prisa y presión', p:['prisa','apur','presion','rapido','a la carrera','sin tiempo']},
@@ -4964,23 +5011,30 @@ const OBS_VACIAS = new Set(('para por con sin los las del una uno unos unas que 
   'les nos sus mis tus ella ellos ellas yo tu mi se le lo la el al de en y o a e u ya no si sobre entre hasta desde '+
   'puse dije hice hizo dio dieron area cuenta parte poder puede pueden podria podrian buenas tardes dias noches hola gracias '+
   'prueba test the and').split(' '));
-let obs = {datos:null, cargado:0, cargando:false, periodo:'90', foreman:'', super:'', sitio:'', tipo:'', estado:'', peligro:'', tema:'', q:'', pruebas:false, mostrar:30};
+// Una observación pendiente con más de estos días abierta se marca en rojo.
+const OBS_DIAS_ALERTA = 3;
+let obs = {datos:null, cargado:0, cargando:false, periodo:'90', foreman:'', super:'', sitio:'', tipo:'', estado:'', peligro:'', tema:'', q:'', pruebas:false, mostrar:30,
+  cerrando:null, cerrandoEn:'', cierreQuien:'', cierreAccion:''};
 
-async function obsCargar(forzar){
+// donde: 'safety' (tablero, obs-cuerpo) o 'campo' (foreman y super, obsc-lista). Los dos comparten los datos.
+async function obsCargar(forzar, donde){
+  donde = donde || 'safety';
+  const pintar = donde==='campo' ? obsCampoRender : obsRender;
+  const cuerpo = document.getElementById(donde==='campo' ? 'obsc-lista' : 'obs-cuerpo');
   if(obs.cargando) return;
-  if(!forzar && obs.datos && Date.now()-obs.cargado < 2*60*1000){ obsRender(); return; }
+  if(!forzar && obs.datos && Date.now()-obs.cargado < 2*60*1000){ pintar(); return; }
   obs.cargando = true;
-  const cuerpo = document.getElementById('obs-cuerpo');
   if(!obs.datos) cuerpo.innerHTML = '<div class="loading">Cargando observaciones...</div>';
   try{
     const r = await leerDeScript('swa');
     if(!r || r.status!=='ok') throw new Error((r&&r.message)||'Sin respuesta');
     obs.datos = obsJuntarRepetidos(r.observaciones||[]);
     obs.cargado = Date.now();
+    if(obs.cerrando && !obs.datos.some(o=>o.id===obs.cerrando && o.estado!=='Resuelto')) obsCancelarCierre(true);
     obsLlenarSelects();
-    obsRender();
+    pintar();
   }catch(e){
-    if(String(e.message)!=='auth') cuerpo.innerHTML = '<div class="empty-state"><div class="icon"><svg class="ico"><use href="#i-alert"/></svg></div><div>No se pudieron cargar las observaciones.<br><span style="font-size:12px;">'+rcEsc(e.message)+'</span></div><button class="btn btn-ghost" onclick="obsCargar(true)">Intentar otra vez</button></div>';
+    if(String(e.message)!=='auth') cuerpo.innerHTML = '<div class="empty-state"><div class="icon"><svg class="ico"><use href="#i-alert"/></svg></div><div>No se pudieron cargar las observaciones.<br><span style="font-size:12px;">'+rcEsc(e.message)+'</span></div><button class="btn btn-ghost" onclick="obsCargar(true,\''+donde+'\')">Intentar otra vez</button></div>';
   }finally{ obs.cargando = false; }
 }
 
@@ -4990,10 +5044,11 @@ function obsJuntarRepetidos(filas){
   filas.forEach(o=>{
     const k = [o.quien,o.sitio,o.fecha,o.descripcion,o.accion].map(normBusqueda).join('|');
     const ya = porClave.get(k);
-    if(ya){ ya.veces++; return; }
+    if(ya){ ya.veces++; ya.ids.push(o.id); if(!ya.cierre && o.cierre){ ya.cierre = o.cierre; ya.estado = 'Resuelto'; } return; }
     o.veces = 1;
+    o.ids = [o.id];   // al cerrar se mandan todos, así las copias repetidas tampoco quedan pendientes en la hoja
     o.tipoReporte = o.tipoReporte || OBS_SIN_TIPO;
-    o.estado = o.resolucion==='Resuelto'||o.resolucion==='Pendiente' ? o.resolucion : 'Sin estado';
+    o.estado = o.cierre ? 'Resuelto' : o.resolucion==='Resuelto'||o.resolucion==='Pendiente' ? o.resolucion : 'Sin estado';
     o.prueba = /\b(prueba|test)\b/i.test(o.sitio+' '+o.quien+' '+o.accion) || /^project name$/i.test(o.sitio) || /^(proyecto|desk|vdd|xxxx)$/i.test(o.sitio);
     const texto = normBusqueda(o.descripcion+' '+o.accion);
     o.temas = OBS_TEMAS.filter(t=>t.p.some(p=>texto.includes(p))).map(t=>t.n);
@@ -5140,7 +5195,12 @@ function obsRender(){
   const casi = lista.filter(o=>o.tipoReporte==='Casi accidente').length;
   const riesgos = lista.filter(o=>grupo(o)==='riesgo').length;
   const positivos = lista.filter(o=>grupo(o)==='positivo').length;
-  const pendientes = lista.filter(o=>o.estado==='Pendiente').length;
+  const abiertas = lista.filter(o=>o.estado==='Pendiente');
+  const pendientes = abiertas.length;
+  const masVieja = abiertas.reduce((m,o)=>Math.max(m,obsDias(o)),0);
+  const tarde = abiertas.filter(o=>obsDias(o)>OBS_DIAS_ALERTA).length;
+  // Las pendientes se ven de la más vieja a la más nueva
+  if(obs.estado==='Pendiente') lista.sort((a,b)=>(a.fecha+a.timestamp).localeCompare(b.fecha+b.timestamp));
   const personas = new Set(lista.map(o=>normBusqueda(o.quien)).filter(Boolean)).size;
   const conFoto = lista.filter(o=>o.fotos.length).length;
   const kpi = (n,lbl,sub,color,onclick)=>'<div class="stat-card obs-kpi'+(onclick?' obs-kpi-btn':'')+'"'+(onclick?' onclick="'+onclick+'"':'')+(color?' style="border-top-color:'+color+';"':'')+'><div class="stat-num"'+(color?' style="color:'+color+';"':'')+'>'+n+'</div><div class="stat-lbl">'+lbl+'</div>'+(sub?'<div class="obs-kpi-sub">'+sub+'</div>':'')+'</div>';
@@ -5149,7 +5209,8 @@ function obsRender(){
     kpi(lista.length,'Observaciones',repetidos?repetidos+' envíos repetidos no contados':'',
       '') +
     kpi(eventos.length,'Accidentes y casi accidentes',lesion?lesion+' con lesión':casi?casi+' casi accidentes':'',eventos.length?'#B3261E':'var(--success-text)') +
-    kpi(pendientes,'Pendientes',pendientes?'Toca para ver':'Todo resuelto',pendientes?'#E07A10':'var(--success-text)',pendientes?"obsFiltro('estado','Pendiente')":'') +
+    kpi(pendientes,'Pendientes',pendientes?'La más vieja: '+obsDiasTexto(masVieja)+(tarde?' · '+tarde+' con más de '+OBS_DIAS_ALERTA+' días':''):'Todo resuelto',
+      pendientes?(tarde?'#B3261E':'#E07A10'):'var(--success-text)',pendientes?"obsFiltro('estado','Pendiente')":'') +
     kpi(Math.round(positivos/lista.length*100)+'%','Propuestas y buenas prácticas',positivos+' de '+lista.length,'#2E7D32') +
     kpi(personas,'Personas que reportan',(lista.length/Math.max(1,personas)).toFixed(1)+' por persona','') +
     kpi(conFoto,'Con foto',Math.round(conFoto/lista.length*100)+'%','') +
@@ -5164,7 +5225,7 @@ function obsRender(){
     '<div class="obs-tono">'+tonos.map(t=>'<span style="flex:'+t[1]+';background:'+t[2]+';" title="'+t[0]+': '+t[1]+'"></span>').join('')+'</div>'+
     '<div class="obs-leyenda">'+tonos.map(t=>'<span><i style="background:'+t[2]+';"></i>'+t[0]+' · '+t[1]+' ('+Math.round(t[1]/lista.length*100)+'%)</span>').join('')+'</div>'+
     '<div class="obs-sub" style="margin-top:16px;">Temas que se repiten <span class="obs-nota">(por palabras clave en la descripción y la acción)</span></div>'+
-    (temas.length ? obsBarras('tema', temas, t=>t==='Cómo se sienten'?'#B3261E':'var(--ooi-orange)') : '<div class="obs-vacio">No se detectaron temas con estos filtros</div>')+
+    (temas.length ? obsBarras('tema', temas, 'var(--ooi-orange)') : '<div class="obs-vacio">No se detectaron temas con estos filtros</div>')+
     (palabras.length ? '<div class="obs-sub" style="margin-top:16px;">Palabras más usadas</div><div class="obs-palabras">'+palabras.map(([w,n])=>'<button class="obs-palabra" style="font-size:'+(12+Math.min(8,n))+'px;" onclick="document.getElementById(\'obs-buscar\').value=\''+w+'\';obsFiltro(\'q\',\''+w+'\')">'+rcEsc(w)+' <small>'+n+'</small></button>').join('')+'</div>' : '')+
   '</div>';
 
@@ -5177,26 +5238,162 @@ function obsRender(){
     '<div class="card"><div class="sec-label">Tipo de peligro</div>'+obsBarras('peligro', obsContar(lista,o=>o.tipoPeligro||'Sin marcar'), '#6B6F76')+'</div>'+
   '</div>';
 
-  h += '<div class="sec-label" style="margin-top:8px;">Observaciones · '+lista.length+'</div>';
-  h += lista.slice(0,obs.mostrar).map(obsTarjeta).join('');
+  h += '<div class="sec-label" style="margin-top:8px;">Observaciones · '+lista.length+(obs.estado==='Pendiente'?' · de la más vieja a la más nueva':'')+'</div>';
+  h += lista.slice(0,obs.mostrar).map(o=>obsTarjeta(o,'safety')).join('');
   if(lista.length>obs.mostrar) h += '<button class="btn btn-ghost" onclick="obs.mostrar+=30;obsRender()">Ver más ('+(lista.length-obs.mostrar)+')</button>';
   cuerpo.innerHTML = h;
+  if(obs.cerrandoEn==='safety') renderPhotoGrid('cierre-fotos');
 }
 
-function obsTarjeta(o){
+// Días desde que se reportó (para las que siguen abiertas)
+function obsDias(o){
+  if(!o.fecha) return 0;
+  return Math.max(0, Math.round((new Date(hoyLocal()+'T12:00:00') - new Date(o.fecha+'T12:00:00'))/86400000));
+}
+function obsDiasTexto(d){ return d===0 ? 'de hoy' : d===1 ? '1 día' : d+' días'; }
+function obsFotosHtml(fotos){
+  return '<div class="obs-fotos">'+fotos.map(u=>'<img src="'+rcEsc(fotoSrc(u,300))+'" loading="lazy" alt="Foto" onclick="openLightbox(\''+rcEsc(fotoSrc(u,1600))+'\')" onerror="this.replaceWith(Object.assign(document.createElement(\'a\'),{href:\''+rcEsc(u)+'\',target:\'_blank\',rel:\'noopener\',textContent:\'Abrir foto\',className:\'obs-foto-link\'}))">').join('')+'</div>';
+}
+
+// donde: 'safety' o 'campo'; el formulario de cierre solo se pinta en la pantalla donde se abrió.
+function obsTarjeta(o, donde){
   const t = OBS_TIPOS[o.tipoReporte] || {c:'#9AA0A6'};
   const meta = [['Reportó',o.quien],['Foreman',o.foreman],['Super',o.superintendente],['Peligro',o.tipoPeligro]].filter(m=>m[1]);
-  const estado = o.estado==='Resuelto' ? '<span class="badge badge-ok">Resuelto</span>' : o.estado==='Pendiente' ? '<span class="badge badge-pending">Pendiente</span>' : '';
-  return '<div class="obs-card" style="border-left-color:'+t.c+';">'+
+  const abierta = o.estado!=='Resuelto';
+  const dias = obsDias(o);
+  const estado = o.estado==='Resuelto' ? '<span class="badge badge-ok">Resuelto</span>' :
+    o.estado==='Pendiente' ? '<span class="obs-dias'+(dias>OBS_DIAS_ALERTA?' tarde':'')+'">Pendiente · '+obsDiasTexto(dias)+'</span>' : '';
+  const c = o.cierre;
+  // Con cierre: la foto del problema y la de cómo quedó lado a lado
+  const fotos = c && c.fotos.length ?
+    '<div class="obs-antes-despues"><div><div class="obs-ad-lbl">Antes</div>'+(o.fotos.length?obsFotosHtml(o.fotos):'<div class="obs-vacio">Sin foto</div>')+'</div>'+
+      '<div><div class="obs-ad-lbl despues">Después</div>'+obsFotosHtml(c.fotos)+'</div></div>' :
+    (o.fotos.length ? obsFotosHtml(o.fotos) : '');
+  const formAbierto = obs.cerrando===o.id && obs.cerrandoEn===donde;
+  return '<div class="obs-card" id="obs-card-'+donde+'-'+rcEsc(o.id)+'" style="border-left-color:'+t.c+';">'+
     '<div class="obs-card-top"><span class="obs-tipo" style="color:'+t.c+';">'+rcEsc(o.tipoReporte)+'</span>'+estado+'</div>'+
     '<div class="obs-card-sitio">'+rcEsc(o.sitio||'Sin sitio')+' · '+obsFechaCorta(o.fecha)+(o.timestamp?' <span>'+rcEsc(o.timestamp.slice(11,16))+'</span>':'')+
       (o.veces>1?' <span class="obs-repetido" title="Se mandó '+o.veces+' veces seguidas; aquí cuenta una">llegó '+o.veces+' veces</span>':'')+(o.prueba?' <span class="obs-repetido">prueba</span>':'')+'</div>'+
     '<div class="obs-card-desc">'+rcEsc(o.descripcion||'Sin descripción')+'</div>'+
     (o.accion?'<div class="obs-card-accion"><strong>Acción tomada:</strong> '+rcEsc(o.accion)+'</div>':'')+
-    (o.fotos.length?'<div class="obs-fotos">'+o.fotos.map(u=>'<img src="'+rcEsc(fotoSrc(u,300))+'" loading="lazy" alt="Foto" onclick="openLightbox(\''+rcEsc(fotoSrc(u,1600))+'\')" onerror="this.replaceWith(Object.assign(document.createElement(\'a\'),{href:\''+rcEsc(u)+'\',target:\'_blank\',rel:\'noopener\',textContent:\'Abrir foto\',className:\'obs-foto-link\'}))">').join('')+'</div>':'')+
+    fotos+
+    (c?'<div class="obs-cierre"><div class="obs-cierre-quien">Cerrada por '+rcEsc(c.por||'—')+(c.rol?' ('+rcEsc(c.rol)+')':'')+' · '+obsFechaCorta(c.fecha.slice(0,10))+' '+rcEsc(c.fecha.slice(11,16))+'</div>'+
+      '<div class="obs-cierre-accion"><strong>Corrección:</strong> '+rcEsc(c.accion)+'</div></div>':'')+
+    (abierta && !formAbierto ? '<button class="btn btn-primary obs-cerrar-btn" onclick="obsAbrirCierre(\''+rcEsc(o.id)+'\',\''+donde+'\')">'+icoIn('check')+'Cerrar con foto</button>' : '')+
+    (formAbierto ? obsFormCierre(o) : '')+
     '<div class="obs-card-meta">'+meta.map(m=>'<span><b>'+m[0]+':</b> '+rcEsc(m[1])+'</span>').join('')+
       (o.temas.length?'<span class="obs-card-temas">'+o.temas.map(rcEsc).join(' · ')+'</span>':'')+'</div>'+
   '</div>';
+}
+
+// ── CIERRE DE OBSERVACIONES (Safety, foreman y super) ──
+// Se cierra con lo que se hizo + al menos una foto de cómo quedó (tipo 'foto', destino 'swa_cierre').
+// Servidor: cerrarSWA_ en Code.gs (tipo 'swa_cierre'); el rol lo toma de la sesión.
+const OBS_QUIEN_KEY = 'ooi_obs_quien';
+function obsGuardado(k){ try{ return localStorage.getItem(k)||''; }catch(e){ return ''; } }
+function obsGuardar(k,v){ try{ localStorage.setItem(k,v); }catch(e){} }
+function obsBuscar(id){ return (obs.datos||[]).find(o=>o.id===id) || null; }
+function obsCierreSitio(){ const o = obsBuscar(obs.cerrando); return o ? o.sitio||'' : ''; }
+function obsPintar(){ if(obs.cerrandoEn==='campo') obsCampoRender(); else obsRender(); }
+
+function obsAbrirCierre(id, donde){
+  if(obs.cerrando && (photoStore['cierre-fotos']||[]).length && !confirm('Ya tienes otro cierre a medias. ¿Dejarlo y cerrar esta?')) return;
+  obs.cerrando = id; obs.cerrandoEn = donde;
+  obs.cierreAccion = '';
+  obs.cierreQuien = obs.cierreQuien || obsGuardado(OBS_QUIEN_KEY) || (donde==='campo' ? obsc.persona : '');
+  photoStore['cierre-fotos'] = [];
+  obsPintar();
+  const card = document.getElementById('obs-card-'+donde+'-'+id);
+  if(card) card.scrollIntoView({behavior:'smooth', block:'start'});
+}
+function obsCancelarCierre(sinPintar){
+  const donde = obs.cerrandoEn;
+  obs.cerrando = null; obs.cerrandoEn = ''; obs.cierreAccion = '';
+  photoStore['cierre-fotos'] = [];
+  if(!sinPintar){ if(donde==='campo') obsCampoRender(); else obsRender(); }
+}
+function obsFormCierre(o){
+  const nombres = Array.from(new Set([].concat(listasGlobal.foremen||[], listasGlobal.superintendentes||[]))).sort((a,b)=>a.localeCompare(b,'es'));
+  return '<div class="obs-cierre-form">'+
+    '<div class="sec-label">Cerrar observación</div>'+
+    '<div class="field"><label>Quién la cierra <span style="color:var(--swa);">*</span></label>'+
+      '<input type="text" id="cierre-quien" list="cierre-quien-lista" autocomplete="off" placeholder="Tu nombre" value="'+rcEsc(obs.cierreQuien)+'" oninput="obs.cierreQuien=this.value"/>'+
+      '<datalist id="cierre-quien-lista">'+nombres.map(n=>'<option value="'+rcEsc(n)+'">').join('')+'</datalist></div>'+
+    '<div class="field"><label>Qué se hizo para corregirlo <span style="color:var(--swa);">*</span></label>'+
+      '<textarea id="cierre-accion" rows="3" placeholder="Ej.: se puso barandal en la orilla y se habló con la cuadrilla" oninput="obs.cierreAccion=this.value">'+rcEsc(obs.cierreAccion)+'</textarea></div>'+
+    '<div class="field" id="cierre-fotos-campo"><label>Foto de cómo quedó <span style="color:var(--swa);">*</span> <span style="font-weight:400;color:var(--text2);">(máximo 3)</span></label>'+
+      '<button class="photo-btn" onclick="triggerPhoto(\'cierre-fotos\',\'cierre-foto-input\')"><svg class="ico"><use href="#i-camera"/></svg>Tomar foto o elegir de galería</button>'+
+      '<input type="file" id="cierre-foto-input" accept="image/*" multiple style="display:none" onchange="handlePhotos(this,\'cierre-fotos\')" data-storekey="cierre-fotos"/>'+
+      '<div class="photo-grid" id="cierre-fotos"></div></div>'+
+    '<div class="submit-msg" id="cierre-msg"></div>'+
+    '<button class="btn btn-primary" onclick="envioUnico(this,obsGuardarCierre)">Guardar y cerrar</button>'+
+    '<button class="btn btn-ghost" onclick="obsCancelarCierre()" style="margin-top:8px;">Cancelar</button>'+
+  '</div>';
+}
+function obsCierreMsg(texto, tipo){
+  const m = document.getElementById('cierre-msg'); if(!m) return;
+  m.style.display = texto ? 'block' : 'none';
+  m.textContent = texto || '';
+  m.style.background = tipo==='error' ? 'var(--danger-bg)' : 'var(--info-bg)';
+  m.style.color = tipo==='error' ? 'var(--danger-text)' : 'var(--info-text)';
+}
+async function obsGuardarCierre(){
+  const o = obsBuscar(obs.cerrando);
+  if(!o) return;
+  const fotos = photoStore['cierre-fotos']||[];
+  const quien = obs.cierreQuien.trim(), accion = obs.cierreAccion.trim();
+  if(faltanCampos([['cierre-quien','quién la cierra'],['cierre-accion','qué se hizo'],['cierre-foto-input','foto de cómo quedó',!fotos.length]])) return;
+  if(fotos.some(p=>p.uploading)){ alert('Espera — la foto se está subiendo...'); return; }
+  if(fotos.some(p=>p.error)){ alert('Una foto no se pudo subir. Tócala para reintentar o quítala con la ×.'); return; }
+  obsCierreMsg('Guardando cierre...');
+  try{
+    const r = await enviarAScript({tipo:'swa_cierre', ids:o.ids, quien, accion, fotoUrls:fotos.map(p=>p.url).filter(Boolean)});
+    obsGuardar(OBS_QUIEN_KEY, quien);
+    o.cierre = (r && r.cierre) || {por:quien, rol:'', fecha:hoyLocal()+' ', accion, fotos:fotos.map(p=>p.url)};
+    o.estado = 'Resuelto';
+    obsCancelarCierre();
+  }catch(e){
+    if(String(e.message)!=='auth') obsCierreMsg('No se pudo cerrar: '+String(e.message).replace(/\.\s*$/,'')+'. Lo que escribiste sigue aquí, intenta de nuevo.', 'error');
+  }
+}
+
+// ── OBSERVACIONES EN CAMPO (foreman y super) ──
+// Las de su gente: se elige el nombre (se recuerda en el teléfono); pendientes de la más vieja a la más nueva.
+const OBSC_PERSONA_KEY = 'ooi_obs_persona';
+let obsc = {persona:'', vista:'pendientes'};
+function obsCampoIniciar(){
+  obsc.persona = obsc.persona || obsGuardado(OBSC_PERSONA_KEY);
+  obsCargar(false, 'campo');
+}
+function obsCampoPersona(v){ obsc.persona = v; obsGuardar(OBSC_PERSONA_KEY, v); if(!obs.cierreQuien) obs.cierreQuien = v; obsCampoRender(); }
+function obsCampoVista(v){ obsc.vista = v; obsCampoRender(); }
+function obsCampoRender(){
+  const lista = document.getElementById('obsc-lista');
+  if(!lista || !obs.datos) return;
+  const todas = obs.datos.filter(o=>!o.prueba);
+  // Selector: foremen y supers que aparecen en las observaciones
+  const nombres = Array.from(new Set(todas.flatMap(o=>[o.foreman,o.superintendente]).filter(Boolean))).sort((a,b)=>a.localeCompare(b,'es'));
+  if(obsc.persona && !nombres.includes(obsc.persona)) nombres.unshift(obsc.persona);
+  const sel = document.getElementById('obsc-persona');
+  sel.innerHTML = '<option value="">Todas las observaciones</option>'+nombres.map(n=>'<option value="'+rcEsc(n)+'">'+rcEsc(n)+'</option>').join('');
+  sel.value = obsc.persona;
+  const mias = todas.filter(o=>!obsc.persona || o.foreman===obsc.persona || o.superintendente===obsc.persona);
+  const abiertas = mias.filter(o=>o.estado==='Pendiente').sort((a,b)=>(a.fecha+a.timestamp).localeCompare(b.fecha+b.timestamp));
+  const desde = obsDesde('30');
+  const cerradas = mias.filter(o=>o.cierre && o.cierre.fecha.slice(0,10)>=desde).sort((a,b)=>b.cierre.fecha.localeCompare(a.cierre.fecha));
+  const tarde = abiertas.filter(o=>obsDias(o)>OBS_DIAS_ALERTA).length;
+  document.querySelectorAll('#obsc-vista .tp-chip').forEach(b=>b.classList.toggle('on', b.dataset.v===obsc.vista));
+  document.getElementById('obsc-n-pend').textContent = abiertas.length;
+  document.getElementById('obsc-n-cerr').textContent = cerradas.length;
+  document.getElementById('obsc-stats').innerHTML =
+    '<div class="stat-card"><div class="stat-num" style="color:'+(abiertas.length?(tarde?'#B3261E':'#E07A10'):'var(--success-text)')+';">'+abiertas.length+'</div><div class="stat-lbl">Pendientes</div></div>'+
+    '<div class="stat-card"><div class="stat-num"'+(tarde?' style="color:#B3261E;"':'')+'>'+tarde+'</div><div class="stat-lbl">Más de '+OBS_DIAS_ALERTA+' días</div></div>'+
+    '<div class="stat-card"><div class="stat-num" style="color:var(--success-text);">'+cerradas.length+'</div><div class="stat-lbl">Cerradas · 30 días</div></div>';
+  const ver = obsc.vista==='cerradas' ? cerradas : abiertas;
+  lista.innerHTML = ver.length ? ver.map(o=>obsTarjeta(o,'campo')).join('') :
+    '<div class="empty-state"><div class="icon"><svg class="ico"><use href="#i-check"/></svg></div><div>'+
+      (obsc.vista==='cerradas' ? 'No hay observaciones cerradas en los últimos 30 días.' : 'No hay observaciones pendientes'+(obsc.persona?' de '+rcEsc(obsc.persona):'')+'.')+'</div></div>';
+  if(obs.cerrandoEn==='campo') renderPhotoGrid('cierre-fotos');
 }
 
 // ── EMPLEADOS (Safety) ──
