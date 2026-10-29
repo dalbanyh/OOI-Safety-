@@ -238,6 +238,75 @@ textarea{min-height:88px;resize:vertical;line-height:1.5;}
   box-shadow:0 6px 16px -6px rgba(208,54,43,0.55);
 }
 .btn-swa:hover{background:#b72d23;border-color:#b72d23;}
+.btn:disabled{opacity:.7;cursor:wait;transform:none;}
+.btn:disabled .spin{border-color:rgba(0,0,0,.15);border-top-color:currentColor;}
+/* Campo obligatorio vacío al tocar Enviar */
+.campo-falta input,.campo-falta textarea,.campo-falta .ss-input{border-color:var(--swa) !important;background:var(--danger-bg);}
+.campo-falta > label{color:var(--swa);}
+.card.campo-falta{border-color:var(--swa);box-shadow:0 0 0 3px rgba(208,54,43,.18);}
+.insp-item.campo-falta{background:var(--danger-bg);box-shadow:-10px 0 0 var(--danger-bg),10px 0 0 var(--danger-bg);}
+
+/* ── Safety > Observaciones de Seguridad ── */
+.obs-wrap{max-width:1040px;margin:0 auto;padding:14px 16px 90px;}
+.obs-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:14px;}
+.obs-filtros{display:grid;grid-template-columns:1fr 1fr;gap:0 12px;}
+.obs-filtros .field{margin-bottom:12px;}
+@media(min-width:760px){.obs-filtros{grid-template-columns:repeat(5,1fr);}}
+.obs-activos{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:-4px 0 14px;}
+.obs-activos:empty{display:none;}
+.obs-tag{border:1.5px solid var(--ooi-orange);background:var(--ooi-orange-bg);color:var(--ooi-orange-dark);border-radius:99px;padding:5px 11px;font:900 12px var(--f-body);cursor:pointer;}
+.obs-tag-limpiar{background:transparent;border-color:var(--border2);color:var(--text2);}
+.obs-pruebas{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--text2);margin-left:auto;cursor:pointer;}
+.obs-pruebas input{width:16px;height:16px;min-height:0;padding:0;appearance:auto;-webkit-appearance:checkbox;}
+.obs-kpis{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;}
+@media(min-width:760px){.obs-kpis{grid-template-columns:repeat(6,1fr);}}
+.obs-kpi{padding:14px 10px;}
+.obs-kpi .stat-num{font-size:30px;}
+.obs-kpi .stat-lbl{font-size:10px;letter-spacing:.07em;line-height:1.3;}
+.obs-kpi-sub{font-size:11px;color:var(--text3);margin-top:6px;line-height:1.3;}
+.obs-kpi-btn{cursor:pointer;}
+.obs-kpi-btn:hover{border-color:var(--ooi-orange);}
+.obs-grid{display:grid;grid-template-columns:1fr;gap:0 14px;}
+.obs-grid > .card,.obs-kpis > *{min-width:0;}
+@media(min-width:760px){.obs-grid{grid-template-columns:1fr 1fr;}}
+.obs-sub{font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:.08em;color:var(--text2);margin-bottom:8px;}
+.obs-nota{text-transform:none;letter-spacing:0;font-weight:400;color:var(--text3);}
+.obs-vacio{font-size:13px;color:var(--text3);padding:6px 0;}
+.obs-barra{display:grid;grid-template-columns:minmax(90px,38%) 1fr auto;align-items:center;gap:10px;width:calc(100% + 12px);background:none;border:none;border-radius:6px;padding:5px 6px;margin:0 -6px;cursor:pointer;text-align:left;font-family:var(--f-body);color:var(--text);box-sizing:border-box;}
+.obs-barra:hover{background:var(--bg2);}
+.obs-barra.on{background:var(--ooi-orange-bg);}
+.obs-barra-lbl{font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.obs-barra-pista{height:10px;background:var(--bg3);border-radius:99px;overflow:hidden;}
+.obs-barra-pista span{display:block;height:100%;border-radius:99px;}
+.obs-barra-n{font-size:13px;font-weight:900;min-width:58px;text-align:right;}
+.obs-barra-n small{font-weight:400;color:var(--text3);font-size:11px;}
+.obs-tono{display:flex;height:16px;border-radius:99px;overflow:hidden;gap:2px;margin-bottom:8px;}
+.obs-leyenda{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:12px;color:var(--text2);margin-top:6px;}
+.obs-leyenda i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px;}
+.obs-palabras{display:flex;flex-wrap:wrap;gap:6px;}
+.obs-palabra{border:1px solid var(--border2);background:var(--bg2);color:var(--text);border-radius:99px;padding:4px 10px;cursor:pointer;font-family:var(--f-body);}
+.obs-palabra small{color:var(--text3);font-size:10px;}
+.obs-palabra:hover{border-color:var(--ooi-orange);}
+.obs-cols{display:flex;align-items:flex-end;gap:4px;height:150px;}
+.obs-col{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;min-width:0;}
+.obs-col-n{font-size:11px;font-weight:900;color:var(--text2);height:16px;}
+.obs-col-barra{width:100%;max-width:34px;background:var(--ooi-orange);border-radius:4px 4px 0 0;display:flex;flex-direction:column;justify-content:flex-end;overflow:hidden;min-height:0;}
+.obs-col-barra span{display:block;background:#B3261E;width:100%;}
+.obs-col-lbl{font-size:9px;color:var(--text3);margin-top:4px;white-space:nowrap;height:14px;}
+.obs-card{background:var(--bg);border:1px solid var(--border);border-left:5px solid var(--ooi-orange);border-radius:var(--radius-lg);padding:14px 16px;margin-bottom:10px;box-shadow:var(--shadow-sm);}
+.obs-card-top{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:4px;}
+.obs-tipo{font-size:12px;font-weight:900;text-transform:uppercase;letter-spacing:.06em;}
+.obs-card-sitio{font-size:13px;color:var(--text2);margin-bottom:8px;}
+.obs-card-sitio span{color:var(--text3);}
+.obs-repetido{display:inline-block;background:var(--warning-bg);color:var(--warning-text) !important;border-radius:99px;padding:1px 8px;font-size:11px;font-weight:700;}
+.obs-card-desc{font-size:15px;line-height:1.5;margin-bottom:6px;white-space:pre-wrap;}
+.obs-card-accion{font-size:13px;line-height:1.5;color:var(--text2);margin-bottom:8px;white-space:pre-wrap;}
+.obs-fotos{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0;}
+.obs-fotos img{width:96px;height:96px;object-fit:cover;border-radius:8px;border:1px solid var(--border);cursor:zoom-in;background:var(--bg2);}
+.obs-foto-link{font-size:13px;font-weight:700;color:var(--ooi-orange-dark);}
+.obs-card-meta{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:12px;color:var(--text2);border-top:1px solid var(--border);padding-top:8px;}
+.obs-card-meta b{color:var(--text);font-weight:700;}
+.obs-card-temas{color:var(--ooi-orange-dark);}
 .btn-icon{
   width:42px;height:42px;min-height:42px;
   border-radius:var(--radius);
@@ -483,6 +552,18 @@ textarea{min-height:88px;resize:vertical;line-height:1.5;}
 .insp-name{font-family:var(--f-head);font-size:15px;font-weight:600;margin-bottom:3px;line-height:1.3;}
 .insp-sub{font-size:12px;color:var(--text2);margin-bottom:8px;}
 .obs-area{display:none;margin-top:10px;background:var(--bg2);border-radius:var(--radius);padding:12px;}
+
+/* Shotcrete: una inspección con dos secciones (Compresor / Camión) */
+.sc-titulo{font-family:var(--f-head);font-size:20px;font-weight:900;border-left:5px solid var(--ooi-orange);padding-left:10px;margin-bottom:14px;}
+.sc-seccion{scroll-margin-top:70px;}
+#op-shotcrete-panel .photo-grid:empty{display:none;}
+#op-shotcrete-panel .tog .ico{width:22px;height:22px;}
+
+/* Firma dibujada: siempre en blanco con tinta negra (también en modo oscuro), como en papel */
+.firma-caja{position:relative;height:170px;background:#fff;border:1.5px dashed var(--border2);border-radius:var(--radius);overflow:hidden;}
+.firma-caja canvas{display:block;width:100%;height:100%;touch-action:none;cursor:crosshair;}
+.firma-guia{position:absolute;left:16px;right:16px;bottom:14px;border-top:1px solid #bbb;padding-top:4px;font-size:12px;color:#888;pointer-events:none;}
+.firma-caja.firmada .firma-guia{color:transparent;}
 
 /* Safety checkboxes */
 .safety-chk{display:flex;gap:12px;align-items:flex-start;padding:12px 0;border-bottom:1px solid var(--border);}
@@ -984,8 +1065,8 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{outline:none;}
       <div class="card">
         <div class="sec-label">Información del evento</div>
         <div class="field"><label>Fecha</label><input type="date" id="swa-fecha"/></div>
-        <div class="field"><label>Proyecto / Sitio</label><select id="swa-sitio"><option value="">— Selecciona proyecto —</option></select></div>
-        <div class="field"><label>Reportado por</label><input type="text" id="swa-quien" placeholder="Tu nombre" autocomplete="off"/></div>
+        <div class="field"><label>Proyecto / Sitio <span style="color:var(--swa);">*</span></label><select id="swa-sitio"><option value="">— Selecciona proyecto —</option></select></div>
+        <div class="field"><label>Reportado por <span style="color:var(--swa);">*</span></label><input type="text" id="swa-quien" placeholder="Tu nombre" autocomplete="off"/></div>
         <div class="field"><label>Foreman / Supervisor en turno <span style="color:var(--swa);">*</span></label><select id="swa-foreman"><option value="">— Selecciona foreman —</option></select></div>
         <div class="field"><label>Superintendente en turno <span style="color:var(--swa);">*</span></label><select id="swa-super"><option value="">— Selecciona superintendente —</option></select></div>
       </div>
@@ -1004,7 +1085,7 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{outline:none;}
       </div>
       <div class="card">
         <div class="sec-label">Detalles del evento</div>
-        <div class="field"><label>Descripción de lo observado</label><textarea id="swa-descripcion" rows="3" placeholder="Describe lo que viste: dónde, qué pasó o qué se puede mejorar..."></textarea></div>
+        <div class="field"><label>Descripción de lo observado <span style="color:var(--swa);">*</span></label><textarea id="swa-descripcion" rows="3" placeholder="Describe lo que viste: dónde, qué pasó o qué se puede mejorar..."></textarea></div>
         <div class="field"><label>Acción tomada</label><textarea id="swa-accion" rows="3" placeholder="¿Qué hiciste o qué se hizo al respecto?..."></textarea></div>
         <div class="field"><label>Estado de resolución</label>
           <select id="swa-resolucion">
@@ -1021,7 +1102,7 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{outline:none;}
         <div class="photo-grid" id="swa-fotos"></div>
       </div>
       <div class="submit-msg" id="swa-msg"></div>
-      <button class="btn btn-swa" onclick="enviarSWA()">Enviar observación</button>
+      <button class="btn btn-swa" onclick="envioUnico(this,enviarSWA)">Enviar observación</button>
       <button class="btn btn-ghost" onclick="show('s-trabajador')" style="margin-top:10px;">Cancelar</button>
     </div>
     <div class="swa-confirmacion" id="swa-confirmacion" style="display:none;">
@@ -1123,76 +1204,59 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{outline:none;}
       <div class="photo-grid" id="general-photos"></div>
     </div>
     <div class="submit-msg" id="submit-msg"></div>
-    <button class="btn btn-success" onclick="submitReport()">✓ Enviar inspección</button>
+    <button class="btn btn-success" onclick="envioUnico(this,submitReport)">✓ Enviar inspección</button>
     <button class="btn btn-ghost" onclick="clearForm()" style="margin-top:10px;">Limpiar formulario</button>
     </div><!-- end op-grout-panel -->
 
-    <!-- SHOTCRETE PANEL -->
+    <!-- SHOTCRETE PANEL: UNA sola inspección. Los datos generales se llenan una vez; Compresor y Camión van en su propia sección. -->
     <div id="op-shotcrete-panel" style="display:none;">
-      <!-- Shotcrete sub-tabs -->
       <div style="display:flex;gap:8px;margin-bottom:16px;">
-        <button class="tp-chip on" id="sc-tab-comp" onclick="shotcreteTab('comp')">Compresor</button>
-        <button class="tp-chip" id="sc-tab-truck" onclick="shotcreteTab('truck')">Camión</button>
+        <button class="tp-chip" onclick="scIrA('sc-sec-comp')">Compresor · <span id="sc-cuenta-comp">0/0</span></button>
+        <button class="tp-chip" onclick="scIrA('sc-sec-truck')">Camión · <span id="sc-cuenta-truck">0/0</span></button>
+      </div>
+
+      <div class="card">
+        <div class="sec-label">Información general</div>
+        <div class="field"><label>Operador *</label><select id="sc-op"><option value="">— Selecciona operador —</option></select></div>
+        <div class="field"><label>Supervisor / Foreman</label><select id="sc-sup"><option value="">— Selecciona foreman —</option></select></div>
+        <div class="field"><label>Proyecto activo *</label><select id="sc-proy"><option value="">— Selecciona proyecto —</option></select></div>
+        <div class="field" style="margin-bottom:0;"><label>Fecha</label><input type="date" id="sc-fecha"/></div>
       </div>
 
       <!-- COMPRESOR -->
-      <div id="sc-comp-panel">
-        <div class="card">
-          <div class="sec-label">Información general</div>
-          <div class="field"><label>Operador</label><select id="sc-op"><option value="">— Selecciona operador —</option></select></div>
-          <div class="field"><label>Supervisor / Foreman</label><select id="sc-sup"><option value="">— Selecciona foreman —</option></select></div>
-          <div class="field"><label>Proyecto activo</label><select id="sc-proy"><option value="">— Selecciona proyecto —</option></select></div>
-          <div class="field"><label>Número de compresor</label><input type="text" id="sc-equipo" placeholder="Ej. C-03" autocomplete="off"/></div>
-          <div class="field"><label>Fecha</label><input type="date" id="sc-fecha"/></div>
-        </div>
-
-        <div class="card">
-          <div class="sec-label">Programa de Mantenimiento — Compresor</div>
-          <div style="font-size:13px;color:var(--text2);margin-bottom:14px;">Marca OK, BAD o N/A para cada procedimiento</div>
-          <div id="sc-comp-items"></div>
-        </div>
-
-        <div class="card">
-          <div class="sec-label">Firma y observaciones</div>
-          <div class="field"><label>Firma del operador</label><input type="text" id="sc-firma-comp" placeholder="Nombre completo" autocomplete="off"/></div>
-          <div class="field" style="margin-bottom:0;"><label>Observaciones</label><textarea id="sc-obs-comp" rows="2" placeholder="Notas adicionales..."></textarea></div>
-        </div>
-
-        <div class="submit-msg" id="sc-comp-msg"></div>
-        <button class="btn btn-success" onclick="submitShotcrete('comp')">✓ Enviar inspección de Compresor</button>
-        <button class="btn btn-ghost" onclick="shotcreteTab('truck')" style="margin-top:8px;">Continuar a Camión →</button>
+      <div class="card sc-seccion" id="sc-sec-comp">
+        <div class="sc-titulo">Compresor</div>
+        <div class="field"><label>Número de compresor *</label><input type="text" id="sc-equipo" placeholder="Ej. C-03" autocomplete="off"/></div>
+        <div class="sec-label">Programa de mantenimiento</div>
+        <div style="font-size:13px;color:var(--text2);">Marca OK o BAD en cada procedimiento. Con la cámara agregas fotos.</div>
+        <div id="sc-comp-items"></div>
+        <div class="field" style="margin:16px 0 0;"><label>Observaciones del compresor</label><textarea id="sc-obs-comp" rows="2" placeholder="Notas adicionales..."></textarea></div>
       </div>
 
       <!-- CAMION -->
-      <div id="sc-truck-panel" style="display:none;">
-        <div class="card">
-          <div class="sec-label">Información general</div>
-          <div class="field"><label>Operador</label><select id="sct-op"><option value="">— Selecciona operador —</option></select></div>
-          <div class="field"><label>Supervisor / Foreman</label><select id="sct-sup"><option value="">— Selecciona foreman —</option></select></div>
-          <div class="field"><label>Proyecto activo</label><select id="sct-proy"><option value="">— Selecciona proyecto —</option></select></div>
-          <div class="field"><label>Número de equipo</label><input type="text" id="sct-equipo" placeholder="Ej. T-01" autocomplete="off"/></div>
-          <div class="field"><label>Fecha</label><input type="date" id="sct-fecha"/></div>
-          <div class="grid2">
-            <div class="field"><label>Hrs. inicio</label><input type="text" id="sct-hi" placeholder="07:00" inputmode="numeric"/></div>
-            <div class="field"><label>Hrs. final</label><input type="text" id="sct-hf" placeholder="17:00" inputmode="numeric"/></div>
-          </div>
+      <div class="card sc-seccion" id="sc-sec-truck">
+        <div class="sc-titulo">Camión</div>
+        <div class="field"><label>Número de camión *</label><input type="text" id="sct-equipo" placeholder="Ej. T-01" autocomplete="off"/></div>
+        <div class="grid2">
+          <div class="field"><label>Hrs. inicio</label><input type="text" id="sct-hi" placeholder="07:00" inputmode="numeric"/></div>
+          <div class="field"><label>Hrs. final</label><input type="text" id="sct-hf" placeholder="17:00" inputmode="numeric"/></div>
         </div>
-
-        <div class="card">
-          <div class="sec-label">Inspección del Camión</div>
-          <div style="font-size:13px;color:var(--text2);margin-bottom:14px;">Marca OK, BAD o N/A para cada ítem</div>
-          <div id="sc-truck-items"></div>
-        </div>
-
-        <div class="card">
-          <div class="sec-label">Observaciones</div>
-          <textarea id="sct-obs" rows="3" placeholder="Observaciones generales del camión..."></textarea>
-        </div>
-
-        <div class="submit-msg" id="sc-truck-msg"></div>
-        <button class="btn btn-success" onclick="submitShotcrete('truck')">✓ Enviar inspección de Camión</button>
-        <button class="btn btn-ghost" onclick="shotcreteTab('comp')" style="margin-top:8px;">← Regresar a Compresor</button>
+        <div class="sec-label">Inspección del camión</div>
+        <div style="font-size:13px;color:var(--text2);">Marca OK o BAD en cada punto. Con la cámara agregas fotos.</div>
+        <div id="sc-truck-items"></div>
+        <div class="field" style="margin:16px 0 0;"><label>Observaciones del camión</label><textarea id="sct-obs" rows="2" placeholder="Notas adicionales..."></textarea></div>
       </div>
+
+      <div class="card">
+        <div class="sec-label">Firma del operador *</div>
+        <div class="field" style="margin-bottom:0;">
+          <div class="firma-caja"><canvas id="sc-firma"></canvas><div class="firma-guia">Firma aquí con el dedo</div></div>
+          <button class="btn btn-ghost" type="button" onclick="firmaBorrar('sc-firma')" style="margin-top:8px;">Borrar firma</button>
+        </div>
+      </div>
+
+      <div class="submit-msg" id="sc-msg"></div>
+      <button class="btn btn-success" onclick="envioUnico(this,submitShotcrete)">✓ Enviar inspección de Shotcrete</button>
     </div><!-- end op-shotcrete-panel -->
 
   </div>
@@ -1487,7 +1551,7 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{outline:none;}
         </div>
 
         <div class="submit-msg" id="tr-msg"></div>
-        <button class="btn btn-primary" style="font-size:16px;min-height:54px;" onclick="enviarTrainingRequest()">
+        <button class="btn btn-primary" style="font-size:16px;min-height:54px;" onclick="envioUnico(this,enviarTrainingRequest)">
           Enviar Solicitud de Entrenamiento
         </button>
 
@@ -1580,7 +1644,7 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{outline:none;}
         </div>
         <div class="field"><label>Notas</label><textarea id="ptp-notas" rows="2" placeholder="Opcional"></textarea></div>
         <div class="submit-msg" id="ptp-msg"></div>
-        <button class="btn btn-primary" style="font-size:16px;min-height:56px;" onclick="enviarPTP()"><svg class="ico"><use href="#i-upload"/></svg>Enviar PTP</button>
+        <button class="btn btn-primary" style="font-size:16px;min-height:56px;" onclick="envioUnico(this,enviarPTP)"><svg class="ico"><use href="#i-upload"/></svg>Enviar PTP</button>
       </div>
 
       <div id="ptp-confirmacion" style="display:none;text-align:center;">
@@ -1678,7 +1742,7 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{outline:none;}
         </div>
 
         <div class="submit-msg" id="fittest-msg"></div>
-        <button class="btn btn-primary" style="min-height:54px;font-size:16px;" onclick="enviarFitTest()">
+        <button class="btn btn-primary" style="min-height:54px;font-size:16px;" onclick="envioUnico(this,enviarFitTest)">
           Enviar solicitud de Fit Test
         </button>
       </div>
@@ -1793,7 +1857,7 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{outline:none;}
       </div>
 
       <div class="submit-msg" id="rrhh-msg"></div>
-      <button class="btn btn-primary" style="font-size:16px;min-height:54px;" onclick="submitRRHH()">
+      <button class="btn btn-primary" style="font-size:16px;min-height:54px;" onclick="envioUnico(this,submitRRHH)">
         Cerrar loop — Fit Test Completado
       </button>
 
@@ -1829,6 +1893,12 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{outline:none;}
     <div style="max-width:480px;margin:0 auto;padding:20px 16px 80px;">
       <div class="menu-label">¿Qué deseas hacer?</div>
 
+      <button class="role-btn" onclick="safetyTab('obs')">
+        <div class="role-icon"><svg class="ico"><use href="#i-megaphone"/></svg></div>
+        <div class="rb-body"><div class="rb-title">Observaciones de Seguridad</div><div class="rb-desc">Lo que reportan en campo · filtros por foreman y superintendente · métricas</div></div>
+        <span class="role-arrow"><svg class="ico"><use href="#i-chev"/></svg></span>
+      </button>
+
       <button class="role-btn" onclick="safetyTab('certs')">
         <div class="role-icon"><svg class="ico"><use href="#i-file"/></svg></div>
         <div class="rb-body"><div class="rb-title">Registrar certificados</div><div class="rb-desc">Uno o varios asistentes · se guarda en Drive y en el Training Log</div></div>
@@ -1846,6 +1916,38 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{outline:none;}
         <div class="rb-body"><div class="rb-title">Hojas de Seguridad (SDS)</div><div class="rb-desc">Subir o quitar PDF · los trabajadores las ven sin PIN</div></div>
         <span class="role-arrow"><svg class="ico"><use href="#i-chev"/></svg></span>
       </button>
+    </div>
+  </div>
+
+  <!-- OBSERVACIONES DE SEGURIDAD: lo que mandan los trabajadores (hoja SWA). Servidor: getSWA_() en Code.gs (leer:swa) -->
+  <div id="safety-obs-panel" style="display:none;">
+    <div class="obs-wrap">
+      <div class="obs-head">
+        <div>
+          <div style="font-family:var(--f-head);font-size:18px;font-weight:800;margin-bottom:4px;">Observaciones de Seguridad</div>
+          <div style="font-size:12px;color:var(--text2);">Lo que reportan los trabajadores desde la app (hoja SWA). Si alguien mandó lo mismo varias veces, se cuenta una sola.</div>
+        </div>
+        <button class="tp-chip" onclick="obsCargar(true)">Actualizar</button>
+      </div>
+
+      <div class="tp-chips-row" id="obs-periodo">
+        <button class="tp-chip" data-p="7" onclick="obsPeriodo('7')">7 días</button>
+        <button class="tp-chip" data-p="30" onclick="obsPeriodo('30')">30 días</button>
+        <button class="tp-chip on" data-p="90" onclick="obsPeriodo('90')">90 días</button>
+        <button class="tp-chip" data-p="anio" onclick="obsPeriodo('anio')">Este año</button>
+        <button class="tp-chip" data-p="todo" onclick="obsPeriodo('todo')">Todo</button>
+      </div>
+      <div class="obs-filtros">
+        <div class="field"><label>Foreman</label><select id="obs-f-foreman" onchange="obsFiltro('foreman',this.value)"><option value="">Todos</option></select></div>
+        <div class="field"><label>Superintendente</label><select id="obs-f-super" onchange="obsFiltro('super',this.value)"><option value="">Todos</option></select></div>
+        <div class="field"><label>Proyecto / Sitio</label><select id="obs-f-sitio" onchange="obsFiltro('sitio',this.value)"><option value="">Todos</option></select></div>
+        <div class="field"><label>Tipo de reporte</label><select id="obs-f-tipo" onchange="obsFiltro('tipo',this.value)"><option value="">Todos</option></select></div>
+        <div class="field"><label>Estado</label><select id="obs-f-estado" onchange="obsFiltro('estado',this.value)"><option value="">Todos</option><option value="Pendiente">Pendiente</option><option value="Resuelto">Resuelto</option><option value="Sin estado">Sin estado</option></select></div>
+      </div>
+      <div class="tp-search"><svg class="ico" style="color:var(--text2);flex:none;"><use href="#i-search"/></svg><input type="text" id="obs-buscar" placeholder="Buscar en descripción, acción, nombres o sitio..." oninput="obsFiltro('q',this.value)" autocomplete="off"/></div>
+      <div class="obs-activos" id="obs-activos"></div>
+
+      <div id="obs-cuerpo"><div class="loading">Cargando observaciones...</div></div>
     </div>
   </div>
 
@@ -2044,7 +2146,7 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{outline:none;}
         </div>
 
         <div class="submit-msg" id="drils-msg"></div>
-        <button class="btn btn-primary" style="font-size:17px;min-height:58px;" onclick="enviarDRILS()">
+        <button class="btn btn-primary" style="font-size:17px;min-height:58px;" onclick="envioUnico(this,enviarDRILS)">
           Enviar Reconocimiento
         </button>
         <button class="btn btn-ghost" onclick="show('s-trabajador')" style="margin-top:8px;">Cancelar</button>
@@ -2548,7 +2650,7 @@ const safetyItems=[
   'Conozco la ruta de evacuación y ubicación del extintor más cercano',
 ];
 
-function show(id){if(id==='s-login')cerrarSesion();document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');window.scrollTo(0,0);}
+function show(id){if(id==='s-login')cerrarSesion();document.querySelectorAll('.campo-falta').forEach(e=>e.classList.remove('campo-falta'));document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');window.scrollTo(0,0);}
 let swaTipoSelected='';
 const SWA_TIPO_HINTS={
   'Accidente con lesión':'Alguien se lastimó. Si hay un lesionado, avisa a tu foreman y pide ayuda (911) antes de llenar esto.',
@@ -2613,13 +2715,12 @@ async function enviarDRILS(){
   const reconocido=document.getElementById('drils-reconocido').value.trim();
   const por=document.getElementById('drils-por').value.trim();
   const descripcion=document.getElementById('drils-descripcion').value.trim();
-  if(!reconocido||!por||!descripcion){
-    alert('Por favor llena el nombre del compañero, tu nombre y la descripción.');return;
-  }
   const foreman=document.getElementById('drils-foreman').value;
   const superintendente=document.getElementById('drils-super').value;
-  if(!foreman&&!superintendente){alert('Elige al menos el foreman o el superintendente: le llega un correo con el reconocimiento.');return;}
-  if(!drilsValorSelected){alert('Por favor selecciona el valor DRILS que demostró.');return;}
+  const sinSuper=!foreman&&!superintendente;
+  if(faltanCampos([['drils-reconocido','nombre del compañero'],['drils-por','tu nombre'],
+    ['drils-foreman','foreman o superintendente (al menos uno)',sinSuper],['drils-super','',sinSuper],
+    ['drils-valores','valor DRILS',!drilsValorSelected],['drils-descripcion','descripción']]))return;
 
   const v=DRILS_VALORES[drilsValorSelected];
   const payload={
@@ -2874,60 +2975,108 @@ function initDrils(){
   drilsTab('form');
 }
 
+// Shotcrete = UNA inspección: datos generales una vez, luego Compresor y Camión (cada uno con su número).
+// Sin N/A. Cada punto: OK / BAD / cámara (fotos con cualquier resultado); un BAD lleva nota o foto.
+// Lo marcado se conserva si el operador sale y vuelve a entrar; se limpia al enviar.
 function initShotcrete(){
-  const today = hoyLocal();
-
-  // Set dates
-  ['sc-fecha','sct-fecha'].forEach(id=>{
-    const el=document.getElementById(id);if(el)el.value=today;
-  });
-
-  // Load dropdowns
+  const f=document.getElementById('sc-fecha'); if(f&&!f.value) f.value=hoyLocal();
   cargarListas();
-  if(listasGlobal.foremen&&listasGlobal.foremen.length>0){
-    poblarTodosLosDropdowns(listasGlobal);
-  } else {
-    cargarListas();
-  }
+  if(listasGlobal.foremen&&listasGlobal.foremen.length>0) poblarTodosLosDropdowns(listasGlobal);
+  const compEl=document.getElementById('sc-comp-items');
+  if(compEl&&!compEl.children.length) scConstruir();
+}
+// parte: 'comp' | 'truck' -> [{id, nombre, freq}]
+function scLista(parte){
+  return parte==='comp' ? SC_COMP_ITEMS.map(i=>({id:i.id,nombre:i.name,freq:i.freq}))
+                        : SC_TRUCK_ITEMS.map((n,i)=>({id:String(i),nombre:n}));
+}
+function scItemHtml(parte,it){
+  const k='scph-'+parte+'-'+it.id;
+  return `<div class="insp-item" id="sci-${parte}-${it.id}" data-val="">
+    <div class="insp-name">${it.nombre}</div>${it.freq?`<div class="insp-sub">Frecuencia: ${it.freq}</div>`:''}
+    <div class="tog-row tres">
+      <button class="tog" onclick="scMarcar('${parte}','${it.id}','ok',this)">✓ OK</button>
+      <button class="tog" onclick="scMarcar('${parte}','${it.id}','bad',this)">✗ BAD</button>
+      <button class="tog" aria-label="Agregar foto" title="Agregar foto" onclick="triggerPhoto('${k}','pi-${k}')"><svg class="ico"><use href="#i-camera"/></svg></button>
+    </div>
+    <input type="file" id="pi-${k}" accept="image/*" multiple style="display:none" onchange="handlePhotos(this,'${k}')" data-storekey="${k}"/>
+    <div class="photo-grid" id="${k}"></div>
+    <div class="obs-area" id="scoa-${parte}-${it.id}">
+      <textarea rows="2" id="scot-${parte}-${it.id}" placeholder="Describe el problema..." style="font-size:14px;"></textarea>
+    </div>
+  </div>`;
+}
+function scConstruir(){
+  ['comp','truck'].forEach(p=>{
+    scLista(p).forEach(it=>{photoStore['scph-'+p+'-'+it.id]=[];});
+    document.getElementById('sc-'+p+'-items').innerHTML=scLista(p).map(it=>scItemHtml(p,it)).join('');
+  });
+  scContar();
+}
+function scMarcar(parte,id,val,btn){
+  const row=document.getElementById('sci-'+parte+'-'+id); if(!row) return;
+  [...row.querySelectorAll('.tog')].slice(0,2).forEach(t=>{t.className='tog';});
+  btn.className='tog '+val; row.dataset.val=val;
+  document.getElementById('scoa-'+parte+'-'+id).style.display=val==='bad'?'block':'none';
+  scContar();
+}
+function scContar(){
+  ['comp','truck'].forEach(p=>{
+    const el=document.getElementById('sc-cuenta-'+p); if(!el) return;
+    const filas=document.querySelectorAll('#sc-'+p+'-items .insp-item');
+    el.textContent=[...filas].filter(r=>r.dataset.val).length+'/'+filas.length;
+  });
+}
+function scIrA(id){ document.getElementById(id).scrollIntoView({behavior:'smooth',block:'start'}); }
+function scLimpiar(){
+  ['sc-equipo','sc-obs-comp','sct-equipo','sct-hi','sct-hf','sct-obs'].forEach(id=>{document.getElementById(id).value='';});
+  ['sc-op','sc-sup','sc-proy'].forEach(id=>{document.getElementById(id).selectedIndex=0;});
+  document.getElementById('sc-fecha').value=hoyLocal();
+  scConstruir(); firmaBorrar('sc-firma');
+  document.querySelectorAll('#op-shotcrete-panel .campo-falta').forEach(e=>e.classList.remove('campo-falta'));
+}
 
-  // Build compresor items
-  const compEl = document.getElementById('sc-comp-items');
-  if(compEl){
-    compEl.innerHTML = SC_COMP_ITEMS.map((item,i) => `
-      <div class="insp-item" id="sci-${item.id}" data-val="">
-        <div style="display:flex;align-items:flex-start;gap:8px;margin-bottom:6px;">
-          <div style="flex:1;">
-            <div class="insp-name">${item.name}</div>
-            <div class="insp-sub">Frecuencia: ${item.freq}</div>
-          </div>
-        </div>
-        <div class="tog-row">
-          <button class="tog" onclick="setSCItem('comp','${item.id}','ok',this)">✓ OK</button>
-          <button class="tog" onclick="setSCItem('comp','${item.id}','bad',this)">✗ BAD</button>
-          <button class="tog" style="grid-column:1/-1;background:var(--bg2);color:var(--text2);" onclick="setSCItem('comp','${item.id}','na',this)">N/A</button>
-        </div>
-        <div class="obs-area" id="scoa-${item.id}">
-          <textarea rows="2" id="scot-${item.id}" placeholder="Describe el problema..." style="font-size:14px;"></textarea>
-        </div>
-      </div>`).join('');
+// ── FIRMA DIBUJADA ── con el dedo (o el mouse). Se guarda en Drive como PNG al enviar (tipo 'foto').
+// Las coordenadas se pasan a pixeles del canvas: si la pantalla gira, la firma se estira pero no se descuadra.
+const firmas={};   // id -> {trazos, url}
+function firmaIniciar(id){
+  const c=document.getElementById(id); if(!c||firmas[id]) return;
+  const f=firmas[id]={trazos:0,url:null,k:window.devicePixelRatio||1,medido:false};
+  // Se mide al primer toque: al abrir la pantalla todavía está animándose y mide 0.
+  const medir=()=>{ if(f.medido) return; const r=c.getBoundingClientRect(); if(!r.width) return;
+    c.width=Math.round(r.width*f.k); c.height=Math.round(r.height*f.k); f.medido=true; firmaBorrar(id); };
+  let ant=null;
+  const punto=e=>{const b=c.getBoundingClientRect();return{x:(e.clientX-b.left)*c.width/b.width,y:(e.clientY-b.top)*c.height/b.height};};
+  c.addEventListener('pointerdown',e=>{
+    e.preventDefault(); c.setPointerCapture(e.pointerId); medir();
+    ant=punto(e); f.trazos++; f.url=null; c.parentNode.classList.add('firmada');
+    const ctx=c.getContext('2d'); ctx.beginPath(); ctx.arc(ant.x,ant.y,1.3*f.k,0,Math.PI*2); ctx.fill();
+    const caja=c.closest('.campo-falta'); if(caja) caja.classList.remove('campo-falta');
+  });
+  c.addEventListener('pointermove',e=>{
+    if(!ant) return; const p=punto(e), ctx=c.getContext('2d');
+    ctx.beginPath(); ctx.moveTo(ant.x,ant.y); ctx.lineTo(p.x,p.y); ctx.stroke(); ant=p;
+  });
+  const fin=()=>{ant=null;};
+  c.addEventListener('pointerup',fin); c.addEventListener('pointercancel',fin);
+}
+function firmaBorrar(id){
+  const c=document.getElementById(id), f=firmas[id]; if(!c||!f) return;
+  const ctx=c.getContext('2d');
+  ctx.fillStyle='#fff'; ctx.fillRect(0,0,c.width,c.height);
+  ctx.fillStyle=ctx.strokeStyle='#111'; ctx.lineWidth=2.4*f.k; ctx.lineCap=ctx.lineJoin='round';
+  f.trazos=0; f.url=null; c.parentNode.classList.remove('firmada');
+}
+function firmaVacia(id){ return !firmas[id]||!firmas[id].trazos; }
+// Sube la firma una sola vez (si no cambió, reusa el enlace) y devuelve su enlace de Drive.
+async function firmaSubir(id,etiqueta){
+  const f=firmas[id];
+  if(!f.url){
+    const r=await enviarAScript({tipo:'foto',destino:'inspeccion',etiqueta,base64:document.getElementById(id).toDataURL('image/png').split(',')[1]});
+    if(!r.url) throw new Error('No se pudo guardar la firma');
+    f.url=r.url;
   }
-
-  // Build truck items
-  const truckEl = document.getElementById('sc-truck-items');
-  if(truckEl){
-    truckEl.innerHTML = SC_TRUCK_ITEMS.map((item,i) => `
-      <div class="insp-item" id="scti-${i}" data-val="">
-        <div class="insp-name" style="margin-bottom:8px;">${item}</div>
-        <div class="tog-row">
-          <button class="tog" onclick="setSCTruck(${i},'ok',this)">✓ OK</button>
-          <button class="tog" onclick="setSCTruck(${i},'bad',this)">✗ BAD</button>
-          <button class="tog" style="background:var(--bg2);color:var(--text2);" onclick="setSCTruck(${i},'na',this)">N/A</button>
-        </div>
-        <div class="obs-area" id="sctoa-${i}">
-          <textarea rows="2" id="sctot-${i}" placeholder="Observación..." style="font-size:14px;"></textarea>
-        </div>
-      </div>`).join('');
-  }
+  return f.url;
 }
 
 async function loadDrilsWall(){
@@ -3083,7 +3232,7 @@ function selectMachine(machine){
     const _bt2=document.getElementById('op-bottom-title');if(_bt2)_bt2.textContent='Shotcrete';
     initShotcrete();
     if(shotcreteEl) shotcreteEl.style.display = 'block';
-    shotcreteTab('comp');
+    firmaIniciar('sc-firma');   // el canvas necesita estar visible para medirlo
   }
   window.scrollTo(0,0);
 }
@@ -3101,36 +3250,6 @@ function selectValor(key, btn){
   btn.style.background=v.bg;
 }
 
-function setSCItem(type, id, val, btn){
-  const rowId = type === 'comp' ? 'sci-'+id : 'scti-'+id;
-  const row = document.getElementById(rowId);
-  if(!row) return;
-  row.querySelectorAll('.tog').forEach(t=>{
-    t.className = 'tog';
-    if(t.textContent.includes('N/A')) t.style.cssText = 'background:var(--bg2);color:var(--text2);';
-  });
-  btn.className = 'tog ' + (val==='ok'?'ok':val==='bad'?'bad':'');
-  if(val==='na'){btn.style.background='var(--ooi-charcoal)';btn.style.color='white';}
-  row.dataset.val = val;
-  const oa = document.getElementById('scoa-'+id);
-  if(oa) oa.style.display = val==='bad'?'block':'none';
-}
-
-function setSCTruck(idx, val, btn){
-  const row = document.getElementById('scti-'+idx);
-  if(!row) return;
-  row.querySelectorAll('.tog').forEach(t=>{
-    t.className = 'tog';
-    t.style.cssText='';
-    if(t.textContent.includes('N/A')) t.style.cssText = 'background:var(--bg2);color:var(--text2);';
-  });
-  btn.className = 'tog ' + (val==='ok'?'ok':val==='bad'?'bad':'');
-  if(val==='na'){btn.style.background='var(--ooi-charcoal)';btn.style.color='white';}
-  row.dataset.val = val;
-  const oa = document.getElementById('sctoa-'+idx);
-  if(oa) oa.style.display = val==='bad'?'block':'none';
-}
-
 function setStatusFilter(val, btn){
   statusFilter = val;
   document.querySelectorAll('[id^="filter-"]').forEach(b=>{
@@ -3140,97 +3259,54 @@ function setStatusFilter(val, btn){
   filterReports();
 }
 
-function shotcreteTab(tab){
-  document.getElementById('sc-tab-comp').className = 'tp-chip' + (tab==='comp'?' on':'');
-  document.getElementById('sc-tab-truck').className = 'tp-chip' + (tab==='truck'?' on':'');
-  document.getElementById('sc-comp-panel').style.display = tab==='comp'?'block':'none';
-  document.getElementById('sc-truck-panel').style.display = tab==='truck'?'block':'none';
-  window.scrollTo(0,0);
-}
-
 let statusFilter = 'all';
 
-async function submitShotcrete(type){
-  const msgEl = document.getElementById(type==='comp'?'sc-comp-msg':'sc-truck-msg');
+// Un solo envío (tipo 'shotcrete') con compresor y camión; el servidor guarda un renglón por unidad.
+async function submitShotcrete(){
+  const msgEl=document.getElementById('sc-msg');
+  if(faltanCampos([['sc-op','operador'],['sc-proy','proyecto'],['sc-equipo','número de compresor'],['sct-equipo','número de camión']]))return;
+  const form=document.getElementById('op-shotcrete-panel');
+  const fila=(p,it)=>document.getElementById('sci-'+p+'-'+it.id);
+  const todos=['comp','truck'].flatMap(p=>scLista(p).map(it=>({p,it,row:fila(p,it)})));
+  const fotos=todos.flatMap(x=>photoStore['scph-'+x.p+'-'+x.it.id]||[]);
+  if(fotos.some(f=>f.uploading)){alert('Espera — las fotos se están subiendo...');return;}
+  if(fotos.some(f=>f.error)){alert('Una foto no se pudo subir. Tócala para reintentar o quítala con la ×.');return;}
+  // Sin N/A: todos los puntos se marcan, y un BAD lleva nota o foto.
+  const sinMarcar=todos.filter(x=>!x.row.dataset.val);
+  if(sinMarcar.length){
+    marcarFaltantes(form,sinMarcar.map(x=>x.row));
+    const n=p=>sinMarcar.filter(x=>x.p===p).length;
+    alert('Marca OK o BAD en todos los puntos (marcados en rojo). Faltan '+[n('comp')&&n('comp')+' del compresor',n('truck')&&n('truck')+' del camión'].filter(Boolean).join(' y ')+'.');
+    return;
+  }
+  const badSinNota=todos.filter(x=>x.row.dataset.val==='bad'&&!document.getElementById('scot-'+x.p+'-'+x.it.id).value.trim()&&!(photoStore['scph-'+x.p+'-'+x.it.id]||[]).length);
+  if(badSinNota.length){marcarFaltantes(form,badSinNota.map(x=>x.row));alert('Cada punto en BAD necesita una nota o una foto (marcados en rojo): '+badSinNota.map(x=>x.it.nombre).join(', '));return;}
+  if(firmaVacia('sc-firma')){marcarFaltantes(form,[document.getElementById('sc-firma')]);alert('Falta la firma del operador.');return;}
 
-  if(type === 'comp'){
-    const op = document.getElementById('sc-op').value;
-    const proy = document.getElementById('sc-proy').value.trim();
-    if(!op||!proy){alert('Por favor selecciona el operador y llena el proyecto.');return;}
+  const items=p=>scLista(p).map(it=>({nombre:it.nombre,freq:it.freq,resultado:fila(p,it).dataset.val,
+    obs:document.getElementById('scot-'+p+'-'+it.id).value.trim(),
+    fotos:(photoStore['scph-'+p+'-'+it.id]||[]).map(f=>f.url).filter(Boolean)}));
+  const op=document.getElementById('sc-op').value;
+  const compresor={equipo:document.getElementById('sc-equipo').value.trim().toUpperCase(),obs:document.getElementById('sc-obs-comp').value.trim(),items:items('comp')};
+  const camion={equipo:document.getElementById('sct-equipo').value.trim().toUpperCase(),hi:document.getElementById('sct-hi').value.trim(),hf:document.getElementById('sct-hf').value.trim(),obs:document.getElementById('sct-obs').value.trim(),items:items('truck')};
+  const hasBad=[...compresor.items,...camion.items].some(i=>i.resultado==='bad');
 
-    const items = SC_COMP_ITEMS.map(item=>{
-      const row = document.getElementById('sci-'+item.id);
-      const obs = document.getElementById('scot-'+item.id);
-      return{nombre:item.name, freq:item.freq, resultado:row?row.dataset.val||'sin marcar':'sin marcar', obs:obs?obs.value:''};
-    });
-
-    const hasBad = items.some(i=>i.resultado==='bad');
-    const payload = {
-      tipo:'shotcrete_comp', id:Date.now(),
-      fecha:document.getElementById('sc-fecha').value,
-      operador:op,
-      supervisor:document.getElementById('sc-sup').value,
-      proyecto:proy,
-      equipo:document.getElementById('sc-equipo').value.trim().toUpperCase(),
-      firma:document.getElementById('sc-firma-comp').value,
-      obs:document.getElementById('sc-obs-comp').value,
-      items, hasBad
-    };
-
-    msgEl.style.display='block';
-    msgEl.textContent='Enviando inspección de Compresor...';
-    msgEl.style.background='var(--info-bg)';msgEl.style.color='var(--info-text)';
-
-    try{
-      await enviarAScript(payload);
-      msgEl.textContent = hasBad ? 'Enviado — hay ítems que requieren atención' : '✓ Inspección de Compresor enviada';
-      msgEl.style.background = hasBad?'var(--warning-bg)':'var(--success-bg)';
-      msgEl.style.color = hasBad?'var(--warning-text)':'var(--success-text)';
-    }catch(err){
-      msgEl.textContent='Error de conexión';
-      msgEl.style.background='var(--danger-bg)';msgEl.style.color='var(--danger-text)';
-    }
-    setTimeout(()=>{msgEl.style.display='none';},4000);
-
-  } else {
-    const op = document.getElementById('sct-op').value;
-    const proy = document.getElementById('sct-proy').value.trim();
-    if(!op||!proy){alert('Por favor selecciona el operador y llena el proyecto.');return;}
-
-    const items = SC_TRUCK_ITEMS.map((nombre,i)=>{
-      const row = document.getElementById('scti-'+i);
-      const obs = document.getElementById('sctot-'+i);
-      return{nombre, resultado:row?row.dataset.val||'sin marcar':'sin marcar', obs:obs?obs.value:''};
-    });
-
-    const hasBad = items.some(i=>i.resultado==='bad');
-    const payload = {
-      tipo:'shotcrete_truck', id:Date.now(),
-      fecha:document.getElementById('sct-fecha').value,
-      operador:op,
-      supervisor:document.getElementById('sct-sup').value,
-      proyecto:proy,
-      equipo:document.getElementById('sct-equipo').value,
-      hi:document.getElementById('sct-hi').value,
-      hf:document.getElementById('sct-hf').value,
-      obs:document.getElementById('sct-obs').value,
-      items, hasBad
-    };
-
-    msgEl.style.display='block';
-    msgEl.textContent='Enviando inspección de Camión...';
-    msgEl.style.background='var(--info-bg)';msgEl.style.color='var(--info-text)';
-
-    try{
-      await enviarAScript(payload);
-      msgEl.textContent = hasBad ? 'Enviado — hay ítems que requieren atención' : '✓ Inspección de Camión enviada';
-      msgEl.style.background = hasBad?'var(--warning-bg)':'var(--success-bg)';
-      msgEl.style.color = hasBad?'var(--warning-text)':'var(--success-text)';
-    }catch(err){
-      msgEl.textContent='Error de conexión';
-      msgEl.style.background='var(--danger-bg)';msgEl.style.color='var(--danger-text)';
-    }
-    setTimeout(()=>{msgEl.style.display='none';},4000);
+  msgEl.style.display='block';msgEl.textContent='Enviando inspección...';
+  msgEl.style.background='var(--info-bg)';msgEl.style.color='var(--info-text)';
+  try{
+    const firmaUrl=await firmaSubir('sc-firma','Firma '+op);
+    await enviarAScript({tipo:'shotcrete',id:Date.now(),fecha:document.getElementById('sc-fecha').value,operador:op,
+      supervisor:document.getElementById('sc-sup').value,proyecto:document.getElementById('sc-proy').value.trim(),
+      firmaUrl,compresor,camion,hasBad});
+    msgEl.textContent=hasBad?'Enviado — hay puntos que requieren atención':'✓ Inspección de Shotcrete enviada';
+    msgEl.style.background=hasBad?'var(--warning-bg)':'var(--success-bg)';
+    msgEl.style.color=hasBad?'var(--warning-text)':'var(--success-text)';
+    scLimpiar();
+    setTimeout(()=>{msgEl.style.display='none';},6000);
+  }catch(err){
+    // No limpiar: el operador reintenta sin perder lo marcado (el servidor ignora un envío repetido).
+    msgEl.textContent='No se pudo enviar. Tu inspección sigue aquí, intenta de nuevo.';
+    msgEl.style.background='var(--danger-bg)';msgEl.style.color='var(--danger-text)';
   }
 }
 
@@ -3316,7 +3392,7 @@ function empleadosValidos(names) {
 function poblarSelectoresEmpleados() {
   var lista = (listasGlobal.empleados && listasGlobal.empleados.length) ? listasGlobal.empleados : (listasGlobal.operadores || []);
   [['fittest-trabajador', 'Selecciona trabajador'], ['rrhh-trabajador', 'Selecciona trabajador'], ['tr-empleado', 'Selecciona empleado'],
-   ['f-op', 'Selecciona operador'], ['sc-op', 'Selecciona operador'], ['sct-op', 'Selecciona operador']].forEach(function(s) {
+   ['f-op', 'Selecciona operador'], ['sc-op', 'Selecciona operador']].forEach(function(s) {
     var el = document.getElementById(s[0]);
     if (!el) return;
     var actual = el.value;
@@ -3523,14 +3599,13 @@ function poblarTodosLosDropdowns(listas){
 
   // Projects everywhere
   const proyectos = listas.proyectos||[];
-  ['f-proy','sc-proy','sct-proy','swa-sitio','fittest-proyecto','tr-proyecto','ptp-proyecto'].forEach(id=>{
+  ['f-proy','sc-proy','swa-sitio','fittest-proyecto','tr-proyecto','ptp-proyecto'].forEach(id=>{
     const el=document.getElementById(id);
     if(el && el.tagName==='SELECT') buildDropdown(el, proyectos, 'Selecciona proyecto');
   });
 
   // Shotcrete
   buildDropdown(document.getElementById('sc-sup'), listas.foremen||[], 'Selecciona foreman');
-  buildDropdown(document.getElementById('sct-sup'), listas.foremen||[], 'Selecciona foreman');
 
   // Fit test foreman
   buildDropdown(document.getElementById('fittest-foreman'), listas.foremen||[], 'Selecciona foreman');
@@ -3678,7 +3753,7 @@ function triggerPhoto(sk,iid){const inp=document.getElementById(iid);inp.dataset
 const FOTO_MAX={'swa-fotos':3,'ptp-fotos':5};   // tope de fotos por grupo (los demás no tienen tope)
 function fotoDestino(key){return key==='swa-fotos'?'swa':key==='ptp-fotos'?'ptp':'inspeccion';}
 function fotoEtiqueta(key){
-  const el=document.getElementById(key==='swa-fotos'?'swa-sitio':key==='ptp-fotos'?'ptp-quien':'f-proy');
+  const el=document.getElementById(key==='swa-fotos'?'swa-sitio':key==='ptp-fotos'?'ptp-quien':key.startsWith('scph-')?'sc-proy':'f-proy');
   return el&&el.value?String(el.value).slice(0,40):'';
 }
 function fotoComprimir(file){
@@ -3775,10 +3850,8 @@ async function submitReport(){
   // "drill", "Drill " o "perforadora" se guardan como "Drill" para que la hoja quede pareja.
   const tipoMaquina=insTipoComun(inspTipo());
   const maquina=document.getElementById('f-maq').value.trim().toUpperCase();
-  if(!inspHayTipo()){alert('Selecciona el tipo de máquina.');return;}
-  if(!inspTipo()){alert('Escribe qué máquina es.');return;}
-  if(!maquina){alert('Escribe el número de la máquina.');return;}
-  if(!proy||!op){alert('Por favor llena el nombre del proyecto y selecciona el operador.');return;}
+  if(faltanCampos([['f-tipo','tipo de máquina',!inspHayTipo()],['f-tipo-otro','qué máquina es',inspHayTipo()&&!inspTipo()],
+    ['f-maq','número de la máquina'],['f-proy','proyecto'],['f-op','operador']]))return;
   const allPhotos=Object.keys(photoStore).filter(k=>k==='general-photos'||k.startsWith('ph-')).map(k=>photoStore[k]).flat();
   if(allPhotos.some(p=>p.uploading)){alert('Espera — las fotos se están subiendo...');return;}
   if(allPhotos.some(p=>p.error)){alert('Una foto no se pudo subir. Tócala para reintentar o quítala con la ×.');return;}
@@ -3807,24 +3880,60 @@ async function submitReport(){
     window.scrollTo(0,0);
   }
 }
+// Un envío a la vez por botón: mientras se espera la respuesta del servidor el botón queda desactivado
+// y los toques extra no mandan copias (el 28 oct una observación llegó 6 veces por tocar "Enviar" seguido).
+async function envioUnico(btn,fn){
+  if(btn.dataset.enviando)return;
+  btn.dataset.enviando='1';
+  const antes=btn.innerHTML;
+  btn.disabled=true;btn.innerHTML='<span class="spin"></span> Enviando...';
+  try{await fn();}
+  finally{delete btn.dataset.enviando;btn.disabled=false;btn.innerHTML=antes;}
+}
+// Marca en rojo lo que falta y lleva la pantalla al primero; se quita solo al llenarlo.
+// Se marca el .field del campo (o la tarjeta, o el renglón de inspección .insp-item).
+function cajaFaltante(e){return e.matches('.insp-item')?e:(e.closest('.field')||e.closest('.card'));}
+function marcarFaltantes(form,els){
+  form.querySelectorAll('.campo-falta').forEach(e=>e.classList.remove('campo-falta'));
+  els.forEach(e=>{const c=cajaFaltante(e);if(c)c.classList.add('campo-falta');});
+  if(els[0]&&cajaFaltante(els[0]))cajaFaltante(els[0]).scrollIntoView({behavior:'smooth',block:'center'});
+}
+// Revisa los obligatorios de cualquier formulario: [id, nombre para el aviso, vacío?]. Sin el tercero, vacío = sin valor.
+// Devuelve true si falta algo (y ya avisó). Uso: if(faltanCampos([['f-proy','proyecto'],...]))return;
+function faltanCampos(campos){
+  const faltan=campos.filter(([id,,vacio])=>{const el=document.getElementById(id);return vacio!==undefined?vacio:!el||!String(el.value||'').trim();});
+  const primero=document.getElementById(campos[0][0]);
+  const form=(primero&&primero.closest('.screen'))||document;
+  marcarFaltantes(form,faltan.map(f=>document.getElementById(f[0])).filter(Boolean));
+  // Un campo con nombre vacío solo se marca (p. ej. el segundo de "foreman o superintendente").
+  if(faltan.length)alert('Falta llenar: '+faltan.map(f=>f[1]).filter(Boolean).join(', ')+'. Está marcado en rojo.');
+  return faltan.length>0;
+}
+document.addEventListener('input',e=>{const c=e.target.closest&&e.target.closest('.campo-falta');if(c)c.classList.remove('campo-falta');},true);
+document.addEventListener('change',e=>{const c=e.target.closest&&e.target.closest('.campo-falta');if(c)c.classList.remove('campo-falta');},true);
+document.addEventListener('click',e=>{const c=e.target.closest&&e.target.closest('button')&&e.target.closest('.campo-falta');if(c)c.classList.remove('campo-falta');},true);
+
+// Mismo id mientras la observación no se haya enviado: si la respuesta se pierde y la persona vuelve a
+// tocar Enviar, el servidor reconoce el id y no guarda ni manda correo dos veces.
+let swaIdPendiente=null;
 async function enviarSWA(){
   const sitio=document.getElementById('swa-sitio').value.trim();
   const quien=document.getElementById('swa-quien').value.trim();
   const foreman=document.getElementById('swa-foreman').value;
   const superintendente=document.getElementById('swa-super').value;
   const descripcion=document.getElementById('swa-descripcion').value.trim();
-  if(!swaTipoSelected){alert('Por favor elige el tipo de reporte.');return;}
-  if(!sitio||!quien||!descripcion){alert('Por favor llena el sitio, tu nombre y la descripción.');return;}
-  if(!foreman){alert('Por favor selecciona el Foreman en turno.');return;}
-  if(!superintendente){alert('Por favor selecciona el Superintendente en turno.');return;}
+  if(faltanCampos([['swa-tipo-chips','tipo de reporte',!swaTipoSelected],['swa-sitio','proyecto / sitio'],['swa-quien','tu nombre (Reportado por)'],
+    ['swa-foreman','foreman en turno'],['swa-super','superintendente en turno'],['swa-descripcion','descripción']]))return;
   const fotos=photoStore['swa-fotos']||[];
   if(fotos.some(p=>p.uploading)){alert('Espera — las fotos se están subiendo...');return;}
   if(fotos.some(p=>p.error)){alert('Una foto no se pudo subir. Tócala para reintentar o quítala con la ×.');return;}
-  const swaData={tipo:'swa',id:Date.now(),fecha:document.getElementById('swa-fecha').value,sitio,quien,foreman:document.getElementById('swa-foreman').value,superintendente:document.getElementById('swa-super').value,tipoReporte:swaTipoSelected,fotoUrls:fotos.map(p=>p.url).filter(Boolean),tipoPeligro:swaChipSelected,descripcion,accion:document.getElementById('swa-accion').value,resolucion:document.getElementById('swa-resolucion').value};
+  swaIdPendiente=swaIdPendiente||Date.now();
+  const swaData={tipo:'swa',id:swaIdPendiente,fecha:document.getElementById('swa-fecha').value,sitio,quien,foreman:document.getElementById('swa-foreman').value,superintendente:document.getElementById('swa-super').value,tipoReporte:swaTipoSelected,fotoUrls:fotos.map(p=>p.url).filter(Boolean),tipoPeligro:swaChipSelected,descripcion,accion:document.getElementById('swa-accion').value,resolucion:document.getElementById('swa-resolucion').value};
   const msg=document.getElementById('swa-msg');
-  msg.style.display='block';msg.textContent='Enviando...';msg.style.background='var(--info-bg)';msg.style.color='var(--info-text)';
+  msg.style.display='block';msg.textContent='Enviando... espera unos segundos, no cierres esta pantalla.';msg.style.background='var(--info-bg)';msg.style.color='var(--info-text)';
   try{
     await enviarAScript(swaData);
+    swaIdPendiente=null;
     msg.style.display='none';
     document.getElementById('swa-form').style.display='none';
     const _foreman=document.getElementById('swa-foreman').value;
@@ -3833,9 +3942,11 @@ async function enviarSWA(){
     if(recipEl)recipEl.textContent='Notificación enviada al Departamento de Seguridad, Foreman: '+_foreman+' y Superintendente: '+_super+'.';
     document.getElementById('swa-resumen').innerHTML='<strong>Tipo de reporte:</strong> '+swaTipoSelected+'<br><strong>Sitio:</strong> '+sitio+'<br><strong>Reportado por:</strong> '+quien+'<br><strong>Foreman:</strong> '+_foreman+'<br><strong>Superintendente:</strong> '+_super+'<br><strong>Estado:</strong> '+(swaData.resolucion||'—')+'<br><strong>Fotos:</strong> '+(swaData.fotoUrls.length||'Sin fotos');
     document.getElementById('swa-confirmacion').style.display='block';
-  }catch(err){msg.textContent='Error';msg.style.background='var(--danger-bg)';msg.style.color='var(--danger-text)';}
+  }catch(err){msg.textContent='No se pudo confirmar el envío. Revisa tu señal y toca Enviar otra vez: no se duplica.';msg.style.background='var(--danger-bg)';msg.style.color='var(--danger-text)';}
 }
 function resetSWA(){
+  swaIdPendiente=null;
+  document.getElementById('swa-form').querySelectorAll('.campo-falta').forEach(e=>e.classList.remove('campo-falta'));
   ['swa-sitio','swa-quien','swa-descripcion','swa-accion'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('swa-resolucion').selectedIndex=0;
   document.getElementById('swa-foreman').selectedIndex=0;
@@ -3940,12 +4051,12 @@ function showDetail(idx,detailId,reportsKey){
   const filaItem=(n,val)=>{val=val||'—';const isBad=val.includes('BAD');const isOk=val.includes('OK');
     return`<div class="detail-row"><span style="flex:1;font-size:14px;">${n}</span><span class="badge ${isOk?'badge-ok':isBad?'badge-bad':'badge-pending'}">${val}</span></div>`;};
   let inspHtml;
-  if(r.itemsBad!==undefined){
-    // Shotcrete: la hoja solo guarda los ítems en BAD.
-    inspHtml=r.itemsBad?String(r.itemsBad).split(/,\s*/).map(n=>filaItem(n,'BAD')).join(''):filaItem('Todos los ítems','OK');
-  } else if(r.itemsTexto){
-    // Desde la lista general, cada línea es "Nombre: OK | BAD: obs | N/A | --".
+  if(r.itemsTexto){
+    // Desde la lista general (y Shotcrete desde el 28 oct), cada línea es "Nombre: OK | BAD: obs | N/A | --".
     inspHtml=String(r.itemsTexto).split('\n').filter(Boolean).map(l=>{const i=l.indexOf(': ');return i<0?filaItem(l,''):filaItem(l.slice(0,i),l.slice(i+2));}).join('');
+  } else if(r.itemsBad!==undefined){
+    // Shotcrete viejo: la hoja solo guardaba los ítems en BAD.
+    inspHtml=r.itemsBad?String(r.itemsBad).split(/,\s*/).map(n=>filaItem(n,'BAD')).join(''):filaItem('Todos los ítems','OK');
   } else {
     inspHtml=[
       {k:'estructura',n:'Estructura y cubeta'},{k:'mangueras',n:'Mangueras/cadenas'},
@@ -3973,6 +4084,7 @@ function showDetail(idx,detailId,reportsKey){
     <div class="sec-label">Ítems inspeccionados</div>
     ${inspHtml}${photosHtml}
     ${r.obs?`<div class="sec-label" style="margin-top:14px;">Observaciones</div><div style="font-size:14px;">${r.obs}</div>`:''}
+    ${r.firmaUrl?`<div class="sec-label" style="margin-top:14px;">Firma del operador</div><img src="${fotoSrc(r.firmaUrl,600)}" alt="Firma" style="max-width:100%;height:110px;object-fit:contain;background:#fff;border:1px solid var(--border);border-radius:var(--radius);cursor:pointer;" onclick="openLightbox('${fotoSrc(r.firmaUrl,1200)}')"/>`:''}
     ${r.tools?`<div style="font-size:13px;color:var(--text2);margin-top:10px;">Herramientas: ${r.tools}</div>`:''}
   </div>`;
   da.scrollIntoView({behavior:'smooth',block:'nearest'});
@@ -4110,9 +4222,7 @@ async function enviarPTP(){
   const proyecto=document.getElementById('ptp-proyecto').value.trim();
   const quien=document.getElementById('ptp-quien').value;
   const fotos=photoStore['ptp-fotos']||[];
-  if(!proyecto){alert('Selecciona el proyecto.');return;}
-  if(!quien){alert('Selecciona quién sube el PTP.');return;}
-  if(!fotos.length){alert('Agrega al menos una foto del PTP.');return;}
+  if(faltanCampos([['ptp-proyecto','proyecto'],['ptp-quien','quién sube el PTP'],['ptp-fotos','al menos una foto del PTP',!fotos.length]]))return;
   if(fotos.some(p=>p.uploading)){alert('Espera: las fotos se están subiendo.');return;}
   if(fotos.some(p=>p.error)){alert('Una foto no se pudo subir. Tócala para reintentar o quítala con la ×.');return;}
   const payload={tipo:'ptp',id:Date.now(),fecha:document.getElementById('ptp-fecha').value||hoyLocal(),proyecto,quien,
@@ -4169,17 +4279,14 @@ async function enviarFitTest(){
   const proyecto = document.getElementById('fittest-proyecto').value.trim();
   const razon = document.getElementById('fittest-razon').value;
 
-  if(!trabajador){alert('Por favor selecciona el trabajador.');return;}
-  if(!foreman){alert('Por favor selecciona el foreman.');return;}
-  if(!proyecto){alert('Por favor ingresa el proyecto o sitio.');return;}
-  if(!razon){alert('Por favor selecciona la razón del Fit Test.');return;}
   const clinicaCercana = document.getElementById('fittest-clinica').value.trim();
   const desde = document.getElementById('fittest-desde').value;
   const hasta = document.getElementById('fittest-hasta').value;
   const horario = document.getElementById('fittest-horario').value;
-  if(!clinicaCercana){alert('Por favor escribe la dirección de la clínica.');return;}
-  if(!desde || !hasta){alert('Por favor indica desde y hasta cuándo puede ir el trabajador.');return;}
-  if(hasta < desde){alert('La fecha "Hasta" no puede ser antes de "Desde".');return;}
+  if(faltanCampos([['fittest-trabajador','trabajador'],['fittest-foreman','foreman'],['fittest-proyecto','proyecto o sitio'],
+    ['fittest-razon','razón del Fit Test'],['fittest-clinica','dirección de la clínica'],
+    ['fittest-desde','desde cuándo puede ir'],['fittest-hasta','hasta cuándo puede ir']]))return;
+  if(hasta < desde){marcarFaltantes(document.getElementById('fittest-hasta').closest('.screen'),[document.getElementById('fittest-hasta')]);alert('La fecha "Hasta" no puede ser antes de "Desde".');return;}
 
   const payload = {
     tipo: 'fittest',
@@ -4397,11 +4504,9 @@ async function rrhhConfirmarCita(i){
   const autDesde=document.getElementById('rrhh-cita-desde-'+i).value;
   const autVence=document.getElementById('rrhh-cita-vence-'+i).value;
   const citaDireccion=document.getElementById('rrhh-cita-dir-'+i).value.trim();
-  if(!confirmacion){alert('Por favor escribe el número de confirmación.');return;}
-  if(!autDesde){alert('Por favor indica desde cuándo puede ir.');return;}
-  if(!autVence){alert('Por favor indica la fecha de vencimiento.');return;}
-  if(autVence<autDesde){alert('La fecha de vencimiento no puede ser antes de la fecha de inicio.');return;}
-  if(!citaDireccion){alert('Por favor escribe la dirección de la clínica.');return;}
+  if(faltanCampos([['rrhh-cita-conf-'+i,'número de confirmación'],['rrhh-cita-desde-'+i,'desde cuándo puede ir'],
+    ['rrhh-cita-vence-'+i,'fecha de vencimiento'],['rrhh-cita-dir-'+i,'dirección de la clínica']]))return;
+  if(autVence<autDesde){marcarFaltantes(document.getElementById('rrhh-cita-vence-'+i).closest('.screen'),[document.getElementById('rrhh-cita-vence-'+i)]);alert('La fecha de vencimiento no puede ser antes de la fecha de inicio.');return;}
   const msg=document.getElementById('rrhh-cita-msg-'+i), btn=document.getElementById('rrhh-cita-btn-'+i);
   msg.style.display='block'; msg.textContent='Guardando autorización...';
   msg.style.background='var(--info-bg)'; msg.style.color='var(--info-text)';
@@ -4500,12 +4605,9 @@ async function submitRRHH(){
   const resultado=document.getElementById('rrhh-resultado').value;
   const mascarilla=document.getElementById('rrhh-mascarilla').value.trim();
 
-  if(!trabajador){alert('Por favor selecciona el trabajador.');return;}
-  if(!clinica){alert('Por favor ingresa la clínica.');return;}
-  if(!resultado){alert('Por favor selecciona el resultado.');return;}
-
   // Con PASS la tarjeta es obligatoria: es lo que abren los supervisores en "Fit Test del personal"
-  if(resultado==='PASS' && !rrhhPdf){alert('Adjunta la tarjeta (PDF, foto o archivo).');return;}
+  if(faltanCampos([['rrhh-trabajador','trabajador'],['rrhh-clinica','clínica'],['rrhh-resultado','resultado'],
+    ['rrhh-pdf','tarjeta (PDF, foto o archivo)',resultado==='PASS'&&!rrhhPdf]]))return;
 
   const payload={
     tipo:'fittest_completed',
@@ -4602,9 +4704,7 @@ async function enviarTrainingRequest(){
   const entrenamiento = document.getElementById('tr-entrenamiento').value;
   const proyecto = document.getElementById('tr-proyecto').value;
 
-  if(!super_){alert(trRol==='Foreman'?'Por favor selecciona el foreman.':'Por favor selecciona el superintendente.');return;}
-  if(!empleado){alert('Por favor selecciona el empleado.');return;}
-  if(!entrenamiento){alert('Por favor selecciona el tipo de entrenamiento.');return;}
+  if(faltanCampos([['tr-super',trRol==='Foreman'?'foreman':'superintendente'],['tr-empleado','empleado'],['tr-entrenamiento','tipo de entrenamiento']]))return;
 
   const payload = {
     tipo: 'training_request',
@@ -4780,7 +4880,7 @@ function foremanSalir(){
 
 
 // ── SAFETY PORTAL ──
-const SAFETY_PANELES = {certs:'safety-certs-panel', emp:'safety-emp-panel', sds:'safety-sds-panel'};
+const SAFETY_PANELES = {obs:'safety-obs-panel', certs:'safety-certs-panel', emp:'safety-emp-panel', sds:'safety-sds-panel'};
 
 function safetyMostrarMenu(){
   Object.keys(SAFETY_PANELES).forEach(k=>{const p=document.getElementById(SAFETY_PANELES[k]);if(p)p.style.display='none';});
@@ -4816,7 +4916,10 @@ function safetyTab(tab){
   const bt = document.getElementById('safety-bottom-title');
   const panel = document.getElementById(SAFETY_PANELES[tab]);
   if(panel) panel.style.display='block';
-  if(tab==='certs'){
+  if(tab==='obs'){
+    if(bt) bt.textContent='Observaciones de Seguridad';
+    obsCargar(false);
+  } else if(tab==='certs'){
     if(bt) bt.textContent='Registrar certificados';
     rcIniciar();
   } else if(tab==='emp'){
@@ -4827,6 +4930,273 @@ function safetyTab(tab){
     sdsAdmIniciar();
   }
   window.scrollTo(0,0);
+}
+
+// ── OBSERVACIONES DE SEGURIDAD (Safety) ──
+// Lee la hoja SWA (leer 'swa' → getSWA_ en Code.gs). Los envíos repetidos (misma persona, sitio, fecha y
+// descripción) se juntan en uno. Todo lo de la pantalla (números, barras, temas y lista) usa los filtros activos;
+// tocar una barra filtra por ese valor y tocarla otra vez lo quita.
+const OBS_TIPOS = {
+  'Accidente con lesión':{c:'#B3261E',grupo:'evento'},
+  'Accidente sin lesión / daño a propiedad':{c:'#D0362B',grupo:'evento'},
+  'Casi accidente':{c:'#E07A10',grupo:'evento'},
+  'Condición insegura':{c:'#F58220',grupo:'riesgo'},
+  'Acto inseguro':{c:'#C4661A',grupo:'riesgo'},
+  'Oportunidad de mejora':{c:'#6B6F76',grupo:'positivo'},
+  'Buena práctica':{c:'#2E7D32',grupo:'positivo'}
+};
+const OBS_SIN_TIPO = 'Sin tipo (reportes viejos)';
+// Temas por palabras clave en la descripción y la acción (sin acentos; incluye faltas de ortografía comunes).
+const OBS_TEMAS = [
+  {n:'Cómo se sienten', p:['miedo','preocup','nervio','estres','molest','no me gusta','triste','enoj','frustr','incomod','inseguro de','me siento','no aguanto']},
+  {n:'Calor e hidratación', p:['calor','agua','hidrat','sombra','desmay','temperatura','insolac','sol ']},
+  {n:'Cansancio y salud', p:['cansad','fatiga','dolor','mare','enferm','sueno','desvel','lastim']},
+  {n:'Prisa y presión', p:['prisa','apur','presion','rapido','a la carrera','sin tiempo']},
+  {n:'Herramienta o equipo', p:['herramient','eramient','equipo','marro','escalera','estaca','maquin','extension','taladro']},
+  {n:'EPP', p:['epp','casco','guante','lente','gafa','chaleco','arnes','harness','bota','mascar','respirador','tapon','careta']},
+  {n:'Caídas, hoyos y orillas', p:['caida','caer','cayo','hoyo','orilla','altura','pendiente','zanja','excavac','guardrail','barandal','pies']},
+  {n:'Tráfico y máquinas en movimiento', p:['trafico','carro','camion','troca','excavadora','loader','reversa','spotter','skid','montacarg']},
+  {n:'Orden y limpieza', p:['limpi','basura','desorden','tropez','resbal','cable','tirado']},
+  {n:'Comunicación y supervisión', p:['foreman','mayordomo','supervisor','avis','comunic','nadie','ignor','queja','respeto','hable','platiq']}
+];
+const OBS_VACIAS = new Set(('para por con sin los las del una uno unos unas que como esta este estos estas estaba estaban esto eso ese esa '+
+  'muy mas pero porque cuando donde hay habia tiene tenia fue son ser estar algo todo toda todos todas otro otra '+
+  'les nos sus mis tus ella ellos ellas yo tu mi se le lo la el al de en y o a e u ya no si sobre entre hasta desde '+
+  'puse dije hice hizo dio dieron area cuenta parte poder puede pueden podria podrian buenas tardes dias noches hola gracias '+
+  'prueba test the and').split(' '));
+let obs = {datos:null, cargado:0, cargando:false, periodo:'90', foreman:'', super:'', sitio:'', tipo:'', estado:'', peligro:'', tema:'', q:'', pruebas:false, mostrar:30};
+
+async function obsCargar(forzar){
+  if(obs.cargando) return;
+  if(!forzar && obs.datos && Date.now()-obs.cargado < 2*60*1000){ obsRender(); return; }
+  obs.cargando = true;
+  const cuerpo = document.getElementById('obs-cuerpo');
+  if(!obs.datos) cuerpo.innerHTML = '<div class="loading">Cargando observaciones...</div>';
+  try{
+    const r = await leerDeScript('swa');
+    if(!r || r.status!=='ok') throw new Error((r&&r.message)||'Sin respuesta');
+    obs.datos = obsJuntarRepetidos(r.observaciones||[]);
+    obs.cargado = Date.now();
+    obsLlenarSelects();
+    obsRender();
+  }catch(e){
+    if(String(e.message)!=='auth') cuerpo.innerHTML = '<div class="empty-state"><div class="icon"><svg class="ico"><use href="#i-alert"/></svg></div><div>No se pudieron cargar las observaciones.<br><span style="font-size:12px;">'+rcEsc(e.message)+'</span></div><button class="btn btn-ghost" onclick="obsCargar(true)">Intentar otra vez</button></div>';
+  }finally{ obs.cargando = false; }
+}
+
+// Misma persona + sitio + fecha + descripción + acción = un solo reporte (se guarda cuántas veces llegó).
+function obsJuntarRepetidos(filas){
+  const porClave = new Map();
+  filas.forEach(o=>{
+    const k = [o.quien,o.sitio,o.fecha,o.descripcion,o.accion].map(normBusqueda).join('|');
+    const ya = porClave.get(k);
+    if(ya){ ya.veces++; return; }
+    o.veces = 1;
+    o.tipoReporte = o.tipoReporte || OBS_SIN_TIPO;
+    o.estado = o.resolucion==='Resuelto'||o.resolucion==='Pendiente' ? o.resolucion : 'Sin estado';
+    o.prueba = /\b(prueba|test)\b/i.test(o.sitio+' '+o.quien+' '+o.accion) || /^project name$/i.test(o.sitio) || /^(proyecto|desk|vdd|xxxx)$/i.test(o.sitio);
+    const texto = normBusqueda(o.descripcion+' '+o.accion);
+    o.temas = OBS_TEMAS.filter(t=>t.p.some(p=>texto.includes(p))).map(t=>t.n);
+    porClave.set(k, o);
+  });
+  return Array.from(porClave.values()).sort((a,b)=>(b.fecha+b.timestamp).localeCompare(a.fecha+a.timestamp));
+}
+
+function obsLlenarSelects(){
+  const unicos = campo => Array.from(new Set(obs.datos.map(o=>o[campo]).filter(Boolean))).sort((a,b)=>a.localeCompare(b,'es'));
+  const llenar = (id, valores, actual) => {
+    const s = document.getElementById(id); if(!s) return;
+    s.innerHTML = '<option value="">Todos</option>' + valores.map(v=>'<option value="'+rcEsc(v)+'">'+rcEsc(v)+'</option>').join('');
+    s.value = valores.includes(actual) ? actual : '';
+  };
+  llenar('obs-f-foreman', unicos('foreman'), obs.foreman);
+  llenar('obs-f-super', unicos('superintendente'), obs.super);
+  llenar('obs-f-sitio', unicos('sitio'), obs.sitio);
+  const tipos = Object.keys(OBS_TIPOS).concat(obs.datos.some(o=>o.tipoReporte===OBS_SIN_TIPO)?[OBS_SIN_TIPO]:[]);
+  llenar('obs-f-tipo', tipos, obs.tipo);
+}
+
+function obsPeriodo(p){
+  obs.periodo = p; obs.mostrar = 30;
+  document.querySelectorAll('#obs-periodo .tp-chip').forEach(b=>b.classList.toggle('on', b.dataset.p===p));
+  obsRender();
+}
+const OBS_SELECT = {foreman:'obs-f-foreman', super:'obs-f-super', sitio:'obs-f-sitio', tipo:'obs-f-tipo', estado:'obs-f-estado'};
+function obsFiltro(campo, valor){
+  obs[campo] = valor; obs.mostrar = 30;
+  if(OBS_SELECT[campo]){ const s = document.getElementById(OBS_SELECT[campo]); if(s && s.value!==valor) s.value = valor; }
+  obsRender();
+}
+// Tocar una barra: filtra por ese valor; si ya estaba, lo quita.
+function obsAlternar(campo, i){
+  const valor = (obs._barras[campo]||[])[i];
+  if(valor===undefined) return;
+  obsFiltro(campo, obs[campo]===valor ? '' : valor);
+}
+function obsLimpiar(){
+  ['foreman','super','sitio','tipo','estado','peligro','tema','q'].forEach(c=>obs[c]='');
+  Object.values(OBS_SELECT).forEach(id=>{const s=document.getElementById(id); if(s) s.value='';});
+  const b = document.getElementById('obs-buscar'); if(b) b.value='';
+  obs.mostrar = 30; obsRender();
+}
+
+function obsDesde(p){
+  if(p==='todo') return '';
+  if(p==='anio') return new Date().getFullYear()+'-01-01';
+  const d = new Date(); d.setDate(d.getDate()-(+p-1)); return fechaLocal(d);
+}
+// sinPeriodo: la tendencia por semana usa los demás filtros pero siempre muestra las últimas 12 semanas.
+function obsFiltrar(sinPeriodo){
+  const desde = sinPeriodo ? '' : obsDesde(obs.periodo);
+  return (obs.datos||[]).filter(o=>
+    (obs.pruebas || !o.prueba) &&
+    (!desde || o.fecha>=desde) &&
+    (!obs.foreman || o.foreman===obs.foreman) &&
+    (!obs.super || o.superintendente===obs.super) &&
+    (!obs.sitio || o.sitio===obs.sitio) &&
+    (!obs.tipo || o.tipoReporte===obs.tipo) &&
+    (!obs.estado || o.estado===obs.estado) &&
+    (!obs.peligro || (o.tipoPeligro||'Sin marcar')===obs.peligro) &&
+    (!obs.tema || o.temas.includes(obs.tema)) &&
+    coincideBusqueda(obs.q, o.descripcion, o.accion, o.quien, o.foreman, o.superintendente, o.sitio, o.tipoPeligro, o.tipoReporte)
+  );
+}
+
+function obsContar(lista, fn){
+  const m = new Map();
+  lista.forEach(o=>{ [].concat(fn(o)).forEach(v=>{ if(v) m.set(v,(m.get(v)||0)+1); }); });
+  return Array.from(m.entries()).sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0],'es'));
+}
+
+// Barras horizontales; "campo" = filtro que se activa al tocar la barra.
+function obsBarras(campo, pares, color, tope){
+  if(!pares.length) return '<div class="obs-vacio">Sin datos con estos filtros</div>';
+  const max = pares[0][1], total = pares.reduce((s,p)=>s+p[1],0);
+  const lista = tope ? pares.slice(0,tope) : pares;
+  obs._barras[campo] = lista.map(p=>p[0]);
+  return lista.map(([k,n],i)=>{
+    const c = typeof color==='function' ? color(k) : color;
+    const on = obs[campo]===k;
+    return '<button class="obs-barra'+(on?' on':'')+'" onclick="obsAlternar(\''+campo+'\','+i+')" title="'+rcEsc(k)+': '+n+'">'+
+      '<span class="obs-barra-lbl">'+rcEsc(k)+'</span>'+
+      '<span class="obs-barra-pista"><span style="width:'+Math.max(4,Math.round(n/max*100))+'%;background:'+c+';"></span></span>'+
+      '<span class="obs-barra-n">'+n+' <small>'+Math.round(n/total*100)+'%</small></span></button>';
+  }).join('') + (tope && pares.length>tope ? '<div class="obs-vacio">y '+(pares.length-tope)+' más (usa el filtro de arriba)</div>' : '');
+}
+
+function obsLunes(fecha){
+  const d = new Date(fecha+'T12:00:00'); const dia = (d.getDay()+6)%7; d.setDate(d.getDate()-dia); return fechaLocal(d);
+}
+function obsFechaCorta(f){
+  if(!f) return '';
+  const M = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+  const [a,m,d] = f.split('-'); return (+d)+' '+M[+m-1]+(a!==String(new Date().getFullYear())?' '+a:'');
+}
+function obsTendencia(lista){
+  const semanas = [];
+  let l = obsLunes(hoyLocal());
+  for(let i=0;i<12;i++){ semanas.unshift(l); const d=new Date(l+'T12:00:00'); d.setDate(d.getDate()-7); l=fechaLocal(d); }
+  const cuenta = {}; semanas.forEach(s=>cuenta[s]={total:0,evento:0});
+  lista.forEach(o=>{ const s = o.fecha && obsLunes(o.fecha); if(cuenta[s]){ cuenta[s].total++; if((OBS_TIPOS[o.tipoReporte]||{}).grupo==='evento') cuenta[s].evento++; } });
+  const max = Math.max(1, ...semanas.map(s=>cuenta[s].total));
+  return '<div class="obs-cols">'+semanas.map(s=>{
+    const c = cuenta[s], h = Math.round(c.total/max*100), he = c.total ? Math.round(c.evento/c.total*h) : 0;
+    return '<div class="obs-col" title="Semana del '+obsFechaCorta(s)+': '+c.total+' observaciones'+(c.evento?', '+c.evento+' accidentes o casi accidentes':'')+'">'+
+      '<span class="obs-col-n">'+(c.total||'')+'</span>'+
+      '<span class="obs-col-barra" style="height:'+h+'%;"><span style="height:'+(h?Math.round(he/h*100):0)+'%;"></span></span>'+
+      '<span class="obs-col-lbl">'+obsFechaCorta(s).replace(/ \d{4}$/,'')+'</span></div>';
+  }).join('')+'</div><div class="obs-leyenda"><span><i style="background:var(--ooi-orange);"></i>Observaciones</span><span><i style="background:#B3261E;"></i>Accidentes y casi accidentes</span></div>';
+}
+
+function obsPalabras(lista){
+  const m = new Map();
+  lista.forEach(o=>{
+    new Set(normBusqueda(o.descripcion).replace(/[^a-zñ\s]/g,' ').split(/\s+/).filter(w=>w.length>=4 && !OBS_VACIAS.has(w))).forEach(w=>m.set(w,(m.get(w)||0)+1));
+  });
+  return Array.from(m.entries()).filter(e=>e[1]>=2).sort((a,b)=>b[1]-a[1]).slice(0,18);
+}
+
+function obsRender(){
+  const cuerpo = document.getElementById('obs-cuerpo');
+  if(!cuerpo || !obs.datos) return;
+  obs._barras = {};
+  const lista = obsFiltrar(false);
+  const pruebas = (obs.datos||[]).filter(o=>o.prueba).length;
+  const repetidos = lista.reduce((s,o)=>s+o.veces-1,0);
+
+  // Filtros activos
+  const activos = [['foreman','Foreman'],['super','Super'],['sitio','Sitio'],['tipo','Tipo'],['estado','Estado'],['peligro','Peligro'],['tema','Tema'],['q','Buscar']].filter(([c])=>obs[c]);
+  document.getElementById('obs-activos').innerHTML = (activos.length ? activos.map(([c,et])=>'<button class="obs-tag" onclick="obsFiltro(\''+c+'\',\'\');'+(c==='q'?'document.getElementById(\'obs-buscar\').value=\'\';':'')+'">'+et+': '+rcEsc(obs[c])+' ×</button>').join('')+'<button class="obs-tag obs-tag-limpiar" onclick="obsLimpiar()">Quitar filtros</button>' : '')+
+    (pruebas ? '<label class="obs-pruebas"><input type="checkbox" '+(obs.pruebas?'checked':'')+' onchange="obs.pruebas=this.checked;obsRender()"> Incluir '+pruebas+' de prueba</label>' : '');
+
+  if(!lista.length){
+    cuerpo.innerHTML = '<div class="empty-state"><div class="icon"><svg class="ico"><use href="#i-search"/></svg></div><div>No hay observaciones con estos filtros.</div>'+(activos.length||obs.periodo!=='todo'?'<button class="btn btn-ghost" onclick="obsLimpiar();obsPeriodo(\'todo\')">Ver todas</button>':'')+'</div>';
+    return;
+  }
+
+  const grupo = o=>(OBS_TIPOS[o.tipoReporte]||{}).grupo;
+  const eventos = lista.filter(o=>grupo(o)==='evento');
+  const lesion = lista.filter(o=>o.tipoReporte==='Accidente con lesión').length;
+  const casi = lista.filter(o=>o.tipoReporte==='Casi accidente').length;
+  const riesgos = lista.filter(o=>grupo(o)==='riesgo').length;
+  const positivos = lista.filter(o=>grupo(o)==='positivo').length;
+  const pendientes = lista.filter(o=>o.estado==='Pendiente').length;
+  const personas = new Set(lista.map(o=>normBusqueda(o.quien)).filter(Boolean)).size;
+  const conFoto = lista.filter(o=>o.fotos.length).length;
+  const kpi = (n,lbl,sub,color,onclick)=>'<div class="stat-card obs-kpi'+(onclick?' obs-kpi-btn':'')+'"'+(onclick?' onclick="'+onclick+'"':'')+(color?' style="border-top-color:'+color+';"':'')+'><div class="stat-num"'+(color?' style="color:'+color+';"':'')+'>'+n+'</div><div class="stat-lbl">'+lbl+'</div>'+(sub?'<div class="obs-kpi-sub">'+sub+'</div>':'')+'</div>';
+
+  let h = '<div class="obs-kpis">'+
+    kpi(lista.length,'Observaciones',repetidos?repetidos+' envíos repetidos no contados':'',
+      '') +
+    kpi(eventos.length,'Accidentes y casi accidentes',lesion?lesion+' con lesión':casi?casi+' casi accidentes':'',eventos.length?'#B3261E':'var(--success-text)') +
+    kpi(pendientes,'Pendientes',pendientes?'Toca para ver':'Todo resuelto',pendientes?'#E07A10':'var(--success-text)',pendientes?"obsFiltro('estado','Pendiente')":'') +
+    kpi(Math.round(positivos/lista.length*100)+'%','Propuestas y buenas prácticas',positivos+' de '+lista.length,'#2E7D32') +
+    kpi(personas,'Personas que reportan',(lista.length/Math.max(1,personas)).toFixed(1)+' por persona','') +
+    kpi(conFoto,'Con foto',Math.round(conFoto/lista.length*100)+'%','') +
+  '</div>';
+
+  // Tono: qué tipo de cosas reporta la gente
+  const tonos = [['Accidentes y casi accidentes',eventos.length,'#B3261E'],['Riesgos vistos (condición o acto inseguro)',riesgos,'#F58220'],['Propuestas y buenas prácticas',positivos,'#2E7D32'],['Sin tipo',lista.length-eventos.length-riesgos-positivos,'#9AA0A6']].filter(t=>t[1]);
+  const temas = obsContar(lista, o=>o.temas);
+  const palabras = obsPalabras(lista);
+  h += '<div class="card"><div class="sec-label">Lo que dice la gente</div>'+
+    '<div class="obs-sub">Qué reportan</div>'+
+    '<div class="obs-tono">'+tonos.map(t=>'<span style="flex:'+t[1]+';background:'+t[2]+';" title="'+t[0]+': '+t[1]+'"></span>').join('')+'</div>'+
+    '<div class="obs-leyenda">'+tonos.map(t=>'<span><i style="background:'+t[2]+';"></i>'+t[0]+' · '+t[1]+' ('+Math.round(t[1]/lista.length*100)+'%)</span>').join('')+'</div>'+
+    '<div class="obs-sub" style="margin-top:16px;">Temas que se repiten <span class="obs-nota">(por palabras clave en la descripción y la acción)</span></div>'+
+    (temas.length ? obsBarras('tema', temas, t=>t==='Cómo se sienten'?'#B3261E':'var(--ooi-orange)') : '<div class="obs-vacio">No se detectaron temas con estos filtros</div>')+
+    (palabras.length ? '<div class="obs-sub" style="margin-top:16px;">Palabras más usadas</div><div class="obs-palabras">'+palabras.map(([w,n])=>'<button class="obs-palabra" style="font-size:'+(12+Math.min(8,n))+'px;" onclick="document.getElementById(\'obs-buscar\').value=\''+w+'\';obsFiltro(\'q\',\''+w+'\')">'+rcEsc(w)+' <small>'+n+'</small></button>').join('')+'</div>' : '')+
+  '</div>';
+
+  h += '<div class="obs-grid">'+
+    '<div class="card"><div class="sec-label">Por semana · últimas 12</div>'+obsTendencia(obsFiltrar(true))+'</div>'+
+    '<div class="card"><div class="sec-label">Tipo de reporte</div>'+obsBarras('tipo', obsContar(lista,o=>o.tipoReporte), k=>(OBS_TIPOS[k]||{}).c||'#9AA0A6')+'</div>'+
+    '<div class="card"><div class="sec-label">Por foreman</div>'+obsBarras('foreman', obsContar(lista,o=>o.foreman), 'var(--ooi-orange)', 10)+'</div>'+
+    '<div class="card"><div class="sec-label">Por superintendente</div>'+obsBarras('super', obsContar(lista,o=>o.superintendente), 'var(--ooi-orange)', 10)+'</div>'+
+    '<div class="card"><div class="sec-label">Por proyecto / sitio</div>'+obsBarras('sitio', obsContar(lista,o=>o.sitio), '#404650', 10)+'</div>'+
+    '<div class="card"><div class="sec-label">Tipo de peligro</div>'+obsBarras('peligro', obsContar(lista,o=>o.tipoPeligro||'Sin marcar'), '#6B6F76')+'</div>'+
+  '</div>';
+
+  h += '<div class="sec-label" style="margin-top:8px;">Observaciones · '+lista.length+'</div>';
+  h += lista.slice(0,obs.mostrar).map(obsTarjeta).join('');
+  if(lista.length>obs.mostrar) h += '<button class="btn btn-ghost" onclick="obs.mostrar+=30;obsRender()">Ver más ('+(lista.length-obs.mostrar)+')</button>';
+  cuerpo.innerHTML = h;
+}
+
+function obsTarjeta(o){
+  const t = OBS_TIPOS[o.tipoReporte] || {c:'#9AA0A6'};
+  const meta = [['Reportó',o.quien],['Foreman',o.foreman],['Super',o.superintendente],['Peligro',o.tipoPeligro]].filter(m=>m[1]);
+  const estado = o.estado==='Resuelto' ? '<span class="badge badge-ok">Resuelto</span>' : o.estado==='Pendiente' ? '<span class="badge badge-pending">Pendiente</span>' : '';
+  return '<div class="obs-card" style="border-left-color:'+t.c+';">'+
+    '<div class="obs-card-top"><span class="obs-tipo" style="color:'+t.c+';">'+rcEsc(o.tipoReporte)+'</span>'+estado+'</div>'+
+    '<div class="obs-card-sitio">'+rcEsc(o.sitio||'Sin sitio')+' · '+obsFechaCorta(o.fecha)+(o.timestamp?' <span>'+rcEsc(o.timestamp.slice(11,16))+'</span>':'')+
+      (o.veces>1?' <span class="obs-repetido" title="Se mandó '+o.veces+' veces seguidas; aquí cuenta una">llegó '+o.veces+' veces</span>':'')+(o.prueba?' <span class="obs-repetido">prueba</span>':'')+'</div>'+
+    '<div class="obs-card-desc">'+rcEsc(o.descripcion||'Sin descripción')+'</div>'+
+    (o.accion?'<div class="obs-card-accion"><strong>Acción tomada:</strong> '+rcEsc(o.accion)+'</div>':'')+
+    (o.fotos.length?'<div class="obs-fotos">'+o.fotos.map(u=>'<img src="'+rcEsc(fotoSrc(u,300))+'" loading="lazy" alt="Foto" onclick="openLightbox(\''+rcEsc(fotoSrc(u,1600))+'\')" onerror="this.replaceWith(Object.assign(document.createElement(\'a\'),{href:\''+rcEsc(u)+'\',target:\'_blank\',rel:\'noopener\',textContent:\'Abrir foto\',className:\'obs-foto-link\'}))">').join('')+'</div>':'')+
+    '<div class="obs-card-meta">'+meta.map(m=>'<span><b>'+m[0]+':</b> '+rcEsc(m[1])+'</span>').join('')+
+      (o.temas.length?'<span class="obs-card-temas">'+o.temas.map(rcEsc).join(' · ')+'</span>':'')+'</div>'+
+  '</div>';
 }
 
 // ── EMPLEADOS (Safety) ──
@@ -6060,10 +6430,8 @@ async function rcPrepararArchivo(file){
 async function rcGuardar(){
   if(rc.enviando) return;
   const c = rcCertSel(), fecha = document.getElementById('rc-fecha').value;
-  if(!c){ alert('Selecciona la certificación.'); return; }
-  if(!fecha){ alert('Pon la fecha del entrenamiento.'); return; }
-  if(fecha > rcHoy()){ alert('La fecha no puede ser futura.'); return; }
-  if(!rc.sel.length){ alert('Agrega al menos un asistente.'); return; }
+  if(faltanCampos([['rc-cert','certificación',!c],['rc-fecha','fecha del entrenamiento'],['rc-buscar','al menos un asistente',!rc.sel.length]])) return;
+  if(fecha > rcHoy()){ marcarFaltantes(document.getElementById('rc-fecha').closest('.screen'),[document.getElementById('rc-fecha')]); alert('La fecha no puede ser futura.'); return; }
   const pend = rc.sel.filter(s=>!s.ok);
   if(!pend.length) return;
   if(!rc.claseId) rc.claseId = 'R'+Date.now().toString(36).toUpperCase();
