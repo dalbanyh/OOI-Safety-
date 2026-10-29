@@ -1218,6 +1218,13 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{outline:none;}
       <input type="file" id="general-input" accept="image/*" multiple style="display:none" onchange="handlePhotos(this,'general-photos')" data-storekey="general-photos"/>
       <div class="photo-grid" id="general-photos"></div>
     </div>
+    <div class="card">
+      <div class="sec-label">Firma del operador *</div>
+      <div class="field" style="margin-bottom:0;">
+        <div class="firma-caja"><canvas id="f-firma"></canvas><div class="firma-guia">Firma aquí con el dedo</div></div>
+        <button class="btn btn-ghost" type="button" onclick="firmaBorrar('f-firma')" style="margin-top:8px;">Borrar firma</button>
+      </div>
+    </div>
     <div class="submit-msg" id="submit-msg"></div>
     <button class="btn btn-success" onclick="envioUnico(this,submitReport)">✓ Enviar inspección</button>
     <button class="btn btn-ghost" onclick="clearForm()" style="margin-top:10px;">Limpiar formulario</button>
@@ -1226,8 +1233,8 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{outline:none;}
     <!-- SHOTCRETE PANEL: UNA sola inspección. Los datos generales se llenan una vez; Compresor y Camión van en su propia sección. -->
     <div id="op-shotcrete-panel" style="display:none;">
       <div style="display:flex;gap:8px;margin-bottom:16px;">
-        <button class="tp-chip" onclick="scIrA('sc-sec-comp')">Compresor · <span id="sc-cuenta-comp">0/0</span></button>
-        <button class="tp-chip" onclick="scIrA('sc-sec-truck')">Camión · <span id="sc-cuenta-truck">0/0</span></button>
+        <button class="tp-chip" onclick="scIrA('sc-sec-comp')">Compresor: <span id="sc-cuenta-comp">0 de 0 revisados</span></button>
+        <button class="tp-chip" onclick="scIrA('sc-sec-truck')">Camión: <span id="sc-cuenta-truck">0 de 0 revisados</span></button>
       </div>
 
       <div class="card">
@@ -1243,7 +1250,7 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{outline:none;}
         <div class="sc-titulo">Compresor</div>
         <div class="field"><label>Número de compresor *</label><input type="text" id="sc-equipo" placeholder="Ej. C-03" autocomplete="off"/></div>
         <div class="sec-label">Programa de mantenimiento</div>
-        <div style="font-size:13px;color:var(--text2);">Marca OK o BAD en cada procedimiento. Con la cámara agregas fotos.</div>
+        <div style="font-size:13px;color:var(--text2);">Marca OK o BAD en cada procedimiento. Si marcas BAD, escribe el problema o agrega foto.</div>
         <div id="sc-comp-items"></div>
         <div class="field" style="margin:16px 0 0;"><label>Observaciones del compresor</label><textarea id="sc-obs-comp" rows="2" placeholder="Notas adicionales..."></textarea></div>
       </div>
@@ -1257,7 +1264,7 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{outline:none;}
           <div class="field"><label>Hrs. final</label><input type="text" id="sct-hf" placeholder="17:00" inputmode="numeric"/></div>
         </div>
         <div class="sec-label">Inspección del camión</div>
-        <div style="font-size:13px;color:var(--text2);">Marca OK o BAD en cada punto. Con la cámara agregas fotos.</div>
+        <div style="font-size:13px;color:var(--text2);">Marca OK o BAD en cada punto. Si marcas BAD, escribe el problema o agrega foto.</div>
         <div id="sc-truck-items"></div>
         <div class="field" style="margin:16px 0 0;"><label>Observaciones del camión</label><textarea id="sct-obs" rows="2" placeholder="Notas adicionales..."></textarea></div>
       </div>
@@ -3018,7 +3025,7 @@ function initDrils(){
 }
 
 // Shotcrete = UNA inspección: datos generales una vez, luego Compresor y Camión (cada uno con su número).
-// Sin N/A. Cada punto: OK / BAD / cámara (fotos con cualquier resultado); un BAD lleva nota o foto.
+// Sin N/A. Cada punto: OK / BAD; la nota y la cámara solo salen en BAD, y un BAD lleva nota o foto.
 // Lo marcado se conserva si el operador sale y vuelve a entrar; se limpia al enviar.
 function initShotcrete(){
   const f=document.getElementById('sc-fecha'); if(f&&!f.value) f.value=hoyLocal();
@@ -3036,15 +3043,15 @@ function scItemHtml(parte,it){
   const k='scph-'+parte+'-'+it.id;
   return `<div class="insp-item" id="sci-${parte}-${it.id}" data-val="">
     <div class="insp-name">${it.nombre}</div>${it.freq?`<div class="insp-sub">Frecuencia: ${it.freq}</div>`:''}
-    <div class="tog-row tres">
-      <button class="tog" onclick="scMarcar('${parte}','${it.id}','ok',this)">✓ OK</button>
-      <button class="tog" onclick="scMarcar('${parte}','${it.id}','bad',this)">✗ BAD</button>
-      <button class="tog" aria-label="Agregar foto" title="Agregar foto" onclick="triggerPhoto('${k}','pi-${k}')"><svg class="ico"><use href="#i-camera"/></svg></button>
+    <div class="tog-row">
+      <button class="tog" onclick="scMarcar('${parte}','${it.id}','ok',this)">✓ OK — Bien</button>
+      <button class="tog" onclick="scMarcar('${parte}','${it.id}','bad',this)">✗ BAD — Mal</button>
     </div>
-    <input type="file" id="pi-${k}" accept="image/*" multiple style="display:none" onchange="handlePhotos(this,'${k}')" data-storekey="${k}"/>
-    <div class="photo-grid" id="${k}"></div>
     <div class="obs-area" id="scoa-${parte}-${it.id}">
-      <textarea rows="2" id="scot-${parte}-${it.id}" placeholder="Describe el problema..." style="font-size:14px;"></textarea>
+      <textarea rows="2" id="scot-${parte}-${it.id}" placeholder="Describe el problema..." style="font-size:14px;margin-bottom:10px;"></textarea>
+      <button class="photo-btn" onclick="triggerPhoto('${k}','pi-${k}')"><svg class="ico"><use href="#i-camera"/></svg>Agregar foto</button>
+      <input type="file" id="pi-${k}" accept="image/*" multiple style="display:none" onchange="handlePhotos(this,'${k}')" data-storekey="${k}"/>
+      <div class="photo-grid" id="${k}" style="margin-top:8px"></div>
     </div>
   </div>`;
 }
@@ -3066,7 +3073,8 @@ function scContar(){
   ['comp','truck'].forEach(p=>{
     const el=document.getElementById('sc-cuenta-'+p); if(!el) return;
     const filas=document.querySelectorAll('#sc-'+p+'-items .insp-item');
-    el.textContent=[...filas].filter(r=>r.dataset.val).length+'/'+filas.length;
+    // "2 de 9 revisados": como "2/9" se leía como número de compresor o camión
+    el.textContent=[...filas].filter(r=>r.dataset.val).length+' de '+filas.length+' revisados';
   });
 }
 function scIrA(id){ document.getElementById(id).scrollIntoView({behavior:'smooth',block:'start'}); }
@@ -3269,6 +3277,7 @@ function selectMachine(machine){
     const _bt1=document.getElementById('op-bottom-title');if(_bt1)_bt1.textContent='Equipo de proyecto';
     buildInspList(); buildSafetyList(); inspTipoCambio(); setToday(); cargarListas(); if(listasGlobal.foremen&&listasGlobal.foremen.length>0) poblarTodosLosDropdowns(listasGlobal);
     if(groutEl) groutEl.style.display = 'block';
+    firmaIniciar('f-firma');
   } else if(machine === 'shotcrete'){
     document.getElementById('op-screen-title').textContent = 'Shotcrete';
     const _bt2=document.getElementById('op-bottom-title');if(_bt2)_bt2.textContent='Shotcrete';
@@ -3310,7 +3319,9 @@ async function submitShotcrete(){
   const form=document.getElementById('op-shotcrete-panel');
   const fila=(p,it)=>document.getElementById('sci-'+p+'-'+it.id);
   const todos=['comp','truck'].flatMap(p=>scLista(p).map(it=>({p,it,row:fila(p,it)})));
-  const fotos=todos.flatMap(x=>photoStore['scph-'+x.p+'-'+x.it.id]||[]);
+  // Solo cuentan las fotos de los puntos en BAD (si un BAD se cambia a OK, sus fotos se quedan ocultas y no se mandan)
+  const fotosDe=(p,it)=>fila(p,it).dataset.val==='bad'?(photoStore['scph-'+p+'-'+it.id]||[]):[];
+  const fotos=todos.flatMap(x=>fotosDe(x.p,x.it));
   if(fotos.some(f=>f.uploading)){alert('Espera — las fotos se están subiendo...');return;}
   if(fotos.some(f=>f.error)){alert('Una foto no se pudo subir. Tócala para reintentar o quítala con la ×.');return;}
   // Sin N/A: todos los puntos se marcan, y un BAD lleva nota o foto.
@@ -3321,13 +3332,14 @@ async function submitShotcrete(){
     alert('Marca OK o BAD en todos los puntos (marcados en rojo). Faltan '+[n('comp')&&n('comp')+' del compresor',n('truck')&&n('truck')+' del camión'].filter(Boolean).join(' y ')+'.');
     return;
   }
-  const badSinNota=todos.filter(x=>x.row.dataset.val==='bad'&&!document.getElementById('scot-'+x.p+'-'+x.it.id).value.trim()&&!(photoStore['scph-'+x.p+'-'+x.it.id]||[]).length);
+  const badSinNota=todos.filter(x=>x.row.dataset.val==='bad'&&!document.getElementById('scot-'+x.p+'-'+x.it.id).value.trim()&&!fotosDe(x.p,x.it).length);
   if(badSinNota.length){marcarFaltantes(form,badSinNota.map(x=>x.row));alert('Cada punto en BAD necesita una nota o una foto (marcados en rojo): '+badSinNota.map(x=>x.it.nombre).join(', '));return;}
   if(firmaVacia('sc-firma')){marcarFaltantes(form,[document.getElementById('sc-firma')]);alert('Falta la firma del operador.');return;}
 
-  const items=p=>scLista(p).map(it=>({nombre:it.nombre,freq:it.freq,resultado:fila(p,it).dataset.val,
-    obs:document.getElementById('scot-'+p+'-'+it.id).value.trim(),
-    fotos:(photoStore['scph-'+p+'-'+it.id]||[]).map(f=>f.url).filter(Boolean)}));
+  const items=p=>scLista(p).map(it=>{const bad=fila(p,it).dataset.val==='bad';
+    return {nombre:it.nombre,freq:it.freq,resultado:fila(p,it).dataset.val,
+      obs:bad?document.getElementById('scot-'+p+'-'+it.id).value.trim():'',
+      fotos:fotosDe(p,it).map(f=>f.url).filter(Boolean)};});
   const op=document.getElementById('sc-op').value;
   const compresor={equipo:document.getElementById('sc-equipo').value.trim().toUpperCase(),obs:document.getElementById('sc-obs-comp').value.trim(),items:items('comp')};
   const camion={equipo:document.getElementById('sct-equipo').value.trim().toUpperCase(),hi:document.getElementById('sct-hi').value.trim(),hf:document.getElementById('sct-hf').value.trim(),obs:document.getElementById('sct-obs').value.trim(),items:items('truck')};
@@ -3883,7 +3895,7 @@ function clearForm(){
   ['f-proy','f-hi','f-hf','f-tools','f-obs','f-sobs','f-tipo','f-tipo-otro','f-maq','f-fab','f-mod'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
   ['f-op','f-sup'].forEach(id=>{const el=document.getElementById(id);if(el)el.selectedIndex=0;});
   Object.keys(photoStore).forEach(k=>{photoStore[k]=[];});
-  buildInspList();buildSafetyList();inspTipoCambio();setToday();
+  buildInspList();buildSafetyList();inspTipoCambio();setToday();firmaBorrar('f-firma');
   const msg=document.getElementById('submit-msg');if(msg)msg.style.display='none';
   renderPhotoGrid('general-photos');
 }
@@ -3895,16 +3907,19 @@ async function submitReport(){
   const maquina=document.getElementById('f-maq').value.trim().toUpperCase();
   if(faltanCampos([['f-tipo','tipo de máquina',!inspHayTipo()],['f-tipo-otro','qué máquina es',inspHayTipo()&&!inspTipo()],
     ['f-maq','número de la máquina'],['f-proy','proyecto'],['f-op','operador']]))return;
-  const allPhotos=Object.keys(photoStore).filter(k=>k==='general-photos'||k.startsWith('ph-')).map(k=>photoStore[k]).flat();
+  // Fotos que se mandan: las generales y las de puntos en BAD (las de un BAD cambiado a OK quedan ocultas y no cuentan)
+  const esBad=id=>document.getElementById('ir-'+id)?.dataset.val==='bad';
+  const allPhotos=Object.keys(photoStore).filter(k=>k==='general-photos'||(k.startsWith('ph-')&&esBad(k.slice(3)))).map(k=>photoStore[k]).flat();
   if(allPhotos.some(p=>p.uploading)){alert('Espera — las fotos se están subiendo...');return;}
   if(allPhotos.some(p=>p.error)){alert('Una foto no se pudo subir. Tócala para reintentar o quítala con la ×.');return;}
+  if(firmaVacia('f-firma')){marcarFaltantes(document.getElementById('f-proy').closest('.screen'),[document.getElementById('f-firma')]);alert('Falta la firma del operador.');return;}
   const items={};let hasBad=false;
   itemsInsp().forEach(item=>{
     const row=document.getElementById('ir-'+item.id);
     const v=row?row.dataset.val:'';
     const obs=document.getElementById('ot-'+item.id);
-    const photos=(photoStore['ph-'+item.id]||[]).map(p=>p.url).filter(Boolean);
-    items[item.id]={val:v||'pending',obs:obs?obs.value:'',name:item.name,photoUrls:photos};
+    const photos=v==='bad'?(photoStore['ph-'+item.id]||[]).map(p=>p.url).filter(Boolean):[];
+    items[item.id]={val:v||'pending',obs:obs&&v==='bad'?obs.value:'',name:item.name,photoUrls:photos};
     if(v==='bad')hasBad=true;
   });
   const safety=itemsSafety().map((s,i)=>({label:s,checked:document.getElementById('sc'+i)?.checked||false}));
@@ -3913,6 +3928,7 @@ async function submitReport(){
   const msg=document.getElementById('submit-msg');
   msg.style.display='block';msg.textContent='Enviando inspección...';msg.style.background='var(--info-bg)';msg.style.color='var(--info-text)';
   try{
+    report.firmaUrl=await firmaSubir('f-firma','Firma '+op);
     await enviarAScript(report);
     if(hasBad){msg.textContent='Enviado — hay ítems que requieren reparación';msg.style.background='var(--warning-bg)';msg.style.color='var(--warning-text)';}
     else{msg.textContent='✓ Inspección enviada correctamente';msg.style.background='var(--success-bg)';msg.style.color='var(--success-text)';}
@@ -4129,6 +4145,7 @@ function showDetail(idx,detailId,reportsKey){
     ${r.obs?`<div class="sec-label" style="margin-top:14px;">Observaciones</div><div style="font-size:14px;">${r.obs}</div>`:''}
     ${r.firmaUrl?`<div class="sec-label" style="margin-top:14px;">Firma del operador</div><img src="${fotoSrc(r.firmaUrl,600)}" alt="Firma" style="max-width:100%;height:110px;object-fit:contain;background:#fff;border:1px solid var(--border);border-radius:var(--radius);cursor:pointer;" onclick="openLightbox('${fotoSrc(r.firmaUrl,1200)}')"/>`:''}
     ${r.tools?`<div style="font-size:13px;color:var(--text2);margin-top:10px;">Herramientas: ${r.tools}</div>`:''}
+    ${r.pdfUrl?`<a class="btn btn-ghost" href="${r.pdfUrl}" target="_blank" rel="noopener" style="margin-top:14px;display:block;text-align:center;text-decoration:none;">Ver PDF de la inspección (con fotos y firma)</a>`:''}
   </div>`;
   da.scrollIntoView({behavior:'smooth',block:'nearest'});
 }
