@@ -749,6 +749,48 @@ button.ins-c{cursor:pointer;}
 .ins-c.nada{color:var(--text3);background:none;}
 .ins-leyenda{display:flex;gap:12px;flex-wrap:wrap;font-size:12px;color:var(--text2);margin-top:10px;}
 .ins-leyenda .ins-c{width:18px;height:18px;font-size:11px;border-radius:5px;vertical-align:middle;margin-right:3px;}
+/* PTP diario: pasos, chips naranjas, tareas, firmas de la cuadrilla y "¿Quién habla?" */
+.ptpd-pasos{display:flex;gap:4px;margin:2px 0 8px;}
+.ptpd-paso{flex:1;height:6px;border-radius:3px;background:var(--border2);border:none;padding:0;cursor:pointer;}
+.ptpd-paso.hecho{background:var(--ooi-orange);}
+.ptpd-paso.actual{background:var(--text);}
+.ptpd-paso-tit{font-size:12px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;color:var(--text2);margin-bottom:14px;}
+.ptpd-paso-tit b{color:var(--ooi-orange);}
+.ptpd-chips{display:flex;flex-wrap:wrap;gap:6px;}
+.ptpd-chip{padding:8px 12px;border-radius:99px;border:1.5px solid var(--border2);background:var(--bg);color:var(--text2);font:700 13px var(--f-body);cursor:pointer;line-height:1.25;text-align:left;}
+.ptpd-chip.on{background:var(--ooi-orange);border-color:var(--ooi-orange);color:#fff;}
+.ptpd-chip .alta{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--swa);margin-left:6px;vertical-align:1px;}
+.ptpd-chip.on .alta{background:#fff;}
+.ptpd-chip.plantilla{border-style:dashed;color:var(--text);}
+.tog.ptpd-on{background:var(--ooi-orange-bg);border-color:var(--ooi-orange);color:var(--text);}
+.ptpd-tarea{border:1px solid var(--border);border-left:5px solid var(--ooi-orange);border-radius:var(--radius-lg);padding:14px;margin-bottom:12px;background:var(--bg);}
+.ptpd-tarea-cab{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:10px;font-weight:900;}
+.ptpd-x{background:none;border:1.5px solid var(--border2);border-radius:8px;color:var(--text2);font:900 13px var(--f-body);padding:5px 10px;cursor:pointer;}
+.ptpd-link{background:none;border:none;color:var(--ooi-orange-dark);font:800 13px var(--f-body);cursor:pointer;padding:4px 0;}
+.ptpd-aviso{background:var(--danger-bg);color:var(--danger-text);border-left:4px solid var(--swa);border-radius:var(--radius);padding:10px 12px;font-size:13px;line-height:1.45;margin:10px 0;}
+.ptpd-nota{background:var(--bg2);border-left:3px solid var(--ooi-orange);border-radius:var(--radius);padding:12px 14px;font-size:13px;color:var(--text2);line-height:1.5;margin-bottom:14px;}
+.ptpd-nota b{color:var(--text);}
+.ptpd-nav{display:grid;grid-template-columns:1fr 2fr;gap:10px;margin-top:16px;}
+.ptpd-leer{font-size:15px;line-height:1.5;}
+.ptpd-leer h4{font-family:var(--f-head);font-size:16px;font-weight:900;margin:14px 0 4px;}
+.ptpd-leer ul{margin:4px 0 0 18px;}
+.ptpd-firmado{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);}
+.ptpd-firmado:last-child{border-bottom:none;}
+.ptpd-firmado .f{height:34px;max-width:90px;object-fit:contain;background:#fff;border-radius:6px;border:1px solid var(--border);}
+.ptpd-firma-img{display:block;max-width:100%;height:110px;object-fit:contain;background:#fff;border:1px solid var(--border);border-radius:var(--radius);margin:0 auto 8px;}
+.ptpd-ruleta{text-align:center;padding:24px 16px;}
+.ptpd-ruleta .nombre{font-family:var(--f-display);font-size:26px;font-weight:900;line-height:1.15;margin:14px 0 4px;}
+.ptpd-ruleta.girando .nombre{color:var(--text3);}
+.ptpd-pregunta{font-size:18px;font-weight:700;line-height:1.4;background:var(--ooi-orange-bg);border-left:4px solid var(--ooi-orange);border-radius:var(--radius);padding:14px;margin:14px 0;text-align:left;}
+.ptpd-cuenta{display:inline-block;background:var(--bg2);border-radius:99px;padding:4px 12px;font-size:13px;font-weight:800;color:var(--text2);}
+.ptpd-cuenta.ok{background:var(--success-bg);color:var(--success-text);}
+.ptpd-tags{display:flex;flex-wrap:wrap;gap:4px;margin:6px 0;}
+.ptpd-tag{font-size:11px;font-weight:800;padding:2px 8px;border-radius:99px;background:var(--bg2);color:var(--text2);}
+.ptpd-tag.alta{background:var(--danger-bg);color:var(--danger-text);}
+.ptpd-acciones{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;}
+.ptpd-acciones .drive-btn{font-size:11px;}
+.ptpd-fila{display:flex;gap:8px;margin-top:10px;align-items:center;}
+.ptpd-fila input{flex:1;min-width:0;}
 .tp-chip:active{transform:scale(0.97);}
 .tp-chips-row{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;margin-bottom:14px;-webkit-overflow-scrolling:touch;}
 .tp-chips-row::-webkit-scrollbar{display:none;}
@@ -1341,9 +1383,15 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{outline:none;}
       <!-- Tabs del Foreman: desde que el login es uno solo ("Supervisor"), el super tambien los necesita -->
       <div class="menu-label" style="margin-top:26px;">En campo</div>
 
+      <button class="role-btn" onclick="superAForeman('ptpd')">
+        <div class="role-icon"><svg class="ico"><use href="#i-clipboard"/></svg></div>
+        <div class="rb-body"><div class="rb-title">PTP diario</div><div class="rb-desc">Plan previo al trabajo con la cuadrilla · firmas · PDF</div></div>
+        <span class="role-arrow"><svg class="ico"><use href="#i-chev"/></svg></span>
+      </button>
+
       <button class="role-btn" onclick="superAForeman('ptp')">
         <div class="role-icon"><svg class="ico"><use href="#i-camera"/></svg></div>
-        <div class="rb-body"><div class="rb-title">PTP</div><div class="rb-desc">Subir foto del Pre-Task Plan de la contratista</div></div>
+        <div class="rb-body"><div class="rb-title">PTP de la contratista</div><div class="rb-desc">Subir foto del Pre-Task Plan en papel de la contratista</div></div>
         <span class="role-arrow"><svg class="ico"><use href="#i-chev"/></svg></span>
       </button>
 
@@ -1625,9 +1673,15 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{outline:none;}
       <div class="page-hero" style="margin:0 -16px 22px;"><div class="eyebrow">Oscar Orduno, Inc. — Safety</div><h1>Foreman</h1></div>
       <div class="menu-label">¿Qué deseas hacer?</div>
 
-      <button class="role-btn" onclick="foremanTab('ptp')">
+      <button class="role-btn" onclick="foremanTab('ptpd')">
         <div class="role-icon"><svg class="ico"><use href="#i-clipboard"/></svg></div>
-        <div class="rb-body"><div class="rb-title">PTP</div><div class="rb-desc">Subir foto del Pre-Task Plan de la contratista</div></div>
+        <div class="rb-body"><div class="rb-title">PTP diario</div><div class="rb-desc">Plan previo al trabajo con la cuadrilla · firmas · PDF</div></div>
+        <span class="role-arrow"><svg class="ico"><use href="#i-chev"/></svg></span>
+      </button>
+
+      <button class="role-btn" onclick="foremanTab('ptp')">
+        <div class="role-icon"><svg class="ico"><use href="#i-camera"/></svg></div>
+        <div class="rb-body"><div class="rb-title">PTP de la contratista</div><div class="rb-desc">Subir foto del Pre-Task Plan en papel de la contratista</div></div>
         <span class="role-arrow"><svg class="ico"><use href="#i-chev"/></svg></span>
       </button>
 
@@ -1702,6 +1756,28 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{outline:none;}
 
     <button class="btn btn-ghost" onclick="foremanSalir()" style="margin-top:8px;">← Salir</button>
     </div><!-- end foreman-ptp-panel -->
+
+    <!-- PTP DIARIO DE OOI: lo llena el foreman por pasos, la cuadrilla firma y la app escoge quién explica un punto.
+         Se manda todo junto (tipo 'ptp_diario' → procesarPTPDiario_ en Code.gs): PDF en Drive, hoja 'PTP Diario'. -->
+    <div id="foreman-ptpd-panel" style="display:none;">
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin:4px 0 14px;">
+        <button class="tp-chip on" id="ptpd-v-nuevo" onclick="ptpdVista('nuevo')">PTP de hoy</button>
+        <button class="tp-chip" id="ptpd-v-lista" onclick="ptpdVista('lista')">Mis PTP</button>
+      </div>
+      <div id="ptpd-nuevo">
+        <div class="ptpd-pasos" id="ptpd-pasos"></div>
+        <div class="ptpd-paso-tit" id="ptpd-paso-tit"></div>
+        <div id="ptpd-cuerpo"></div>
+        <div class="submit-msg" id="ptpd-msg"></div>
+        <div class="ptpd-nav" id="ptpd-nav"></div>
+      </div>
+      <div id="ptpd-lista" style="display:none;">
+        <div class="field"><label>Ver los de</label><select id="ptpd-persona" onchange="ptpdPersona(this.value)"><option value="">Todos</option></select></div>
+        <div style="display:flex;justify-content:flex-end;margin-bottom:10px;"><button class="tp-chip" onclick="ptpdCargarLista(true)">Actualizar</button></div>
+        <div id="ptpd-lista-cuerpo"><div class="loading">Cargando PTP...</div></div>
+      </div>
+      <button class="btn btn-ghost" onclick="foremanSalir()" style="margin-top:8px;">← Salir</button>
+    </div><!-- end foreman-ptpd-panel -->
 
     <!-- PROGRAMA DE RESPIRADORES: una sola entrada con dos pestañas (solicitar / estado del personal) -->
     <div id="foreman-resp-tabs" style="display:none;gap:6px;margin:4px 0 16px;flex-wrap:wrap;">
@@ -1948,6 +2024,12 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{outline:none;}
         <span class="role-arrow"><svg class="ico"><use href="#i-chev"/></svg></span>
       </button>
 
+      <button class="role-btn" onclick="safetyTab('ptp')">
+        <div class="role-icon"><svg class="ico"><use href="#i-clipboard"/></svg></div>
+        <div class="rb-body"><div class="rb-title">PTP diario</div><div class="rb-desc">Quién hizo su PTP · firmas y participación · PDF</div></div>
+        <span class="role-arrow"><svg class="ico"><use href="#i-chev"/></svg></span>
+      </button>
+
       <button class="role-btn" onclick="safetyTab('certs')">
         <div class="role-icon"><svg class="ico"><use href="#i-file"/></svg></div>
         <div class="rb-body"><div class="rb-title">Registrar certificados</div><div class="rb-desc">Uno o varios asistentes · se guarda en Drive y en el Training Log</div></div>
@@ -1997,6 +2079,29 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{outline:none;}
       <div class="obs-activos" id="obs-activos"></div>
 
       <div id="obs-cuerpo"><div class="loading">Cargando observaciones...</div></div>
+    </div>
+  </div>
+
+  <!-- PTP DIARIO (Safety): quién hizo su PTP cada día, firmas, participación y PDF. Servidor: getPTPDiario_() (leer:ptp_diario) -->
+  <div id="safety-ptp-panel" style="display:none;">
+    <div class="obs-wrap">
+      <div class="obs-head">
+        <div>
+          <div style="font-family:var(--f-head);font-size:18px;font-weight:800;margin-bottom:4px;">PTP diario</div>
+          <div style="font-size:12px;color:var(--text2);">Lo que llenan los foremen con su cuadrilla (hoja PTP Diario). Cada PTP trae las firmas y quién explicó un punto.</div>
+        </div>
+        <button class="tp-chip" onclick="sptpCargar(true)">Actualizar</button>
+      </div>
+      <div class="tp-chips-row" id="sptp-periodo">
+        <button class="tp-chip" data-p="7" onclick="sptpPeriodo(7)">7 días</button>
+        <button class="tp-chip on" data-p="30" onclick="sptpPeriodo(30)">30 días</button>
+        <button class="tp-chip" data-p="90" onclick="sptpPeriodo(90)">90 días</button>
+      </div>
+      <div class="obs-filtros">
+        <div class="field"><label>Hecho por</label><select id="sptp-f-quien" onchange="sptpFiltro('quien',this.value)"><option value="">Todos</option></select></div>
+        <div class="field"><label>Proyecto</label><select id="sptp-f-proy" onchange="sptpFiltro('proyecto',this.value)"><option value="">Todos</option></select></div>
+      </div>
+      <div id="sptp-cuerpo"><div class="loading">Cargando PTP...</div></div>
     </div>
   </div>
 
@@ -3453,6 +3558,7 @@ function poblarSelectoresEmpleados() {
     buildDropdown(el, lista, s[1]);
     if (actual) el.value = actual;
   });
+  ptpdListasCambiaron();   // nombres para firmar el PTP diario
 }
 
 var EMPLEADOS_TTL_MS = 15 * 60 * 1000; // la lista se vuelve a pedir cada 15 min aunque la pestana siga abierta
@@ -3674,6 +3780,8 @@ function poblarTodosLosDropdowns(listas){
   // Trabajador del Fit Test y empleado de Solicitar Entrenamiento: salen del EMPLOYEE TRAINING LOG
   poblarSelectoresEmpleados();
 
+  // PTP diario abierto: proyectos y foremen que llegaron después de abrirlo
+  ptpdListasCambiaron();
 }
 
 function selectRole(role){
@@ -4237,7 +4345,7 @@ function superTab(tab){
 // El correo de quien recibe las solicitudes (Briseida) está en el archivo de Configuración, pestaña Avisos.
 
 // Paneles de la pantalla del Foreman (también los abre el super desde "En campo")
-const FOREMAN_PANELES = ['foreman-ptp-panel','foreman-resp-tabs','foreman-fittest-panel','foreman-ftestado-panel','foreman-obs-panel'];
+const FOREMAN_PANELES = ['foreman-ptp-panel','foreman-ptpd-panel','foreman-resp-tabs','foreman-fittest-panel','foreman-ftestado-panel','foreman-obs-panel'];
 
 function foremanTab(tab){
   // Hide selection screen
@@ -4252,9 +4360,13 @@ function foremanTab(tab){
   const bt = document.getElementById('foreman-bottom-title');
 
   if(tab==='ptp'){
-    if(bt) bt.textContent='PTP';
+    if(bt) bt.textContent='PTP de la contratista';
     const el=document.getElementById('foreman-ptp-panel');if(el)el.style.display='block';
     initPTP();
+  } else if(tab==='ptpd'){
+    if(bt) bt.textContent='PTP diario';
+    const el=document.getElementById('foreman-ptpd-panel');if(el)el.style.display='block';
+    ptpdIniciar();
   } else if(tab==='fittest' || tab==='ftestado'){
     // Programa de Respiradores: las dos pestañas comparten la entrada del menú
     if(bt) bt.textContent='Programa de Respiradores';
@@ -4316,6 +4428,759 @@ function resetPTP(){
   document.getElementById('ptp-msg').style.display='none';
   document.getElementById('ptp-confirmacion').style.display='none';
   document.getElementById('ptp-form').style.display='block';
+}
+
+// ── PTP DIARIO DE OOI ──
+// Lo llena el foreman (o el super) en la tablet por pasos antes de empezar, lo platica con la cuadrilla, pasa la
+// tablet para que cada uno elija su nombre y firme, y la app escoge al azar a alguien que ya firmó para que explique
+// un punto del PTP (queda anotado quién habló y sobre qué). Todo se manda junto (tipo 'ptp_diario' →
+// procesarPTPDiario_ en Code.gs): PDF con las firmas en Drive (PTP Diario/<Proyecto>), renglón en la hoja
+// 'PTP Diario' y copia por correo si la piden. El borrador vive en esta tablet (localStorage) hasta enviarlo, así
+// no se pierde si se cierra la app a media plática. Basado en la guía de PTP de CPWR (2024): tarea por pasos,
+// peligros y controles por tarea, preguntas a la cuadrilla, que todos hablen, y peligros de alta energía.
+const PTPD_BORRADOR='ooi_ptpd_borrador_v1';
+const PTPD_PLANTILLAS='ooi_ptpd_plantillas';   // actividades comunes guardadas en esta tablet
+const PTPD_POR_PROYECTO='ooi_ptpd_proyecto';  // hospital y correos de copia recordados por proyecto
+const PTPD_ULTIMO='ooi_ptpd_ultimo';          // último proyecto y quién lo hizo en esta tablet
+const PTPD_PERSONA='ooi_ptpd_persona';        // "Ver los de" en Mis PTP
+const PTPD_MIN_HABLAN=2;   // cuántos trabajadores deben explicar un punto (o todos, si firmaron menos)
+const PTPD_DIAS_LISTA=90;
+
+// Peligros: los del PTP que usaban (Safety HQ) más los de las obras de OOI. alta = alta energía (lesión grave o muerte).
+const PTPD_PELIGROS=[
+  {id:'silice',es:'Sílice (polvo de cemento o roca)',en:'Silica dust'},
+  {id:'polvo',es:'Polvo',en:'Dust'},
+  {id:'inhalacion',es:'Inhalación de químicos o humo',en:'Inhalation'},
+  {id:'quimicos',es:'Químicos peligrosos',en:'Hazardous chemicals'},
+  {id:'quemquim',es:'Quemaduras con químicos (cemento)',en:'Chemical burns (cement)'},
+  {id:'rebote',es:'Rebote de shotcrete / proyectiles',en:'Shotcrete rebound / projectiles'},
+  {id:'manguera',es:'Manguera a presión (latigazo)',en:'Pressurized hose whip',alta:1},
+  {id:'equipo',es:'Equipo móvil (puntos ciegos)',en:'Mobile equipment',alta:1},
+  {id:'golpeado',es:'Golpeado por',en:'Struck by',alta:1},
+  {id:'atrapado',es:'Atrapado entre / aplastamiento',en:'Caught between / crushing',alta:1},
+  {id:'pellizco',es:'Pellizco de manos',en:'Pinch points'},
+  {id:'alturas',es:'Trabajo en alturas / caída a un hoyo',en:'Working at heights / fall into a hole',alta:1},
+  {id:'derrumbe',es:'Derrumbe de excavación',en:'Excavation cave-in',alta:1},
+  {id:'utilidades',es:'Utilidades subterráneas',en:'Underground utilities',alta:1},
+  {id:'electrico',es:'Choque eléctrico',en:'Electrical shock',alta:1},
+  {id:'carga',es:'Carga suspendida',en:'Suspended load',alta:1},
+  {id:'caidaobj',es:'Caída de objetos',en:'Falling objects',alta:1},
+  {id:'trafico',es:'Tráfico vehicular',en:'Vehicle traffic',alta:1},
+  {id:'loto',es:'Requiere bloqueo y etiquetado (LOTO)',en:'Lockout / tagout required',alta:1},
+  {id:'fuego',es:'Fuego / explosión',en:'Fire / explosion',alta:1},
+  {id:'confinado',es:'Espacio confinado',en:'Confined space',alta:1},
+  {id:'gas',es:'Tanques de gas comprimido',en:'Compressed gas cylinders'},
+  {id:'resbalon',es:'Resbalones, tropiezos y caídas',en:'Slips, trips and falls'},
+  {id:'acceso',es:'Acceso inadecuado (rampas)',en:'Inadequate access'},
+  {id:'escaleras',es:'Escaleras portátiles',en:'Portable ladders'},
+  {id:'filosos',es:'Objetos o herramientas filosas',en:'Sharp objects / tools'},
+  {id:'calientes',es:'Quemaduras con partes calientes',en:'Burns from hot parts'},
+  {id:'ojos',es:'Partículas en ojos / cara',en:'Particles in eyes / face'},
+  {id:'ruido',es:'Ruido alto',en:'High noise levels'},
+  {id:'levantar',es:'Levantamiento manual',en:'Manual lifting'},
+  {id:'calor',es:'Calor / agotamiento',en:'Heat exhaustion'},
+  {id:'desorden',es:'Lugar sucio y desordenado',en:'Poor housekeeping'}
+];
+const PTPD_EPP=[
+  {id:'casco',es:'Casco',en:'Hard hat'},
+  {id:'chaleco',es:'Chaleco reflectivo',en:'Reflective vest'},
+  {id:'lentes',es:'Lentes de seguridad',en:'Safety glasses'},
+  {id:'botas',es:'Botas punta de acero',en:'Steel-toe boots'},
+  {id:'guantes',es:'Guantes',en:'Gloves'},
+  {id:'auditiva',es:'Protección auditiva',en:'Hearing protection'},
+  {id:'n95',es:'Respirador N95',en:'N95 respirator'},
+  {id:'respirador',es:'Respirador de media cara',en:'Half-face respirator'},
+  {id:'careta',es:'Careta',en:'Face shield'},
+  {id:'tyvek',es:'Traje Tyvek',en:'Tyvek suit'},
+  {id:'arnes',es:'Arnés (detención de caídas)',en:'Fall arrest harness'}
+];
+const PTPD_EPP_BASE=['casco','chaleco','lentes','botas','guantes'];
+const PTPD_AREA=[
+  {id:'competente',es:'¿La persona competente hizo las inspecciones?',en:'Competent person performed required inspections?',sub:'Herramientas, extensiones, maquinaria'},
+  {id:'utilidades',es:'¿Trabajamos cerca de utilidades vivas?',en:'Working around live utilities?',sub:'Luz, agua, gas, drenaje'},
+  {id:'marcadas',es:'¿Se localizaron y marcaron las utilidades?',en:'Utilities located and marked?'},
+  {id:'permisos',es:'¿Se requieren permisos?',en:'Permits required (hot work, excavation, drilling)?',sub:'Trabajo caliente, excavación, perforación'},
+  {id:'emergencia',es:'¿Se localizó el equipo de emergencia y las SDS?',en:'Emergency equipment and SDS located?',sub:'Extintor, lavaojos, botiquín'},
+  {id:'arnes',es:'¿Alguna tarea requiere arnés?',en:'Will any task require a personal fall arrest system?'},
+  {id:'barricada',es:'¿Hay áreas que necesitan barricada, cinta o señalización?',en:'Areas needing barricades, warning tape or signage?'},
+  {id:'evacuacion',es:'¿Todos conocen la ruta de evacuación y el punto de reunión?',en:'Workers familiar with evacuation routes and muster point?'},
+  {id:'cerca',es:'¿Hay otras cuadrillas, contratistas o equipos trabajando cerca?',en:'Other crews, trades or equipment working nearby?'}
+];
+const PTPD_CLIMA=['Despejado','Nublado','Lluvia','Viento','Calor','Frío'];
+// Actividades comunes: llenan la tarjeta y el foreman la ajusta al día (no se copia el PTP de ayer tal cual)
+const PTPD_ACTIVIDADES=[
+  {actividad:'Aplicar shotcrete',equipo:'Shotcrete pump, camión de cemento, mangueras, compresor',peligros:['silice','rebote','manguera','resbalon'],
+   controles:'Mascarilla respiratoria. Mantenerse al menos 25 ft retirados del nozzleman. Revisar conexiones y chicotes de las mangueras antes de empezar. Inspeccionar el área de trabajo.'},
+  {actividad:'Perforar nails / anclas',equipo:'Drill, brocas, cabezas, dientes',peligros:['atrapado','equipo','ruido','silice'],
+   controles:'Mantenerse retirado de la broca mientras trabaja. No estar en los puntos ciegos del equipo. Protección auditiva. Hacer contacto visual con el operador antes de acercarse.'},
+  {actividad:'Inyectar grout en los nails',equipo:'Grout pump, loader, cemento, tanques de agua, navaja',peligros:['filosos','silice','quemquim','atrapado'],
+   controles:'Navajas retráctiles. Bajarse del grout pump para que el loader suba más cemento. Mascarilla respiratoria. Guantes y lentes contra salpicaduras de cemento.'},
+  {actividad:'Excavación',equipo:'Excavadora, loader, camiones de volteo',peligros:['derrumbe','equipo','utilidades','alturas'],
+   controles:'Utilidades localizadas y marcadas antes de excavar. Talud o protección según la persona competente. Nadie dentro del radio de giro de la excavadora. Barricada en el borde.'},
+  {actividad:'Instalar lagging (madera)',equipo:'Madera, motosierra, loader',peligros:['caidaobj','pellizco','filosos','levantar'],
+   controles:'Nadie debajo de la madera mientras se sube. Guantes y protección para la motosierra. Levantar entre dos o con el loader.'},
+  {actividad:'Perforar pilas (pier drill)',equipo:'Pier drill, loader, acero de refuerzo',peligros:['equipo','alturas','carga','golpeado'],
+   controles:'Tapar o barricar los hoyos abiertos. Nadie debajo de la carga suspendida. Señalero designado. Mantener distancia del barreno mientras gira.'},
+  {actividad:'Mover / descargar material',equipo:'Loader, forklift, eslingas, cadenas',peligros:['carga','golpeado','levantar','equipo'],
+   controles:'Inspeccionar eslingas y cadenas. Señalero designado. Nadie debajo de la carga. Levantar con las piernas o entre dos.'}
+];
+const PTPD_PASOS=[
+  {k:'datos',t:'Datos del día'},{k:'area',t:'Análisis del área de trabajo'},{k:'tareas',t:'Tareas de hoy'},{k:'epp',t:'EPP requerido'},
+  {k:'platica',t:'Plática con la cuadrilla'},{k:'firmas',t:'Firmas de la cuadrilla'},{k:'hablan',t:'¿Quién habla?'},{k:'enviar',t:'Revisar y enviar'}
+];
+
+let ptpd=null;              // PTP en curso
+let ptpdHecho=null;         // el último enviado (pantalla de confirmación)
+let ptpdNombreLibre=false;  // el trabajador escribe su nombre (no está en la lista)
+let ptpdRuleta=null;        // {nombre, pregunta, girando}
+let ptpdGiroT=null, ptpdGuardarT=null;
+let ptpdLista=null, ptpdListaT=0;
+
+function ptpdLeerLS(k,def){ try{ const v=localStorage.getItem(k); return v?JSON.parse(v):def; }catch(e){ return def; } }
+function ptpdEscribirLS(k,v){ try{ localStorage.setItem(k,JSON.stringify(v)); }catch(e){} }
+function ptpdHora(){ const d=new Date(); return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0'); }
+function ptpdClave(s){ return String(s||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().replace(/\s+/g,' ').trim(); }
+// "Reyna-Diaz, Jorge" -> "Jorge Reyna-Diaz" (así sale en el PDF que reciben las constructoras)
+function ptpdNombre(n){
+  const p=String(n||'').split(',');
+  return (p.length===2 ? p[1].trim()+' '+p[0].trim() : String(n||'')).replace(/\s+/g,' ').trim();
+}
+function ptpdEmpleados(){ return [...new Set((listasGlobal.empleados||[]).map(ptpdNombre).filter(Boolean))].sort((a,b)=>a.localeCompare(b)); }
+function ptpdEmp(nombre){
+  const k=ptpdClave(nombre);
+  return (typeof getTrainingData==='function'?getTrainingData():[]).find(e=>ptpdClave(ptpdNombre(e.name))===k)||{name:nombre};
+}
+function ptpdVacio(){
+  const u=ptpdLeerLS(PTPD_ULTIMO,{});
+  const d={id:String(Date.now()),paso:0,proyecto:'',creadoPor:u.creadoPor||'',fecha:hoyLocal(),hora:ptpdHora(),ubicacion:'',clima:'',temperatura:'',
+    toolbox:'',toolboxTema:'',hospital:'',area:{},otrasCuadrillas:'',tareas:[],epp:PTPD_EPP_BASE.slice(),eppOtros:[],firmaCreador:'',
+    asistentes:[],participaron:[],copiaSi:'',correos:''};
+  if(u.proyecto) ptpdAplicarProyecto(d,u.proyecto);
+  return d;
+}
+function ptpdAplicarProyecto(d,proyecto){
+  d.proyecto=proyecto;
+  const r=ptpdLeerLS(PTPD_POR_PROYECTO,{})[proyecto]||{};
+  if(r.hospital&&!d.hospital) d.hospital=r.hospital;
+  if(r.correos&&!d.correos) d.correos=r.correos;
+}
+function ptpdGuardar(){
+  clearTimeout(ptpdGuardarT);
+  ptpdGuardarT=setTimeout(()=>{ if(ptpd) ptpdEscribirLS(PTPD_BORRADOR,ptpd); },300);
+}
+function ptpdSet(k,v,rerender){ ptpd[k]=v; ptpdGuardar(); if(rerender) ptpdRender(); }
+function ptpdPeligrosDe(t){
+  return t.peligros.map(id=>PTPD_PELIGROS.find(p=>p.id===id)).filter(Boolean).map(p=>({es:p.es,en:p.en,alta:!!p.alta}))
+    .concat((t.otros||[]).map(o=>({es:o,en:'',alta:false})));
+}
+function ptpdTodosPeligros(){
+  const vistos={}, lista=[];
+  ptpd.tareas.forEach(t=>ptpdPeligrosDe(t).forEach(p=>{const k=ptpdClave(p.es); if(!vistos[k]){vistos[k]=1; lista.push(p);}}));
+  return lista;
+}
+function ptpdEppLista(){
+  return PTPD_EPP.filter(p=>ptpd.epp.indexOf(p.id)>=0).map(p=>({es:p.es,en:p.en})).concat(ptpd.eppOtros.map(o=>({es:o,en:''})));
+}
+function ptpdHablaron(){
+  const vistos={};
+  return ptpd.participaron.map(p=>p.nombre).filter(n=>{const k=ptpdClave(n); if(vistos[k]) return false; vistos[k]=1; return true;});
+}
+function ptpdMinHablan(){ return Math.min(PTPD_MIN_HABLAN, ptpd.asistentes.length); }
+function ptpdCorreos(txt){
+  return [...new Set(String(txt==null?ptpd.correos:txt).split(/[\s,;]+/).map(s=>s.trim().toLowerCase())
+    .filter(s=>/^[^@\s]+@[^@\s]+\.[a-z]{2,}$/i.test(s)))].slice(0,5);
+}
+// Firma del canvas en PNG de máximo 600 px de ancho (pesa poco y se ve bien en el PDF)
+function ptpdFirmaPng(id){
+  const c=document.getElementById(id), w=Math.min(600,c.width), h=Math.max(1,Math.round(c.height*w/c.width));
+  const t=document.createElement('canvas'); t.width=w; t.height=h;
+  const x=t.getContext('2d'); x.fillStyle='#fff'; x.fillRect(0,0,w,h); x.drawImage(c,0,0,w,h);
+  return t.toDataURL('image/png');
+}
+
+function ptpdIniciar(){
+  if(!(listasGlobal.foremen&&listasGlobal.foremen.length)) cargarListas();
+  if(!empleadosCargados) fetchEmpleados();
+  if(typeof fetchTrainingData==='function') fetchTrainingData();   // fotos de perfil para "¿Quién habla?"
+  if(!ptpd){
+    const b=ptpdLeerLS(PTPD_BORRADOR,null);
+    if(b&&b.id) ptpd=Object.assign(ptpdVacio(),b);
+    else if(!ptpdHecho) ptpd=ptpdVacio();
+  }
+  ptpdVista('nuevo');
+}
+function ptpdVista(v){
+  ['nuevo','lista'].forEach(x=>{
+    document.getElementById('ptpd-v-'+x).classList.toggle('on',x===v);
+    document.getElementById('ptpd-'+x).style.display=x===v?'block':'none';
+  });
+  if(v==='lista') ptpdCargarLista(false);
+  else if(!ptpd&&ptpdHecho) ptpdMostrarHecho();
+  else { if(!ptpd) ptpd=ptpdVacio(); ptpdRender(); }
+}
+function ptpdNuevo(){ ptpdHecho=null; ptpdRuleta=null; ptpd=ptpdVacio(); ptpdGuardar(); ptpdRender(); window.scrollTo(0,0); }
+function ptpdDescartar(){
+  if(!confirm('¿Borrar el PTP sin terminar y empezar uno nuevo para hoy?')) return;
+  ptpdNuevo();
+}
+// Las listas (proyectos, foremen, empleados) llegan después de abrir: se redibuja si no se pierde nada
+function ptpdListasCambiaron(){
+  const panel=document.getElementById('foreman-ptpd-panel');
+  if(!ptpd||!panel||panel.style.display==='none'||document.getElementById('ptpd-nuevo').style.display==='none') return;
+  const k=PTPD_PASOS[ptpd.paso].k;
+  if(k==='datos'||(k==='firmas'&&firmaVacia('ptpd-firma-asist')&&!(document.getElementById('ptpd-firmante')||{}).value)) ptpdRender();
+}
+
+function ptpdRender(){
+  const p=ptpd.paso, paso=PTPD_PASOS[p];
+  document.getElementById('ptpd-pasos').innerHTML=PTPD_PASOS.map((s,i)=>
+    `<button class="ptpd-paso${i<p?' hecho':i===p?' actual':''}" title="${s.t}" aria-label="${s.t}" onclick="ptpdIr(${i})"></button>`).join('');
+  document.getElementById('ptpd-paso-tit').innerHTML=`Paso <b>${p+1}</b> de ${PTPD_PASOS.length} · ${paso.t}`;
+  Object.keys(firmas).filter(k=>k.startsWith('ptpd-')).forEach(k=>{delete firmas[k];});
+  document.getElementById('ptpd-cuerpo').innerHTML=PTPD_VISTAS[paso.k]();
+  document.getElementById('ptpd-msg').style.display='none';
+  const ultimo=p===PTPD_PASOS.length-1;
+  document.getElementById('ptpd-nav').innerHTML=(p>0?`<button class="btn btn-ghost" onclick="ptpdIr(${p-1})">← Atrás</button>`:'<span></span>')+
+    (ultimo?`<button class="btn btn-primary" onclick="envioUnico(this,ptpdEnviar)">${ico('upload')}Enviar PTP</button>`
+           :`<button class="btn btn-primary" onclick="ptpdIr(${p+1})">Siguiente →</button>`);
+  document.querySelectorAll('#ptpd-cuerpo canvas').forEach(c=>firmaIniciar(c.id));
+}
+// Ir a un paso: para avanzar, cada paso de en medio tiene que estar completo
+function ptpdIr(n){
+  if(n<0||n>=PTPD_PASOS.length) return;
+  ptpdCapturarFirmaCreador();
+  for(let i=ptpd.paso;i<n;i++){
+    const falta=ptpdValidar(i);
+    if(falta){ if(i!==ptpd.paso){ ptpd.paso=i; ptpdRender(); } ptpdFalta(falta); return; }
+  }
+  clearInterval(ptpdGiroT); if(ptpdRuleta&&ptpdRuleta.girando) ptpdRuleta=null;
+  ptpd.paso=n; ptpdGuardar(); ptpdRender(); window.scrollTo(0,0);
+}
+function ptpdCapturarFirmaCreador(){
+  if(document.getElementById('ptpd-firma-creador')&&!firmaVacia('ptpd-firma-creador')) ptpd.firmaCreador=ptpdFirmaPng('ptpd-firma-creador');
+}
+function ptpdFalta(f){
+  marcarFaltantes(document.getElementById('foreman-ptpd-panel'), (f.ids||[]).map(id=>document.getElementById(id)).filter(Boolean));
+  alert(f.msg);
+}
+function ptpdValidar(i){
+  const k=PTPD_PASOS[i].k, d=ptpd;
+  if(k==='datos'){
+    const f=[]; if(!d.proyecto) f.push(['ptpd-proyecto','proyecto']); if(!d.creadoPor) f.push(['ptpd-creador','quién hace el PTP']);
+    return f.length?{msg:'Falta llenar: '+f.map(x=>x[1]).join(', ')+'. Está marcado en rojo.',ids:f.map(x=>x[0])}:null;
+  }
+  if(k==='area'){
+    const f=PTPD_AREA.filter(q=>!d.area[q.id]);
+    return f.length?{msg:'Contesta todas las preguntas del área (marcadas en rojo).',ids:f.map(q=>'ptpd-q-'+q.id)}:null;
+  }
+  if(k==='tareas'){
+    if(!d.tareas.length) return {msg:'Agrega al menos una tarea de hoy.',ids:[]};
+    const ids=[];
+    d.tareas.forEach((t,j)=>{
+      if(!t.actividad.trim()) ids.push('ptpd-t'+j+'-act');
+      if(!t.peligros.length&&!t.otros.length) ids.push('ptpd-t'+j+'-pel');
+      if(!t.controles.trim()) ids.push('ptpd-t'+j+'-ctl');
+    });
+    return ids.length?{msg:'Cada tarea necesita la actividad, al menos un peligro y sus controles (marcado en rojo).',ids}:null;
+  }
+  if(k==='epp') return d.epp.length||d.eppOtros.length?null:{msg:'Marca el EPP que se necesita hoy.',ids:['ptpd-epp']};
+  if(k==='platica') return d.firmaCreador?null:{msg:'Falta la firma de quien hace el PTP.',ids:['ptpd-firma-creador']};
+  if(k==='firmas') return d.asistentes.length?null:{msg:'Falta que la cuadrilla firme. Pasa la tablet para que cada quien elija su nombre y firme.',ids:['ptpd-firmante']};
+  if(k==='hablan'){
+    const faltan=ptpdMinHablan()-ptpdHablaron().length;
+    return faltan>0?{msg:(faltan>1?'Faltan '+faltan+' personas':'Falta 1 persona')+' por explicar un punto. Toca "Elegir a alguien al azar".',ids:[]}:null;
+  }
+  if(k==='enviar'&&d.copiaSi==='si'&&!ptpdCorreos().length) return {msg:'Escribe el correo para la copia, o elige "No".',ids:['ptpd-correos']};
+  return null;
+}
+
+const PTPD_VISTAS={
+  datos(){
+    const d=ptpd, l=listasGlobal||{};
+    const quien=[...new Set([...(l.foremen||[]),...(l.superintendentes||[])])].sort((a,b)=>a.localeCompare(b));
+    const opts=(arr,val,ph)=>`<option value="">— ${ph} —</option>`+(val&&arr.indexOf(val)<0?[val].concat(arr):arr)
+      .map(o=>`<option value="${rcEsc(o)}"${o===val?' selected':''}>${rcEsc(o)}</option>`).join('');
+    return (d.fecha!==hoyLocal()?`<div class="ptpd-aviso">Este PTP se empezó el ${sftUS(d.fecha)} y no se envió. <button class="ptpd-link" onclick="ptpdDescartar()">Empezar uno nuevo para hoy</button></div>`:'')+
+    `<div class="ptpd-nota">Llénalo <b>antes de empezar a trabajar</b>, platícalo con tu cuadrilla y pasa la tablet para que cada uno firme. Se guarda en esta tablet hasta que lo envíes.</div>
+    <div class="field"><label>Proyecto *</label><select id="ptpd-proyecto" onchange="ptpdProyecto(this.value)">${opts(l.proyectos||[],d.proyecto,'Selecciona proyecto')}</select></div>
+    <div class="field"><label>Quién hace el PTP *</label><select id="ptpd-creador" onchange="ptpdSet('creadoPor',this.value)">${opts(quien,d.creadoPor,'Selecciona foreman o superintendente')}</select></div>
+    <div class="grid2">
+      <div class="field"><label>Fecha</label><input type="date" value="${d.fecha}" onchange="ptpdSet('fecha',this.value||hoyLocal())"/></div>
+      <div class="field"><label>Hora</label><input type="time" value="${d.hora}" onchange="ptpdSet('hora',this.value)"/></div>
+    </div>
+    <div class="field"><label>Área o ubicación del trabajo</label><input type="text" value="${rcEsc(d.ubicacion)}" placeholder="Ej. muro norte, nivel 2" oninput="ptpdSet('ubicacion',this.value)" autocomplete="off"/></div>
+    <div class="field"><label>Clima</label><div class="ptpd-chips">${PTPD_CLIMA.map((c,i)=>`<button class="ptpd-chip${d.clima===c?' on':''}" onclick="ptpdClima(${i})">${c}</button>`).join('')}</div></div>
+    <div class="field"><label>Temperatura (°F)</label><input type="number" inputmode="numeric" value="${rcEsc(d.temperatura)}" placeholder="Ej. 64" oninput="ptpdSet('temperatura',this.value)"/></div>
+    <div class="field"><label>¿Se dio una charla de seguridad (toolbox) hoy?</label>
+      <div class="tog-row" style="margin-top:0;"><button class="tog${d.toolbox==='si'?' ptpd-on':''}" onclick="ptpdSet('toolbox','si',true)">Sí</button><button class="tog${d.toolbox==='no'?' ptpd-on':''}" onclick="ptpdSet('toolbox','no',true)">No</button></div>
+      ${d.toolbox==='si'?`<input type="text" style="margin-top:8px;" value="${rcEsc(d.toolboxTema)}" placeholder="Tema de la charla" oninput="ptpdSet('toolboxTema',this.value)" autocomplete="off"/>`:''}</div>
+    <div class="field"><label>Hospital más cercano / punto de reunión</label><input type="text" value="${rcEsc(d.hospital)}" placeholder="Se recuerda para este proyecto" oninput="ptpdSet('hospital',this.value)" autocomplete="off"/></div>`;
+  },
+  area(){
+    const d=ptpd;
+    let h='<div class="card" style="padding:4px 16px;">'+PTPD_AREA.map(q=>{
+      const v=d.area[q.id]||'';
+      return `<div class="insp-item" id="ptpd-q-${q.id}"><div class="insp-name">${q.es}</div>${q.sub?`<div class="insp-sub">${q.sub}</div>`:''}
+        <div class="tog-row tres">${[['si','Sí'],['no','No'],['na','N/A']].map(([k,t])=>`<button class="tog${v===k?' ptpd-on':''}" onclick="ptpdArea('${q.id}','${k}')">${t}</button>`).join('')}</div>
+        ${q.id==='cerca'&&v==='si'?`<textarea rows="2" style="margin-top:10px;" placeholder="¿Quiénes son? ¿Cómo nos puede afectar su trabajo y qué vamos a hacer?" oninput="ptpdSet('otrasCuadrillas',this.value)">${rcEsc(d.otrasCuadrillas)}</textarea>`:''}</div>`;
+    }).join('')+'</div>';
+    if(d.area.utilidades==='si'&&d.area.marcadas==='no') h+='<div class="ptpd-aviso"><b>Alto:</b> hay utilidades vivas y no están marcadas. No excaven ni perforen hasta que estén localizadas y marcadas.</div>';
+    if(d.area.emergencia==='no') h+='<div class="ptpd-aviso">Localicen el extintor, el botiquín, el lavaojos y las SDS antes de empezar.</div>';
+    if(d.area.permisos==='si') h+='<div class="ptpd-nota">Confirma que los permisos estén <b>firmados y a la mano</b> antes de empezar.</div>';
+    return h;
+  },
+  tareas(){
+    const d=ptpd;
+    let h=`<div class="ptpd-nota">Una tarjeta por actividad: con qué se trabaja, <b>qué puede lastimar</b> y <b>qué vamos a hacer para evitarlo</b>. Las actividades comunes vienen llenas: ajústalas a lo de hoy. El punto rojo marca peligros de alta energía (lesión grave o muerte).</div>
+      <div class="field"><label>Agregar actividad</label><div class="ptpd-chips">${ptpdPlantillas().map((a,i)=>`<button class="ptpd-chip plantilla" onclick="ptpdAgregarTarea(${i})">+ ${rcEsc(a.actividad)}</button>`).join('')}<button class="ptpd-chip plantilla" onclick="ptpdAgregarTarea(-1)">+ Otra actividad</button></div></div>`;
+    h+=d.tareas.map((t,j)=>ptpdTareaHtml(t,j)).join('');
+    if(!d.tareas.length) h+='<div class="insp-vacio">Todavía no hay tareas. Toca una actividad de arriba o "+ Otra actividad".</div>';
+    return h+`<datalist id="ptpd-empleados">${ptpdEmpleados().map(n=>`<option value="${rcEsc(n)}">`).join('')}</datalist>`;
+  },
+  epp(){
+    const d=ptpd;
+    return `<div class="ptpd-nota">Marca todo el EPP que se necesita hoy. Los básicos ya vienen marcados.</div>
+      <div class="field"><label>EPP requerido *</label><div class="ptpd-chips" id="ptpd-epp">${PTPD_EPP.map(p=>`<button class="ptpd-chip${d.epp.indexOf(p.id)>=0?' on':''}" onclick="ptpdEpp('${p.id}')">${p.es}</button>`).join('')}${d.eppOtros.map((o,k)=>`<button class="ptpd-chip on" onclick="ptpdQuitarEppOtro(${k})">${rcEsc(o)} ✕</button>`).join('')}</div>
+      <div class="ptpd-fila"><input type="text" id="ptpd-epp-otro" placeholder="Otro EPP" autocomplete="off" onkeydown="if(event.key==='Enter')ptpdAgregarEppOtro()"/><button class="ptpd-x" onclick="ptpdAgregarEppOtro()">Agregar</button></div></div>`+
+      ptpdEppAvisos().map(a=>`<div class="ptpd-aviso">${a}</div>`).join('');
+  },
+  platica(){
+    const d=ptpd;
+    const tareas=d.tareas.map(t=>`<h4>${rcEsc(t.actividad)}</h4>${t.equipo?`<div style="color:var(--text2);font-size:14px;">${rcEsc(t.equipo)}</div>`:''}
+      <div class="ptpd-tags">${ptpdPeligrosDe(t).map(p=>`<span class="ptpd-tag${p.alta?' alta':''}">${rcEsc(p.es)}</span>`).join('')}</div>
+      <div style="white-space:pre-wrap;">${rcEsc(t.controles)}</div>`).join('');
+    return `<div class="ptpd-nota">Lee esto en voz alta con tu cuadrilla. Haz las preguntas y deja que <b>ellos</b> contesten. Si alguien ve un peligro que falta, regresa a Tareas y agrégalo.</div>
+      <div class="card ptpd-leer"><div class="sec-label">${rcEsc(d.proyecto)} · ${sftUS(d.fecha)}</div>${tareas}
+        <h4>EPP</h4><div>${ptpdEppLista().map(p=>rcEsc(p.es)).join(', ')}</div>
+        <h4>Emergencia</h4><div>Llama al 911.${d.hospital?' Hospital / punto de reunión: '+rcEsc(d.hospital)+'.':''}</div>
+        ${d.area.cerca==='si'&&d.otrasCuadrillas?`<h4>Otras cuadrillas cerca</h4><div style="white-space:pre-wrap;">${rcEsc(d.otrasCuadrillas)}</div>`:''}</div>
+      <div class="card"><div class="sec-label">Preguntas para la cuadrilla</div><ul class="ptpd-leer" style="margin-left:18px;">
+        <li>¿Qué vas a hacer hoy y qué te puede lastimar?</li><li>¿Qué controles tenemos y dónde están?</li>
+        <li>¿Qué otras cuadrillas o equipos trabajan cerca y cómo nos afectan?</li><li>¿Tienes todo lo que necesitas para trabajar seguro?</li>
+        <li>Si ves algo que no hablamos hoy, ¿qué haces? <b>Para el trabajo y avisa.</b></li></ul></div>
+      <div class="card"><div class="sec-label">Firma de quien hace el PTP</div><div style="font-size:15px;font-weight:800;margin-bottom:8px;">${rcEsc(d.creadoPor)}</div>
+        ${d.firmaCreador?`<img class="ptpd-firma-img" src="${d.firmaCreador}" alt="Firma"/><button class="btn btn-ghost" onclick="ptpdSet('firmaCreador','',true)">Firmar otra vez</button>`
+        :`<div class="field" style="margin:0;"><div class="firma-caja"><canvas id="ptpd-firma-creador"></canvas><div class="firma-guia">Firma aquí con el dedo</div></div></div>
+          <button class="btn btn-ghost" type="button" onclick="firmaBorrar('ptpd-firma-creador')" style="margin-top:8px;">Borrar firma</button>`}</div>`;
+  },
+  firmas(){
+    const d=ptpd, ya=new Set(d.asistentes.map(a=>ptpdClave(a.nombre)));
+    const libres=ptpdEmpleados().filter(n=>!ya.has(ptpdClave(n)));
+    return `<div class="ptpd-nota"><b>Pasa la tablet.</b> Cada trabajador busca su nombre, confirma que entendió y firma. Luego toca "Firmar y pasar".</div>
+      <div class="card"><div class="sec-label">Siguiente en firmar</div>
+        <div class="field" style="margin-bottom:6px;"><label>Tu nombre *</label>${ptpdNombreLibre
+          ?'<input type="text" id="ptpd-firmante" autocomplete="off" placeholder="Nombre y apellido"/>'
+          :`<select id="ptpd-firmante"><option value="">— Busca tu nombre —</option>${libres.map(n=>`<option value="${rcEsc(n)}">${rcEsc(n)}</option>`).join('')}</select>`}</div>
+        <button class="ptpd-link" onclick="ptpdNombreLibre=!ptpdNombreLibre;ptpdRender()">${ptpdNombreLibre?'Buscar mi nombre en la lista':'¿No aparece tu nombre? Escríbelo'}</button>
+        <div class="field" style="margin:12px 0;"><label style="display:flex;gap:10px;align-items:flex-start;font-size:15px;font-weight:800;text-transform:none;letter-spacing:0;color:var(--text);cursor:pointer;">
+          <input type="checkbox" id="ptpd-entendi" style="width:22px;height:22px;min-height:0;flex:none;margin-top:1px;accent-color:var(--ooi-orange);"/>Entendí las tareas, los peligros y los controles de hoy.</label></div>
+        <div class="field"><label>¿Ves un peligro que falta o tienes una duda? (opcional)</label><textarea id="ptpd-nota-asist" rows="2" placeholder="Si no, déjalo en blanco"></textarea></div>
+        <div class="field" style="margin-bottom:0;"><label>Firma *</label><div class="firma-caja"><canvas id="ptpd-firma-asist"></canvas><div class="firma-guia">Firma aquí con el dedo</div></div></div>
+        <div class="grid2" style="margin-top:10px;"><button class="btn btn-ghost" onclick="firmaBorrar('ptpd-firma-asist')">Borrar</button><button class="btn btn-primary" onclick="ptpdFirmar()">Firmar y pasar</button></div></div>
+      <div class="card"><div class="sec-label">Ya firmaron (${d.asistentes.length})</div>${d.asistentes.length?d.asistentes.map((a,i)=>`<div class="ptpd-firmado">${empAvatarHtml(ptpdEmp(a.nombre))}
+          <div style="flex:1;min-width:0;"><div style="font-weight:800;">${rcEsc(a.nombre)}</div><div style="font-size:12px;color:var(--text2);">${a.hora}${a.nota?' · '+rcEsc(a.nota):''}</div></div>
+          <img class="f" src="${a.firma}" alt="Firma"/><button class="ptpd-x" onclick="ptpdQuitarFirma(${i})" aria-label="Quitar firma">✕</button></div>`).join('')
+        :'<div class="insp-vacio">Nadie ha firmado todavía.</div>'}</div>`;
+  },
+  hablan(){
+    const d=ptpd, min=ptpdMinHablan(), n=ptpdHablaron().length, r=ptpdRuleta;
+    const tarjeta=!r
+      ?`<div class="ptpd-ruleta"><div class="ico-tile lg" style="margin:0 auto;">${ico('megaphone')}</div><div class="nombre" style="font-size:20px;">¿Quién explica un punto del PTP?</div>
+         <div style="font-size:14px;color:var(--text2);">La app escoge al azar a alguien que ya firmó y le da una pregunta sobre el PTP de hoy.</div></div>
+        <button class="btn btn-primary" onclick="ptpdElegir()">${ico('user')}Elegir a alguien al azar</button>`
+      :`<div class="ptpd-ruleta${r.girando?' girando':''}">${r.girando?`<div class="ico-tile lg" style="margin:0 auto;">${ico('user')}</div>`:empAvatarHtml(ptpdEmp(r.nombre),'xl')}
+         <div class="nombre" id="ptpd-ruleta-nombre">${rcEsc(r.nombre)}</div>${r.girando?'':`<div class="ptpd-pregunta">${rcEsc(r.pregunta)}</div>`}</div>
+        ${r.girando?'':`<button class="btn btn-primary" onclick="ptpdHablo()">${ico('check')}Ya lo explicó</button>
+          <div class="grid2" style="margin-top:8px;"><button class="btn btn-ghost" onclick="ptpdOtraPregunta()">Otra pregunta</button><button class="btn btn-ghost" onclick="ptpdElegir()">Elegir a otro</button></div>`}`;
+    return `<div class="ptpd-nota">Para que todos participen: la app escoge a alguien que ya firmó y le pide explicar un punto del PTP <b>con sus palabras</b>. Cuando termine, toca "Ya lo explicó".</div>
+      <div style="text-align:center;margin-bottom:12px;"><span class="ptpd-cuenta${n>=min?' ok':''}">Han hablado ${n} de ${d.asistentes.length} · mínimo ${min}</span></div>
+      <div class="card">${tarjeta}</div>
+      ${d.participaron.length?`<div class="card"><div class="sec-label">Ya hablaron</div>${d.participaron.map((p,i)=>`<div class="ptpd-firmado">${empAvatarHtml(ptpdEmp(p.nombre))}
+        <div style="flex:1;min-width:0;"><div style="font-weight:800;">${rcEsc(p.nombre)} <span style="font-weight:400;font-size:12px;color:var(--text2);">${p.hora}</span></div>
+        <div style="font-size:13px;color:var(--text2);">${rcEsc(p.pregunta)}</div></div><button class="ptpd-x" onclick="ptpdQuitarHablo(${i})" aria-label="Quitar">✕</button></div>`).join('')}</div>`:''}`;
+  },
+  enviar(){
+    const d=ptpd, pel=ptpdTodosPeligros(), altas=pel.filter(p=>p.alta), aportes=d.asistentes.filter(a=>a.nota);
+    return `<div class="card"><div class="sec-label">Resumen</div>
+        <div class="ins-stats"><div class="ins-stat"><b>${d.tareas.length}</b><span>tareas</span></div><div class="ins-stat"><b>${d.asistentes.length}</b><span>firmaron</span></div><div class="ins-stat"><b>${ptpdHablaron().length}</b><span>hablaron</span></div></div>
+        <div style="font-size:14px;line-height:1.6;"><b>${rcEsc(d.proyecto)}</b> · ${sftUS(d.fecha)} ${rcEsc(d.hora)}<br>Hecho por ${rcEsc(d.creadoPor)}<br>${pel.length} peligro(s)${altas.length?` · <span style="color:var(--danger-text);font-weight:800;">${altas.length} de alta energía</span>`:''}${aportes.length?`<br>${aportes.length} aporte(s) de la cuadrilla`:''}</div></div>
+      <div class="card"><div class="sec-label">Copia para alguien fuera de OOI</div>
+        <div style="font-size:13px;color:var(--text2);margin-bottom:8px;">Por ejemplo, la constructora general. Se manda el PDF con todas las firmas.</div>
+        <div class="tog-row" style="margin-top:0;"><button class="tog${d.copiaSi==='si'?' ptpd-on':''}" onclick="ptpdSet('copiaSi','si',true)">Sí, mandar copia</button><button class="tog${d.copiaSi==='no'?' ptpd-on':''}" onclick="ptpdSet('copiaSi','no',true)">No</button></div>
+        ${d.copiaSi==='si'?`<div class="field" style="margin:12px 0 0;"><label>Correo(s)</label><input type="text" inputmode="email" id="ptpd-correos" value="${rcEsc(d.correos)}" placeholder="correo@constructora.com, otro@..." oninput="ptpdSet('correos',this.value)" autocomplete="off"/></div>`:''}</div>
+      <div class="ptpd-nota">Al enviar se crea el PDF con todas las firmas. Después lo encuentras en <b>Mis PTP</b> para verlo, descargarlo o mandarlo por correo.</div>`;
+  }
+};
+
+function ptpdProyecto(v){ ptpd.hospital=''; ptpd.correos=''; ptpdAplicarProyecto(ptpd,v); ptpdGuardar(); ptpdRender(); }
+function ptpdClima(i){ const c=PTPD_CLIMA[i]; ptpdSet('clima',ptpd.clima===c?'':c,true); }
+function ptpdArea(id,v){
+  ptpd.area[id]=v;
+  if(id==='arnes'&&v==='si'&&ptpd.epp.indexOf('arnes')<0) ptpd.epp.push('arnes');
+  ptpdGuardar(); ptpdRender();
+}
+// Avisos de EPP según los peligros marcados en las tareas
+function ptpdEppAvisos(){
+  const ids=new Set(ptpd.tareas.flatMap(t=>t.peligros)), epp=new Set(ptpd.epp), a=[];
+  if((ids.has('silice')||ids.has('polvo'))&&!epp.has('n95')&&!epp.has('respirador')) a.push('Hay <b>sílice o polvo</b> en las tareas: marca el respirador.');
+  if(ids.has('ruido')&&!epp.has('auditiva')) a.push('Hay <b>ruido alto</b> en las tareas: marca la protección auditiva.');
+  if((ids.has('alturas')||ptpd.area.arnes==='si')&&!epp.has('arnes')) a.push('Hay <b>trabajo en alturas</b>: ¿se necesita arnés?');
+  if((ids.has('quemquim')||ids.has('quimicos'))&&!epp.has('guantes')) a.push('Hay <b>químicos o cemento</b>: marca los guantes.');
+  return a;
+}
+function ptpdEpp(id){ const i=ptpd.epp.indexOf(id); if(i>=0) ptpd.epp.splice(i,1); else ptpd.epp.push(id); ptpdGuardar(); ptpdRender(); }
+function ptpdAgregarEppOtro(){
+  const el=document.getElementById('ptpd-epp-otro'), v=el.value.trim().slice(0,80); if(!v) return;
+  ptpd.eppOtros.push(v); ptpdGuardar(); ptpdRender();
+}
+function ptpdQuitarEppOtro(k){ ptpd.eppOtros.splice(k,1); ptpdGuardar(); ptpdRender(); }
+
+// Tareas
+function ptpdPlantillas(){
+  const propias=ptpdLeerLS(PTPD_PLANTILLAS,[]), nombres=new Set(propias.map(p=>ptpdClave(p.actividad)));
+  return propias.concat(PTPD_ACTIVIDADES.filter(a=>!nombres.has(ptpdClave(a.actividad))));
+}
+function ptpdTareaHtml(t,j){
+  const altas=t.peligros.map(id=>PTPD_PELIGROS.find(p=>p.id===id)).filter(p=>p&&p.alta);
+  return `<div class="ptpd-tarea" id="ptpd-t${j}">
+    <div class="ptpd-tarea-cab"><span>Tarea ${j+1}</span><button class="ptpd-x" onclick="ptpdQuitarTarea(${j})">Quitar</button></div>
+    <div class="field"><label>Actividad *</label><input type="text" id="ptpd-t${j}-act" value="${rcEsc(t.actividad)}" placeholder="¿Qué vamos a hacer?" oninput="ptpdTarea(${j},'actividad',this.value)" autocomplete="off"/></div>
+    <div class="field"><label>Herramientas / equipo</label><input type="text" value="${rcEsc(t.equipo)}" placeholder="Ej. drill, mangueras, loader" oninput="ptpdTarea(${j},'equipo',this.value)" autocomplete="off"/></div>
+    <div class="field"><label>Peligros *</label><div class="ptpd-chips" id="ptpd-t${j}-pel">${PTPD_PELIGROS.map(p=>`<button class="ptpd-chip${t.peligros.indexOf(p.id)>=0?' on':''}" onclick="ptpdPeligro(${j},'${p.id}')">${p.es}${p.alta?'<span class="alta"></span>':''}</button>`).join('')}${t.otros.map((o,k)=>`<button class="ptpd-chip on" onclick="ptpdQuitarOtro(${j},${k})">${rcEsc(o)} ✕</button>`).join('')}</div>
+      <div class="ptpd-fila"><input type="text" id="ptpd-t${j}-otro" placeholder="Otro peligro" autocomplete="off" onkeydown="if(event.key==='Enter')ptpdAgregarOtro(${j})"/><button class="ptpd-x" onclick="ptpdAgregarOtro(${j})">Agregar</button></div></div>
+    ${altas.length?`<div class="ptpd-aviso"><b>Alta energía:</b> ${altas.map(p=>p.es).join(', ')}. Usen un control que no dependa solo del EPP: barrera, distancia, bloqueo o señalero.</div>`:''}
+    <div class="field"><label>Controles contra los peligros *</label><textarea rows="3" id="ptpd-t${j}-ctl" placeholder="¿Qué vamos a hacer para que nadie se lastime?" oninput="ptpdTarea(${j},'controles',this.value)">${rcEsc(t.controles)}</textarea></div>
+    <div class="field"><label>Responsable de los controles</label><input type="text" list="ptpd-empleados" value="${rcEsc(t.responsable)}" placeholder="Opcional" oninput="ptpdTarea(${j},'responsable',this.value)" autocomplete="off"/></div>
+    <button class="ptpd-link" onclick="ptpdGuardarPlantilla(${j})">Guardar como actividad común en esta tablet</button></div>`;
+}
+function ptpdAgregarTarea(i){
+  const a=i>=0?ptpdPlantillas()[i]:{actividad:'',equipo:'',peligros:[],otros:[],controles:''};
+  ptpd.tareas.push({actividad:a.actividad,equipo:a.equipo||'',peligros:(a.peligros||[]).slice(),otros:(a.otros||[]).slice(),controles:a.controles||'',responsable:''});
+  ptpdGuardar(); ptpdRender();
+  const el=document.getElementById('ptpd-t'+(ptpd.tareas.length-1)); if(el) el.scrollIntoView({behavior:'smooth',block:'start'});
+}
+function ptpdQuitarTarea(j){
+  if(!confirm('¿Quitar la tarea "'+(ptpd.tareas[j].actividad||('Tarea '+(j+1)))+'"?')) return;
+  ptpd.tareas.splice(j,1); ptpdGuardar(); ptpdRender();
+}
+function ptpdTarea(j,k,v){ ptpd.tareas[j][k]=v; ptpdGuardar(); }
+function ptpdPeligro(j,id){ const a=ptpd.tareas[j].peligros, i=a.indexOf(id); if(i>=0) a.splice(i,1); else a.push(id); ptpdGuardar(); ptpdRender(); }
+function ptpdAgregarOtro(j){
+  const el=document.getElementById('ptpd-t'+j+'-otro'), v=el.value.trim().slice(0,80); if(!v) return;
+  ptpd.tareas[j].otros.push(v); ptpdGuardar(); ptpdRender();
+}
+function ptpdQuitarOtro(j,k){ ptpd.tareas[j].otros.splice(k,1); ptpdGuardar(); ptpdRender(); }
+function ptpdGuardarPlantilla(j){
+  const t=ptpd.tareas[j], nombre=t.actividad.trim();
+  if(!nombre){ alert('Escribe primero la actividad.'); return; }
+  const lista=ptpdLeerLS(PTPD_PLANTILLAS,[]).filter(p=>ptpdClave(p.actividad)!==ptpdClave(nombre));
+  lista.unshift({actividad:nombre,equipo:t.equipo,peligros:t.peligros.slice(),otros:t.otros.slice(),controles:t.controles});
+  ptpdEscribirLS(PTPD_PLANTILLAS,lista.slice(0,20));
+  alert('Listo: "'+nombre+'" ya sale en las actividades de esta tablet.');
+  ptpdRender();
+}
+
+// Firmas de la cuadrilla
+function ptpdFirmar(){
+  const el=document.getElementById('ptpd-firmante'), nombre=ptpdNombre(el?el.value:'');
+  const faltan=[];
+  if(!nombre) faltan.push(['ptpd-firmante','tu nombre']);
+  if(!document.getElementById('ptpd-entendi').checked) faltan.push(['ptpd-entendi','marcar que entendiste']);
+  if(firmaVacia('ptpd-firma-asist')) faltan.push(['ptpd-firma-asist','tu firma']);
+  if(faltan.length){ ptpdFalta({msg:'Falta: '+faltan.map(f=>f[1]).join(', ')+'.',ids:faltan.map(f=>f[0])}); return; }
+  if(ptpd.asistentes.some(a=>ptpdClave(a.nombre)===ptpdClave(nombre))){ alert(nombre+' ya firmó este PTP.'); return; }
+  ptpd.asistentes.push({nombre,hora:ptpdHora(),nota:document.getElementById('ptpd-nota-asist').value.trim().slice(0,500),firma:ptpdFirmaPng('ptpd-firma-asist')});
+  ptpdNombreLibre=false; ptpdGuardar(); ptpdRender();
+  const caja=document.getElementById('ptpd-firmante'); if(caja) caja.closest('.card').scrollIntoView({behavior:'smooth',block:'start'});
+}
+function ptpdQuitarFirma(i){
+  const n=ptpd.asistentes[i].nombre;
+  if(!confirm('¿Quitar la firma de '+n+'?')) return;
+  ptpd.asistentes.splice(i,1);
+  ptpd.participaron=ptpd.participaron.filter(p=>ptpdClave(p.nombre)!==ptpdClave(n));
+  ptpdGuardar(); ptpdRender();
+}
+
+// ¿Quién habla? Al azar entre los que firmaron y aún no hablan; cuando ya hablaron todos, otra ronda.
+function ptpdPreguntas(){
+  const d=ptpd, q=[];
+  d.tareas.forEach(t=>{
+    ptpdPeligrosDe(t).forEach(p=>{
+      const txt=`En "${t.actividad}", ¿cómo nos protegemos de: ${p.es.toLowerCase()}?`;
+      q.push(txt); if(p.alta) q.push(txt);   // los de alta energía salen el doble
+    });
+    q.push(`Explica a todos, con tus palabras, los controles de "${t.actividad}".`);
+    if(t.equipo) q.push(`¿Qué revisas de ${t.equipo.split(',')[0].trim()} antes de usarlo?`);
+  });
+  if(d.epp.length||d.eppOtros.length) q.push('¿Qué EPP necesitamos hoy y por qué?');
+  q.push('Si ves un peligro que no hablamos hoy, ¿qué haces?');
+  q.push('¿Dónde están el extintor, el botiquín y las SDS hoy?');
+  q.push('¿Cuál es la ruta de evacuación y el punto de reunión?');
+  if(d.area.cerca==='si') q.push('¿Qué otras cuadrillas o equipos trabajan cerca y cómo nos pueden afectar?');
+  d.asistentes.filter(a=>a.nota).forEach(a=>q.push(`${a.nombre} comentó: "${a.nota}". ¿Qué hacemos con eso?`));
+  return q;
+}
+function ptpdPregunta(){
+  const usadas=new Set(ptpd.participaron.map(p=>p.pregunta).concat(ptpdRuleta&&ptpdRuleta.pregunta?[ptpdRuleta.pregunta]:[]));
+  const todas=ptpdPreguntas(), nuevas=todas.filter(x=>!usadas.has(x)), lista=nuevas.length?nuevas:todas;
+  return lista[Math.floor(Math.random()*lista.length)];
+}
+function ptpdElegir(){
+  const d=ptpd;
+  if(!d.asistentes.length){ alert('Primero tiene que firmar la cuadrilla.'); return; }
+  const ya=new Set(ptpdHablaron().map(ptpdClave)), todos=d.asistentes.map(a=>a.nombre);
+  let pool=todos.filter(n=>!ya.has(ptpdClave(n)));
+  if(!pool.length) pool=todos.slice();
+  if(ptpdRuleta&&!ptpdRuleta.girando&&pool.length>1) pool=pool.filter(n=>n!==ptpdRuleta.nombre);
+  const elegido=pool[Math.floor(Math.random()*pool.length)];
+  clearInterval(ptpdGiroT);
+  ptpdRuleta={nombre:todos[0],girando:true,pregunta:''};
+  ptpdRender();
+  let paso=0;
+  ptpdGiroT=setInterval(()=>{
+    paso++;
+    if(paso>=16){
+      clearInterval(ptpdGiroT);
+      ptpdRuleta={nombre:elegido,girando:false,pregunta:''};
+      ptpdRuleta.pregunta=ptpdPregunta();
+      ptpdRender(); return;
+    }
+    const el=document.getElementById('ptpd-ruleta-nombre'); if(el) el.textContent=todos[paso%todos.length];
+  },90);
+}
+function ptpdOtraPregunta(){ if(!ptpdRuleta) return; ptpdRuleta.pregunta=ptpdPregunta(); ptpdRender(); }
+function ptpdHablo(){
+  if(!ptpdRuleta||ptpdRuleta.girando) return;
+  ptpd.participaron.push({nombre:ptpdRuleta.nombre,pregunta:ptpdRuleta.pregunta,hora:ptpdHora()});
+  ptpdRuleta=null; ptpdGuardar(); ptpdRender();
+}
+function ptpdQuitarHablo(i){ ptpd.participaron.splice(i,1); ptpdGuardar(); ptpdRender(); }
+
+// Envío: todo junto. Si falla, el PTP sigue en la tablet y se puede volver a mandar (el servidor no lo duplica).
+async function ptpdEnviar(){
+  ptpdCapturarFirmaCreador();
+  for(let i=0;i<PTPD_PASOS.length;i++){
+    const f=ptpdValidar(i);
+    if(f){ if(i!==ptpd.paso){ ptpd.paso=i; ptpdRender(); } ptpdFalta(f); return; }
+  }
+  const d=ptpd, b64=u=>String(u||'').split(',')[1]||'';
+  const payload={tipo:'ptp_diario',id:d.id,fecha:d.fecha,hora:d.hora,proyecto:d.proyecto,creadoPor:d.creadoPor,ubicacion:d.ubicacion.trim(),
+    clima:d.clima,temperatura:String(d.temperatura||'').trim(),toolbox:d.toolbox,toolboxTema:d.toolbox==='si'?d.toolboxTema.trim():'',
+    hospital:d.hospital.trim(),otrasCuadrillas:d.area.cerca==='si'?d.otrasCuadrillas.trim():'',
+    area:PTPD_AREA.map(q=>({es:q.es,en:q.en,val:d.area[q.id]||''})),
+    tareas:d.tareas.map(t=>({actividad:t.actividad.trim(),equipo:t.equipo.trim(),controles:t.controles.trim(),responsable:t.responsable.trim(),peligros:ptpdPeligrosDe(t)})),
+    epp:ptpdEppLista(),firmaCreador:b64(d.firmaCreador),
+    asistentes:d.asistentes.map(a=>({nombre:a.nombre,hora:a.hora,nota:a.nota,firma:b64(a.firma)})),
+    participaron:d.participaron,copia:d.copiaSi==='si'?ptpdCorreos():[]};
+  const msg=document.getElementById('ptpd-msg');
+  msg.style.display='block'; msg.textContent='Guardando el PTP y creando el PDF con las firmas... puede tardar unos segundos.';
+  msg.style.background='var(--info-bg)'; msg.style.color='var(--info-text)';
+  try{
+    const r=await enviarAScript(payload);
+    const porProyecto=ptpdLeerLS(PTPD_POR_PROYECTO,{});
+    porProyecto[d.proyecto]={hospital:payload.hospital,correos:payload.copia.join(', ')||(porProyecto[d.proyecto]||{}).correos||''};
+    ptpdEscribirLS(PTPD_POR_PROYECTO,porProyecto);
+    ptpdEscribirLS(PTPD_ULTIMO,{proyecto:d.proyecto,creadoPor:d.creadoPor});
+    ptpdHecho={id:d.id,proyecto:d.proyecto,fecha:d.fecha,firmaron:d.asistentes.length,copia:r.copia||'',correos:payload.copia};
+    clearTimeout(ptpdGuardarT); ptpd=null; ptpdRuleta=null; ptpdLista=null;
+    try{ localStorage.removeItem(PTPD_BORRADOR); }catch(e){}
+    ptpdMostrarHecho();
+  }catch(err){
+    if(String(err&&err.message)==='auth') return;
+    msg.textContent='No se pudo enviar'+(err instanceof TypeError?' (revisa tu señal)':': '+err.message)+'. Tu PTP sigue guardado en esta tablet; toca Enviar otra vez (no se duplica).';
+    msg.style.background='var(--danger-bg)'; msg.style.color='var(--danger-text)';
+  }
+}
+function ptpdMostrarHecho(){
+  const h=ptpdHecho;
+  ['ptpd-pasos','ptpd-paso-tit','ptpd-nav'].forEach(id=>{document.getElementById(id).innerHTML='';});
+  document.getElementById('ptpd-msg').style.display='none';
+  document.getElementById('ptpd-cuerpo').innerHTML=`<div class="card" style="text-align:center;padding:24px 18px;">
+      <div class="ico-tile lg" style="margin-bottom:12px;">${ico('check')}</div>
+      <div style="font-family:var(--f-head);font-size:20px;font-weight:800;color:var(--success-text);margin-bottom:6px;">PTP enviado</div>
+      <div style="font-size:14px;color:var(--text2);margin-bottom:6px;">${rcEsc(h.proyecto)} · ${sftUS(h.fecha)} · ${h.firmaron} firmaron</div>
+      ${h.copia==='enviada'?`<div style="font-size:13px;color:var(--success-text);">Copia enviada a ${rcEsc(h.correos.join(', '))}</div>`
+        :h.copia==='error'?'<div style="font-size:13px;color:var(--danger-text);">No se pudo mandar la copia por correo. Mándala desde Mis PTP.</div>':''}
+      <div class="ptpd-acciones" style="justify-content:center;"><button class="drive-btn" onclick="ptpdVerPdf('${rcEsc(h.id)}',this)">${ico('file')}Ver PDF</button></div></div>
+    <button class="btn btn-primary" onclick="ptpdNuevo()">Hacer otro PTP</button>`;
+  window.scrollTo(0,0);
+}
+
+// Mis PTP (foreman/super) y tarjetas que también usa Safety
+async function ptpdCargarLista(forzar){
+  const cuerpo=document.getElementById('ptpd-lista-cuerpo');
+  if(ptpdLista&&!forzar&&Date.now()-ptpdListaT<5*60*1000){ ptpdRenderLista(); return; }
+  cuerpo.innerHTML='<div class="loading">Cargando PTP...</div>';
+  try{
+    const j=await leerDeScript('ptp_diario',{dias:PTPD_DIAS_LISTA});
+    if(!j||j.status!=='ok') throw new Error((j&&j.message)||'');
+    ptpdLista=j.ptps||[]; ptpdListaT=Date.now(); ptpdRenderLista();
+  }catch(err){
+    if(String(err&&err.message)==='auth') return;
+    cuerpo.innerHTML='<div class="empty-state"><div>No se pudieron cargar los PTP. Revisa tu señal y toca Actualizar.</div></div>';
+  }
+}
+function ptpdPersona(v){ ptpdEscribirLS(PTPD_PERSONA,v); ptpdRenderLista(); }
+function ptpdRenderLista(){
+  const persona=ptpdLeerLS(PTPD_PERSONA,''), sel=document.getElementById('ptpd-persona');
+  const nombres=[...new Set(ptpdLista.map(p=>p.creadoPor).concat(listasGlobal.foremen||[]).filter(Boolean))].sort((a,b)=>a.localeCompare(b));
+  buildDropdown(sel,nombres,'Todos'); sel.value=persona;
+  const lista=ptpdLista.filter(p=>!persona||p.creadoPor===persona);
+  document.getElementById('ptpd-lista-cuerpo').innerHTML=lista.length?lista.map(p=>ptpdCardHtml(p,'m')).join('')
+    :`<div class="empty-state"><div class="icon">${ico('clipboard')}</div><div>No hay PTP en los últimos ${PTPD_DIAS_LISTA} días${persona?' de '+rcEsc(persona):''}.</div></div>`;
+}
+// pre: distingue la tarjeta de Mis PTP ('m') de la de Safety ('s'), que pueden estar las dos en la página
+function ptpdCardHtml(p,pre){
+  const min=Math.min(PTPD_MIN_HABLAN,p.asistentes.length), hablaron=new Set(p.participaron.map(x=>ptpdClave(x.nombre))).size, k=pre+p.id;
+  return `<div class="obs-card">
+    <div class="obs-card-top"><div class="obs-tipo">${sftUS(p.fecha)} · ${rcEsc(p.hora)}</div><span class="ptpd-cuenta${hablaron>=min?' ok':''}">${p.asistentes.length} firmaron · ${hablaron} hablaron</span></div>
+    <div class="obs-card-sitio"><b style="color:var(--text);">${rcEsc(p.proyecto)}</b> <span>· ${rcEsc(p.creadoPor)}</span></div>
+    <div style="font-size:14px;">${p.actividades.map(rcEsc).join(' · ')}</div>
+    ${p.altaEnergia.length?`<div class="ptpd-tags">${p.altaEnergia.map(x=>`<span class="ptpd-tag alta">${rcEsc(x)}</span>`).join('')}</div>`:''}
+    ${p.aportes.length?`<div style="font-size:13px;color:var(--text2);margin-top:6px;">Aportes: ${p.aportes.map(a=>rcEsc(a.nombre+': '+a.nota)).join(' · ')}</div>`:''}
+    ${p.copias?`<div style="font-size:12px;color:var(--text3);margin-top:6px;white-space:pre-wrap;">Copias: ${rcEsc(p.copias)}</div>`:''}
+    ${p.pdf?`<div class="ptpd-acciones"><button class="drive-btn" onclick="ptpdVerPdf('${rcEsc(p.id)}',this)">${ico('file')}Ver PDF</button>
+      <button class="drive-btn" style="background:var(--ooi-charcoal);" onclick="ptpdCorreoForm('${rcEsc(k)}','${rcEsc(p.id)}')">${ico('mail')}Mandar por correo</button></div>`:''}
+    <div id="ptpd-correo-${rcEsc(k)}"></div></div>`;
+}
+function ptpdCorreoForm(k,id){
+  const c=document.getElementById('ptpd-correo-'+k); if(!c) return;
+  if(c.innerHTML){ c.innerHTML=''; return; }
+  c.innerHTML=`<div class="ptpd-fila"><input type="text" inputmode="email" id="ptpd-correo-in-${k}" placeholder="correo@constructora.com" autocomplete="off"/>
+    <button class="drive-btn" onclick="envioUnico(this,()=>ptpdMandarCopia('${k}','${id}'))">Enviar</button></div><div class="submit-msg" id="ptpd-correo-msg-${k}"></div>`;
+  document.getElementById('ptpd-correo-in-'+k).focus();
+}
+async function ptpdMandarCopia(k,id){
+  const correos=ptpdCorreos(document.getElementById('ptpd-correo-in-'+k).value), msg=document.getElementById('ptpd-correo-msg-'+k);
+  msg.style.display='block';
+  const pinta=(t,tipo)=>{msg.textContent=t; msg.style.background='var(--'+tipo+'-bg)'; msg.style.color='var(--'+tipo+'-text)';};
+  if(!correos.length){ pinta('Escribe un correo válido.','danger'); return; }
+  pinta('Enviando...','info');
+  try{
+    await enviarAScript({tipo:'ptp_copia',id,correos});
+    pinta('Enviado a '+correos.join(', '),'success');
+    ptpdListaT=0; sptp.t=0;   // la próxima vez se ve en "Copias"
+  }catch(err){
+    if(String(err&&err.message)==='auth') return;
+    pinta('No se pudo enviar'+(err instanceof TypeError?' (revisa tu señal)':': '+err.message),'danger');
+  }
+}
+// PDF: lo manda el servidor (leer 'ptp_pdf'), así se abre aunque no tengan acceso a la carpeta de Drive
+async function ptpdVerPdf(id,btn){
+  const txt=btn.innerHTML;
+  btn.disabled=true; btn.innerHTML=ico('file')+'Abriendo...';
+  try{
+    const j=await leerDeScript('ptp_pdf',{id});
+    if(!j||j.status!=='ok') throw new Error((j&&j.message)||'No se pudo abrir el PDF.');
+    const bin=atob(j.base64), bytes=new Uint8Array(bin.length);
+    for(let i=0;i<bin.length;i++) bytes[i]=bin.charCodeAt(i);
+    ptpdVisor(j.nombre||'PTP.pdf', new Blob([bytes],{type:'application/pdf'}));
+  }catch(err){
+    if(String(err&&err.message)!=='auth') alert(err instanceof TypeError?'Error de conexión — intenta de nuevo':(err.message||'No se pudo abrir el PDF.'));
+  }finally{
+    btn.disabled=false; btn.innerHTML=txt;
+  }
+}
+let ptpdVisorUrl='', ptpdVisorArchivo=null;
+function ptpdVisor(nombre,blob){
+  ptpdCerrarVisor();
+  ptpdVisorUrl=URL.createObjectURL(blob);
+  try{ ptpdVisorArchivo=new File([blob],nombre,{type:'application/pdf'}); }catch(e){ ptpdVisorArchivo=null; }
+  const compartir=!!(ptpdVisorArchivo&&navigator.canShare&&navigator.canShare({files:[ptpdVisorArchivo]}));
+  const movil=/Android|iPhone|iPad|iPod/i.test(navigator.userAgent);   // ahí el PDF no se ve dentro de la página
+  const v=document.createElement('div');
+  v.id='ptpd-visor';
+  v.style.cssText='position:fixed;inset:0;z-index:9999;background:var(--bg);overflow:auto;';
+  v.innerHTML=`<div style="max-width:760px;margin:0 auto;padding:16px 16px 40px;">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;"><div style="flex:1;min-width:0;"><div style="font-family:var(--f-head);font-size:17px;font-weight:800;">PTP diario</div>
+      <div style="font-size:12px;color:var(--text2);word-break:break-word;">${rcEsc(nombre)}</div></div>
+      <button class="btn btn-ghost" style="width:auto;margin:0;" onclick="ptpdCerrarVisor()">Cerrar</button></div>
+    <a class="btn btn-primary" href="${ptpdVisorUrl}" target="_blank" rel="noopener" style="text-decoration:none;">${ico('file')}Abrir PDF</a>
+    <a class="btn btn-ghost" href="${ptpdVisorUrl}" download="${rcEsc(nombre)}" style="margin-top:8px;text-decoration:none;">${ico('download')}Descargar</a>
+    ${compartir?`<button class="btn btn-ghost" style="margin-top:8px;" onclick="ptpdCompartir()">${ico('upload')}Compartir (correo, WhatsApp...)</button>`:''}
+    ${movil?'':`<iframe src="${ptpdVisorUrl}" title="PTP" style="width:100%;height:75vh;border:1px solid var(--border);border-radius:var(--radius);margin-top:14px;background:#fff;"></iframe>`}</div>`;
+  document.body.appendChild(v);
+}
+async function ptpdCompartir(){ try{ await navigator.share({files:[ptpdVisorArchivo],title:ptpdVisorArchivo.name}); }catch(e){} }
+function ptpdCerrarVisor(){
+  const v=document.getElementById('ptpd-visor'); if(v) v.remove();
+  if(ptpdVisorUrl) URL.revokeObjectURL(ptpdVisorUrl);
+  ptpdVisorUrl=''; ptpdVisorArchivo=null;
+}
+
+// ── PTP DIARIO EN SAFETY ── quién hizo su PTP por día, firmas, participación, peligros y la lista con PDF
+const sptp={datos:null,t:0,periodo:30,f:{quien:'',proyecto:''},semana:0};
+async function sptpCargar(forzar){
+  if(!(listasGlobal.foremen&&listasGlobal.foremen.length)) cargarListas();
+  const c=document.getElementById('sptp-cuerpo');
+  if(sptp.datos&&!forzar&&Date.now()-sptp.t<5*60*1000){ sptpRender(); return; }
+  c.innerHTML='<div class="loading">Cargando PTP...</div>';
+  try{
+    const j=await leerDeScript('ptp_diario',{dias:120});
+    if(!j||j.status!=='ok') throw new Error((j&&j.message)||'');
+    sptp.datos=j.ptps||[]; sptp.t=Date.now(); sptpRender();
+  }catch(err){
+    if(String(err&&err.message)==='auth') return;
+    c.innerHTML='<div class="empty-state"><div>No se pudieron cargar los PTP. Toca Actualizar.</div></div>';
+  }
+}
+function sptpPeriodo(n){ sptp.periodo=n; document.querySelectorAll('#sptp-periodo .tp-chip').forEach(b=>b.classList.toggle('on',+b.dataset.p===n)); sptpRender(); }
+function sptpFiltro(k,v){ sptp.f[k]=v; sptpRender(); }
+function sptpSemana(n){ sptp.semana=Math.min(0,sptp.semana+n); sptpRender(); }
+function sptpRender(){
+  const todos=sptp.datos||[], ordenar=(a,b)=>a.localeCompare(b);
+  const llenar=(id,vals,actual)=>{ const s=document.getElementById(id); buildDropdown(s,vals,'Todos'); s.value=actual; };
+  llenar('sptp-f-quien',[...new Set(todos.map(p=>p.creadoPor).filter(Boolean))].sort(ordenar),sptp.f.quien);
+  llenar('sptp-f-proy',[...new Set(todos.map(p=>p.proyecto).filter(Boolean))].sort(ordenar),sptp.f.proyecto);
+  const filtro=p=>(!sptp.f.quien||p.creadoPor===sptp.f.quien)&&(!sptp.f.proyecto||p.proyecto===sptp.f.proyecto);
+  const desde=fechaLocal(new Date(Date.now()-(sptp.periodo-1)*86400000));
+  const lista=todos.filter(p=>p.fecha>=desde&&filtro(p));
+  const firmas=lista.reduce((s,p)=>s+p.asistentes.length,0);
+  const conHabla=lista.filter(p=>new Set(p.participaron.map(x=>ptpdClave(x.nombre))).size>=Math.min(PTPD_MIN_HABLAN,p.asistentes.length)).length;
+  const aportes=lista.reduce((s,p)=>s+p.aportes.length,0), alta=lista.filter(p=>p.altaEnergia.length).length;
+  const pct=n=>lista.length?Math.round(n*100/lista.length)+'%':'—';
+  const kpi=(n,t,sub)=>`<div class="stat-card obs-kpi"><div class="stat-num">${n}</div><div class="stat-lbl">${t}</div>${sub?`<div class="obs-kpi-sub">${sub}</div>`:''}</div>`;
+  let h='<div class="obs-kpis">'+kpi(lista.length,'PTP')+kpi(firmas,'Firmas de trabajadores')+kpi(lista.length?(firmas/lista.length).toFixed(1):'—','Trabajadores por PTP')+
+    kpi(pct(conHabla),'Con participación','al menos '+PTPD_MIN_HABLAN+' explicaron un punto')+kpi(aportes,'Aportes de la cuadrilla','peligros o dudas que agregaron')+
+    kpi(pct(alta),'Con alta energía','PTP con peligros que pueden matar')+'</div>';
+  h+=sptpSemanaHtml(todos.filter(filtro))+sptpPeligrosHtml(lista);
+  h+=`<div class="sec-label" style="margin-top:6px;">PTP (${lista.length})</div>`+
+    (lista.length?lista.map(p=>ptpdCardHtml(p,'s')).join(''):'<div class="empty-state"><div>No hay PTP con estos filtros.</div></div>');
+  document.getElementById('sptp-cuerpo').innerHTML=h;
+}
+// Tabla de la semana: quién hizo su PTP cada día (lun–sáb). Salen los que hicieron alguno en las 4 semanas anteriores.
+function sptpSemanaHtml(datos){
+  const hoy=new Date(); hoy.setHours(0,0,0,0);
+  const lunes=new Date(hoy); lunes.setDate(hoy.getDate()-((hoy.getDay()+6)%7)+sptp.semana*7);
+  const dias=[0,1,2,3,4,5].map(i=>{ const d=new Date(lunes); d.setDate(lunes.getDate()+i); return fechaLocal(d); });
+  const hoyS=fechaLocal(hoy), antes=new Date(lunes); antes.setDate(lunes.getDate()-21);
+  const ini=fechaLocal(antes), nombresDia=['Lun','Mar','Mié','Jue','Vie','Sáb'];
+  const quienes=[...new Set(datos.filter(p=>p.fecha>=ini&&p.fecha<=dias[5]).map(p=>p.creadoPor).filter(Boolean))].sort((a,b)=>a.localeCompare(b));
+  const filas=quienes.map(q=>`<tr><td class="ins-maq">${rcEsc(q)}</td>${dias.map((d,i)=>{
+    const n=datos.filter(p=>p.creadoPor===q&&p.fecha===d).length;
+    if(n) return `<td><span class="ins-c ok" title="${n} PTP">${n>1?n:'✓'}</span></td>`;
+    if(d>hoyS||i===5) return '<td><span class="ins-c nada">·</span></td>';
+    if(d===hoyS) return '<td><span class="ins-c bad" title="Todavía no llega el de hoy">…</span></td>';
+    return '<td><span class="ins-c falta" title="Sin PTP">✗</span></td>';
+  }).join('')}</tr>`).join('');
+  const titulo=sptp.semana===0?'Esta semana':sptp.semana===-1?'Semana pasada':'Semana del '+sftUS(dias[0]);
+  return `<div class="card"><div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+      <button class="ins-link" onclick="sptpSemana(-1)">‹ Antes</button><div style="flex:1;text-align:center;font-weight:900;">${titulo}</div>
+      ${sptp.semana<0?'<button class="ins-link" onclick="sptpSemana(1)">Después ›</button>':'<span style="width:64px;"></span>'}</div>
+    ${quienes.length?`<div class="ins-tabla-wrap"><table class="ins-tabla"><tr><th>Hecho por</th>${dias.map((d,i)=>`<th class="${d===hoyS?'hoy':''}">${nombresDia[i]}<br><span style="font-weight:400;">${+d.slice(8)}</span></th>`).join('')}</tr>${filas}</table></div>
+      <div class="ins-leyenda"><span><span class="ins-c ok">✓</span>Hizo su PTP</span><span><span class="ins-c bad">…</span>Hoy, todavía no</span><span><span class="ins-c falta">✗</span>Sin PTP (lun–vie)</span></div>`
+      :'<div class="insp-vacio">Nadie ha hecho PTP en estas semanas.</div>'}
+    <div style="font-size:12px;color:var(--text3);margin-top:8px;">Salen los que hicieron al menos un PTP en las últimas 4 semanas.</div></div>`;
+}
+function sptpPeligrosHtml(lista){
+  const cuenta={}; lista.forEach(p=>p.peligros.forEach(x=>{ cuenta[x]=(cuenta[x]||0)+1; }));
+  const top=Object.entries(cuenta).sort((a,b)=>b[1]-a[1]).slice(0,8);
+  if(!top.length) return '';
+  const max=top[0][1], altas=new Set(lista.flatMap(p=>p.altaEnergia));
+  return `<div class="card"><div class="sec-label">Peligros más comunes</div>${top.map(([n,c])=>`<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;font-size:13px;">
+    <div style="flex:0 0 44%;min-width:0;${altas.has(n)?'color:var(--danger-text);font-weight:800;':''}">${rcEsc(n)}</div>
+    <div style="flex:1;height:10px;background:var(--bg2);border-radius:5px;overflow:hidden;"><div style="width:${Math.round(c*100/max)}%;height:100%;background:var(--ooi-orange);"></div></div>
+    <div style="width:28px;text-align:right;font-weight:800;">${c}</div></div>`).join('')}</div>`;
 }
 
 
@@ -4945,7 +5810,7 @@ function foremanSalir(){
 
 
 // ── SAFETY PORTAL ──
-const SAFETY_PANELES = {obs:'safety-obs-panel', certs:'safety-certs-panel', emp:'safety-emp-panel', sds:'safety-sds-panel'};
+const SAFETY_PANELES = {obs:'safety-obs-panel', ptp:'safety-ptp-panel', certs:'safety-certs-panel', emp:'safety-emp-panel', sds:'safety-sds-panel'};
 
 function safetyMostrarMenu(){
   Object.keys(SAFETY_PANELES).forEach(k=>{const p=document.getElementById(SAFETY_PANELES[k]);if(p)p.style.display='none';});
@@ -4984,6 +5849,9 @@ function safetyTab(tab){
   if(tab==='obs'){
     if(bt) bt.textContent='Observaciones de Seguridad';
     obsCargar(false);
+  } else if(tab==='ptp'){
+    if(bt) bt.textContent='PTP diario';
+    sptpCargar(false);
   } else if(tab==='certs'){
     if(bt) bt.textContent='Registrar certificados';
     rcIniciar();
