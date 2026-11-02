@@ -6521,11 +6521,24 @@ async function empGuardar(){
   }
   const pend = emp.filas.map((f,i)=>({f,i})).filter(x=>!x.f.ok);
   if(!pend.length) return;
+  // Apellido y nombre: basta uno de cada uno (no hace falta que sean varios). Lo que falte se marca en rojo
+  const sinAp = pend.filter(x=>!empLimpiar(x.f.ap)), sinNo = pend.filter(x=>!empLimpiar(x.f.no));
+  if(sinAp.length || sinNo.length){
+    const marcar = [...sinAp.map(x=>document.getElementById('emp-ap-'+x.i)), ...sinNo.map(x=>document.getElementById('emp-no-'+x.i))].filter(Boolean);
+    marcarFaltantes(document.getElementById('emp-filas'), marcar);
+    const lineas = pend.filter(x=>!empLimpiar(x.f.ap) || !empLimpiar(x.f.no)).map(x=>{
+      const falta = [!empLimpiar(x.f.ap) && 'el apellido', !empLimpiar(x.f.no) && 'el nombre'].filter(Boolean).join(' y ');
+      return 'Empleado '+(x.i+1)+': falta '+falta+'.';
+    });
+    alert(lineas.join('\n'));
+    return;
+  }
   for(const {f,i} of pend){
-    if(!empNombreFila(f)){ alert('Empleado '+(i+1)+': escribe el apellido y el nombre.'); return; }
     const a = empAvisosFila(i);
-    if(f.ooi.trim() && !a.ooi){ alert('Empleado '+(i+1)+': el OOI ID debe ser como OOID1323 (o déjalo vacío).'); return; }
-    if(a.avisos.some(t=>/repetido en la lista/.test(t))){ alert('Empleado '+(i+1)+': '+a.avisos.find(t=>/repetido en la lista/.test(t))); return; }
+    const filas = document.getElementById('emp-filas'), campo = id=>document.getElementById('emp-'+id+'-'+i);
+    if(f.ooi.trim() && !a.ooi){ marcarFaltantes(filas,[campo('ooi')]); alert('Empleado '+(i+1)+': el OOI ID debe ser como OOID1323 (o déjalo vacío).'); return; }
+    const repetido = a.avisos.find(t=>/repetido en la lista/.test(t));
+    if(repetido){ marcarFaltantes(filas, /^OOID/.test(repetido) ? [campo('ooi')] : [campo('ap'),campo('no')]); alert('Empleado '+(i+1)+': '+repetido); return; }
   }
 
   emp.enviando = true; empEnviando = true;
