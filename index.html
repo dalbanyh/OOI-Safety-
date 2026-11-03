@@ -5118,7 +5118,7 @@ async function sptpCargar(forzar){
   try{
     const j=await leerDeScript('ptp_diario',{dias:120});
     if(!j||j.status!=='ok') throw new Error((j&&j.message)||'');
-    sptp.datos=j.ptps||[]; sptp.t=Date.now(); sptpRender();
+    sptp.datos=j.ptps||[]; sptp.gc=j.gc||[]; sptp.proyectos=j.proyectos||[]; sptp.t=Date.now(); sptpRender();
   }catch(err){
     if(String(err&&err.message)==='auth') return;
     c.innerHTML='<div class="empty-state"><div>No se pudieron cargar los PTP. Toca Actualizar.</div></div>';
@@ -5143,10 +5143,62 @@ function sptpRender(){
   let h='<div class="obs-kpis">'+kpi(lista.length,'PTP')+kpi(firmas,'Firmas de trabajadores')+kpi(lista.length?(firmas/lista.length).toFixed(1):'—','Trabajadores por PTP')+
     kpi(pct(conHabla),'Con participación','al menos '+PTPD_MIN_HABLAN+' explicaron un punto')+kpi(aportes,'Aportes de la cuadrilla','peligros o dudas que agregaron')+
     kpi(pct(alta),'Con alta energía','PTP con peligros que pueden matar')+'</div>';
-  h+=sptpSemanaHtml(todos.filter(filtro))+sptpPeligrosHtml(lista);
+  h+=sptpProyectosHtml(desde)+sptpSemanaHtml(todos.filter(filtro))+sptpPeligrosHtml(lista);
   h+=`<div class="sec-label" style="margin-top:6px;">PTP (${lista.length})</div>`+
     (lista.length?lista.map(p=>ptpdCardHtml(p,'s')).join(''):'<div class="empty-state"><div>No hay PTP con estos filtros.</div></div>');
   document.getElementById('sptp-cuerpo').innerHTML=h;
+}
+// Revisión de PTP de la contratista (antes en el PTP Compliance del Project SITE VISIT LOG):
+// para el día elegido, qué proyectos que piden papel (PTP Method "Paper - GC Req'd") ya tienen su PTP.
+// Cuenta los subidos desde la app (hoja PTPs) y los del formulario de antes (Paper PTP Log).
+function sptpProyectosHtml(desde){
+  const esPapel=m=>/^paper/i.test(m||'');
+  if(!sptp.fecha) sptp.fecha=fechaLocal(new Date());
+  const dia=sptp.fecha;
+  const filas=(sptp.proyectos||[]).filter(x=>!sptp.f.proyecto||x.proyecto===sptp.f.proyecto);
+  const gc=(sptp.gc||[]).filter(g=>g.fecha>=desde&&(!sptp.f.proyecto||g.proyecto===sptp.f.proyecto));
+  const gcDia=(sptp.gc||[]).filter(g=>g.fecha===dia);
+  const ptp=(sptp.datos||[]).filter(p=>p.fecha>=desde);
+  const piden=filas.filter(x=>esPapel(x.metodo));
+  const listos=piden.filter(x=>gcDia.some(g=>g.proyecto===x.proyecto)).length;
+  const kpi=(n,t)=>`<div class="stat-card obs-kpi"><div class="stat-num">${n}</div><div class="stat-lbl">${t}</div></div>`;
+  const resumen=`<div class="obs-kpis">${kpi(piden.length,'Piden PTP en papel')}${kpi(listos,'Entregados ese día')}${kpi(piden.length-listos,'Faltan')}${kpi(piden.length?Math.round(listos*100/piden.length)+'%':'—','Cumplimiento')}</div>`;
+  const tabla=filas.length?`<div class="ins-tabla-wrap"><table class="ins-tabla"><tr><th>Proyecto</th><th>PTP Method</th><th>Papel ese día</th><th>PTP OOI (periodo)</th></tr>${
+    filas.map(x=>{
+      const hechos=ptp.filter(p=>p.proyecto===x.proyecto).length;
+      const estado=esPapel(x.metodo)
+        ?(gcDia.some(g=>g.proyecto===x.proyecto)?'<span class="ins-c ok" title="Entregado">✓</span> Entregado':'<span class="ins-c falta" title="Falta">✗</span> Falta')
+        :'<span class="ins-c nada">·</span> No requiere papel';
+      const opts=['',...PTP_METODOS_OPC].map(m=>`<option value="${rcEsc(m)}"${m===(x.metodo||'')?' selected':''}>${m?rcEsc(m):'Sin definir'}</option>`).join('');
+      return `<tr><td class="ins-maq">${rcEsc(x.proyecto)}</td><td><select data-p="${rcEsc(x.proyecto)}" onchange="sptpMetodo(this)" style="min-width:150px;">${opts}</select></td><td>${estado}</td><td>${hechos}</td></tr>`;
+    }).join('')}</table></div>`:'<div class="insp-vacio">No hay proyectos en la hoja de proyectos.</div>';
+  const subidos=gc.length?gc.map(g=>`<div class="ptpd-firmado"><div style="flex:1;min-width:0;"><div style="font-weight:800;">${rcEsc(g.proyecto||'Sin proyecto')}</div>
+      <div style="font-size:12px;color:var(--text3);">${g.fecha} · ${rcEsc(g.subidoPor||'—')}${g.contratista?' · '+rcEsc(g.contratista):''}${g.origen==='Formulario'?' · formulario anterior':''}</div>
+      ${g.notas?`<div style="font-size:12px;color:var(--text2);">${rcEsc(g.notas)}</div>`:''}</div>
+      ${g.fotos.length?`<a class="ins-link" href="${rcEsc(g.fotos[0])}" target="_blank" rel="noopener">Ver foto</a>`:''}</div>`).join(''):'<div class="insp-vacio">No hay PTP de la contratista subidos en este periodo.</div>';
+  return `<div class="card"><div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px;">
+      <div class="sec-label" style="flex:1;">Revisión de PTP de la contratista</div>
+      <div class="field" style="margin:0;"><label>Día a revisar</label><input type="date" value="${dia}" onchange="sptpFecha(this.value)"/></div></div>
+    ${resumen}${tabla}
+    <div class="sec-label" style="margin-top:14px;">PTP de la contratista subidos (${gc.length})</div>${subidos}</div>`;
+}
+function sptpFecha(v){ sptp.fecha=v||fechaLocal(new Date()); sptpRender(); }
+const PTP_METODOS_OPC=["Paper - GC Req'd",'HQ Foundations (Digital)','N/A - Digital'];
+// Cambia el PTP Method de un proyecto (guarda en la Safety Sheet, pestaña PTP Metodos)
+async function sptpMetodo(sel){
+  const proyecto=sel.dataset.p, metodo=sel.value;
+  const previo=(sptp.proyectos||[]).find(x=>x.proyecto===proyecto);
+  sel.disabled=true;
+  try{
+    await enviarAScript({tipo:'ptp_metodo',proyecto,metodo,quien:'Safety'});
+    if(previo) previo.metodo=metodo;
+    sptpRender();
+  }catch(err){
+    if(String(err&&err.message)==='auth') return;
+    alert('No se pudo guardar el PTP Method: '+err.message);
+    sel.value=previo?previo.metodo:'';
+    sel.disabled=false;
+  }
 }
 // Tabla de la semana: quién hizo su PTP cada día (lun–sáb). Salen los que hicieron alguno en las 4 semanas anteriores.
 function sptpSemanaHtml(datos){
