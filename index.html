@@ -522,7 +522,9 @@ textarea{min-height:88px;resize:vertical;line-height:1.5;}
   transition:all 0.1s;
 }
 .num-btn:hover{border-color:var(--ooi-orange);}
-.num-btn:active{background:var(--ooi-orange);border-color:var(--ooi-orange);color:#fff;transform:scale(0.95);}
+.num-btn:active,.num-btn.tecla{background:var(--ooi-orange);border-color:var(--ooi-orange);color:#fff;transform:scale(0.95);}
+.pin-hint-teclado{display:none;}
+@media(any-pointer:fine){.pin-hint-teclado{display:inline;}}
 .num-btn.del{
   font-family:var(--f-body);
   font-size:12px;color:var(--text2);font-weight:900;text-transform:uppercase;letter-spacing:.08em;
@@ -787,6 +789,30 @@ button.ins-c{cursor:pointer;}
 .ptpd-tags{display:flex;flex-wrap:wrap;gap:4px;margin:6px 0;}
 .ptpd-tag{font-size:11px;font-weight:800;padding:2px 8px;border-radius:99px;background:var(--bg2);color:var(--text2);}
 .ptpd-tag.alta{background:var(--danger-bg);color:var(--danger-text);}
+/* Pestañas dentro de una entrada de Safety (Empleados y certificaciones, PTP) */
+.safety-seg{display:flex;gap:4px;max-width:720px;margin:12px auto 0;padding:4px;background:var(--bg2);border-radius:12px;overflow-x:auto;}
+#safety-personal-nav{padding:0 16px;}
+.safety-seg-btn{flex:1;min-height:42px;padding:8px 12px;border:none;border-radius:9px;background:none;font-family:var(--f-body);font-size:13px;font-weight:800;color:var(--text2);cursor:pointer;white-space:nowrap;}
+.safety-seg-btn:hover{color:var(--ooi-orange-dark);}
+.safety-seg-btn.on{background:var(--ooi-orange);color:#fff;}
+/* Proyectos y entrega de PTP por proyecto */
+.proy-tabla tr.proy-fila{cursor:pointer;}
+.proy-tabla tr.proy-fila:hover td{background:var(--bg2);}
+.proy-tabla td,.proy-tabla th{padding-left:6px;padding-right:6px;text-align:left;}
+.proy-tabla .proy-nombre{font-weight:800;color:var(--text);}
+.proy-sub{font-size:11px;font-weight:400;color:var(--text3);margin-top:2px;}
+.proy-tag{display:inline-block;font-size:11px;font-weight:800;padding:2px 8px;border-radius:99px;background:var(--bg2);color:var(--text2);white-space:nowrap;}
+.proy-tag.ok{background:var(--success-bg);color:var(--success-text);}
+.proy-tag.warn{background:var(--warning-bg);color:var(--warning-text);}
+.proy-tag.mal{background:var(--danger-bg);color:var(--danger-text);}
+.proy-tag.papel{background:rgba(245,130,32,.14);color:var(--ooi-orange-dark);}
+.proy-grid{display:grid;grid-template-columns:1fr;gap:0 14px;}
+@media(min-width:760px){.proy-grid{grid-template-columns:1fr 1fr;}.proy-grid .ancho{grid-column:1 / -1;}}
+.sptp-fila-proy{cursor:pointer;}
+.sptp-fila-proy:hover td{background:var(--bg2);}
+.sptp-tabla td.ins-maq{min-width:190px;}
+.sptp-pct{font-weight:900;white-space:nowrap;}
+.sptp-sem-sel td{background:rgba(245,130,32,.08);}
 .ptpd-acciones{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;}
 .ptpd-acciones .drive-btn{font-size:11px;}
 .ptpd-fila{display:flex;gap:8px;margin-top:10px;align-items:center;}
@@ -918,6 +944,9 @@ button.ins-c{cursor:pointer;}
   .bottom-nav{padding-left:max(16px,calc((100% - 720px)/2 + 16px));padding-right:max(16px,calc((100% - 720px)/2 + 16px));}
   .photo-grid{grid-template-columns:repeat(4,1fr);}
 }
+
+/* Computadora: todo lo que se puede tocar también se ve clicable */
+[onclick],label:has(input[type=file]){cursor:pointer;}
 
 /* Accesibilidad: foco visible y menos movimiento si el sistema lo pide */
 :focus-visible{outline:3px solid rgba(245,130,32,.55);outline-offset:2px;}
@@ -1179,11 +1208,11 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{outline:none;}
     <span class="bottom-nav-title" id="pin-bottom-title">PIN de acceso</span>
   </div>
   <div class="container" style="padding-top:32px;">
-    <div class="header-bar"><button class="btn-icon" onclick="show('s-login')">←</button><div><div style="font-size:18px;font-weight:500;" id="pin-role-name">PIN de acceso</div><div style="font-size:13px;color:var(--text2);">Ingresa tu PIN de 6 dígitos</div></div></div>
+    <div class="header-bar"><button class="btn-icon" onclick="show('s-login')">←</button><div><div style="font-size:18px;font-weight:500;" id="pin-role-name">PIN de acceso</div><div style="font-size:13px;color:var(--text2);">Ingresa tu PIN de 6 dígitos<span class="pin-hint-teclado"> · toca los números o escríbelos con el teclado</span></div></div></div>
     <div class="pin-dots" id="pin-dots"><div class="pin-dot" id="d0"></div><div class="pin-dot" id="d1"></div><div class="pin-dot" id="d2"></div><div class="pin-dot" id="d3"></div><div class="pin-dot" id="d4"></div><div class="pin-dot" id="d5"></div></div>
     <div id="pin-wait" style="text-align:center;color:var(--text2);font-size:14px;margin-bottom:10px;display:none;">Verificando PIN…</div>
     <div id="pin-err" style="text-align:center;color:var(--danger-text);font-size:14px;margin-bottom:10px;display:none;">PIN incorrecto, intenta de nuevo</div>
-    <div class="numpad">
+    <div class="numpad" onmousedown="event.preventDefault()">
       <button class="num-btn" onclick="pinPress('1')">1</button><button class="num-btn" onclick="pinPress('2')">2</button><button class="num-btn" onclick="pinPress('3')">3</button>
       <button class="num-btn" onclick="pinPress('4')">4</button><button class="num-btn" onclick="pinPress('5')">5</button><button class="num-btn" onclick="pinPress('6')">6</button>
       <button class="num-btn" onclick="pinPress('7')">7</button><button class="num-btn" onclick="pinPress('8')">8</button><button class="num-btn" onclick="pinPress('9')">9</button>
@@ -2037,19 +2066,19 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{outline:none;}
 
       <button class="role-btn" onclick="safetyTab('ptp')">
         <div class="role-icon"><svg class="ico"><use href="#i-clipboard"/></svg></div>
-        <div class="rb-body"><div class="rb-title">PTP diario</div><div class="rb-desc">Quién hizo su PTP · firmas y participación · PDF</div></div>
+        <div class="rb-body"><div class="rb-title">PTP</div><div class="rb-desc">Qué proyecto entregó su PTP cada semana · por foreman · documentos</div></div>
         <span class="role-arrow"><svg class="ico"><use href="#i-chev"/></svg></span>
       </button>
 
-      <button class="role-btn" onclick="safetyTab('certs')">
-        <div class="role-icon"><svg class="ico"><use href="#i-file"/></svg></div>
-        <div class="rb-body"><div class="rb-title">Registrar certificados</div><div class="rb-desc">Uno o varios asistentes · se guarda en Drive y en el Training Log</div></div>
+      <button class="role-btn" onclick="safetyTab('proy')">
+        <div class="role-icon"><svg class="ico"><use href="#i-folder"/></svg></div>
+        <div class="rb-body"><div class="rb-title">Proyectos</div><div class="rb-desc">Agregar y editar proyectos · activo o inactivo · alimenta las listas de la app</div></div>
         <span class="role-arrow"><svg class="ico"><use href="#i-chev"/></svg></span>
       </button>
 
-      <button class="role-btn" onclick="safetyTab('emp')">
+      <button class="role-btn" onclick="safetyTab(safetyPersonalUltimo)">
         <div class="role-icon"><svg class="ico"><use href="#i-hardhat"/></svg></div>
-        <div class="rb-body"><div class="rb-title">Empleados</div><div class="rb-desc">Agregar empleado nuevo al Training Log · foto de perfil</div></div>
+        <div class="rb-body"><div class="rb-title">Empleados y certificaciones</div><div class="rb-desc">Registrar certificados · agregar empleados nuevos · foto de perfil</div></div>
         <span class="role-arrow"><svg class="ico"><use href="#i-chev"/></svg></span>
       </button>
 
@@ -2058,6 +2087,42 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{outline:none;}
         <div class="rb-body"><div class="rb-title">Hojas de Seguridad (SDS)</div><div class="rb-desc">Subir o quitar PDF · los trabajadores las ven sin PIN</div></div>
         <span class="role-arrow"><svg class="ico"><use href="#i-chev"/></svg></span>
       </button>
+    </div>
+  </div>
+
+  <!-- EMPLEADOS Y CERTIFICACIONES: las dos opciones de la misma entrada (paneles safety-certs-panel y safety-emp-panel) -->
+  <div id="safety-personal-nav" style="display:none;">
+    <div class="safety-seg" role="tablist">
+      <button class="safety-seg-btn" id="seg-certs" onclick="safetyTab('certs')">Registrar certificados</button>
+      <button class="safety-seg-btn" id="seg-emp" onclick="safetyTab('emp')">Empleados</button>
+    </div>
+  </div>
+
+  <!-- PROYECTOS: alta y edición. La hoja de verdad es Active Project Information. Servidor: getProyectos_() / guardarProyecto_() -->
+  <div id="safety-proy-panel" style="display:none;">
+    <div class="obs-wrap">
+      <div id="proy-lista-vista">
+        <div class="obs-head">
+          <div>
+            <div style="font-family:var(--f-head);font-size:18px;font-weight:800;margin-bottom:4px;">Proyectos</div>
+            <div style="font-size:12px;color:var(--text2);">Lo que guardes aquí se escribe en la hoja <strong>Active Project Information</strong>. Solo los proyectos activos salen en las listas de la app.</div>
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <button class="tp-chip" onclick="proyCargar(true)">Actualizar</button>
+            <button class="tp-chip on" onclick="proyAbrir('')">+ Agregar proyecto</button>
+          </div>
+        </div>
+        <div id="proy-kpis"></div>
+        <div class="tp-chips-row" id="proy-filtro">
+          <button class="tp-chip on" data-f="activos" onclick="proyFiltro('activos')">Activos</button>
+          <button class="tp-chip" data-f="faltan" onclick="proyFiltro('faltan')">Les faltan datos</button>
+          <button class="tp-chip" data-f="inactivos" onclick="proyFiltro('inactivos')">Inactivos</button>
+          <button class="tp-chip" data-f="todos" onclick="proyFiltro('todos')">Todos</button>
+        </div>
+        <div class="tp-search"><svg class="ico" style="color:var(--text2);flex:none;"><use href="#i-search"/></svg><input type="text" id="proy-buscar" placeholder="Buscar por proyecto, contratista, ciudad o supervisor..." oninput="proyRender()" autocomplete="off"/></div>
+        <div id="proy-cuerpo"><div class="loading">Cargando proyectos...</div></div>
+      </div>
+      <div id="proy-form-vista" style="display:none;"></div>
     </div>
   </div>
 
@@ -2093,24 +2158,31 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{outline:none;}
     </div>
   </div>
 
-  <!-- PTP DIARIO (Safety): quién hizo su PTP cada día, firmas, participación y PDF. Servidor: getPTPDiario_() (leer:ptp_diario) -->
+  <!-- PTP (Safety): entrega por proyecto y semana, por foreman, documentos y métricas. Servidor: getPTPDiario_() (leer:ptp_diario) -->
   <div id="safety-ptp-panel" style="display:none;">
     <div class="obs-wrap">
       <div class="obs-head">
         <div>
-          <div style="font-family:var(--f-head);font-size:18px;font-weight:800;margin-bottom:4px;">PTP diario</div>
-          <div style="font-size:12px;color:var(--text2);">Lo que llenan los foremen con su cuadrilla (hoja PTP Diario). Cada PTP trae las firmas y quién explicó un punto.</div>
+          <div style="font-family:var(--f-head);font-size:18px;font-weight:800;margin-bottom:4px;">PTP</div>
+          <div style="font-size:12px;color:var(--text2);">Cada proyecto entrega según su método: el papel de la contratista (foto) o el PTP de la app. El método se cambia en <button class="ins-link" style="padding:0;" onclick="safetyTab('proy')">Proyectos</button>.</div>
         </div>
         <button class="tp-chip" onclick="sptpCargar(true)">Actualizar</button>
       </div>
-      <div class="tp-chips-row" id="sptp-periodo">
+      <div class="safety-seg" id="sptp-vistas" style="margin-bottom:14px;">
+        <button class="safety-seg-btn on" data-v="proyectos" onclick="sptpVista('proyectos')">Por proyecto</button>
+        <button class="safety-seg-btn" data-v="foreman" onclick="sptpVista('foreman')">Por foreman</button>
+        <button class="safety-seg-btn" data-v="docs" onclick="sptpVista('docs')">Documentos</button>
+        <button class="safety-seg-btn" data-v="metricas" onclick="sptpVista('metricas')">Métricas</button>
+      </div>
+      <div class="tp-chips-row" id="sptp-periodo" style="display:none;">
         <button class="tp-chip" data-p="7" onclick="sptpPeriodo(7)">7 días</button>
         <button class="tp-chip on" data-p="30" onclick="sptpPeriodo(30)">30 días</button>
         <button class="tp-chip" data-p="90" onclick="sptpPeriodo(90)">90 días</button>
       </div>
-      <div class="obs-filtros">
+      <div class="obs-filtros" id="sptp-filtros" style="display:none;">
         <div class="field"><label>Hecho por</label><select id="sptp-f-quien" onchange="sptpFiltro('quien',this.value)"><option value="">Todos</option></select></div>
         <div class="field"><label>Proyecto</label><select id="sptp-f-proy" onchange="sptpFiltro('proyecto',this.value)"><option value="">Todos</option></select></div>
+        <div class="field" id="sptp-f-fuente-wrap"><label>Origen</label><select id="sptp-f-fuente" onchange="sptpFiltro('fuente',this.value)"><option value="">Todos</option><option value="app">PTP de la app</option><option value="gc">Papel de la contratista</option></select></div>
       </div>
       <div id="sptp-cuerpo"><div class="loading">Cargando PTP...</div></div>
     </div>
@@ -3809,6 +3881,28 @@ function pinPress(d){if(pinEntry.length>=PIN_LARGO||pinBusy)return;pinEntry+=d;u
 function pinDel(){pinEntry=pinEntry.slice(0,-1);updateDots();}
 function pinClear(){pinEntry='';updateDots();}
 function updateDots(){for(let i=0;i<PIN_LARGO;i++)document.getElementById('d'+i).classList.toggle('filled',i<pinEntry.length);}
+// PIN desde el teclado de la computadora: números (arriba o teclado numérico), Retroceso borra uno, Esc borra todo.
+// También se puede pegar. Solo funciona con la pantalla de PIN abierta.
+function pinPantallaAbierta(){ const s=document.getElementById('s-pin'); return !!(s&&s.classList.contains('active')); }
+function pinMarcarTecla(txt){
+  const b=[...document.querySelectorAll('#s-pin .num-btn')].find(x=>x.textContent.trim()===txt);
+  if(!b) return;
+  b.classList.add('tecla');
+  setTimeout(()=>b.classList.remove('tecla'),130);
+}
+document.addEventListener('keydown',function(e){
+  if(!pinPantallaAbierta()||e.ctrlKey||e.metaKey||e.altKey) return;
+  if(/^[0-9]$/.test(e.key)){ e.preventDefault(); if(!e.repeat){ pinMarcarTecla(e.key); pinPress(e.key); } }
+  else if(e.key==='Backspace'||e.key==='Delete'){ e.preventDefault(); pinMarcarTecla('⌫'); pinDel(); }
+  else if(e.key==='Escape'){ e.preventDefault(); pinMarcarTecla('Borrar'); pinClear(); }
+});
+document.addEventListener('paste',function(e){
+  if(!pinPantallaAbierta()) return;
+  const d=String((e.clipboardData&&e.clipboardData.getData('text'))||'').replace(/\D/g,'');
+  if(!d) return;
+  e.preventDefault();
+  d.slice(0,PIN_LARGO).split('').forEach(pinPress);
+});
 async function checkPin(){
   if(pinBusy)return;
   pinBusy=true;
@@ -5119,8 +5213,18 @@ function ptpdCerrarVisor(){
   ptpdVisorUrl=''; ptpdVisorArchivo=null;
 }
 
-// ── PTP DIARIO EN SAFETY ── quién hizo su PTP por día, firmas, participación, peligros y la lista con PDF
-const sptp={datos:null,t:0,periodo:30,f:{quien:'',proyecto:''},semana:0};
+// ── PTP EN SAFETY ── Por proyecto (quién debe entregar y si entregó, por semana), por foreman, documentos y métricas.
+// Qué exige cada proyecto lo dice su PTP Method (columna M de Active Project Information, se cambia en Safety > Proyectos):
+//   Paper - GC Req'd          -> foto del papel de la contratista
+//   App OOI (Digital)         -> PTP llenado en esta app
+//   HQ Foundations (Digital)  -> se hace fuera de la app: no se puede revisar aquí y no marca faltas
+//   N/A - Digital / sin definir -> no marca faltas
+const PTP_METODOS_OPC=["Paper - GC Req'd",'App OOI (Digital)','HQ Foundations (Digital)','N/A - Digital'];
+const SPTP_METODO_TXT={papel:'Papel contratista',app:'App OOI',hq:'HQ (fuera de la app)',na:'No aplica',sin:'Sin definir'};
+const SPTP_SEMANAS_ATRAS=16;   // el servidor manda 120 días
+const SPTP_DIAS_NOMBRE=['Lun','Mar','Mié','Jue','Vie','Sáb'];
+const sptp={datos:null,gc:[],proyectos:[],t:0,periodo:30,f:{quien:'',proyecto:'',fuente:''},semana:0,vista:'proyectos',fp:'deben',abierto:'',detSem:0,docsMax:60,claves:[]};
+
 async function sptpCargar(forzar){
   if(!(listasGlobal.foremen&&listasGlobal.foremen.length)) cargarListas();
   const c=document.getElementById('sptp-cuerpo');
@@ -5135,89 +5239,202 @@ async function sptpCargar(forzar){
     c.innerHTML='<div class="empty-state"><div>No se pudieron cargar los PTP. Toca Actualizar.</div></div>';
   }
 }
+function sptpVista(v){ sptp.vista=v; sptp.abierto=''; sptpRender(); window.scrollTo(0,0); }
 function sptpPeriodo(n){ sptp.periodo=n; document.querySelectorAll('#sptp-periodo .tp-chip').forEach(b=>b.classList.toggle('on',+b.dataset.p===n)); sptpRender(); }
-function sptpFiltro(k,v){ sptp.f[k]=v; sptpRender(); }
-function sptpSemana(n){ sptp.semana=Math.min(0,sptp.semana+n); sptpRender(); }
-function sptpRender(){
-  const todos=sptp.datos||[], ordenar=(a,b)=>a.localeCompare(b);
-  const llenar=(id,vals,actual)=>{ const s=document.getElementById(id); buildDropdown(s,vals,'Todos'); s.value=actual; };
-  llenar('sptp-f-quien',[...new Set(todos.map(p=>p.creadoPor).filter(Boolean))].sort(ordenar),sptp.f.quien);
-  llenar('sptp-f-proy',[...new Set(todos.map(p=>p.proyecto).filter(Boolean))].sort(ordenar),sptp.f.proyecto);
-  const filtro=p=>(!sptp.f.quien||p.creadoPor===sptp.f.quien)&&(!sptp.f.proyecto||p.proyecto===sptp.f.proyecto);
-  const desde=fechaLocal(new Date(Date.now()-(sptp.periodo-1)*86400000));
-  const lista=todos.filter(p=>p.fecha>=desde&&filtro(p));
-  const firmas=lista.reduce((s,p)=>s+p.asistentes.length,0);
-  const conHabla=lista.filter(p=>new Set(p.participaron.map(x=>ptpdClave(x.nombre))).size>=Math.min(PTPD_MIN_HABLAN,p.asistentes.length)).length;
-  const aportes=lista.reduce((s,p)=>s+p.aportes.length,0), alta=lista.filter(p=>p.altaEnergia.length).length;
-  const pct=n=>lista.length?Math.round(n*100/lista.length)+'%':'—';
-  const kpi=(n,t,sub)=>`<div class="stat-card obs-kpi"><div class="stat-num">${n}</div><div class="stat-lbl">${t}</div>${sub?`<div class="obs-kpi-sub">${sub}</div>`:''}</div>`;
-  let h='<div class="obs-kpis">'+kpi(lista.length,'PTP')+kpi(firmas,'Firmas de trabajadores')+kpi(lista.length?(firmas/lista.length).toFixed(1):'—','Trabajadores por PTP')+
-    kpi(pct(conHabla),'Con participación','al menos '+PTPD_MIN_HABLAN+' explicaron un punto')+kpi(aportes,'Aportes de la cuadrilla','peligros o dudas que agregaron')+
-    kpi(pct(alta),'Con alta energía','PTP con peligros que pueden matar')+'</div>';
-  h+=sptpProyectosHtml(desde)+sptpSemanaHtml(todos.filter(filtro))+sptpPeligrosHtml(lista);
-  h+=`<div class="sec-label" style="margin-top:6px;">PTP (${lista.length})</div>`+
-    (lista.length?lista.map(p=>ptpdCardHtml(p,'s')).join(''):'<div class="empty-state"><div>No hay PTP con estos filtros.</div></div>');
-  document.getElementById('sptp-cuerpo').innerHTML=h;
+function sptpFiltro(k,v){ sptp.f[k]=v; sptp.docsMax=60; sptpRender(); }
+function sptpSemana(n){ sptp.semana=Math.max(-SPTP_SEMANAS_ATRAS,Math.min(0,sptp.semana+n)); sptpRender(); }
+function sptpFiltroProy(v){ sptp.fp=v; sptpRender(); }
+function sptpTipoMetodo(m){
+  m=String(m||'');
+  if(/^paper/i.test(m)) return 'papel';
+  if(/^app/i.test(m)) return 'app';
+  if(/^hq/i.test(m)) return 'hq';
+  if(/^n\/?a/i.test(m)) return 'na';
+  return 'sin';
 }
-// Revisión de PTP de la contratista (antes en el PTP Compliance del Project SITE VISIT LOG):
-// para el día elegido, qué proyectos que piden papel (PTP Method "Paper - GC Req'd") ya tienen su PTP.
-// Cuenta los subidos desde la app (hoja PTPs) y los del formulario de antes (Paper PTP Log).
-function sptpProyectosHtml(desde){
-  const esPapel=m=>/^paper/i.test(m||'');
-  if(!sptp.fecha) sptp.fecha=fechaLocal(new Date());
-  const dia=sptp.fecha;
-  const filas=(sptp.proyectos||[]).filter(x=>!sptp.f.proyecto||x.proyecto===sptp.f.proyecto);
-  const gc=(sptp.gc||[]).filter(g=>g.fecha>=desde&&(!sptp.f.proyecto||g.proyecto===sptp.f.proyecto));
-  const gcDia=(sptp.gc||[]).filter(g=>g.fecha===dia);
-  const ptp=(sptp.datos||[]).filter(p=>p.fecha>=desde);
-  const piden=filas.filter(x=>esPapel(x.metodo));
-  const listos=piden.filter(x=>gcDia.some(g=>g.proyecto===x.proyecto)).length;
-  const kpi=(n,t)=>`<div class="stat-card obs-kpi"><div class="stat-num">${n}</div><div class="stat-lbl">${t}</div></div>`;
-  const resumen=`<div class="obs-kpis">${kpi(piden.length,'Piden PTP en papel')}${kpi(listos,'Entregados ese día')}${kpi(piden.length-listos,'Faltan')}${kpi(piden.length?Math.round(listos*100/piden.length)+'%':'—','Cumplimiento')}</div>`;
-  const tabla=filas.length?`<div class="ins-tabla-wrap"><table class="ins-tabla"><tr><th>Proyecto</th><th>PTP Method</th><th>Papel ese día</th><th>PTP OOI (periodo)</th></tr>${
-    filas.map(x=>{
-      const hechos=ptp.filter(p=>p.proyecto===x.proyecto).length;
-      const estado=esPapel(x.metodo)
-        ?(gcDia.some(g=>g.proyecto===x.proyecto)?'<span class="ins-c ok" title="Entregado">✓</span> Entregado':'<span class="ins-c falta" title="Falta">✗</span> Falta')
-        :'<span class="ins-c nada">·</span> No requiere papel';
-      const opts=['',...PTP_METODOS_OPC].map(m=>`<option value="${rcEsc(m)}"${m===(x.metodo||'')?' selected':''}>${m?rcEsc(m):'Sin definir'}</option>`).join('');
-      return `<tr><td class="ins-maq">${rcEsc(x.proyecto)}</td><td><select data-p="${rcEsc(x.proyecto)}" onchange="sptpMetodo(this)" style="min-width:150px;">${opts}</select></td><td>${estado}</td><td>${hechos}</td></tr>`;
-    }).join('')}</table></div>`:'<div class="insp-vacio">No hay proyectos en la hoja de proyectos.</div>';
-  const subidos=gc.length?gc.map(g=>`<div class="ptpd-firmado"><div style="flex:1;min-width:0;"><div style="font-weight:800;">${rcEsc(g.proyecto||'Sin proyecto')}</div>
-      <div style="font-size:12px;color:var(--text3);">${g.fecha} · ${rcEsc(g.subidoPor||'—')}${g.contratista?' · '+rcEsc(g.contratista):''}${g.origen==='Formulario'?' · formulario anterior':''}</div>
-      ${g.notas?`<div style="font-size:12px;color:var(--text2);">${rcEsc(g.notas)}</div>`:''}</div>
-      ${g.fotos.length?`<a class="ins-link" href="${rcEsc(g.fotos[0])}" target="_blank" rel="noopener">Ver foto</a>`:''}</div>`).join(''):'<div class="insp-vacio">No hay PTP de la contratista subidos en este periodo.</div>';
-  return `<div class="card"><div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px;">
-      <div class="sec-label" style="flex:1;">Revisión de PTP de la contratista</div>
-      <div class="field" style="margin:0;"><label>Día a revisar</label><input type="date" value="${dia}" onchange="sptpFecha(this.value)"/></div></div>
-    ${resumen}${tabla}
-    <div class="sec-label" style="margin-top:14px;">PTP de la contratista subidos (${gc.length})</div>${subidos}</div>`;
-}
-function sptpFecha(v){ sptp.fecha=v||fechaLocal(new Date()); sptpRender(); }
-const PTP_METODOS_OPC=["Paper - GC Req'd",'HQ Foundations (Digital)','N/A - Digital'];
-// Cambia el PTP Method de un proyecto (guarda en la Safety Sheet, pestaña PTP Metodos)
-async function sptpMetodo(sel){
-  const proyecto=sel.dataset.p, metodo=sel.value;
-  const previo=(sptp.proyectos||[]).find(x=>x.proyecto===proyecto);
-  sel.disabled=true;
-  try{
-    await enviarAScript({tipo:'ptp_metodo',proyecto,metodo,quien:'Safety'});
-    if(previo) previo.metodo=metodo;
-    sptpRender();
-  }catch(err){
-    if(String(err&&err.message)==='auth') return;
-    alert('No se pudo guardar el PTP Method: '+err.message);
-    sel.value=previo?previo.metodo:'';
-    sel.disabled=false;
-  }
-}
-// Tabla de la semana: quién hizo su PTP cada día (lun–sáb). Salen los que hicieron alguno en las 4 semanas anteriores.
-function sptpSemanaHtml(datos){
+function sptpDiasSemana(off){
   const hoy=new Date(); hoy.setHours(0,0,0,0);
-  const lunes=new Date(hoy); lunes.setDate(hoy.getDate()-((hoy.getDay()+6)%7)+sptp.semana*7);
-  const dias=[0,1,2,3,4,5].map(i=>{ const d=new Date(lunes); d.setDate(lunes.getDate()+i); return fechaLocal(d); });
-  const hoyS=fechaLocal(hoy), antes=new Date(lunes); antes.setDate(lunes.getDate()-21);
-  const ini=fechaLocal(antes), nombresDia=['Lun','Mar','Mié','Jue','Vie','Sáb'];
+  const lunes=new Date(hoy); lunes.setDate(hoy.getDate()-((hoy.getDay()+6)%7)+off*7);
+  return [0,1,2,3,4,5].map(i=>{ const d=new Date(lunes); d.setDate(lunes.getDate()+i); return fechaLocal(d); });
+}
+function sptpTituloSemana(off,dias){ return off===0?'Esta semana':off===-1?'Semana pasada':'Semana del '+sftUS(dias[0]); }
+
+// Un renglón por proyecto (filas con el mismo nombre en la hoja se juntan) con sus PTP de la app y del papel, por día.
+// Los nombres anteriores de un proyecto renombrado siguen contando para él.
+function sptpRegistro(){
+  const por={}, alias={}, orden=['papel','app','hq','na','sin'];
+  (sptp.proyectos||[]).forEach(x=>{
+    const k=ptpdClave(x.proyecto); if(!k) return;
+    const p=por[k]||(por[k]={clave:k,nombre:x.proyecto,metodo:'',registrado:true,ventanas:[],foreman:[],super:[],gc:'',docsApp:[],docsGc:[],app:{},papel:{}});
+    if(orden.indexOf(sptpTipoMetodo(x.metodo))<orden.indexOf(sptpTipoMetodo(p.metodo))) p.metodo=x.metodo;
+    p.ventanas.push({activo:x.activo!==false,mob:x.mob||'',cierre:x.cierre||'',porDefinir:!!x.mobTexto});
+    if(x.foreman&&p.foreman.indexOf(x.foreman)<0) p.foreman.push(x.foreman);
+    if(x.super&&p.super.indexOf(x.super)<0) p.super.push(x.super);
+    if(x.gc&&!p.gc) p.gc=x.gc;
+    (x.alias||[]).forEach(a=>{ const ka=ptpdClave(a); if(ka) alias[ka]=k; });
+  });
+  const de=nombre=>{
+    const c=ptpdClave(nombre)||'sin proyecto', k=por[c]?c:(alias[c]||c);
+    return por[k]||(por[k]={clave:k,nombre:nombre||'Sin proyecto',metodo:'',registrado:false,ventanas:[],foreman:[],super:[],gc:'',docsApp:[],docsGc:[],app:{},papel:{}});
+  };
+  (sptp.datos||[]).forEach(d=>{ const p=de(d.proyecto); p.docsApp.push(d); p.app[d.fecha]=(p.app[d.fecha]||0)+1; });
+  (sptp.gc||[]).forEach(g=>{ const p=de(g.proyecto); p.docsGc.push(g); p.papel[g.fecha]=(p.papel[g.fecha]||0)+1; });
+  return Object.values(por);
+}
+// ¿Ese día el proyecto ya estaba en obra? Desde MOB DATE y hasta su fecha de cierre (si está inactivo). "TBD" todavía no.
+function sptpEnObra(p,d){
+  return p.ventanas.some(v=>!v.porDefinir&&(!v.mob||d>=v.mob)&&(v.activo||(!!v.cierre&&d<=v.cierre)));
+}
+// Una casilla del calendario. debe = cuenta para el porcentaje; hecho = cumplió.
+function sptpCelda(p,d,i,hoyS){
+  const tipo=sptpTipoMetodo(p.metodo), app=p.app[d]||0, papel=p.papel[d]||0;
+  const exige=(tipo==='papel'||tipo==='app')&&sptpEnObra(p,d)&&i<5&&d<=hoyS;
+  const cumple=tipo==='papel'?papel>0:(app+papel)>0;
+  const debe=exige&&(d<hoyS||cumple);
+  const detalle=[app?app+' de la app':'',papel?papel+' de la contratista':''].filter(Boolean).join(' · ');
+  if(cumple) return {cls:'ok',txt:'✓',title:detalle,debe:exige,hecho:exige};
+  if(exige&&tipo==='papel'&&app) return {cls:'bad',txt:'A',title:'Hizo el PTP en la app, pero falta el papel de la contratista',debe,hecho:false};
+  if(app) return {cls:'ok',txt:'✓',title:detalle,debe:false,hecho:false};
+  if(exige&&d===hoyS) return {cls:'bad',txt:'…',title:'Todavía no llega el de hoy',debe:false,hecho:false};
+  if(exige) return {cls:'falta',txt:'✗',title:'No entregó',debe:true,hecho:false};
+  return {cls:'nada',txt:'·',title:'',debe:false,hecho:false};
+}
+function sptpResumenSemana(p,dias,hoyS){
+  const celdas=dias.map((d,i)=>sptpCelda(p,d,i,hoyS));
+  const debe=celdas.filter(c=>c.debe).length, hecho=celdas.filter(c=>c.hecho).length;
+  const hayDocs=dias.some(d=>p.app[d]||p.papel[d]);
+  return {p,celdas,debe,hecho,faltan:debe-hecho,hayDocs,enObra:dias.some(d=>sptpEnObra(p,d))};
+}
+function sptpPct(hecho,debe){ return debe?Math.round(hecho*100/debe)+'%':'—'; }
+function sptpColorPct(hecho,debe){ if(!debe) return 'var(--text3)'; const n=hecho/debe; return n>=.9?'var(--success-text)':n>=.6?'var(--warning-text)':'var(--danger-text)'; }
+function sptpTagMetodo(m){
+  const t=sptpTipoMetodo(m), cls=t==='papel'?' papel':t==='sin'?' warn':'';
+  return `<span class="proy-tag${cls}">${SPTP_METODO_TXT[t]}</span>`;
+}
+function sptpCeldasHtml(celdas){ return celdas.map(c=>`<td><span class="ins-c ${c.cls}"${c.title?` title="${rcEsc(c.title)}"`:''}>${c.txt}</span></td>`).join(''); }
+function sptpEncabezadoDias(dias,hoyS){ return dias.map((d,i)=>`<th class="${d===hoyS?'hoy':''}">${SPTP_DIAS_NOMBRE[i]}<br><span style="font-weight:400;">${+d.slice(8)}</span></th>`).join(''); }
+function sptpNavSemana(dias){
+  const atras=sptp.semana>-SPTP_SEMANAS_ATRAS?'<button class="ins-link" onclick="sptpSemana(-1)">‹ Antes</button>':'<span style="width:64px;"></span>';
+  const adelante=sptp.semana<0?'<button class="ins-link" onclick="sptpSemana(1)">Después ›</button>':'<span style="width:64px;"></span>';
+  return `<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">${atras}<div style="flex:1;text-align:center;font-weight:900;">${sptpTituloSemana(sptp.semana,dias)} <span style="font-weight:400;color:var(--text3);font-size:12px;">${sftUS(dias[0])} a ${sftUS(dias[4])}</span></div>${adelante}</div>`;
+}
+const SPTP_LEYENDA='<div class="ins-leyenda"><span><span class="ins-c ok">✓</span>Entregó</span><span><span class="ins-c falta">✗</span>No entregó</span><span><span class="ins-c bad">A</span>En la app, falta el papel</span><span><span class="ins-c bad">…</span>Hoy, todavía no</span><span><span class="ins-c nada">·</span>No se le exige</span></div>';
+
+function sptpRender(){
+  document.querySelectorAll('#sptp-vistas .safety-seg-btn').forEach(b=>b.classList.toggle('on',b.dataset.v===sptp.vista));
+  const v=sptp.vista, ordenar=(a,b)=>a.localeCompare(b);
+  document.getElementById('sptp-periodo').style.display=(v==='docs'||v==='metricas')?'flex':'none';
+  document.getElementById('sptp-filtros').style.display=v==='proyectos'?'none':'grid';
+  document.getElementById('sptp-f-fuente-wrap').style.display=v==='docs'?'block':'none';
+  const app=sptp.datos||[], gc=sptp.gc||[];
+  const llenar=(id,vals,actual)=>{ const s=document.getElementById(id); buildDropdown(s,vals,'Todos'); s.value=actual; };
+  llenar('sptp-f-quien',[...new Set(app.map(p=>p.creadoPor).concat(gc.map(g=>g.subidoPor)).filter(Boolean))].sort(ordenar),sptp.f.quien);
+  llenar('sptp-f-proy',[...new Set(app.map(p=>p.proyecto).concat(gc.map(g=>g.proyecto)).filter(Boolean))].sort(ordenar),sptp.f.proyecto);
+  const c=document.getElementById('sptp-cuerpo');
+  if(v==='foreman') c.innerHTML=sptpVistaForeman();
+  else if(v==='docs') c.innerHTML=sptpVistaDocs();
+  else if(v==='metricas') c.innerHTML=sptpVistaMetricas();
+  else c.innerHTML=sptp.abierto?sptpDetalleProyecto():sptpVistaProyectos();
+}
+
+// ── Por proyecto ──
+function sptpVistaProyectos(){
+  const dias=sptpDiasSemana(sptp.semana), hoyS=hoyLocal(), reg=sptpRegistro();
+  const res=reg.map(p=>sptpResumenSemana(p,dias,hoyS));
+  const exigidos=r=>r.enObra&&['papel','app'].indexOf(sptpTipoMetodo(r.p.metodo))>=0;
+  const deben=res.filter(exigidos);
+  const debeTot=deben.reduce((s,r)=>s+r.debe,0), hechoTot=deben.reduce((s,r)=>s+r.hecho,0);
+  const sinMetodo=res.filter(r=>r.p.registrado&&r.enObra&&sptpTipoMetodo(r.p.metodo)==='sin').length;
+  const conFaltas=deben.filter(r=>r.faltan>0).length;
+  const kpi=(n,t,sub,click,color)=>`<div class="stat-card obs-kpi${click?' obs-kpi-btn':''}"${click?` onclick="${click}"`:''}><div class="stat-num"${color?` style="color:${color};"`:''}>${n}</div><div class="stat-lbl">${t}</div>${sub?`<div class="obs-kpi-sub">${sub}</div>`:''}</div>`;
+  let h='<div class="obs-kpis">'+
+    kpi(deben.length,'Deben entregar','papel o app',"sptpFiltroProy('deben')")+
+    kpi(deben.length-conFaltas,'Al corriente','sin días faltantes')+
+    kpi(conFaltas,'Con faltantes','tócalo para verlos',"sptpFiltroProy('falta')",conFaltas?'var(--danger-text)':'')+
+    kpi(sptpPct(hechoTot,debeTot),'Cumplimiento',`${hechoTot} de ${debeTot} días`,'',sptpColorPct(hechoTot,debeTot))+
+    kpi(sinMetodo,'Sin método definido','tócalo para definirlo',"proySinMetodo()",sinMetodo?'var(--warning-text)':'')+'</div>';
+  const filtros={
+    deben:['Deben entregar',exigidos],
+    falta:['Con faltantes',r=>r.faltan>0],
+    papel:['Papel contratista',r=>r.enObra&&sptpTipoMetodo(r.p.metodo)==='papel'],
+    app:['App OOI',r=>r.enObra&&sptpTipoMetodo(r.p.metodo)==='app'],
+    todos:['Todos',r=>r.enObra||r.hayDocs]
+  };
+  const f=filtros[sptp.fp]||filtros.deben;
+  const filas=res.filter(f[1]).sort((a,b)=>b.faltan-a.faltan||a.p.nombre.localeCompare(b.p.nombre));
+  sptp.claves=filas.map(r=>r.p.clave);
+  h+='<div class="card">'+sptpNavSemana(dias)+
+    `<div class="tp-chips-row">${Object.keys(filtros).map(k=>`<button class="tp-chip${(filtros[sptp.fp]?sptp.fp:'deben')===k?' on':''}" onclick="sptpFiltroProy('${k}')">${filtros[k][0]}</button>`).join('')}</div>`;
+  if(filas.length){
+    h+=`<div class="ins-tabla-wrap"><table class="ins-tabla sptp-tabla"><tr><th>Proyecto</th>${sptpEncabezadoDias(dias,hoyS)}<th>Semana</th></tr>${
+      filas.map((r,i)=>{
+        const sub=[r.p.gc,r.p.foreman.join(', ')].filter(Boolean).join(' · ');
+        return `<tr class="sptp-fila-proy" onclick="sptpAbrir(${i})" title="Ver el detalle"><td class="ins-maq"><div>${rcEsc(r.p.nombre)}</div><div class="proy-sub">${rcEsc(sub)}</div><div style="margin-top:3px;">${r.p.registrado?sptpTagMetodo(r.p.metodo):'<span class="proy-tag warn">No está en Proyectos</span>'}</div></td>${sptpCeldasHtml(r.celdas)}<td class="sptp-pct" style="color:${sptpColorPct(r.hecho,r.debe)};">${sptpPct(r.hecho,r.debe)}</td></tr>`;
+      }).join('')}</table></div>${SPTP_LEYENDA}
+      <div style="font-size:12px;color:var(--text3);margin-top:8px;">Se exige de lunes a viernes, desde la fecha de MOB y mientras el proyecto esté activo. Toca un proyecto para ver sus semanas y sus documentos.</div>`;
+  } else h+=`<div class="insp-vacio">${debeTot||deben.length?'No hay proyectos con este filtro.':'Ningún proyecto tiene método definido todavía. Defínelo en Proyectos.'}</div>`;
+  return h+'</div>';
+}
+function sptpAbrir(i){ sptp.abierto=sptp.claves[i]||''; sptp.detSem=sptp.semana; sptpRender(); window.scrollTo(0,0); }
+function sptpCerrarDetalle(){ sptp.abierto=''; sptpRender(); window.scrollTo(0,0); }
+function sptpDetSemana(off){ sptp.detSem=off; sptpRender(); }
+function sptpGCFila(g){
+  const fotos=g.fotos||[];
+  return `<div class="obs-card"><div class="obs-card-top"><div class="obs-tipo">${sftUS(g.fecha)}</div><span class="proy-tag papel">Contratista</span></div>
+    <div class="obs-card-sitio"><b style="color:var(--text);">${rcEsc(g.proyecto||'Sin proyecto')}</b> <span>· ${rcEsc(g.subidoPor||'—')}${g.contratista?' · '+rcEsc(g.contratista):''}</span></div>
+    ${g.notas?`<div style="font-size:13px;color:var(--text2);">${rcEsc(g.notas)}</div>`:''}
+    ${fotos.length?`<div class="ptpd-acciones">${fotos.map((u,i)=>`<a class="drive-btn" style="text-decoration:none;" href="${rcEsc(u)}" target="_blank" rel="noopener">${ico('camera')}${fotos.length>1?'Foto '+(i+1):'Ver foto'}</a>`).join('')}</div>`:''}</div>`;
+}
+function sptpDetalleProyecto(){
+  const p=sptpRegistro().find(x=>x.clave===sptp.abierto);
+  if(!p){ sptp.abierto=''; return sptpVistaProyectos(); }
+  const hoyS=hoyLocal(), semanas=[];
+  for(let i=0;i<8;i++){ const off=sptp.semana-i; if(off<-SPTP_SEMANAS_ATRAS) break; const dias=sptpDiasSemana(off); semanas.push(Object.assign(sptpResumenSemana(p,dias,hoyS),{off,dias})); }
+  const debe=semanas.reduce((s,r)=>s+r.debe,0), hecho=semanas.reduce((s,r)=>s+r.hecho,0);
+  const fechas=p.docsApp.map(d=>d.fecha).concat(p.docsGc.map(g=>g.fecha)).sort();
+  const ultimo=fechas.length?sftUS(fechas[fechas.length-1]):'Ninguno';
+  const sem=semanas.find(r=>r.off===sptp.detSem)||semanas[0], ini=sem.dias[0], fin=sem.dias[5];
+  const docs=p.docsApp.filter(d=>d.fecha>=ini&&d.fecha<=fin).map(d=>({f:d.fecha+(d.hora||''),h:ptpdCardHtml(d,'s')}))
+    .concat(p.docsGc.filter(g=>g.fecha>=ini&&g.fecha<=fin).map(g=>({f:g.fecha,h:sptpGCFila(g)})))
+    .sort((a,b)=>b.f.localeCompare(a.f));
+  const tipo=sptpTipoMetodo(p.metodo);
+  const aviso=tipo==='hq'?'Este proyecto hace su PTP en HQ Foundations, fuera de la app: aquí no se puede revisar. Cuando pase a la app, cambia su método a App OOI.'
+    :tipo==='na'?'Este proyecto no exige PTP.':tipo==='sin'?'Este proyecto no tiene método definido, así que no marca faltas.':'';
+  return `<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;flex-wrap:wrap;">
+      <button class="tp-chip" onclick="sptpCerrarDetalle()">‹ Todos los proyectos</button>
+      ${p.registrado?`<button class="tp-chip" onclick="proyAbrirPorNombre(sptp.abierto)">Editar proyecto</button>`:''}</div>
+    <div class="card">
+      <div style="font-family:var(--f-head);font-size:18px;font-weight:800;">${rcEsc(p.nombre)}</div>
+      <div style="font-size:13px;color:var(--text2);margin:3px 0 8px;">${rcEsc([p.gc,p.foreman.length?'Foreman: '+p.foreman.join(', '):'',p.super.length?'Super: '+p.super.join(', '):''].filter(Boolean).join(' · '))}</div>
+      ${p.registrado?sptpTagMetodo(p.metodo):'<span class="proy-tag warn">No está en Proyectos</span>'}
+      ${aviso?`<div style="font-size:12px;color:var(--text2);margin-top:8px;">${aviso}</div>`:''}
+      <div class="obs-kpis" style="margin-top:12px;margin-bottom:0;">
+        <div class="stat-card obs-kpi"><div class="stat-num" style="color:${sptpColorPct(hecho,debe)};">${sptpPct(hecho,debe)}</div><div class="stat-lbl">Cumplimiento</div><div class="obs-kpi-sub">últimas ${semanas.length} semanas</div></div>
+        <div class="stat-card obs-kpi"><div class="stat-num">${hecho} / ${debe}</div><div class="stat-lbl">Días entregados</div></div>
+        <div class="stat-card obs-kpi"><div class="stat-num" style="font-size:18px;">${ultimo}</div><div class="stat-lbl">Último documento</div></div>
+        <div class="stat-card obs-kpi"><div class="stat-num">${p.docsApp.length}</div><div class="stat-lbl">PTP de la app</div></div>
+        <div class="stat-card obs-kpi"><div class="stat-num">${p.docsGc.length}</div><div class="stat-lbl">Papel de la contratista</div></div>
+      </div>
+    </div>
+    <div class="card"><div class="sec-label">Semana por semana</div>
+      <div class="ins-tabla-wrap"><table class="ins-tabla sptp-tabla"><tr><th>Semana</th>${SPTP_DIAS_NOMBRE.map(n=>`<th>${n}</th>`).join('')}<th>Entregó</th></tr>${
+        semanas.map(r=>`<tr class="sptp-fila-proy${r.off===sem.off?' sptp-sem-sel':''}" onclick="sptpDetSemana(${r.off})"><td class="ins-maq" style="min-width:110px;">${sptpTituloSemana(r.off,r.dias)}<div class="proy-sub">${sftUS(r.dias[0])}</div></td>${sptpCeldasHtml(r.celdas)}<td class="sptp-pct" style="color:${sptpColorPct(r.hecho,r.debe)};">${r.debe?r.hecho+'/'+r.debe:'—'}</td></tr>`).join('')
+      }</table></div>${SPTP_LEYENDA}</div>
+    <div class="sec-label" style="margin-top:6px;">Documentos de ${sptpTituloSemana(sem.off,sem.dias).toLowerCase()} (${docs.length})</div>
+    ${docs.length?docs.map(d=>d.h).join(''):'<div class="empty-state"><div>Sin documentos esa semana.</div></div>'}`;
+}
+
+// ── Por foreman ── quién hizo o subió su PTP cada día. Salen los que entregaron algo en las 4 semanas anteriores.
+function sptpVistaForeman(){
+  const app=(sptp.datos||[]).map(p=>({creadoPor:p.creadoPor,fecha:p.fecha,proyecto:p.proyecto}));
+  const gc=(sptp.gc||[]).map(g=>({creadoPor:g.subidoPor,fecha:g.fecha,proyecto:g.proyecto}));
+  const datos=app.concat(gc).filter(p=>(!sptp.f.quien||p.creadoPor===sptp.f.quien)&&(!sptp.f.proyecto||p.proyecto===sptp.f.proyecto));
+  return sptpSemanaHtml(datos);
+}
+function sptpSemanaHtml(datos){
+  const dias=sptpDiasSemana(sptp.semana), hoyS=hoyLocal();
+  const antes=new Date(dias[0]+'T12:00:00'); antes.setDate(antes.getDate()-21);
+  const ini=fechaLocal(antes);
   const quienes=[...new Set(datos.filter(p=>p.fecha>=ini&&p.fecha<=dias[5]).map(p=>p.creadoPor).filter(Boolean))].sort((a,b)=>a.localeCompare(b));
   const filas=quienes.map(q=>`<tr><td class="ins-maq">${rcEsc(q)}</td>${dias.map((d,i)=>{
     const n=datos.filter(p=>p.creadoPor===q&&p.fecha===d).length;
@@ -5226,15 +5443,258 @@ function sptpSemanaHtml(datos){
     if(d===hoyS) return '<td><span class="ins-c bad" title="Todavía no llega el de hoy">…</span></td>';
     return '<td><span class="ins-c falta" title="Sin PTP">✗</span></td>';
   }).join('')}</tr>`).join('');
-  const titulo=sptp.semana===0?'Esta semana':sptp.semana===-1?'Semana pasada':'Semana del '+sftUS(dias[0]);
-  return `<div class="card"><div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
-      <button class="ins-link" onclick="sptpSemana(-1)">‹ Antes</button><div style="flex:1;text-align:center;font-weight:900;">${titulo}</div>
-      ${sptp.semana<0?'<button class="ins-link" onclick="sptpSemana(1)">Después ›</button>':'<span style="width:64px;"></span>'}</div>
-    ${quienes.length?`<div class="ins-tabla-wrap"><table class="ins-tabla"><tr><th>Hecho por</th>${dias.map((d,i)=>`<th class="${d===hoyS?'hoy':''}">${nombresDia[i]}<br><span style="font-weight:400;">${+d.slice(8)}</span></th>`).join('')}</tr>${filas}</table></div>
-      <div class="ins-leyenda"><span><span class="ins-c ok">✓</span>Hizo su PTP</span><span><span class="ins-c bad">…</span>Hoy, todavía no</span><span><span class="ins-c falta">✗</span>Sin PTP (lun–vie)</span></div>`
+  return `<div class="card">${sptpNavSemana(dias)}
+    ${quienes.length?`<div class="ins-tabla-wrap"><table class="ins-tabla"><tr><th>Hecho por</th>${sptpEncabezadoDias(dias,hoyS)}</tr>${filas}</table></div>
+      <div class="ins-leyenda"><span><span class="ins-c ok">✓</span>Hizo o subió su PTP</span><span><span class="ins-c bad">…</span>Hoy, todavía no</span><span><span class="ins-c falta">✗</span>Sin PTP (lun–vie)</span></div>`
       :'<div class="insp-vacio">Nadie ha hecho PTP en estas semanas.</div>'}
-    <div style="font-size:12px;color:var(--text3);margin-top:8px;">Salen los que hicieron al menos un PTP en las últimas 4 semanas.</div></div>`;
+    <div style="font-size:12px;color:var(--text3);margin-top:8px;">Salen los que hicieron o subieron al menos un PTP en las últimas 4 semanas.</div></div>`;
 }
+
+// ── Documentos ── los PTP de la app y el papel de la contratista en una sola lista
+function sptpDesde(){ return fechaLocal(new Date(Date.now()-(sptp.periodo-1)*86400000)); }
+function sptpVistaDocs(){
+  const desde=sptpDesde(), f=sptp.f;
+  const app=f.fuente==='gc'?[]:(sptp.datos||[]).filter(p=>p.fecha>=desde&&(!f.quien||p.creadoPor===f.quien)&&(!f.proyecto||p.proyecto===f.proyecto));
+  const gc=f.fuente==='app'?[]:(sptp.gc||[]).filter(g=>g.fecha>=desde&&(!f.quien||g.subidoPor===f.quien)&&(!f.proyecto||g.proyecto===f.proyecto));
+  const docs=app.map(d=>({f:d.fecha+(d.hora||''),d,t:'app'})).concat(gc.map(g=>({f:g.fecha,d:g,t:'gc'}))).sort((a,b)=>b.f.localeCompare(a.f));
+  const vis=docs.slice(0,sptp.docsMax);
+  return `<div class="sec-label">${docs.length} documentos · ${app.length} de la app · ${gc.length} de la contratista</div>`+
+    (vis.length?vis.map(x=>x.t==='app'?ptpdCardHtml(x.d,'s'):sptpGCFila(x.d)).join(''):'<div class="empty-state"><div>No hay documentos con estos filtros.</div></div>')+
+    (docs.length>vis.length?`<button class="btn btn-ghost" onclick="sptp.docsMax+=60;sptpRender();">Ver más (${docs.length-vis.length})</button>`:'');
+}
+
+// ── Métricas ── participación de la cuadrilla, cumplimiento por semana y peligros
+function sptpVistaMetricas(){
+  const desde=sptpDesde(), f=sptp.f, hoyS=hoyLocal();
+  const lista=(sptp.datos||[]).filter(p=>p.fecha>=desde&&(!f.quien||p.creadoPor===f.quien)&&(!f.proyecto||p.proyecto===f.proyecto));
+  const firmas=lista.reduce((s,p)=>s+p.asistentes.length,0);
+  const conHabla=lista.filter(p=>new Set(p.participaron.map(x=>ptpdClave(x.nombre))).size>=Math.min(PTPD_MIN_HABLAN,p.asistentes.length)).length;
+  const aportes=lista.reduce((s,p)=>s+p.aportes.length,0), alta=lista.filter(p=>p.altaEnergia.length).length;
+  const pct=n=>lista.length?Math.round(n*100/lista.length)+'%':'—';
+  const kpi=(n,t,sub)=>`<div class="stat-card obs-kpi"><div class="stat-num">${n}</div><div class="stat-lbl">${t}</div>${sub?`<div class="obs-kpi-sub">${sub}</div>`:''}</div>`;
+  const reg=sptpRegistro(), semanas=[];
+  for(let off=0;off>-8;off--){
+    const dias=sptpDiasSemana(off);
+    const r=reg.map(p=>sptpResumenSemana(p,dias,hoyS)).reduce((s,x)=>({debe:s.debe+x.debe,hecho:s.hecho+x.hecho}),{debe:0,hecho:0});
+    semanas.push(Object.assign(r,{titulo:sptpTituloSemana(off,dias)}));
+  }
+  return '<div class="obs-kpis">'+kpi(lista.length,'PTP de la app')+kpi(firmas,'Firmas de trabajadores')+kpi(lista.length?(firmas/lista.length).toFixed(1):'—','Trabajadores por PTP')+
+    kpi(pct(conHabla),'Con participación','al menos '+PTPD_MIN_HABLAN+' explicaron un punto')+kpi(aportes,'Aportes de la cuadrilla','peligros o dudas que agregaron')+
+    kpi(pct(alta),'Con alta energía','PTP con peligros que pueden matar')+'</div>'+
+    `<div class="card"><div class="sec-label">Cumplimiento por semana (todos los proyectos)</div>${semanas.map(s=>{
+      const n=s.debe?Math.round(s.hecho*100/s.debe):0;
+      return `<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;font-size:13px;"><div style="flex:0 0 34%;min-width:0;">${rcEsc(s.titulo)}</div>
+        <div style="flex:1;height:10px;background:var(--bg2);border-radius:5px;overflow:hidden;"><div style="width:${n}%;height:100%;background:var(--ooi-orange);"></div></div>
+        <div style="width:90px;text-align:right;font-weight:800;">${s.debe?n+'%':'—'} <span style="font-weight:400;color:var(--text3);">${s.hecho}/${s.debe}</span></div></div>`;
+    }).join('')}</div>`+sptpPeligrosHtml(lista);
+}
+
+// ── PROYECTOS (Safety) ── La hoja de verdad es Active Project Information; aquí se agrega y se edita.
+// Para agregar un dato nuevo: una línea en PROY_FORM y otra en PROY_CAMPOS de Code.gs.
+const PROY_FORM=[
+  {sec:'Proyecto',campos:[
+    {k:'nombre',l:'Nombre del proyecto *',ancho:1},
+    {k:'gc',l:'Contratista general / cliente'},
+    {k:'ciudad',l:'Ciudad'},
+    {k:'direccion',l:'Dirección',ancho:1}]},
+  {sec:'Equipo',campos:[
+    {k:'super',l:'Superintendente',lista:'super'},
+    {k:'foreman',l:'Foreman',lista:'foreman'},
+    {k:'pm',l:'PM'}]},
+  {sec:'Requisitos',campos:[
+    {k:'mob',l:'Fecha de MOB',tipo:'date'},
+    {k:'seguro',l:'CCIP / OCIP',opciones:[['','Sin definir'],['NO','No'],['OCIP','OCIP'],['CCIP','CCIP'],['YES','Sí (sin especificar)']]},
+    {k:'metodo',l:'Método de PTP',opciones:[['','Sin definir']].concat(PTP_METODOS_OPC.map(m=>[m,m]))},
+    {k:'programaCliente',l:'¿Se recibió el programa de seguridad del cliente?',opciones:[['','Sin definir'],['YES','Sí'],['NO','No']]},
+    {k:'contactoCliente',l:'Contacto de seguridad del cliente',ancho:1}]},
+  {sec:'Emergencia y notas',campos:[
+    {k:'hospital',l:'Hospital o clínica más cercana',ancho:1},
+    {k:'notas',l:'Notas',tipo:'area',ancho:1}]}
+];
+// Lo que debe tener un proyecto activo para contar como completo
+const PROY_REQUERIDOS=[['gc','contratista'],['direccion','dirección'],['ciudad','ciudad'],['super','superintendente'],['foreman','foreman'],['mob','fecha de MOB'],['seguro','CCIP/OCIP'],['metodo','método de PTP']];
+const proy={lista:null,t:0,url:'',f:'activos',abierto:null,estado:'Activo',pendiente:''};
+
+async function proyCargar(forzar){
+  if(!(listasGlobal.foremen&&listasGlobal.foremen.length)) cargarListas();
+  const c=document.getElementById('proy-cuerpo');
+  if(proy.lista&&!forzar&&Date.now()-proy.t<5*60*1000){ proyMostrarInicio(); return; }
+  c.innerHTML='<div class="loading">Cargando proyectos...</div>';
+  document.getElementById('proy-kpis').innerHTML='';
+  try{
+    const j=await leerDeScript('proyectos');
+    if(!j||j.status!=='ok') throw new Error((j&&j.message)||'');
+    proy.lista=j.proyectos||[]; proy.url=j.url||''; proy.t=Date.now();
+    proyMostrarInicio();
+  }catch(err){
+    if(String(err&&err.message)==='auth') return;
+    c.innerHTML='<div class="empty-state"><div>No se pudieron cargar los proyectos. Toca Actualizar.</div></div>';
+  }
+}
+function proyMostrarInicio(){
+  if(proy.pendiente){
+    const k=proy.pendiente; proy.pendiente='';
+    const p=(proy.lista||[]).find(x=>ptpdClave(x.nombre)===k||(x.alias||[]).some(a=>ptpdClave(a)===k));
+    if(p){ proyAbrir(p.id); return; }
+  }
+  if(proy.abierto===null) proyRender();
+}
+function proyAbrirPorNombre(clave){ proy.pendiente=clave; proy.abierto=null; safetyTab('proy'); }
+function proySinMetodo(){ proy.f='sinmetodo'; proy.abierto=null; safetyTab('proy'); }
+function proyFiltro(f){ proy.f=f; proyRender(); }
+function proyFaltan(p){ return PROY_REQUERIDOS.filter(r=>r[0]==='mob'?!(p.mob||p.mobTexto):!p[r[0]]).map(r=>r[1]); }
+function proyRender(){
+  const todos=proy.lista||[];
+  document.getElementById('proy-lista-vista').style.display='block';
+  document.getElementById('proy-form-vista').style.display='none';
+  document.querySelectorAll('#proy-filtro .tp-chip').forEach(b=>b.classList.toggle('on',b.dataset.f===proy.f));
+  const activos=todos.filter(p=>p.activo), cuenta={};
+  todos.forEach(p=>{ const k=ptpdClave(p.nombre); cuenta[k]=(cuenta[k]||0)+1; });
+  const conFaltas=activos.filter(p=>proyFaltan(p).length), sinMetodo=activos.filter(p=>!p.metodo);
+  const seguros=activos.filter(p=>/ocip|ccip/i.test(p.seguro||'')), repetidos=activos.filter(p=>cuenta[ptpdClave(p.nombre)]>1);
+  const kpi=(n,t,f,color)=>`<div class="stat-card obs-kpi${f?' obs-kpi-btn':''}"${f?` onclick="proyFiltro('${f}')"`:''}><div class="stat-num"${color?` style="color:${color};"`:''}>${n}</div><div class="stat-lbl">${t}</div></div>`;
+  document.getElementById('proy-kpis').innerHTML='<div class="obs-kpis">'+
+    kpi(activos.length,'Activos','activos')+kpi(todos.length-activos.length,'Inactivos','inactivos')+
+    kpi(conFaltas.length,'Les faltan datos','faltan',conFaltas.length?'var(--warning-text)':'')+
+    kpi(sinMetodo.length,'Sin método de PTP','sinmetodo',sinMetodo.length?'var(--warning-text)':'')+
+    kpi(seguros.length,'Con OCIP / CCIP','seguro')+kpi(repetidos.length,'Nombre repetido','repetidos',repetidos.length?'var(--warning-text)':'')+'</div>'+
+    (proy.url?`<div style="margin:-4px 0 12px;"><a class="ins-link" href="${rcEsc(proy.url)}" target="_blank" rel="noopener">Abrir la hoja de Active Project Information</a></div>`:'');
+  const q=document.getElementById('proy-buscar').value;
+  const pasa={activos:p=>p.activo,inactivos:p=>!p.activo,todos:()=>true,faltan:p=>p.activo&&proyFaltan(p).length>0,
+    sinmetodo:p=>p.activo&&!p.metodo,seguro:p=>p.activo&&/ocip|ccip/i.test(p.seguro||''),repetidos:p=>p.activo&&cuenta[ptpdClave(p.nombre)]>1}[proy.f]||(()=>true);
+  const lista=todos.filter(pasa).filter(p=>!q||coincideBusqueda(q,p.nombre,p.gc,p.ciudad,p.direccion,p.super,p.foreman,p.pm))
+    .sort((a,b)=>a.nombre.localeCompare(b.nombre));
+  const c=document.getElementById('proy-cuerpo');
+  if(!todos.length){ c.innerHTML='<div class="empty-state"><div>Todavía no hay proyectos. Agrega el primero.</div></div>'; return; }
+  if(!lista.length){ c.innerHTML='<div class="empty-state"><div>No hay proyectos con este filtro.</div></div>'; return; }
+  c.innerHTML=`<div class="card" style="padding:8px 10px;"><div class="ins-tabla-wrap"><table class="ins-tabla proy-tabla"><tr><th>Proyecto</th><th>Ciudad</th><th>Super</th><th>Foreman</th><th>CCIP/OCIP</th><th>PTP</th><th>Estado</th></tr>${
+    lista.map(p=>{
+      const faltan=p.activo?proyFaltan(p):[];
+      return `<tr class="proy-fila" onclick="proyAbrir('${rcEsc(p.id)}')" title="Editar"><td style="min-width:180px;"><div class="proy-nombre">${rcEsc(p.nombre)}</div><div class="proy-sub">${rcEsc(p.gc||'')}</div>${
+        faltan.length?`<div class="proy-sub" style="color:var(--warning-text);" title="${rcEsc(faltan.join(', '))}">Faltan ${faltan.length} datos</div>`:''}${
+        cuenta[ptpdClave(p.nombre)]>1?'<div class="proy-sub" style="color:var(--warning-text);">Nombre repetido en la hoja</div>':''}</td>
+        <td>${rcEsc(p.ciudad||'—')}</td><td>${rcEsc(p.super||'—')}</td><td>${rcEsc(p.foreman||'—')}</td><td>${rcEsc(p.seguro||'—')}</td><td>${sptpTagMetodo(p.metodo)}</td>
+        <td><span class="proy-tag ${p.activo?'ok':''}">${p.activo?'Activo':'Inactivo'}</span></td></tr>`;
+    }).join('')}</table></div></div><div style="font-size:12px;color:var(--text3);margin-top:8px;">${lista.length} de ${todos.length} proyectos. Toca un renglón para editarlo.</div>`;
+}
+function proyValoresLista(k){
+  const base=k==='super'?(listasGlobal.superintendentes||[]):k==='foreman'?(listasGlobal.foremen||[]):[];
+  return [...new Set(base.concat((proy.lista||[]).map(p=>String(p[k]||'').trim())).filter(Boolean))].sort((a,b)=>a.localeCompare(b));
+}
+function proyCampoHtml(c,p){
+  const id='proy-c-'+c.k, v=p[c.k]||'', cl=c.ancho?' ancho':'';
+  if(c.opciones){
+    // Lo que venga de la hoja y no esté en la lista se conserva tal cual
+    const iguala=(o)=>String(o).toUpperCase()===String(v).toUpperCase();
+    const ops=c.opciones.some(o=>iguala(o[0]))?c.opciones:c.opciones.concat([[v,v]]);
+    return `<div class="field${cl}"><label for="${id}">${c.l}</label><select id="${id}">${ops.map(o=>`<option value="${rcEsc(o[0])}"${iguala(o[0])?' selected':''}>${rcEsc(o[1])}</option>`).join('')}</select></div>`;
+  }
+  if(c.tipo==='area') return `<div class="field${cl}"><label for="${id}">${c.l}</label><textarea id="${id}" rows="3" maxlength="1000">${rcEsc(v)}</textarea></div>`;
+  if(c.tipo==='date') return `<div class="field${cl}"><label for="${id}">${c.l}</label><input type="date" id="${id}" value="${rcEsc(v)}"/>${c.k==='mob'&&p.mobTexto?`<div class="proy-sub">En la hoja dice "${rcEsc(p.mobTexto)}". Si no eliges fecha, se queda así y no se le exige PTP todavía.</div>`:''}</div>`;
+  const lista=c.lista?`list="proy-dl-${c.k}"`:'';
+  return `<div class="field${cl}"><label for="${id}">${c.l}</label><input type="text" id="${id}" value="${rcEsc(v)}" ${lista} maxlength="${c.k==='nombre'?150:300}" autocomplete="off"/>${c.lista?`<datalist id="proy-dl-${c.k}">${proyValoresLista(c.lista).map(n=>`<option value="${rcEsc(n)}">`).join('')}</datalist>`:''}</div>`;
+}
+function proyAbrir(id){
+  const p=id?(proy.lista||[]).find(x=>x.id===id):{activo:true};
+  if(!p) return;
+  proy.abierto=id||''; proy.estado=p.activo?'Activo':'Inactivo';
+  document.getElementById('proy-lista-vista').style.display='none';
+  const v=document.getElementById('proy-form-vista');
+  v.style.display='block';
+  const faltan=id&&p.activo?proyFaltan(p):[];
+  v.innerHTML=`<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;flex-wrap:wrap;">
+      <button class="tp-chip" onclick="proyCerrar()">‹ Proyectos</button>
+      ${id?`<button class="tp-chip" onclick="proyVerPTP()">Ver sus PTP</button>`:''}</div>
+    <div style="font-family:var(--f-head);font-size:18px;font-weight:800;margin-bottom:4px;">${id?rcEsc(p.nombre):'Agregar proyecto'}</div>
+    <div style="font-size:12px;color:var(--text2);margin-bottom:14px;">${faltan.length?'Le falta: '+rcEsc(faltan.join(', '))+'.':id?'Los cambios se escriben en la hoja y las listas de la app se actualizan al guardar.':'Se agrega a la hoja y sale en las listas de la app al guardar.'}</div>
+    <div class="card"><div class="sec-label">Estado</div>
+      <div class="safety-seg" style="margin:0 0 10px;max-width:320px;">
+        <button class="safety-seg-btn" data-e="Activo" onclick="proySetEstado('Activo')">Activo</button>
+        <button class="safety-seg-btn" data-e="Inactivo" onclick="proySetEstado('Inactivo')">Inactivo</button>
+      </div>
+      <div id="proy-estado-info" style="font-size:12px;color:var(--text2);"></div>
+      <div class="field" id="proy-cierre-wrap" style="margin:10px 0 0;max-width:240px;"><label for="proy-c-cierre">Fecha de cierre</label><input type="date" id="proy-c-cierre" value="${rcEsc(p.cierre||(p.activo?hoyLocal():''))}"/></div>
+    </div>
+    ${PROY_FORM.map(s=>`<div class="card"><div class="sec-label">${s.sec}</div><div class="proy-grid">${s.campos.map(c=>proyCampoHtml(c,p)).join('')}</div></div>`).join('')}
+    <div class="submit-msg" id="proy-msg"></div>
+    <button class="btn btn-primary" id="proy-btn" style="font-size:16px;min-height:54px;" onclick="envioUnico(this,proyGuardar)">${id?'Guardar cambios':'Agregar proyecto'}</button>
+    <button class="btn btn-ghost" onclick="proyCerrar()">Cancelar</button>`;
+  proySetEstado(proy.estado);
+  window.scrollTo(0,0);
+  if(!id) document.getElementById('proy-c-nombre').focus();
+}
+function proySetEstado(e){
+  proy.estado=e;
+  document.querySelectorAll('#proy-form-vista [data-e]').forEach(b=>b.classList.toggle('on',b.dataset.e===e));
+  document.getElementById('proy-cierre-wrap').style.display=e==='Inactivo'?'block':'none';
+  document.getElementById('proy-estado-info').textContent=e==='Inactivo'
+    ?'No sale en las listas de la app y deja de exigir PTP después de la fecha de cierre. Su historial se conserva.'
+    :'Sale en las listas de la app y se le revisa el PTP desde su fecha de MOB.';
+}
+function proyCerrar(){ proy.abierto=null; proyRender(); window.scrollTo(0,0); }
+function proyVerPTP(){
+  const p=(proy.lista||[]).find(x=>x.id===proy.abierto);
+  if(!p) return;
+  proy.abierto=null;
+  sptp.vista='proyectos'; sptp.abierto=ptpdClave(p.nombre); sptp.detSem=sptp.semana;
+  safetyTab('ptp');
+}
+async function proyGuardar(){
+  const msg=document.getElementById('proy-msg');
+  const pinta=(t,tipo)=>{ msg.style.display='block'; msg.textContent=t; msg.style.background='var(--'+tipo+'-bg)'; msg.style.color='var(--'+tipo+'-text)'; };
+  const previo=proy.abierto?(proy.lista||[]).find(x=>x.id===proy.abierto):null;
+  const campos={estado:proy.estado};
+  PROY_FORM.forEach(s=>s.campos.forEach(c=>{ campos[c.k]=String(document.getElementById('proy-c-'+c.k).value||'').trim(); }));
+  if(!campos.nombre){ pinta('Falta el nombre del proyecto.','danger'); document.getElementById('proy-c-nombre').focus(); return; }
+  if(!campos.mob&&previo&&previo.mobTexto) campos.mob=previo.mobTexto;
+  campos.cierre=proy.estado==='Inactivo'?(document.getElementById('proy-c-cierre').value||hoyLocal()):'';
+  pinta('Guardando...','info');
+  try{
+    // marca: cada guardado es distinto, para que activar-desactivar-activar no se tome como envío repetido
+    const r=await enviarAScript({tipo:'proyecto_guardar',id:proy.abierto||'',campos,quien:'Safety',marca:Date.now()});
+    if(!r||!r.proyecto) throw new Error('El servidor no confirmó el cambio.');
+    const i=(proy.lista||[]).findIndex(x=>x.id===r.proyecto.id);
+    if(i>=0) proy.lista[i]=r.proyecto; else proy.lista.push(r.proyecto);
+    if(r.activos){ listasGlobal.proyectos=r.activos; poblarTodosLosDropdowns(listasGlobal); }
+    sptp.t=0;
+    proy.abierto=null;
+    proyRender();
+    window.scrollTo(0,0);
+    if(r.avisoListas) alert('Se guardó en la hoja, pero las listas de la app no se actualizaron todavía: '+r.avisoListas);
+  }catch(err){
+    if(String(err&&err.message)==='auth') return;
+    pinta(err instanceof TypeError?'Error de conexión. Intenta de nuevo.':(err.message||'No se pudo guardar.'),'danger');
+  }
+}
+
+// ── COMPUTADORA ── Todo lo que se toca también funciona con el teclado: las tarjetas y renglones clicables reciben el foco
+// (Tab) y responden a Enter y Espacio; los botones de adjuntar archivo también. Esc cierra la foto ampliada.
+(function(){
+  const CLICABLES='div[onclick],span[onclick],td[onclick],tr[onclick],li[onclick],label:has(input[type=file])';
+  function marcar(raiz){
+    if(raiz.nodeType!==1) return;
+    const lista=[...raiz.querySelectorAll(CLICABLES)];
+    if(raiz.matches(CLICABLES)) lista.push(raiz);
+    lista.forEach(el=>{
+      if(el.id==='lightbox'||el.hasAttribute('tabindex')) return;
+      el.setAttribute('tabindex','0');
+      if(el.tagName!=='LABEL') el.setAttribute('role','button');
+    });
+  }
+  marcar(document.body);
+  new MutationObserver(ms=>ms.forEach(m=>m.addedNodes.forEach(marcar))).observe(document.body,{childList:true,subtree:true});
+  document.addEventListener('keydown',function(e){
+    if(e.key==='Escape'){
+      const lb=document.getElementById('lightbox');
+      if(lb&&getComputedStyle(lb).display!=='none') closeLightbox();
+      return;
+    }
+    if((e.key==='Enter'||e.key===' ')&&e.target===document.activeElement&&e.target.matches&&e.target.matches(CLICABLES)){
+      e.preventDefault();
+      e.target.click();
+    }
+  });
+})();
 function sptpPeligrosHtml(lista){
   const cuenta={}; lista.forEach(p=>p.peligros.forEach(x=>{ cuenta[x]=(cuenta[x]||0)+1; }));
   const top=Object.entries(cuenta).sort((a,b)=>b[1]-a[1]).slice(0,8);
@@ -5889,10 +6349,13 @@ function foremanSalir(){
 
 
 // ── SAFETY PORTAL ──
-const SAFETY_PANELES = {obs:'safety-obs-panel', ptp:'safety-ptp-panel', certs:'safety-certs-panel', emp:'safety-emp-panel', sds:'safety-sds-panel'};
+const SAFETY_PANELES = {obs:'safety-obs-panel', ptp:'safety-ptp-panel', proy:'safety-proy-panel', certs:'safety-certs-panel', emp:'safety-emp-panel', sds:'safety-sds-panel'};
+let safetyPersonalUltimo='certs';   // la última opción usada dentro de "Empleados y certificaciones"
 
 function safetyMostrarMenu(){
   Object.keys(SAFETY_PANELES).forEach(k=>{const p=document.getElementById(SAFETY_PANELES[k]);if(p)p.style.display='none';});
+  const nav=document.getElementById('safety-personal-nav');
+  if(nav) nav.style.display='none';
   const sel = document.getElementById('safety-selection-screen');
   if(sel) sel.style.display='block';
   const bt=document.getElementById('safety-bottom-title');
@@ -5912,6 +6375,9 @@ function initSafety(){
 }
 
 function safetyBack(){
+  // Primero se cierra lo que está abierto dentro del panel (detalle de un proyecto, formulario de Proyectos)
+  if(document.getElementById('safety-ptp-panel').style.display!=='none'&&sptp.abierto){ sptpCerrarDetalle(); return; }
+  if(document.getElementById('safety-proy-panel').style.display!=='none'&&proy.abierto!==null){ proyCerrar(); return; }
   const abierto = Object.keys(SAFETY_PANELES).some(k=>{const p=document.getElementById(SAFETY_PANELES[k]);return p && p.style.display!=='none';});
   if(abierto) safetyMostrarMenu();
   else show('s-login');
@@ -5929,14 +6395,18 @@ function safetyTab(tab){
     if(bt) bt.textContent='Observaciones de Seguridad';
     obsCargar(false);
   } else if(tab==='ptp'){
-    if(bt) bt.textContent='PTP diario';
+    if(bt) bt.textContent='PTP';
     sptpCargar(false);
-  } else if(tab==='certs'){
-    if(bt) bt.textContent='Registrar certificados';
-    rcIniciar();
-  } else if(tab==='emp'){
-    if(bt) bt.textContent='Empleados';
-    empIniciar();
+  } else if(tab==='proy'){
+    if(bt) bt.textContent='Proyectos';
+    proyCargar(false);
+  } else if(tab==='certs'||tab==='emp'){
+    if(bt) bt.textContent='Empleados y certificaciones';
+    safetyPersonalUltimo=tab;
+    document.getElementById('safety-personal-nav').style.display='block';
+    document.getElementById('seg-certs').classList.toggle('on',tab==='certs');
+    document.getElementById('seg-emp').classList.toggle('on',tab==='emp');
+    if(tab==='certs') rcIniciar(); else empIniciar();
   } else if(tab==='sds'){
     if(bt) bt.textContent='Hojas de Seguridad (SDS)';
     sdsAdmIniciar();
