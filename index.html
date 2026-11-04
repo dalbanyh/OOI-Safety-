@@ -1820,12 +1820,22 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{outline:none;}
           </div>
         </div>
 
-        <!-- Clínica y ventana: RRHH agenda la cita con esto. Las sugerencias salen de las direcciones ya usadas (hoja FitTests), no de una lista fija. -->
+        <!-- Ubicación y ventana: RRHH busca desde esta dirección la clínica a donde lo manda. fittest-ciudad guarda la ciudad elegida (los chips la llenan; con "Otra" se escribe). -->
         <div class="card">
-          <div class="sec-label">Clínica y horario</div>
-          <div class="field"><label>Dirección de la clínica</label>
-            <input type="text" id="fittest-clinica" list="fittest-clinicas" placeholder="Ej. 123 Main St, San Antonio, TX" autocomplete="off"/>
-            <datalist id="fittest-clinicas"></datalist>
+          <div class="sec-label">Ubicación del proyecto y horario</div>
+          <div class="field"><label>Ciudad del proyecto</label>
+            <div id="fittest-ciudades" style="display:flex;flex-wrap:wrap;gap:6px;">
+              <button type="button" class="tp-chip" data-ciudad="Dallas" onclick="ftSetCiudad('Dallas')">Dallas</button>
+              <button type="button" class="tp-chip" data-ciudad="Austin" onclick="ftSetCiudad('Austin')">Austin</button>
+              <button type="button" class="tp-chip" data-ciudad="San Antonio" onclick="ftSetCiudad('San Antonio')">San Antonio</button>
+              <button type="button" class="tp-chip" data-ciudad="Otra" onclick="ftSetCiudad('Otra')">Otra</button>
+            </div>
+            <input type="text" id="fittest-ciudad" placeholder="Escribe la ciudad" autocomplete="off" style="display:none;margin-top:8px;"/>
+          </div>
+          <div class="field"><label>Dirección del proyecto</label>
+            <input type="text" id="fittest-direccion" list="fittest-direcciones" placeholder="Ej. 123 Main St, Dallas, TX" autocomplete="off"/>
+            <datalist id="fittest-direcciones"></datalist>
+            <div style="font-size:12px;color:var(--text3);margin-top:4px;">Recursos Humanos busca desde aquí la clínica a donde lo va a mandar.</div>
           </div>
           <div class="field"><label>¿Cuándo puede ir el trabajador?</label>
             <div class="grid2">
@@ -1931,6 +1941,7 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{outline:none;}
     <!-- PENDING PANEL -->
     <div id="rrhh-pending-panel">
       <div style="font-size:13px;color:var(--text2);margin-bottom:12px;">Solicitudes de Fit Test esperando atención:</div>
+      <datalist id="rrhh-clinicas"></datalist>
       <div id="rrhh-pending-list"><div class="loading">Cargando...</div></div>
     </div>
 
@@ -5261,12 +5272,13 @@ async function enviarFitTest(){
   const proyecto = document.getElementById('fittest-proyecto').value.trim();
   const razon = document.getElementById('fittest-razon').value;
 
-  const clinicaCercana = document.getElementById('fittest-clinica').value.trim();
+  const ciudad = document.getElementById('fittest-ciudad').value.trim();
+  const direccionProyecto = document.getElementById('fittest-direccion').value.trim();
   const desde = document.getElementById('fittest-desde').value;
   const hasta = document.getElementById('fittest-hasta').value;
   const horario = document.getElementById('fittest-horario').value;
   if(faltanCampos([['fittest-trabajador','trabajador'],['fittest-foreman','foreman'],['fittest-proyecto','proyecto o sitio'],
-    ['fittest-razon','razón del Fit Test'],['fittest-clinica','dirección de la clínica'],
+    ['fittest-razon','razón del Fit Test'],['fittest-ciudad','ciudad del proyecto'],['fittest-direccion','dirección del proyecto'],
     ['fittest-desde','desde cuándo puede ir'],['fittest-hasta','hasta cuándo puede ir']]))return;
   if(hasta < desde){marcarFaltantes(document.getElementById('fittest-hasta').closest('.screen'),[document.getElementById('fittest-hasta')]);alert('La fecha "Hasta" no puede ser antes de "Desde".');return;}
 
@@ -5275,7 +5287,7 @@ async function enviarFitTest(){
     id: Date.now(),
     fecha: document.getElementById('fittest-fecha').value,
     trabajador, foreman, proyecto, razon,
-    clinicaCercana, desde, hasta, horario,
+    ciudad, direccionProyecto, desde, hasta, horario,
     notas: document.getElementById('fittest-notas').value.trim()
   };
 
@@ -5293,7 +5305,7 @@ async function enviarFitTest(){
       '<strong>Foreman:</strong> '+foreman+'<br>'+
       '<strong>Proyecto:</strong> '+proyecto+'<br>'+
       '<strong>Razón:</strong> '+razon+'<br>'+
-      '<strong>Clínica:</strong> '+sftEsc(clinicaCercana)+'<br>'+
+      '<strong>Ubicación:</strong> '+sftEsc(ftLugar(payload))+'<br>'+
       '<strong>Puede ir:</strong> '+ftVentana(payload)+'<br>'+
       (payload.notas?'<strong>Notas:</strong> '+sftEsc(payload.notas):'');
     document.getElementById('fittest-confirmacion').style.display = 'block';
@@ -5310,7 +5322,8 @@ function resetFitTest(){
   document.getElementById('fittest-proyecto').value = '';
   document.getElementById('fittest-razon').selectedIndex = 0;
   document.getElementById('fittest-notas').value = '';
-  document.getElementById('fittest-clinica').value = '';
+  ftSetCiudad('');
+  document.getElementById('fittest-direccion').value = '';
   document.getElementById('fittest-hasta').value = '';
   document.getElementById('fittest-horario').selectedIndex = 0;
   document.getElementById('fittest-msg').style.display = 'none';
@@ -5327,13 +5340,25 @@ function ftVentana(r){
   return sftEsc(sftUS(r.desde)+(r.hasta&&r.hasta!==r.desde?' – '+sftUS(r.hasta):'')+(r.horario?' · '+r.horario:''));
 }
 
-// Sugerencias del campo Dirección de la clínica: las que ya se usaron en solicitudes y citas, sin repetir
-function ftLlenarClinicas(records){
-  const dl=document.getElementById('fittest-clinicas');
+// Ciudad del proyecto: Dallas, Austin o San Antonio con un toque; "Otra" abre el campo para escribirla
+function ftSetCiudad(c){
+  const inp=document.getElementById('fittest-ciudad'), otra=c==='Otra';
+  document.querySelectorAll('#fittest-ciudades .tp-chip').forEach(b=>b.classList.toggle('on',b.dataset.ciudad===c));
+  inp.style.display=otra?'block':'none';
+  inp.value=otra?'':c;
+  if(otra) inp.focus();
+}
+
+// "Dallas · 123 Main St" (vacío en solicitudes viejas, que traían la dirección de la clínica)
+function ftLugar(r){ return r ? [r.ciudad,r.direccionProyecto].filter(Boolean).join(' · ') : ''; }
+
+// Sugerencias de un campo de dirección: las que ya se usaron en la hoja FitTests, sin repetir
+function ftSugerencias(idLista,records,campos){
+  const dl=document.getElementById(idLista);
   if(!dl) return;
   const vistas={};
-  records.forEach(r=>[r.clinicaCercana,r.citaDireccion].forEach(c=>{
-    const t=String(c||'').trim(), k=sftClave(t);
+  records.forEach(r=>campos.forEach(c=>{
+    const t=String(r[c]||'').trim(), k=sftClave(t);
     if(t && !vistas[k]) vistas[k]=t;
   }));
   dl.innerHTML=Object.values(vistas).sort((a,b)=>a.localeCompare(b)).map(c=>'<option value="'+sftEsc(c)+'">').join('');
@@ -5345,7 +5370,7 @@ async function loadFitTestHistory(){
   try{
     const json = await leerDeScript('fittest');
     const records = json.fittests || [];
-    ftLlenarClinicas(records);
+    ftSugerencias('fittest-direcciones',records,['direccionProyecto']);
     if(!records.length){
       histEl.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text2);font-size:13px;">No hay registros aún.</div>';
       return;
@@ -5356,7 +5381,7 @@ async function loadFitTestHistory(){
           <div style="flex:1;">
             <div style="font-size:14px;font-weight:700;">${r.trabajador}</div>
             <div style="font-size:12px;color:var(--text2);margin-top:2px;">${r.proyecto} · ${r.razon}</div>
-            ${r.desde?`<div style="font-size:12px;color:var(--text2);margin-top:2px;">${sftEsc(r.clinicaCercana)} · ${ftVentana(r)}</div>`:''}
+            ${r.desde?`<div style="font-size:12px;color:var(--text2);margin-top:2px;">${sftEsc(ftLugar(r)||r.clinicaCercana)} · ${ftVentana(r)}</div>`:''}
             ${r.status==='Agendado'&&ftTieneCita(r)?`<div style="font-size:12px;color:var(--warning-text);margin-top:2px;"><strong>Autorizado:</strong> ${ftCita(r)} · ${sftEsc(r.citaDireccion)}</div>`:''}
             <div style="font-size:11px;color:var(--text3);margin-top:2px;">${r.fecha} · Foreman: ${r.foreman}</div>
           </div>
@@ -5416,6 +5441,7 @@ async function loadRRHHPending(){
     const json = await leerDeScript('fittest');
     const pending=(json.fittests||[]).filter(r=>r.status!=='Completado');
     rrhhPend=pending;
+    ftSugerencias('rrhh-clinicas',json.fittests||[],['citaDireccion','clinicaCercana']);
     const aviso=rrhhAviso; rrhhAviso=null;
     const avisoHtml=aviso?`<div style="background:${aviso.ok?'var(--success-bg)':'var(--warning-bg)'};color:${aviso.ok?'var(--success-text)':'var(--warning-text)'};border-radius:var(--radius);padding:12px 14px;margin-bottom:12px;font-size:13px;">${sftEsc(aviso.texto)}</div>`:'';
     if(!pending.length){
@@ -5430,6 +5456,7 @@ async function loadRRHHPending(){
           <div style="flex:1;min-width:0;">
             <div style="font-size:15px;font-weight:700;">${sftEsc(r.trabajador)}</div>
             <div style="font-size:12px;color:var(--text2);margin-top:2px;">${sftEsc(r.proyecto)} · ${sftEsc(r.razon)}</div>
+            ${ftLugar(r)?`<div style="font-size:12px;color:var(--text);margin-top:4px;"><strong>Ubicación del proyecto:</strong> ${sftEsc(ftLugar(r))}</div>`:''}
             ${r.clinicaCercana?`<div style="font-size:12px;color:var(--text);margin-top:4px;"><strong>Clínica:</strong> ${sftEsc(r.clinicaCercana)}</div>`:''}
             ${r.desde?`<div style="font-size:12px;color:var(--text);margin-top:2px;"><strong>Puede ir:</strong> ${ftVentana(r)}</div>`:''}
             ${ag&&ftTieneCita(r)?`<div style="font-size:12px;color:var(--warning-text);margin-top:4px;"><strong>Autorizado:</strong> ${ftCita(r)}${r.citaDireccion&&r.citaDireccion!==r.clinicaCercana?' · '+sftEsc(r.citaDireccion):''}</div>`:''}
@@ -5453,7 +5480,7 @@ async function loadRRHHPending(){
             <div class="field" style="min-width:0;"><label>Puede ir desde</label><input type="date" id="rrhh-cita-desde-${i}" style="width:100%;min-width:0;box-sizing:border-box;"/></div>
             <div class="field" style="min-width:0;"><label>Vence el</label><input type="date" id="rrhh-cita-vence-${i}" style="width:100%;min-width:0;box-sizing:border-box;"/></div>
           </div>
-          <div class="field"><label>Dirección de la clínica</label><input type="text" id="rrhh-cita-dir-${i}" autocomplete="off"/></div>
+          <div class="field"><label>Dirección de la clínica</label><input type="text" id="rrhh-cita-dir-${i}" list="rrhh-clinicas" autocomplete="off"/></div>
           <div class="submit-msg" id="rrhh-cita-msg-${i}"></div>
           <button class="btn btn-primary" id="rrhh-cita-btn-${i}" onclick="rrhhConfirmarCita(${i})">Confirmar y avisar al foreman</button>
           <button class="btn btn-ghost" onclick="rrhhAbrirCita(${i})" style="margin-top:6px;">Cancelar</button>
@@ -6805,8 +6832,8 @@ function sftRender(){
     if(p){
       html+='<div style="font-size:12px;color:var(--danger-text);margin-top:4px;">Solicitud pendiente desde '+sftEsc(sftUS(p.fecha))+'</div>'+
         '<div style="font-size:11px;color:var(--text3);margin-top:2px;">'+[p.foreman&&('Foreman: '+p.foreman),p.proyecto,p.razon].filter(Boolean).map(sftEsc).join(' · ')+'</div>'+
-        (p.desde?'<div style="font-size:11px;color:var(--text3);margin-top:2px;">'+(p.clinicaCercana?sftEsc(p.clinicaCercana)+' · ':'')+'Puede ir: '+ftVentana(p)+'</div>':'')+
-        (p.status==='Agendado'&&ftTieneCita(p)?'<div style="font-size:11px;color:var(--warning-text);margin-top:2px;">Autorizado: '+ftCita(p)+'</div>':'');
+        (p.desde?'<div style="font-size:11px;color:var(--text3);margin-top:2px;">'+((ftLugar(p)||p.clinicaCercana)?sftEsc(ftLugar(p)||p.clinicaCercana)+' · ':'')+'Puede ir: '+ftVentana(p)+'</div>':'')+
+        (p.status==='Agendado'&&ftTieneCita(p)?'<div style="font-size:11px;color:var(--warning-text);margin-top:2px;">Autorizado: '+ftCita(p)+(p.citaDireccion?' · '+sftEsc(p.citaDireccion):'')+'</div>':'');
     }
     html+='</div>'+BADGE[w.estado]+'</div>';
     if(u && (u.tarjetas&&u.tarjetas.length || /^https:\/\/drive\.google\.com\//.test(String(u.driveUrl||'')))){
