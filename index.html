@@ -1155,6 +1155,11 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{outline:none;}
         <div class="field"><label>Reportado por <span style="color:var(--swa);">*</span></label><input type="text" id="swa-quien" placeholder="Tu nombre" autocomplete="off"/></div>
         <div class="field"><label>Foreman / Supervisor en turno <span style="color:var(--swa);">*</span></label><select id="swa-foreman"><option value="">— Selecciona foreman —</option></select></div>
         <div class="field"><label>Superintendente en turno <span style="color:var(--swa);">*</span></label><select id="swa-super"><option value="">— Selecciona superintendente —</option></select></div>
+        <div class="field" style="margin-bottom:0;">
+          <label>Otras personas que deben recibirla (opcional)</label>
+          <div id="swa-tambien"></div>
+          <button class="btn btn-ghost" id="swa-tambien-btn" onclick="swaAgregarPersona()" style="margin-top:0;"><svg class="ico"><use href="#i-plus"/></svg>Agregar otra persona</button>
+        </div>
       </div>
       <div class="card">
         <div class="sec-label">Tipo de peligro</div>
@@ -3805,6 +3810,7 @@ function cargarListas(retry){
           foremen:          getArr('foremen'),
           operadores:       getArr('operadores'),
           superintendentes: getArr('superintendentes'),
+          otros:            getArr('otros'),
           proyectos:        getArr('proyectos'),
           empleados:        listasGlobal.empleados || []  // no perder la lista del Training Log si ya llego
         };
@@ -3837,6 +3843,7 @@ function poblarTodosLosDropdowns(listas){
   // SWA
   buildDropdown(document.getElementById('swa-foreman'), listas.foremen||[], 'Selecciona foreman');
   buildDropdown(document.getElementById('swa-super'), listas.superintendentes||[], 'Selecciona superintendente');
+  document.querySelectorAll('#swa-tambien select').forEach(s=>{const v=s.value;buildDropdown(s,swaPersonas(listas),'Selecciona persona');s.value=v;});
   buildDropdown(document.getElementById('drils-foreman'), listas.foremen||[], 'Selecciona foreman');
   buildDropdown(document.getElementById('drils-super'), listas.superintendentes||[], 'Selecciona superintendente');
 
@@ -4188,6 +4195,27 @@ document.addEventListener('click',e=>{const c=e.target.closest&&e.target.closest
 // Mismo id mientras la observación no se haya enviado: si la respuesta se pierde y la persona vuelve a
 // tocar Enviar, el servidor reconoce el id y no guarda ni manda correo dos veces.
 let swaIdPendiente=null;
+// Otras personas que reciben la observación: foremen, superintendentes y quienes tienen rol Otro en Configuración.
+const SWA_TAMBIEN_MAX=3;
+function swaPersonas(l){
+  l=l||listasGlobal||{};
+  return [...new Set([...(l.foremen||[]),...(l.superintendentes||[]),...(l.otros||[])])].sort((a,b)=>a.localeCompare(b,'es'));
+}
+function swaTambienBoton(){
+  document.getElementById('swa-tambien-btn').style.display=document.querySelectorAll('#swa-tambien .swa-tambien-fila').length>=SWA_TAMBIEN_MAX?'none':'';
+}
+function swaAgregarPersona(){
+  const fila=document.createElement('div');
+  fila.className='swa-tambien-fila';
+  fila.style.cssText='display:flex;gap:8px;align-items:flex-start;margin-bottom:8px;';
+  fila.innerHTML='<div style="flex:1;min-width:0;"><select></select></div><button class="btn btn-ghost" aria-label="Quitar persona" title="Quitar" onclick="this.closest(\'.swa-tambien-fila\').remove();swaTambienBoton();" style="width:auto;flex:none;margin:0;padding:10px 14px;">&times;</button>';
+  document.getElementById('swa-tambien').appendChild(fila);
+  buildDropdown(fila.querySelector('select'),swaPersonas(),'Selecciona persona');
+  swaTambienBoton();
+}
+function swaTambienElegidos(foreman,superintendente){
+  return [...new Set([...document.querySelectorAll('#swa-tambien select')].map(s=>s.value).filter(v=>v&&v!==foreman&&v!==superintendente))];
+}
 async function enviarSWA(){
   const sitio=document.getElementById('swa-sitio').value.trim();
   const quien=document.getElementById('swa-quien').value.trim();
@@ -4200,19 +4228,20 @@ async function enviarSWA(){
   if(fotos.some(p=>p.uploading)){alert('Espera — las fotos se están subiendo...');return;}
   if(fotos.some(p=>p.error)){alert('Una foto no se pudo subir. Tócala para reintentar o quítala con la ×.');return;}
   swaIdPendiente=swaIdPendiente||Date.now();
-  const swaData={tipo:'swa',id:swaIdPendiente,fecha:document.getElementById('swa-fecha').value,sitio,quien,foreman:document.getElementById('swa-foreman').value,superintendente:document.getElementById('swa-super').value,tipoReporte:swaTipoSelected,fotoUrls:fotos.map(p=>p.url).filter(Boolean),tipoPeligro:swaChipSelected,descripcion,accion:document.getElementById('swa-accion').value,resolucion:document.getElementById('swa-resolucion').value};
+  const swaData={tipo:'swa',id:swaIdPendiente,fecha:document.getElementById('swa-fecha').value,sitio,quien,foreman:document.getElementById('swa-foreman').value,superintendente:document.getElementById('swa-super').value,tipoReporte:swaTipoSelected,fotoUrls:fotos.map(p=>p.url).filter(Boolean),tipoPeligro:swaChipSelected,descripcion,accion:document.getElementById('swa-accion').value,resolucion:document.getElementById('swa-resolucion').value,tambienA:swaTambienElegidos(foreman,superintendente)};
   const msg=document.getElementById('swa-msg');
   msg.style.display='block';msg.textContent='Enviando... espera unos segundos, no cierres esta pantalla.';msg.style.background='var(--info-bg)';msg.style.color='var(--info-text)';
   try{
-    await enviarAScript(swaData);
+    const swaRes=await enviarAScript(swaData);
+    const swaSinCorreo=(swaRes&&swaRes.sinCorreo)||[];
     swaIdPendiente=null;
     msg.style.display='none';
     document.getElementById('swa-form').style.display='none';
     const _foreman=document.getElementById('swa-foreman').value;
     const _super=document.getElementById('swa-super').value;
     const recipEl=document.getElementById('swa-conf-recipients');
-    if(recipEl)recipEl.textContent='Notificación enviada al Departamento de Seguridad, Foreman: '+_foreman+' y Superintendente: '+_super+'.';
-    document.getElementById('swa-resumen').innerHTML='<strong>Tipo de reporte:</strong> '+swaTipoSelected+'<br><strong>Sitio:</strong> '+sitio+'<br><strong>Reportado por:</strong> '+quien+'<br><strong>Foreman:</strong> '+_foreman+'<br><strong>Superintendente:</strong> '+_super+'<br><strong>Estado:</strong> '+(swaData.resolucion||'—')+'<br><strong>Fotos:</strong> '+(swaData.fotoUrls.length||'Sin fotos');
+    if(recipEl)recipEl.textContent='Notificación enviada al Departamento de Seguridad, Foreman: '+_foreman+' y Superintendente: '+_super+(swaData.tambienA.length?'. También a: '+swaData.tambienA.join(', '):'')+'.'+(swaSinCorreo.length?' Sin correo registrado, avísale en persona a: '+swaSinCorreo.join(', ')+'.':'');
+    document.getElementById('swa-resumen').innerHTML='<strong>Tipo de reporte:</strong> '+swaTipoSelected+'<br><strong>Sitio:</strong> '+sitio+'<br><strong>Reportado por:</strong> '+quien+'<br><strong>Foreman:</strong> '+_foreman+'<br><strong>Superintendente:</strong> '+_super+(swaData.tambienA.length?'<br><strong>También a:</strong> '+rcEsc(swaData.tambienA.join(', ')):'')+'<br><strong>Estado:</strong> '+(swaData.resolucion||'—')+'<br><strong>Fotos:</strong> '+(swaData.fotoUrls.length||'Sin fotos');
     document.getElementById('swa-confirmacion').style.display='block';
   }catch(err){msg.textContent='No se pudo confirmar el envío. Revisa tu señal y toca Enviar otra vez: no se duplica.';msg.style.background='var(--danger-bg)';msg.style.color='var(--danger-text)';}
 }
@@ -4223,6 +4252,7 @@ function resetSWA(){
   document.getElementById('swa-resolucion').selectedIndex=0;
   document.getElementById('swa-foreman').selectedIndex=0;
   document.getElementById('swa-super').selectedIndex=0;
+  document.getElementById('swa-tambien').innerHTML='';swaTambienBoton();
   document.querySelectorAll('#swa-chips .chip').forEach(c=>c.classList.remove('selected'));
   swaChipSelected='';
   document.querySelectorAll('#swa-tipo-chips .chip').forEach(c=>c.classList.remove('selected'));
@@ -6547,7 +6577,7 @@ function obsFiltrar(sinPeriodo){
     (!obs.estado || o.estado===obs.estado) &&
     (!obs.peligro || (o.tipoPeligro||'Sin marcar')===obs.peligro) &&
     (!obs.tema || o.temas.includes(obs.tema)) &&
-    coincideBusqueda(obs.q, o.descripcion, o.accion, o.quien, o.foreman, o.superintendente, o.sitio, o.tipoPeligro, o.tipoReporte)
+    coincideBusqueda(obs.q, o.descripcion, o.accion, o.quien, o.foreman, o.superintendente, (o.tambien||[]).join(' '), o.sitio, o.tipoPeligro, o.tipoReporte)
   );
 }
 
@@ -6692,7 +6722,7 @@ function obsFotosHtml(fotos){
 // donde: 'safety' o 'campo'; el formulario de cierre solo se pinta en la pantalla donde se abrió.
 function obsTarjeta(o, donde){
   const t = OBS_TIPOS[o.tipoReporte] || {c:'#9AA0A6'};
-  const meta = [['Reportó',o.quien],['Foreman',o.foreman],['Super',o.superintendente],['Peligro',o.tipoPeligro]].filter(m=>m[1]);
+  const meta = [['Reportó',o.quien],['Foreman',o.foreman],['Super',o.superintendente],['También a',(o.tambien||[]).join(', ')],['Peligro',o.tipoPeligro]].filter(m=>m[1]);
   const abierta = o.estado!=='Resuelto';
   const dias = obsDias(o);
   const estado = o.estado==='Resuelto' ? '<span class="badge badge-ok">Resuelto</span>' :
@@ -6806,12 +6836,12 @@ function obsCampoRender(){
   if(!lista || !obs.datos) return;
   const todas = obs.datos.filter(o=>!o.prueba);
   // Selector: foremen y supers que aparecen en las observaciones
-  const nombres = Array.from(new Set(todas.flatMap(o=>[o.foreman,o.superintendente]).filter(Boolean))).sort((a,b)=>a.localeCompare(b,'es'));
+  const nombres = Array.from(new Set(todas.flatMap(o=>[o.foreman,o.superintendente,...(o.tambien||[])]).filter(Boolean))).sort((a,b)=>a.localeCompare(b,'es'));
   if(obsc.persona && !nombres.includes(obsc.persona)) nombres.unshift(obsc.persona);
   const sel = document.getElementById('obsc-persona');
   sel.innerHTML = '<option value="">Todas las observaciones</option>'+nombres.map(n=>'<option value="'+rcEsc(n)+'">'+rcEsc(n)+'</option>').join('');
   sel.value = obsc.persona;
-  const mias = todas.filter(o=>!obsc.persona || o.foreman===obsc.persona || o.superintendente===obsc.persona);
+  const mias = todas.filter(o=>!obsc.persona || o.foreman===obsc.persona || o.superintendente===obsc.persona || (o.tambien||[]).includes(obsc.persona));
   const abiertas = mias.filter(o=>o.estado==='Pendiente').sort((a,b)=>(a.fecha+a.timestamp).localeCompare(b.fecha+b.timestamp));
   const desde = obsDesde('30');
   const cerradas = mias.filter(o=>o.cierre && o.cierre.fecha.slice(0,10)>=desde).sort((a,b)=>b.cierre.fecha.localeCompare(a.cierre.fecha));
