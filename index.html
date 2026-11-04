@@ -1297,7 +1297,7 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{outline:none;}
     <div class="card">
       <div class="sec-label">Firma del operador *</div>
       <div class="field" style="margin-bottom:0;">
-        <div class="firma-caja"><canvas id="f-firma"></canvas><div class="firma-guia">Firma aquí con el dedo</div></div>
+        <div class="firma-caja"><canvas id="f-firma"></canvas><div class="firma-guia">Firma aquí con el dedo o el mouse</div></div>
         <button class="btn btn-ghost" type="button" onclick="firmaBorrar('f-firma')" style="margin-top:8px;">Borrar firma</button>
       </div>
     </div>
@@ -1348,7 +1348,7 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{outline:none;}
       <div class="card">
         <div class="sec-label">Firma del operador *</div>
         <div class="field" style="margin-bottom:0;">
-          <div class="firma-caja"><canvas id="sc-firma"></canvas><div class="firma-guia">Firma aquí con el dedo</div></div>
+          <div class="firma-caja"><canvas id="sc-firma"></canvas><div class="firma-guia">Firma aquí con el dedo o el mouse</div></div>
           <button class="btn btn-ghost" type="button" onclick="firmaBorrar('sc-firma')" style="margin-top:8px;">Borrar firma</button>
         </div>
       </div>
@@ -4895,7 +4895,7 @@ const PTPD_VISTAS={
         <li>Si ves algo que no hablamos hoy, ¿qué haces? <b>Para el trabajo y avisa.</b></li></ul></div>
       <div class="card"><div class="sec-label">Firma de quien hace el PTP</div><div style="font-size:15px;font-weight:800;margin-bottom:8px;">${rcEsc(d.creadoPor)}</div>
         ${d.firmaCreador?`<img class="ptpd-firma-img" src="${d.firmaCreador}" alt="Firma"/><button class="btn btn-ghost" onclick="ptpdSet('firmaCreador','',true)">Firmar otra vez</button>`
-        :`<div class="field" style="margin:0;"><div class="firma-caja"><canvas id="ptpd-firma-creador"></canvas><div class="firma-guia">Firma aquí con el dedo</div></div></div>
+        :`<div class="field" style="margin:0;"><div class="firma-caja"><canvas id="ptpd-firma-creador"></canvas><div class="firma-guia">Firma aquí con el dedo o el mouse</div></div></div>
           <button class="btn btn-ghost" type="button" onclick="firmaBorrar('ptpd-firma-creador')" style="margin-top:8px;">Borrar firma</button>`}</div>`;
   },
   firmas(){
@@ -4910,7 +4910,7 @@ const PTPD_VISTAS={
         <div class="field" style="margin:12px 0;"><label style="display:flex;gap:10px;align-items:flex-start;font-size:15px;font-weight:800;text-transform:none;letter-spacing:0;color:var(--text);cursor:pointer;">
           <input type="checkbox" id="ptpd-entendi" style="width:22px;height:22px;min-height:0;flex:none;margin-top:1px;accent-color:var(--ooi-orange);"/>Entendí las tareas, los peligros y los controles de hoy.</label></div>
         <div class="field"><label>¿Ves un peligro que falta o tienes una duda? (opcional)</label><textarea id="ptpd-nota-asist" rows="2" placeholder="Si no, déjalo en blanco"></textarea></div>
-        <div class="field" style="margin-bottom:0;"><label>Firma *</label><div class="firma-caja"><canvas id="ptpd-firma-asist"></canvas><div class="firma-guia">Firma aquí con el dedo</div></div></div>
+        <div class="field" style="margin-bottom:0;"><label>Firma *</label><div class="firma-caja"><canvas id="ptpd-firma-asist"></canvas><div class="firma-guia">Firma aquí con el dedo o el mouse</div></div></div>
         <div class="grid2" style="margin-top:10px;"><button class="btn btn-ghost" onclick="firmaBorrar('ptpd-firma-asist')">Borrar</button><button class="btn btn-primary" onclick="ptpdFirmar()">Firmar y pasar</button></div></div>
       <div class="card"><div class="sec-label">Ya firmaron (${d.asistentes.length})</div>${d.asistentes.length?d.asistentes.map((a,i)=>`<div class="ptpd-firmado">${empAvatarHtml(ptpdEmp(a.nombre))}
           <div style="flex:1;min-width:0;"><div style="font-weight:800;">${rcEsc(a.nombre)}</div><div style="font-size:12px;color:var(--text2);">${a.hora}${a.nota?' · '+rcEsc(a.nota):''}</div></div>
@@ -5698,9 +5698,10 @@ async function proyGuardar(){
 }
 
 // ── COMPUTADORA ── Todo lo que se toca también funciona con el teclado: las tarjetas y renglones clicables reciben el foco
-// (Tab) y responden a Enter y Espacio; los botones de adjuntar archivo también. Esc cierra la foto ampliada.
+// (Tab) y responden a Enter y Espacio; los botones de adjuntar archivo y las fotos también. Esc cierra la foto ampliada,
+// la tarjeta de Fit Test, el PDF del PTP y la hoja de SDS. Aplica a todas las pestañas: lo nuevo que se pueda tocar debe entrar aquí.
 (function(){
-  const CLICABLES='div[onclick],span[onclick],td[onclick],tr[onclick],li[onclick],label:has(input[type=file])';
+  const CLICABLES='div[onclick],span[onclick],td[onclick],tr[onclick],li[onclick],img[onclick],label:has(input[type=file])';
   function marcar(raiz){
     if(raiz.nodeType!==1) return;
     const lista=[...raiz.querySelectorAll(CLICABLES)];
@@ -5717,6 +5718,9 @@ async function proyGuardar(){
     if(e.key==='Escape'){
       const lb=document.getElementById('lightbox');
       if(lb&&getComputedStyle(lb).display!=='none') closeLightbox();
+      else if(document.getElementById('sft-visor')) sftCerrarVisor();
+      else if(document.getElementById('ptpd-visor')) ptpdCerrarVisor();
+      else if(document.getElementById('sds-lector')) sdsCerrarLector();
       return;
     }
     if((e.key==='Enter'||e.key===' ')&&e.target===document.activeElement&&e.target.matches&&e.target.matches(CLICABLES)){
