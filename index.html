@@ -3812,6 +3812,7 @@ function cargarListas(retry){
           superintendentes: getArr('superintendentes'),
           otros:            getArr('otros'),
           proyectos:        getArr('proyectos'),
+          entrenamientos:   getArr('entrenamientos'),
           empleados:        listasGlobal.empleados || []  // no perder la lista del Training Log si ya llego
         };
         poblarTodosLosDropdowns(listasGlobal);
@@ -3836,7 +3837,18 @@ function cargarListas(retry){
     });
 }
 
+// Tipos de entrenamiento: pestaña Entrenamientos del archivo de Configuración. Si la lista no llega
+// (sin señal, o servidor sin la pestaña), se quedan los que trae el HTML.
+function trPoblarEntrenamientos(lista){
+  const sel=document.getElementById('tr-entrenamiento');
+  if(!sel||!lista||!lista.length)return;
+  const elegido=sel.value;
+  sel.innerHTML='<option value="">— Selecciona entrenamiento —</option>'+lista.map(t=>`<option value="${insEsc(t)}">${insEsc(t)}</option>`).join('');
+  if(lista.includes(elegido))sel.value=elegido;
+}
+
 function poblarTodosLosDropdowns(listas){
+  trPoblarEntrenamientos(listas.entrenamientos);
   // Operator screen (el operador sale del Training Log: ver poblarSelectoresEmpleados)
   buildDropdown(document.getElementById('f-sup'), listas.foremen||[], 'Selecciona foreman');
 
