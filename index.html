@@ -608,7 +608,7 @@ textarea{min-height:88px;resize:vertical;line-height:1.5;}
 .zr-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
 @media (max-width:420px){.zr-grid{grid-template-columns:1fr;}}
 .zr-punto{border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;background:var(--bg2,#fff);display:flex;flex-direction:column;}
-.zr-foto{position:relative;aspect-ratio:16/9;background:#222;cursor:zoom-in;}
+.zr-foto{position:relative;aspect-ratio:16/9;background:#222;}
 .zr-foto img{width:100%;height:100%;object-fit:cover;display:block;}
 .zr-foto .zr-no{position:absolute;transform:translate(-50%,-50%);pointer-events:none;filter:drop-shadow(0 1px 3px rgba(0,0,0,.6));}
 .zr-foto .zr-sello{position:absolute;left:6px;top:6px;width:38px;height:38px;pointer-events:none;filter:drop-shadow(0 1px 2px rgba(0,0,0,.5));}
@@ -622,7 +622,7 @@ textarea{min-height:88px;resize:vertical;line-height:1.5;}
 .zr-cuenta{margin-top:12px;font-size:13px;font-weight:700;color:var(--swa);text-align:center;}
 .zr-cuenta.listo{color:var(--success-text);}
 .zr-punto.campo-falta{box-shadow:0 0 0 3px rgba(208,54,43,.35);border-color:var(--swa);}
-.insp-ref{display:block;width:auto;max-width:100%;max-height:260px;object-fit:contain;border-radius:var(--radius);border:1px solid var(--border);margin:8px 0 2px;cursor:zoom-in;}
+.insp-ref{display:block;width:auto;max-width:100%;max-height:260px;object-fit:contain;border-radius:var(--radius);border:1px solid var(--border);margin:8px 0 2px;}
 #insp-zr-falta{display:none;margin-bottom:10px;font-size:13px;font-weight:700;color:var(--swa);text-align:center;}
 
 /* Photos */
@@ -693,6 +693,20 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
 .ss-opt mark{background:rgba(245,130,32,0.28);color:inherit;border-radius:3px;padding:0 1px;}
 .ss-group{padding:8px 14px 6px;font-size:11px;font-weight:900;color:var(--text2);text-transform:uppercase;letter-spacing:.09em;background:var(--bg2);position:sticky;top:0;}
 .ss-none{padding:14px;font-size:14px;color:var(--text2);text-align:center;}
+/* En celular la lista sale como hoja desde abajo, sin teclado (el buscador solo en listas largas) */
+html.ss-lock,html.ss-lock body{overflow:hidden!important;}
+.ss-back{position:fixed;inset:0;z-index:100000;background:rgba(0,0,0,.45);touch-action:none;}
+.ss-sheet{position:fixed;left:0;right:0;z-index:100001;background:var(--bg);border-radius:16px 16px 0 0;box-shadow:0 -6px 24px rgba(0,0,0,.25);display:flex;flex-direction:column;font-family:var(--f-body);padding-bottom:env(safe-area-inset-bottom);}
+.ss-sheet-head{display:flex;align-items:center;gap:10px;padding:14px 16px 10px;border-bottom:3px solid var(--ooi-orange);}
+.ss-sheet-title{flex:1;font-size:16px;font-weight:900;color:var(--text);line-height:1.25;}
+.ss-sheet-x{flex:none;border:1.5px solid var(--border2);background:var(--bg);color:var(--text);font:700 15px var(--f-body);border-radius:10px;padding:10px 14px;min-height:44px;cursor:pointer;}
+.ss-sheet-q{margin:10px 16px 6px;width:auto!important;font-size:16px!important;}
+.ss-sheet-list{position:relative;flex:1 1 auto;min-height:0;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;}
+.ss-sheet-list .ss-opt{display:flex;align-items:center;gap:10px;min-height:54px;padding:12px 18px;font-size:17px;}
+.ss-sheet-list .ss-opt.ss-sel{background:var(--ooi-orange-bg);}
+.ss-sheet-list .ss-opt.ss-sel::after{content:'';margin-left:auto;flex:none;width:22px;height:22px;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23F48120' stroke-width='3.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12l5 5L20 7'/%3E%3C/svg%3E") center/contain no-repeat;}
+.ss-sheet-list .ss-opt:active{background:var(--ooi-orange-bg);}
+.ss-sheet-list .ss-group{font-size:12px;}
 
 /* Training portal */
 .tp-topbar{background:var(--ooi-black);padding:14px 16px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:4px;z-index:10;border-bottom:3px solid var(--ooi-orange);}
@@ -2951,7 +2965,7 @@ const zrOk=new Set();
 function zrRender(){
   const g=document.getElementById('zr-grid');if(!g)return;
   g.innerHTML=ZR_PUNTOS.map(p=>`<div class="zr-punto" id="zr-${p.id}">
-    <div class="zr-foto" onclick="openLightbox('${p.foto}')">
+    <div class="zr-foto">
       <img src="${p.foto}" alt="${p.nombre}" loading="lazy"/>
       <svg class="zr-no" viewBox="0 0 100 100" style="left:${p.x}%;top:${p.y}%;width:${p.d}%;" aria-hidden="true"><circle cx="50" cy="50" r="44" fill="none" stroke="#D0362B" stroke-width="9"/><path d="M19 19 81 81" stroke="#D0362B" stroke-width="9" stroke-linecap="round"/></svg>
       <svg class="zr-sello" viewBox="0 0 64 64" aria-hidden="true"><use href="#zr-no-mano"/></svg>
@@ -4073,7 +4087,7 @@ function buildInspList(conservar){
   lista.forEach(item=>{if(!photoStore['ph-'+item.id])photoStore['ph-'+item.id]=[];});
   c.innerHTML=lista.map(item=>`${item.seccion?`<div class="insp-seccion">${item.seccion}</div>`:''}<div class="insp-item" id="ir-${item.id}" data-val="">
     <div class="insp-name">${item.name}</div><div class="insp-sub">${item.sub}</div>
-    ${item.foto?`<img class="insp-ref" src="${item.foto}" alt="${item.name}" loading="lazy" onclick="openLightbox('${item.foto}')"/>`:''}
+    ${item.foto?`<img class="insp-ref" src="${item.foto}" alt="${item.name}" loading="lazy"/>`:''}
     <div class="tog-row${conNA?' tres':''}">
       <button class="tog" onclick="setItem('${item.id}','ok',this)">✓ OK — Bien</button>
       <button class="tog" onclick="setItem('${item.id}','bad',this)">✗ BAD — Mal</button>
@@ -8567,6 +8581,9 @@ function pdfNewPage(doc) {
   }
 
   let current = null;   // combo con la lista abierta
+  // Celular / tableta: la lista sale como hoja desde abajo y el teclado no se abre solo.
+  const TOUCH = !!(window.matchMedia && matchMedia('(hover:none) and (pointer:coarse)').matches);
+  const SHEET_BUSCAR_DESDE = 9;   // con más opciones que esto, la hoja trae buscador
 
   function enhance(sel){
     if(sel._ss || sel.multiple || sel.size>1) return;
@@ -8582,6 +8599,7 @@ function pdfNewPage(doc) {
     input.setAttribute('role','combobox');
     input.setAttribute('aria-autocomplete','list');
     input.setAttribute('aria-expanded','false');
+    if(TOUCH){input.readOnly = true; input.setAttribute('inputmode','none');}
     wrap.appendChild(input);
     sel.parentNode.insertBefore(wrap, sel);
     sel.classList.add('ss-native');
@@ -8598,7 +8616,7 @@ function pdfNewPage(doc) {
     function refresh(){
       const o = sel.selectedIndex>=0 ? sel.options[sel.selectedIndex] : null;
       const has = !!(o && o.value!=='');
-      if(!st.isOpen) input.value = has ? o.textContent.trim() : '';
+      if(!st.isOpen || st.sheet) input.value = has ? o.textContent.trim() : '';
       input.placeholder = placeholderText();
       input.classList.toggle('ss-empty', !has);
       input.disabled = sel.disabled;
@@ -8613,7 +8631,8 @@ function pdfNewPage(doc) {
     Object.defineProperty(sel,'selectedIndex',{configurable:true,
       get(){return PI.get.call(sel);},
       set(v){PI.set.call(sel,v);refresh();}});
-    sel.focus = function(){input.focus();};
+    // En celular, enfocar (p. ej. al marcar un campo que falta) solo lo muestra; no abre la lista.
+    sel.focus = TOUCH ? function(){input.scrollIntoView({block:'center'});} : function(){input.focus();};
 
     new MutationObserver(refresh).observe(sel,{childList:true,subtree:true,characterData:true,attributes:true,attributeFilter:['disabled']});
 
@@ -8626,7 +8645,7 @@ function pdfNewPage(doc) {
         if(o.hidden) return;
         const label = o.textContent.trim();
         const ph = o.value==='';
-        if(tokens.length && ph) return;
+        if(ph && (tokens.length || (st.sheet && PV.get.call(sel)===''))) return;   // en la hoja, "— Selecciona —" solo sirve para borrar lo elegido
         const n = norm(label);
         if(!tokens.every(t=>n.includes(t))) return;
         // Prefijo primero, luego inicio de palabra, luego el resto
@@ -8663,7 +8682,7 @@ function pdfNewPage(doc) {
         panel.innerHTML = rows.map((r,i)=>{
           if(r.type==='group') return '<div class="ss-group">'+esc(r.label)+'</div>';
           const cls = 'ss-opt'+(r.idx===selIdx&&!r.ph?' ss-sel':'')+(r.disabled?' ss-dis':'')+(r.ph?' ss-ph':'');
-          return '<div class="'+cls+'" role="option" data-i="'+i+'">'+highlight(r.label,tokens)+'</div>';
+          return '<div class="'+cls+'" role="option" data-i="'+i+'"><span>'+highlight(r.label,tokens)+'</span></div>';
         }).join('');
         if(resetHl || st.hl<0 || !rows[st.hl] || rows[st.hl].type!=='opt'){
           let at = -1;
@@ -8679,16 +8698,24 @@ function pdfNewPage(doc) {
 
     function paintHl(scroll){
       const els = st.panel.querySelectorAll('.ss-opt');
-      els.forEach(el=>el.classList.toggle('ss-hl', +el.dataset.i===st.hl));
+      // En la hoja del celular no se pinta el "resaltado" (parecería ya elegido); solo la palomita del elegido.
+      if(!st.sheet) els.forEach(el=>el.classList.toggle('ss-hl', +el.dataset.i===st.hl));
       if(scroll){
-        const cur = st.panel.querySelector('.ss-hl');
-        if(cur) cur.scrollIntoView({block:'nearest'});
+        // Desplaza solo la lista (scrollIntoView movía también la página)
+        const p = st.panel, cur = p.querySelector(st.sheet ? '.ss-sel' : '.ss-hl');
+        if(cur){
+          const t = cur.offsetTop, b = t + cur.offsetHeight;
+          if(st.sheet) p.scrollTop = Math.max(0, t - (p.clientHeight - cur.offsetHeight)/2);
+          else if(t < p.scrollTop) p.scrollTop = t;
+          else if(b > p.scrollTop + p.clientHeight) p.scrollTop = b - p.clientHeight;
+        }
       }
     }
 
     function position(){
       const panel = st.panel;
       if(!panel) return;
+      if(st.sheet){positionSheet(); return;}
       const vv = window.visualViewport;
       const vh = vv ? vv.height : window.innerHeight;
       const r = input.getBoundingClientRect();
@@ -8732,12 +8759,103 @@ function pdfNewPage(doc) {
       input.select();
     }
 
+    // ── Celular: hoja desde abajo. No sale el teclado; la página no se mueve. ──
+    function sheetTitle(){
+      const f = sel.closest('.field'), lab = f && f.querySelector('label');
+      const t = lab ? lab.textContent.replace(/\*/g,'').trim() : '';
+      return t || placeholderText().replace(/[—–-]/g,'').trim() || 'Selecciona';
+    }
+    function openSheet(){
+      if(st.isOpen || sel.disabled) return;
+      if(current && current!==st) current.close();
+      st.isOpen = true;
+      current = st;
+      st.query = '';
+      input.blur();
+      input.setAttribute('aria-expanded','true');
+      document.documentElement.classList.add('ss-lock');
+
+      const back = document.createElement('div');
+      back.className = 'ss-back';
+      back.addEventListener('click',close);
+      back.addEventListener('touchmove',e=>e.preventDefault(),{passive:false});
+
+      const sheet = document.createElement('div');
+      sheet.className = 'ss-sheet';
+      sheet.setAttribute('role','dialog');
+      sheet.setAttribute('aria-modal','true');
+      const head = document.createElement('div');
+      head.className = 'ss-sheet-head';
+      const title = document.createElement('div');
+      title.className = 'ss-sheet-title';
+      title.textContent = sheetTitle();
+      const x = document.createElement('button');
+      x.type = 'button';
+      x.className = 'ss-sheet-x';
+      x.textContent = 'Cerrar';
+      x.addEventListener('click',close);
+      head.append(title, x);
+      sheet.appendChild(head);
+
+      const nOpts = Array.from(sel.options).filter(o=>!o.hidden && o.value!=='').length;
+      st.sheetQ = null;
+      if(nOpts > SHEET_BUSCAR_DESDE){
+        const q = document.createElement('input');
+        q.type = 'search';
+        q.className = 'ss-sheet-q';
+        q.placeholder = 'Buscar…';
+        q.autocomplete = 'off';
+        q.spellcheck = false;
+        q.setAttribute('autocapitalize','off');
+        q.setAttribute('enterkeyhint','done');
+        q.addEventListener('input',()=>{st.query = q.value; renderList(true); st.panel.scrollTop = 0;});
+        q.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault(); q.blur();}});
+        sheet.appendChild(q);
+        st.sheetQ = q;
+      }
+
+      const list = document.createElement('div');
+      list.className = 'ss-sheet-list';
+      list.setAttribute('role','listbox');
+      list.addEventListener('mousedown',e=>e.preventDefault());   // si el buscador tiene el teclado, no lo cierra antes de elegir
+      list.addEventListener('click',e=>{
+        const el = e.target.closest('.ss-opt');
+        if(el) choose(+el.dataset.i);
+      });
+      sheet.appendChild(list);
+
+      document.body.append(back, sheet);
+      st.back = back;
+      st.sheet = sheet;
+      st.panel = list;
+      renderList(true);
+      paintHl(true);   // ya con la altura final: deja a la vista lo que está elegido
+    }
+    function positionSheet(){
+      const sh = st.sheet;
+      if(!sh) return;
+      const vv = window.visualViewport;
+      const top0 = vv ? vv.offsetTop : 0, h = vv ? vv.height : window.innerHeight;
+      const maxH = Math.round(h < 520 ? h - 12 : h * 0.8);
+      // Con buscador la altura queda fija para que no brinque al escribir
+      if(st.sheetQ){sh.style.height = maxH + 'px'; sh.style.maxHeight = '';}
+      else {sh.style.height = ''; sh.style.maxHeight = maxH + 'px';}
+      sh.style.top = Math.round(top0 + h - sh.offsetHeight) + 'px';
+    }
+
     function close(){
       if(!st.isOpen) return;
       st.isOpen = false;
       if(current===st) current = null;
       input.classList.remove('ss-open');
       input.setAttribute('aria-expanded','false');
+      if(st.sheet){
+        st.sheet.remove(); st.sheet = null;
+        if(st.back){st.back.remove(); st.back = null;}
+        st.sheetQ = null;
+        st.panel = null;
+        document.documentElement.classList.remove('ss-lock');
+      }
       if(st.panel){st.panel.remove(); st.panel = null;}
       refresh();
     }
@@ -8764,8 +8882,12 @@ function pdfNewPage(doc) {
       if(st.rows[i]){st.hl = i; paintHl(true);}
     }
 
-    input.addEventListener('focus',open);
-    input.addEventListener('click',open);
+    if(TOUCH){
+      input.addEventListener('click',e=>{e.preventDefault(); openSheet();});
+    } else {
+      input.addEventListener('focus',open);
+      input.addEventListener('click',open);
+    }
     input.addEventListener('input',()=>{
       if(!st.isOpen) open();
       st.query = input.value;
@@ -8781,6 +8903,7 @@ function pdfNewPage(doc) {
       else if(e.key==='Tab'){close();}
     });
     input.addEventListener('blur',()=>{
+      if(TOUCH) return;   // la hoja se cierra sola al elegir, con "Cerrar" o tocando afuera
       setTimeout(()=>{if(document.activeElement!==input) close();},120);
     });
 
@@ -8790,7 +8913,8 @@ function pdfNewPage(doc) {
   // Reposicionar / cerrar al hacer scroll o cambiar el tamaño
   function reposition(e){
     if(!current) return;
-    if(e && e.target && current.panel && current.panel.contains(e.target)) return;
+    // (window y visualViewport no son nodos: contains() con ellos lanzaba error y la lista nunca se reacomodaba al salir el teclado)
+    if(e && e.target instanceof Node && current.panel && current.panel.contains(e.target)) return;
     current.position();
   }
   window.addEventListener('scroll',reposition,true);
@@ -8801,7 +8925,7 @@ function pdfNewPage(doc) {
   }
   // Tocar fuera de la lista la cierra
   document.addEventListener('mousedown',e=>{
-    if(current && !current.wrap.contains(e.target) && !(current.panel&&current.panel.contains(e.target))) current.close();
+    if(current && !current.sheet && !current.wrap.contains(e.target) && !(current.panel&&current.panel.contains(e.target))) current.close();
   },true);
 
   function scan(root){
