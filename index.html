@@ -622,6 +622,7 @@ textarea{min-height:88px;resize:vertical;line-height:1.5;}
 .zr-cuenta{margin-top:12px;font-size:13px;font-weight:700;color:var(--swa);text-align:center;}
 .zr-cuenta.listo{color:var(--success-text);}
 .zr-punto.campo-falta{box-shadow:0 0 0 3px rgba(208,54,43,.35);border-color:var(--swa);}
+.insp-ref{display:block;width:auto;max-width:100%;max-height:260px;object-fit:contain;border-radius:var(--radius);border:1px solid var(--border);margin:8px 0 2px;cursor:zoom-in;}
 #insp-zr-falta{display:none;margin-bottom:10px;font-size:13px;font-weight:700;color:var(--swa);text-align:center;}
 
 /* Photos */
@@ -1317,15 +1318,18 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{outline:none;}
       </div>
     </div>
     <div class="card"><div class="sec-label">Lista de inspección</div><div style="font-size:13px;color:var(--text2);margin-bottom:14px;">Toca OK o BAD. Si marcas BAD puedes agregar foto y observación.</div><div id="insp-list"></div></div>
-    <div class="card"><div class="sec-label">Safety Awareness</div><div style="font-size:13px;color:var(--text2);margin-bottom:12px;">Confirma cada punto antes de operar el equipo</div><div id="safety-list"></div><div class="field" style="margin-top:14px;"><label>Observaciones de seguridad</label><textarea id="f-sobs" placeholder="¿Riesgos? ¿Cuasi-accidente?..."></textarea></div></div>
+    <div class="card" id="f-safety-card"><div class="sec-label">Safety Awareness</div><div style="font-size:13px;color:var(--text2);margin-bottom:12px;">Confirma cada punto antes de operar el equipo</div><div id="safety-list"></div><div class="field" style="margin-top:14px;"><label>Observaciones de seguridad</label><textarea id="f-sobs" placeholder="¿Riesgos? ¿Cuasi-accidente?..."></textarea></div></div>
     <div class="card">
       <div class="sec-label">Observaciones y fotos</div>
       <div class="field"><label>Herramientas utilizadas</label><input type="text" id="f-tools" placeholder="Ej. llave 3/4..." autocomplete="off"/></div>
       <div class="field"><label>Observaciones generales</label><textarea id="f-obs" placeholder="Condición anormal, daño..."></textarea></div>
+      <!-- Grout Pump sin fotos generales: solo se suben fotos en los puntos marcados BAD -->
+      <div id="f-fotos-generales">
       <div style="font-size:13px;color:var(--text2);margin-bottom:8px;">Fotos generales de la unidad</div>
       <button class="photo-btn" onclick="triggerPhoto('general-photos','general-input')"><svg class="ico"><use href="#i-camera"/></svg>Tomar foto o elegir de galería</button>
       <input type="file" id="general-input" accept="image/*" multiple style="display:none" onchange="handlePhotos(this,'general-photos')" data-storekey="general-photos"/>
       <div class="photo-grid" id="general-photos"></div>
+      </div>
     </div>
     <div class="card">
       <div class="sec-label">Firma del operador *</div>
@@ -2791,15 +2795,23 @@ function tpCloseDetail(){
 
 
 // ── INSPECTION DATA ──
+// Grout Pump (6 nov 2026): sin cadenas, bandas ni barras de agarre (la máquina no las tiene); se agregaron niveles
+// de aceite, diésel, gasolina, extintor y EPP (antes en Safety Awareness, que ya no sale para esta máquina).
+// Los nombres no llevan ": " porque la hoja guarda cada punto como "Nombre: OK" y el detalle corta ahí.
+// foto (opcional) = imagen de referencia que se ve en el punto, p. ej. el EPP completo.
 const inspItems=[
   {id:'estructura',name:'Daños de estructura y cubeta',sub:'Golpes, grietas, deformaciones'},
-  {id:'mangueras',name:'Mangueras, cadenas y bandas',sub:'Desgaste, cortes, tensión correcta'},
-  {id:'fugas',name:'Fugas: aceite, combustible, hidráulico',sub:'Sellos, conexiones, depósitos'},
+  {id:'mangueras',name:'Mangueras',sub:'Desgaste, cortes, conexiones firmes'},
+  {id:'fugas',name:'Fugas de aceite, combustible o hidráulico',sub:'Sellos, conexiones, depósitos'},
+  {id:'aceite',name:'Niveles de aceite — caja de mangueras, motor y caracol',sub:'Revisa los tres antes de prender'},
+  {id:'diesel',name:'Tiene diésel',sub:'Suficiente para el turno'},
+  {id:'gasolina',name:'Gasolina en el contenedor de los tambores de agua',sub:'Suficiente para el turno'},
   {id:'tuberias',name:'Tuberías, empaques y válvulas',sub:'Fugas, sellos, operación de válvulas'},
-  {id:'barras',name:'Barras de agarre, escalones, plataforma',sub:'Firmes, sin corrosión ni daño'},
   {id:'controles',name:'Controles, botones, cableado eléctrico',sub:'Funcionamiento, cables sin exposición'},
   {id:'silos',name:'Inspección de silos',sub:'Nivel, fugas y estado estructural'},
   {id:'pompa',name:'Pompa de agua y mangueras de gruta',sub:'Presión, fugas y estado de mangueras'},
+  {id:'extintor',name:'Extintor a menos de 20 pies',sub:'Requerido. Cargado y a la mano',foto:'img/grout/extintor.jpg'},
+  {id:'epp',name:'Tengo todo mi EPP puesto',sub:'Mascarilla N95, tapones para oídos, lentes, casco, guantes de hule y traje Tyvek',foto:'img/grout/epp.jpg'},
   {id:'limpieza',name:'Pompa limpia',sub:'Unidad limpia al final del turno'},
 ];
 // Hoja "Inspección de Equipos" de OOI: la que se usa para excavadora, drill, boom lift, loader, Skytrack…
@@ -2882,7 +2894,7 @@ const INSP_EXTRAS={
     {id:'s_canastilla',name:'Si usa canastilla: aprobada por el fabricante y trabada',sub:'Work platform attachment'},
   ]},
 };
-// La Grout Pump conserva su lista propia (inspItems / safetyItems); cualquier otro tipo usa la general.
+// La Grout Pump conserva su lista propia (inspItems, sin Safety Awareness); cualquier otro tipo usa la general.
 function esGroutPump(tipo){ return /grout|gruta|bomba/.test(normBusqueda(tipo)); }
 // Tipo elegido en el dropdown; con "Otra máquina" es lo que escriben abajo. Vacío = aún no eligen.
 function inspTipo(){
@@ -2902,7 +2914,7 @@ function itemsInsp(){
   const extras=ex.items.map((it,k)=>k===0?Object.assign({seccion:'Puntos de '+insTipoComun(inspTipo())},it):it);
   return [...base.slice(0,iArea),...extras,...base.slice(iArea)];
 }
-function itemsSafety(){ return !inspHayTipo()?[]:inspEsGrout()?safetyItems:safetyItemsGeneral; }
+function itemsSafety(){ return !inspHayTipo()||inspEsGrout()?[]:safetyItemsGeneral; }
 // Qué lista está pintada: '' (sin máquina), 'grout', 'general' o el tipo con puntos extra.
 function inspClaveLista(){ return !inspHayTipo()?'':inspEsGrout()?'grout':(inspExtras()?insTipoComun(inspTipo()):'general'); }
 function inspClaveSafety(){ return !inspHayTipo()?'':inspEsGrout()?'grout':'general'; }
@@ -2912,6 +2924,9 @@ function inspTipoCambio(){
   const ow=document.getElementById('f-tipo-otro-wrap');if(ow)ow.style.display=document.getElementById('f-tipo')?.value==='Otra'?'':'none';
   const zr=document.getElementById('f-zona-roja');if(zr)zr.style.display=grout?'':'none';
   if(grout&&!document.querySelector('#zr-grid .zr-punto')) zrRender(); else zrActualizar();
+  // Grout Pump: sin Safety Awareness (EPP y extintor van en la lista) y sin fotos generales (solo fotos en BAD).
+  const sc=document.getElementById('f-safety-card');if(sc)sc.style.display=grout?'none':'';
+  const fg=document.getElementById('f-fotos-generales');if(fg)fg.style.display=grout?'none':'';
   const mm=document.getElementById('f-makemodel');if(mm)mm.style.display=hay&&!grout?'':'none';
   // Solo se reconstruye la lista cuando cambia cuál toca; lo ya marcado se conserva (buildInspList).
   if(inspClaveLista()!==inspListaActual) buildInspList(true);
@@ -2958,14 +2973,6 @@ function zrActualizar(){
 }
 function zrReset(){ zrOk.clear(); zrActualizar(); }
 
-const safetyItems=[
-  'Verifiqué que la máquina está apagada antes de ingresar a zona roja',
-  'Las llaves están en mi bolsillo (no en el switch) al trabajar cerca de aspas/gusanos',
-  'Tengo mi EPP completo: casco, lentes, guantes, botas con casquillo',
-  'El área está despejada y sin derrames de aceite en el piso',
-  'Nadie en zona de riesgo antes de encender el equipo',
-  'Conozco la ruta de evacuación y ubicación del extintor más cercano',
-];
 
 function show(id){if(id==='s-login')cerrarSesion();document.querySelectorAll('.campo-falta').forEach(e=>e.classList.remove('campo-falta'));document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');window.scrollTo(0,0);}
 let swaTipoSelected='';
@@ -4060,6 +4067,7 @@ function buildInspList(conservar){
   lista.forEach(item=>{if(!photoStore['ph-'+item.id])photoStore['ph-'+item.id]=[];});
   c.innerHTML=lista.map(item=>`${item.seccion?`<div class="insp-seccion">${item.seccion}</div>`:''}<div class="insp-item" id="ir-${item.id}" data-val="">
     <div class="insp-name">${item.name}</div><div class="insp-sub">${item.sub}</div>
+    ${item.foto?`<img class="insp-ref" src="${item.foto}" alt="${item.name}" loading="lazy" onclick="openLightbox('${item.foto}')"/>`:''}
     <div class="tog-row${conNA?' tres':''}">
       <button class="tog" onclick="setItem('${item.id}','ok',this)">✓ OK — Bien</button>
       <button class="tog" onclick="setItem('${item.id}','bad',this)">✗ BAD — Mal</button>
@@ -4219,7 +4227,9 @@ async function submitReport(){
   if(zrPend.length){marcarFaltantes(document.getElementById('f-proy').closest('.screen'),zrPend.map(p=>document.getElementById('zr-'+p.id)).filter(Boolean));alert('Zona roja: toca "mi mano no va aquí" en cada foto (marcadas en rojo). Faltan: '+zrPend.map(p=>p.nombre).join(', '));return;}
   // Fotos que se mandan: las generales y las de puntos en BAD (las de un BAD cambiado a OK quedan ocultas y no cuentan)
   const esBad=id=>document.getElementById('ir-'+id)?.dataset.val==='bad';
-  const allPhotos=Object.keys(photoStore).filter(k=>k==='general-photos'||(k.startsWith('ph-')&&esBad(k.slice(3)))).map(k=>photoStore[k]).flat();
+  // La Grout Pump no lleva fotos generales ni Safety Awareness: si quedaron de otra máquina elegida antes, no se mandan.
+  const esGrout=inspEsGrout();
+  const allPhotos=Object.keys(photoStore).filter(k=>(k==='general-photos'&&!esGrout)||(k.startsWith('ph-')&&esBad(k.slice(3)))).map(k=>photoStore[k]).flat();
   if(allPhotos.some(p=>p.uploading)){alert('Espera — las fotos se están subiendo...');return;}
   if(allPhotos.some(p=>p.error)){alert('Una foto no se pudo subir. Tócala para reintentar o quítala con la ×.');return;}
   if(firmaVacia('f-firma')){marcarFaltantes(document.getElementById('f-proy').closest('.screen'),[document.getElementById('f-firma')]);alert('Falta la firma del operador.');return;}
@@ -4234,8 +4244,8 @@ async function submitReport(){
   });
   const safety=itemsSafety().map((s,i)=>({label:s,checked:document.getElementById('sc'+i)?.checked||false}));
   const zonaRoja=inspEsGrout()?ZR_PUNTOS.map(p=>({punto:p.nombre,confirmado:zrOk.has(p.id)})):[];
-  const genPhotoUrls=(photoStore['general-photos']||[]).map(p=>p.url).filter(Boolean);
-  const report={id:Date.now(),fecha:document.getElementById('f-fecha').value,proyecto:proy,operador:op,supervisor:document.getElementById('f-sup').value,tipoMaquina,maquina,fabricante:document.getElementById('f-fab').value.trim(),modelo:document.getElementById('f-mod').value.trim(),hi:document.getElementById('f-hi').value,hf:document.getElementById('f-hf').value,tools:document.getElementById('f-tools').value,obs:document.getElementById('f-obs').value,safetyObs:document.getElementById('f-sobs').value,items,safety,zonaRoja,hasBad,genPhotoUrls};
+  const genPhotoUrls=!esGrout?(photoStore['general-photos']||[]).map(p=>p.url).filter(Boolean):[];
+  const report={id:Date.now(),fecha:document.getElementById('f-fecha').value,proyecto:proy,operador:op,supervisor:document.getElementById('f-sup').value,tipoMaquina,maquina,fabricante:document.getElementById('f-fab').value.trim(),modelo:document.getElementById('f-mod').value.trim(),hi:document.getElementById('f-hi').value,hf:document.getElementById('f-hf').value,tools:document.getElementById('f-tools').value,obs:document.getElementById('f-obs').value,safetyObs:esGrout?'':document.getElementById('f-sobs').value,items,safety,zonaRoja,hasBad,genPhotoUrls};
   const msg=document.getElementById('submit-msg');
   msg.style.display='block';msg.textContent='Enviando inspección...';msg.style.background='var(--info-bg)';msg.style.color='var(--info-text)';
   try{
@@ -4470,7 +4480,7 @@ function showDetail(idx,detailId,reportsKey){
       <div><span style="color:var(--text2);">Proyecto</span><br><strong>${r.proyecto}</strong></div>
       <div><span style="color:var(--text2);">Máquina</span><br><strong>${[r.tipoComun,r.maquina].filter(Boolean).join(' ')||'—'}</strong>${r.fabricante||r.modelo?`<br><span style="font-size:12px;color:var(--text2);">${[r.fabricante,r.modelo].filter(Boolean).join(' ')}</span>`:''}</div>
       <div><span style="color:var(--text2);">Foreman</span><br>${r.supervisor||'—'}</div>
-      <div><span style="color:var(--text2);">Safety</span><br><strong>${r.safetyChecks||'—'}</strong></div>
+      ${r.safetyChecks?`<div><span style="color:var(--text2);">Safety</span><br><strong>${r.safetyChecks}</strong></div>`:''}
       ${r.zonaRoja?`<div><span style="color:var(--text2);">Zona roja (pellizco)</span><br><strong>${insEsc(r.zonaRoja)}</strong></div>`:''}
       <div><span style="color:var(--text2);">Horas</span><br>${r.hi||'—'} → ${r.hf||'—'}</div>
       <div><span style="color:var(--text2);">Estado</span><br><span class="badge ${r.hasBad?'badge-bad':'badge-ok'}">${r.hasBad?'Revisar':'OK'}</span></div>
