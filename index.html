@@ -598,6 +598,31 @@ textarea{min-height:88px;resize:vertical;line-height:1.5;}
 
 /* Zona roja */
 .zona-roja{background:var(--danger-bg);border:1.5px solid var(--danger-border);border-left:5px solid var(--swa);border-radius:var(--radius);padding:14px;color:var(--danger-text);font-size:14px;font-weight:700;display:flex;gap:10px;align-items:flex-start;margin-bottom:14px;}
+/* Zona roja de la Grout Pump: fotos de los puntos de pellizco con señal de NO y confirmación por foto.
+   La foto siempre queda en rojo; lo que se pone verde es el botón de "Entendido". */
+.zr-card{border:1.5px solid var(--danger-border);border-left:5px solid var(--swa);}
+.zr-titulo{display:flex;gap:10px;align-items:center;color:var(--swa);font-weight:900;font-size:17px;letter-spacing:.2px;margin-bottom:8px;}
+.zr-titulo svg{width:34px;height:34px;flex:0 0 auto;}
+.zr-instr{background:var(--danger-bg);color:var(--danger-text);border-radius:var(--radius);padding:10px 12px;font-size:14px;line-height:1.45;margin-bottom:14px;}
+.zr-instr strong{font-weight:900;}
+.zr-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+@media (max-width:420px){.zr-grid{grid-template-columns:1fr;}}
+.zr-punto{border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;background:var(--bg2,#fff);display:flex;flex-direction:column;}
+.zr-foto{position:relative;aspect-ratio:16/9;background:#222;cursor:zoom-in;}
+.zr-foto img{width:100%;height:100%;object-fit:cover;display:block;}
+.zr-foto .zr-no{position:absolute;transform:translate(-50%,-50%);pointer-events:none;filter:drop-shadow(0 1px 3px rgba(0,0,0,.6));}
+.zr-foto .zr-sello{position:absolute;left:6px;top:6px;width:38px;height:38px;pointer-events:none;filter:drop-shadow(0 1px 2px rgba(0,0,0,.5));}
+.zr-foto .zr-banda{position:absolute;left:0;right:0;bottom:0;background:rgba(208,54,43,.92);color:#fff;font-weight:900;font-size:12px;letter-spacing:.4px;text-align:center;padding:4px 6px;}
+.zr-txt{padding:10px 10px 0;}
+.zr-nombre{font-weight:900;font-size:15px;}
+.zr-desc{font-size:13px;color:var(--text2);margin-top:2px;line-height:1.35;}
+.zr-ok{margin:10px;padding:10px;border-radius:var(--radius);border:1.5px solid var(--swa);background:transparent;color:var(--swa);font:inherit;font-weight:700;font-size:14px;cursor:pointer;margin-top:auto;}
+.zr-txt+.zr-ok{margin-top:10px;}
+.zr-ok.on{background:var(--success-bg);border-color:var(--success-text);color:var(--success-text);}
+.zr-cuenta{margin-top:12px;font-size:13px;font-weight:700;color:var(--swa);text-align:center;}
+.zr-cuenta.listo{color:var(--success-text);}
+.zr-punto.campo-falta{box-shadow:0 0 0 3px rgba(208,54,43,.35);border-color:var(--swa);}
+#insp-zr-falta{display:none;margin-bottom:10px;font-size:13px;font-weight:700;color:var(--swa);text-align:center;}
 
 /* Photos */
 .photo-btn{
@@ -978,6 +1003,8 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{outline:none;}
   <symbol id="i-truck" viewBox="0 0 24 24"><path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"/><path d="M15 18H9"/><path d="M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.62l-3.48-4.35A1 1 0 0 0 17.52 8H14"/><circle cx="17" cy="18" r="2"/><circle cx="7" cy="18" r="2"/></symbol>
   <symbol id="i-chev" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></symbol>
   <symbol id="i-hand" viewBox="0 0 24 24"><path d="M18 11V6a2 2 0 0 0-4 0"/><path d="M14 10V4a2 2 0 0 0-4 0v2"/><path d="M10 10.5V6a2 2 0 0 0-4 0v8"/><path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15"/></symbol>
+  <!-- Señal "no meter la mano" (zona roja Grout Pump): colores propios, no hereda el trazo de los iconos -->
+  <symbol id="zr-no-mano" viewBox="0 0 64 64"><circle cx="32" cy="32" r="28" fill="#fff" stroke="#D0362B" stroke-width="6"/><g transform="translate(14 13) scale(1.5)" fill="none" stroke="#111" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 11V6a2 2 0 0 0-4 0"/><path d="M14 10V4a2 2 0 0 0-4 0v2"/><path d="M10 10.5V6a2 2 0 0 0-4 0v8"/><path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15"/></g><path d="M12.2 12.2 51.8 51.8" stroke="#D0362B" stroke-width="6" stroke-linecap="round"/></symbol>
   <symbol id="i-megaphone" viewBox="0 0 24 24"><path d="m3 11 18-5v12L3 14v-3z"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/></symbol>
   <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></symbol>
   <symbol id="i-edit" viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4z"/></symbol>
@@ -1271,7 +1298,13 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{outline:none;}
         <div class="field"><label>Modelo</label><input type="text" id="f-mod" placeholder="Ej. 320" autocomplete="off"/></div>
       </div>
     </div>
-    <div class="zona-roja" id="f-zona-roja"><svg class="ico"><use href="#i-alert"/></svg><div><div style="font-weight:600;margin-bottom:3px;">ZONA ROJA — Peligro de atrapamiento</div>Apagar máquina y llaves al bolsillo antes de meter la mano en: <strong>Aspas · Gusanos · Olla · Cilindro · Pistón · Agitador</strong></div></div>
+    <!-- ZONA ROJA (solo Grout Pump): fotos de los puntos de pellizco; hay que confirmar cada una para enviar. Lista en ZR_PUNTOS. -->
+    <div class="card zr-card" id="f-zona-roja" style="display:none;">
+      <div class="zr-titulo"><svg viewBox="0 0 64 64" aria-hidden="true"><use href="#zr-no-mano"/></svg>ZONA ROJA — NO METAS LA MANO</div>
+      <div class="zr-instr"><strong>Instrucción: no metas la mano aquí.</strong> Con la máquina prendida, para alcanzar usa la herramienta, nunca la mano. Para limpiar o destapar: apaga la máquina y las llaves a tu bolsillo.</div>
+      <div class="zr-grid" id="zr-grid"></div>
+      <div class="zr-cuenta" id="zr-cuenta"></div>
+    </div>
     <div class="card">
       <div class="sec-label">Información general</div>
       <div class="field"><label>Nombre del operador</label><select id="f-op"><option value="">— Selecciona operador —</option></select></div>
@@ -1302,6 +1335,7 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{outline:none;}
       </div>
     </div>
     <div class="submit-msg" id="submit-msg"></div>
+    <div id="insp-zr-falta"></div>
     <button class="btn btn-success" onclick="envioUnico(this,submitReport)">✓ Enviar inspección</button>
     <button class="btn btn-ghost" onclick="clearForm()" style="margin-top:10px;">Limpiar formulario</button>
     </div><!-- end op-grout-panel -->
@@ -2877,11 +2911,52 @@ function inspTipoCambio(){
   const hay=inspHayTipo(), grout=inspEsGrout();
   const ow=document.getElementById('f-tipo-otro-wrap');if(ow)ow.style.display=document.getElementById('f-tipo')?.value==='Otra'?'':'none';
   const zr=document.getElementById('f-zona-roja');if(zr)zr.style.display=grout?'':'none';
+  if(grout&&!document.querySelector('#zr-grid .zr-punto')) zrRender(); else zrActualizar();
   const mm=document.getElementById('f-makemodel');if(mm)mm.style.display=hay&&!grout?'':'none';
   // Solo se reconstruye la lista cuando cambia cuál toca; lo ya marcado se conserva (buildInspList).
   if(inspClaveLista()!==inspListaActual) buildInspList(true);
   if(inspClaveSafety()!==inspSafetyActual) buildSafetyList();
 }
+
+// ── ZONA ROJA DE LA GROUT PUMP ──
+// Fotos de los puntos de pellizco (img/zona-roja/). x, y = centro del círculo rojo en % de la foto; d = diámetro en % del ancho.
+// Para agregar otra foto: ponerla en img/zona-roja/ y sumar un renglón aquí; lo demás (envío, hoja, PDF) se ajusta solo.
+const ZR_PUNTOS=[
+  {id:'aspas',   foto:'img/zona-roja/aspas.jpg',   x:53,y:60,d:30, nombre:'Aspas de la olla',          desc:'Giran dentro de la olla. No se detienen por tu mano.'},
+  {id:'gusano',  foto:'img/zona-roja/gusano.jpg',  x:48,y:50,d:24, nombre:'Gusano — zona de pellizco', desc:'Por la ventana se ve el gusano girando. Ni los dedos.'},
+  {id:'engrasar',foto:'img/zona-roja/engrasar.jpg',x:56,y:47,d:24, nombre:'Al engrasar',               desc:'Usa la pistola de grasa. Tu mano lejos del eje que gira.'},
+];
+const zrOk=new Set();
+function zrRender(){
+  const g=document.getElementById('zr-grid');if(!g)return;
+  g.innerHTML=ZR_PUNTOS.map(p=>`<div class="zr-punto" id="zr-${p.id}">
+    <div class="zr-foto" onclick="openLightbox('${p.foto}')">
+      <img src="${p.foto}" alt="${p.nombre}" loading="lazy"/>
+      <svg class="zr-no" viewBox="0 0 100 100" style="left:${p.x}%;top:${p.y}%;width:${p.d}%;" aria-hidden="true"><circle cx="50" cy="50" r="44" fill="none" stroke="#D0362B" stroke-width="9"/><path d="M19 19 81 81" stroke="#D0362B" stroke-width="9" stroke-linecap="round"/></svg>
+      <svg class="zr-sello" viewBox="0 0 64 64" aria-hidden="true"><use href="#zr-no-mano"/></svg>
+      <div class="zr-banda">NO METAS LA MANO</div>
+    </div>
+    <div class="zr-txt"><div class="zr-nombre">${p.nombre}</div><div class="zr-desc">${p.desc}</div></div>
+    <button type="button" class="zr-ok" onclick="zrConfirmar('${p.id}')"></button>
+  </div>`).join('');
+  zrActualizar();
+}
+function zrConfirmar(id){ zrOk.has(id)?zrOk.delete(id):zrOk.add(id); zrActualizar(); }
+function zrFaltan(){ return inspEsGrout()?ZR_PUNTOS.filter(p=>!zrOk.has(p.id)):[]; }
+function zrActualizar(){
+  ZR_PUNTOS.forEach(p=>{
+    const b=document.querySelector('#zr-'+p.id+' .zr-ok');if(!b)return;
+    const on=zrOk.has(p.id);
+    b.classList.toggle('on',on);
+    b.textContent=on?'✓ Entendido — mi mano no va aquí':'Toca para confirmar: mi mano no va aquí';
+  });
+  const n=ZR_PUNTOS.length, hechos=ZR_PUNTOS.filter(p=>zrOk.has(p.id)).length;
+  const c=document.getElementById('zr-cuenta');
+  if(c){c.textContent=hechos===n?'✓ Confirmaste las '+n+' zonas de pellizco':'Confirmadas '+hechos+' de '+n;c.classList.toggle('listo',hechos===n);}
+  const f=document.getElementById('insp-zr-falta'), faltan=zrFaltan().length;
+  if(f){f.style.display=faltan?'block':'none';f.textContent='Para enviar: falta confirmar '+faltan+' de '+n+' zonas de pellizco (Zona roja, arriba).';}
+}
+function zrReset(){ zrOk.clear(); zrActualizar(); }
 
 const safetyItems=[
   'Verifiqué que la máquina está apagada antes de ingresar a zona roja',
@@ -4127,7 +4202,7 @@ function clearForm(){
   ['f-proy','f-hi','f-hf','f-tools','f-obs','f-sobs','f-tipo','f-tipo-otro','f-maq','f-fab','f-mod'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
   ['f-op','f-sup'].forEach(id=>{const el=document.getElementById(id);if(el)el.selectedIndex=0;});
   Object.keys(photoStore).forEach(k=>{photoStore[k]=[];});
-  buildInspList();buildSafetyList();inspTipoCambio();setToday();firmaBorrar('f-firma');
+  zrOk.clear();buildInspList();buildSafetyList();inspTipoCambio();setToday();firmaBorrar('f-firma');
   const msg=document.getElementById('submit-msg');if(msg)msg.style.display='none';
   renderPhotoGrid('general-photos');
 }
@@ -4139,6 +4214,9 @@ async function submitReport(){
   const maquina=document.getElementById('f-maq').value.trim().toUpperCase();
   if(faltanCampos([['f-tipo','tipo de máquina',!inspHayTipo()],['f-tipo-otro','qué máquina es',inspHayTipo()&&!inspTipo()],
     ['f-maq','número de la máquina'],['f-proy','proyecto'],['f-op','operador']]))return;
+  // Grout Pump: cada foto de la zona roja se confirma antes de enviar.
+  const zrPend=zrFaltan();
+  if(zrPend.length){marcarFaltantes(document.getElementById('f-proy').closest('.screen'),zrPend.map(p=>document.getElementById('zr-'+p.id)).filter(Boolean));alert('Zona roja: toca "mi mano no va aquí" en cada foto (marcadas en rojo). Faltan: '+zrPend.map(p=>p.nombre).join(', '));return;}
   // Fotos que se mandan: las generales y las de puntos en BAD (las de un BAD cambiado a OK quedan ocultas y no cuentan)
   const esBad=id=>document.getElementById('ir-'+id)?.dataset.val==='bad';
   const allPhotos=Object.keys(photoStore).filter(k=>k==='general-photos'||(k.startsWith('ph-')&&esBad(k.slice(3)))).map(k=>photoStore[k]).flat();
@@ -4155,8 +4233,9 @@ async function submitReport(){
     if(v==='bad')hasBad=true;
   });
   const safety=itemsSafety().map((s,i)=>({label:s,checked:document.getElementById('sc'+i)?.checked||false}));
+  const zonaRoja=inspEsGrout()?ZR_PUNTOS.map(p=>({punto:p.nombre,confirmado:zrOk.has(p.id)})):[];
   const genPhotoUrls=(photoStore['general-photos']||[]).map(p=>p.url).filter(Boolean);
-  const report={id:Date.now(),fecha:document.getElementById('f-fecha').value,proyecto:proy,operador:op,supervisor:document.getElementById('f-sup').value,tipoMaquina,maquina,fabricante:document.getElementById('f-fab').value.trim(),modelo:document.getElementById('f-mod').value.trim(),hi:document.getElementById('f-hi').value,hf:document.getElementById('f-hf').value,tools:document.getElementById('f-tools').value,obs:document.getElementById('f-obs').value,safetyObs:document.getElementById('f-sobs').value,items,safety,hasBad,genPhotoUrls};
+  const report={id:Date.now(),fecha:document.getElementById('f-fecha').value,proyecto:proy,operador:op,supervisor:document.getElementById('f-sup').value,tipoMaquina,maquina,fabricante:document.getElementById('f-fab').value.trim(),modelo:document.getElementById('f-mod').value.trim(),hi:document.getElementById('f-hi').value,hf:document.getElementById('f-hf').value,tools:document.getElementById('f-tools').value,obs:document.getElementById('f-obs').value,safetyObs:document.getElementById('f-sobs').value,items,safety,zonaRoja,hasBad,genPhotoUrls};
   const msg=document.getElementById('submit-msg');
   msg.style.display='block';msg.textContent='Enviando inspección...';msg.style.background='var(--info-bg)';msg.style.color='var(--info-text)';
   try{
@@ -4183,7 +4262,7 @@ async function envioUnico(btn,fn){
 }
 // Marca en rojo lo que falta y lleva la pantalla al primero; se quita solo al llenarlo.
 // Se marca el .field del campo (o la tarjeta, o el renglón de inspección .insp-item).
-function cajaFaltante(e){return e.matches('.insp-item')?e:(e.closest('.field')||e.closest('.card'));}
+function cajaFaltante(e){return e.matches('.insp-item,.zr-punto')?e:(e.closest('.field')||e.closest('.card'));}
 function marcarFaltantes(form,els){
   form.querySelectorAll('.campo-falta').forEach(e=>e.classList.remove('campo-falta'));
   els.forEach(e=>{const c=cajaFaltante(e);if(c)c.classList.add('campo-falta');});
@@ -4392,6 +4471,7 @@ function showDetail(idx,detailId,reportsKey){
       <div><span style="color:var(--text2);">Máquina</span><br><strong>${[r.tipoComun,r.maquina].filter(Boolean).join(' ')||'—'}</strong>${r.fabricante||r.modelo?`<br><span style="font-size:12px;color:var(--text2);">${[r.fabricante,r.modelo].filter(Boolean).join(' ')}</span>`:''}</div>
       <div><span style="color:var(--text2);">Foreman</span><br>${r.supervisor||'—'}</div>
       <div><span style="color:var(--text2);">Safety</span><br><strong>${r.safetyChecks||'—'}</strong></div>
+      ${r.zonaRoja?`<div><span style="color:var(--text2);">Zona roja (pellizco)</span><br><strong>${insEsc(r.zonaRoja)}</strong></div>`:''}
       <div><span style="color:var(--text2);">Horas</span><br>${r.hi||'—'} → ${r.hf||'—'}</div>
       <div><span style="color:var(--text2);">Estado</span><br><span class="badge ${r.hasBad?'badge-bad':'badge-ok'}">${r.hasBad?'Revisar':'OK'}</span></div>
     </div>
