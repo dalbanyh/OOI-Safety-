@@ -1958,10 +1958,10 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{outline:none;}
       </div>
     </div><!-- end foreman-fittest-panel -->
 
-    <!-- FIT TEST DEL PERSONAL (foreman y super): un renglón por trabajador. Datos: hoja FitTests (solicitudes + tarjetas de RRHH).
-         La tarjeta se abre con leer 'fittest_tarjeta': el servidor la manda, así se ve aunque no tengan acceso a la carpeta de Drive. -->
+    <!-- FIT TEST DEL PERSONAL (foreman y super): un renglón por trabajador. Datos: hoja FitTests (solicitudes + resultados de RRHH).
+         Desde el 6 nov 2026 solo fechas y estado: la tarjeta es información médica y solo la abre RRHH (leer 'fittest_tarjeta'). -->
     <div id="foreman-ftestado-panel" style="display:none;">
-      <div style="font-size:12px;color:var(--text2);margin-bottom:14px;">Último Fit Test de cada trabajador. Vence a los 12 meses (OSHA 1910.134). Las tarjetas las sube Recursos Humanos.</div>
+      <div style="font-size:12px;color:var(--text2);margin-bottom:14px;">Último Fit Test de cada trabajador: si está vigente y cuándo se renueva. Vence a los 12 meses (OSHA 1910.134). La tarjeta es información médica: la guarda Recursos Humanos.</div>
       <div class="stat-grid" id="sft-stats"></div>
       <input type="text" id="sft-buscar" placeholder="Buscar trabajador..." oninput="sftRender()" autocomplete="off" style="width:100%;padding:10px 12px;border-radius:var(--radius);border:1.5px solid var(--border2);font-family:inherit;font-size:14px;background:var(--bg2);color:var(--text);box-sizing:border-box;margin-bottom:10px;"/>
       <div id="sft-filtros" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;">
@@ -2065,7 +2065,7 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{outline:none;}
       </div>
 
       <div style="background:var(--ooi-orange-bg);border:1px solid rgba(245,130,32,0.2);border-radius:var(--radius);padding:12px 14px;margin-bottom:14px;font-size:13px;color:var(--text2);">
-        <svg class="ico ico-in"><use href="#i-mail"/></svg>Al completar, se notificará al Departamento de Seguridad y quedará registrado en Google Drive y en "Fit Test del personal" (foremen y superintendentes pueden ver la tarjeta). Si el resultado es PASS, la fecha también se anota en el EMPLOYEE TRAINING LOG (Respiratory Protection).
+        <svg class="ico ico-in"><use href="#i-mail"/></svg>Al completar, se notificará al Departamento de Seguridad y quedará registrado en Google Drive. Foremen y superintendentes solo ven la fecha, si está vigente y cuándo se renueva ("Fit Test del personal"); la tarjeta es información médica y solo la abre Recursos Humanos. Si el resultado es PASS, la fecha también se anota en el EMPLOYEE TRAINING LOG (Respiratory Protection).
       </div>
 
       <div class="submit-msg" id="rrhh-msg"></div>
@@ -2774,6 +2774,8 @@ async function tpOpenDetail(_,empIdx){
   document.getElementById('tp-cert-list').innerHTML='';
   try{
     const json=await leerDeScript('certs',{nombre:emp.name});
+    // La tarjeta de Fit Test / respirador es información médica: aquí no se lista (la fecha sí se ve arriba). El servidor ya la quita.
+    if(json.certs) json.certs=json.certs.filter(c=>!/^RESP_/i.test(c.fileName||'') && !/respira|fit\s*-?\s*test|medical|m[eé]dic/i.test((c.fileName||'')+' '+(c.entrenamiento||'')));
     if(json.certs&&json.certs.length>0){
       document.getElementById('tp-cert-status').textContent=json.certs.length+' certificado(s) encontrado(s) en Drive';
       document.getElementById('tp-cert-list').innerHTML=json.certs.map(c=>`
@@ -6285,6 +6287,7 @@ async function loadRRHHHistory(){
   try{
     const json = await leerDeScript('fittest_completed');
     const completed=json.completed||[];
+    rrhhCompletados=completed;
     if(!completed.length){
       listEl.innerHTML='<div class="empty-state"><div class="icon">'+ico('clipboard')+'</div><div>No hay registros completados aún.</div></div>';
       return;
@@ -6297,7 +6300,7 @@ async function loadRRHHHistory(){
           <span class="badge ${r.resultado==='PASS'?'badge-ok':'badge-bad'}">${r.resultado}</span>
         </div>
         <div style="font-size:11px;color:var(--text3);margin-top:4px;">${r.fecha}</div>
-        ${r.driveUrl?`<a href="${r.driveUrl}" target="_blank" class="drive-btn" style="margin-top:8px;display:inline-flex;">${ico('file')}Ver tarjeta en Drive</a>`:''}
+        ${r.driveUrl?`<button class="drive-btn" style="margin-top:8px;display:inline-flex;cursor:pointer;font-family:inherit;" onclick="sftVerTarjeta('${rcEsc(String(r.id))}',this)">${ico('file')}Ver tarjeta</button>`:''}
       </div>`).join('');
   }catch(err){
     listEl.innerHTML='<div style="color:var(--danger-text);padding:20px;text-align:center;">Error cargando historial.</div>';
@@ -6904,7 +6907,7 @@ function obsRender(){
   // Las pendientes se ven de la más vieja a la más nueva
   if(obs.estado==='Pendiente') lista.sort((a,b)=>(a.fecha+a.timestamp).localeCompare(b.fecha+b.timestamp));
   const personas = new Set(lista.map(o=>normBusqueda(o.quien)).filter(Boolean)).size;
-  const conFoto = lista.filter(o=>o.fotos.length).length;
+  const conFoto = lista.filter(o=>o.fotos.length || o.fotosEnPdf).length;   // fotosEnPdf: ya solo están dentro del PDF
   const kpi = (n,lbl,sub,color,onclick)=>'<div class="stat-card obs-kpi'+(onclick?' obs-kpi-btn':'')+'"'+(onclick?' onclick="'+onclick+'"':'')+(color?' style="border-top-color:'+color+';"':'')+'><div class="stat-num"'+(color?' style="color:'+color+';"':'')+'>'+n+'</div><div class="stat-lbl">'+lbl+'</div>'+(sub?'<div class="obs-kpi-sub">'+sub+'</div>':'')+'</div>';
 
   let h = '<div class="obs-kpis">'+
@@ -6979,6 +6982,8 @@ function obsTarjeta(o, donde){
     '<div class="obs-card-desc">'+rcEsc(o.descripcion||'Sin descripción')+'</div>'+
     (o.accion?'<div class="obs-card-accion"><strong>Acción tomada:</strong> '+rcEsc(o.accion)+'</div>':'')+
     fotos+
+    // PDF con todo lo reportado y las fotos (Code.gs, 6 nov 2026). Ya resuelta, las fotos sueltas se quitan y quedan solo en el PDF.
+    (o.pdf?'<a class="drive-btn" href="'+rcEsc(o.pdf)+'" target="_blank" rel="noopener" style="margin-top:8px;display:inline-flex;text-decoration:none;">'+icoIn('file')+(o.estado==='Resuelto'?'Ver PDF (antes y después)':'Ver PDF')+'</a>':'')+
     (c?'<div class="obs-cierre"><div class="obs-cierre-quien">Cerrada por '+rcEsc(c.por||'—')+(c.rol?' ('+rcEsc(c.rol)+')':'')+' · '+obsFechaCorta(c.fecha.slice(0,10))+' '+rcEsc(c.fecha.slice(11,16))+'</div>'+
       '<div class="obs-cierre-accion"><strong>Corrección:</strong> '+rcEsc(c.accion)+'</div></div>':'')+
     (abierta && !formAbierto ? '<button class="btn btn-primary obs-cerrar-btn" onclick="obsAbrirCierre(\''+rcEsc(o.id)+'\',\''+donde+'\')">'+icoIn('check')+'Cerrar con foto</button>' : '')+
@@ -7053,6 +7058,8 @@ async function obsGuardarCierre(){
     obsGuardar(OBS_QUIEN_KEY, quien);
     o.cierre = (r && r.cierre) || {por:quien, rol:'', fecha:hoyLocal()+' ', accion, fotos:fotos.map(p=>p.url)};
     o.estado = 'Resuelto';
+    // Con PDF de Resueltas, el servidor quitó las fotos sueltas: el antes y el después se ven en el PDF
+    if(r && r.pdf){ o.fotosEnPdf = (o.fotosEnPdf||0) + o.fotos.length; o.pdf = r.pdf; o.fotos = []; o.cierre.fotos = []; }
     obsCancelarCierre();
   }catch(e){
     if(String(e.message)!=='auth') obsCierreMsg('No se pudo cerrar: '+String(e.message).replace(/\.\s*$/,'')+'. Lo que escribiste sigue aquí, intenta de nuevo.', 'error');
@@ -7573,24 +7580,23 @@ function sftRender(){
         (p.desde?'<div style="font-size:11px;color:var(--text3);margin-top:2px;">'+((ftLugar(p)||p.clinicaCercana)?sftEsc(ftLugar(p)||p.clinicaCercana)+' · ':'')+'Puede ir: '+ftVentana(p)+'</div>':'')+
         (p.status==='Agendado'&&ftTieneCita(p)?'<div style="font-size:11px;color:var(--warning-text);margin-top:2px;">Autorizado: '+ftCita(p)+(p.citaDireccion?' · '+sftEsc(p.citaDireccion):'')+'</div>':'');
     }
+    // Sin "Ver tarjeta": es información médica (6 nov 2026). Solo RRHH la abre, desde su Historial.
     html+='</div>'+BADGE[w.estado]+'</div>';
-    if(u && (u.tarjetas&&u.tarjetas.length || /^https:\/\/drive\.google\.com\//.test(String(u.driveUrl||'')))){
-      html+='<button class="drive-btn" style="margin-top:8px;display:inline-flex;cursor:pointer;font-family:inherit;" onclick="sftVerTarjeta('+Number(u.id)+',this)">'+ico('file')+'Ver tarjeta</button>';
-    }
     return html+'</div>';
   }).join('');
 }
 
-// Visor de la tarjeta de Fit Test. El servidor (leer 'fittest_tarjeta') manda el PDF/las fotos de ESE registro,
-// así el foreman o super la ve aunque no tenga permiso en la carpeta de Drive.
+// Visor de la tarjeta de Fit Test (SOLO RRHH, Historial): el servidor (leer 'fittest_tarjeta', permiso solo rrhh)
+// manda el PDF/las fotos de ESE registro, así se ve aunque la tarjeta ya no se comparta con enlace.
 let sftVisorUrls=[];
+let rrhhCompletados=[];
 async function sftVerTarjeta(id, btn){
   const txt=btn.innerHTML;
   btn.disabled=true; btn.innerHTML=ico('file')+'Abriendo...';
   try{
     const json=await leerDeScript('fittest_tarjeta',{id:id});
     if(!json || json.status!=='ok') throw new Error((json&&json.message)||'No se pudo abrir la tarjeta.');
-    const reg=sftDatos.map(w=>w.ultimo).find(u=>u && Number(u.id)===Number(id)) || {};
+    const reg=rrhhCompletados.find(u=>u && String(u.id)===String(id)) || {};
     sftAbrirVisor(reg, json.archivos||[]);
   }catch(err){
     if(String(err&&err.message)!=='auth') alert(err instanceof TypeError ? 'Error de conexión — intenta de nuevo' : (err.message||'No se pudo abrir la tarjeta.'));
