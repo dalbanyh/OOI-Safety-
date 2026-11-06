@@ -833,6 +833,10 @@ button.ins-c{cursor:pointer;}
 .proy-tag.mal{background:var(--danger-bg);color:var(--danger-text);}
 .proy-tag.papel{background:rgba(245,130,32,.14);color:var(--ooi-orange-dark);}
 .proy-grid{display:grid;grid-template-columns:1fr;gap:0 14px;}
+.pc-checks{display:flex;flex-wrap:wrap;gap:8px;}
+.field label.pc-check{margin:0;font-family:var(--f-body);display:inline-flex;align-items:center;gap:8px;min-height:42px;padding:8px 12px;border:1.5px solid var(--border);border-radius:10px;font-size:14px;font-weight:400;text-transform:none;letter-spacing:0;color:var(--text);cursor:pointer;background:var(--bg);}
+.field .pc-check input[type=checkbox]{-webkit-appearance:auto;appearance:auto;width:18px;height:18px;min-height:0;padding:0;margin:0;border:none;flex:none;accent-color:var(--ooi-orange);}
+.field .pc-check:has(input:checked){border-color:var(--ooi-orange);background:rgba(245,130,32,.08);}
 @media(min-width:760px){.proy-grid{grid-template-columns:1fr 1fr;}.proy-grid .ancho{grid-column:1 / -1;}}
 .sptp-fila-proy{cursor:pointer;}
 .sptp-fila-proy:hover td{background:var(--bg2);}
@@ -5630,9 +5634,9 @@ const PROY_FORM=[
     {k:'ciudad',l:'Ciudad'},
     {k:'direccion',l:'Dirección',ancho:1}]},
   {sec:'Equipo',campos:[
-    {k:'super',l:'Superintendente',lista:'super'},
+    {k:'super',l:'Superintendente',lista:'super',hoja:true},
     {k:'foreman',l:'Foreman',lista:'foreman'},
-    {k:'pm',l:'PM'}]},
+    {k:'pm',l:'PM',hoja:true}]},
   {sec:'Requisitos',campos:[
     {k:'mob',l:'Fecha de MOB',tipo:'date'},
     {k:'seguro',l:'CCIP / OCIP',opciones:[['','Sin definir'],['NO','No'],['OCIP','OCIP'],['CCIP','CCIP'],['YES','Sí (sin especificar)']]},
@@ -5643,9 +5647,66 @@ const PROY_FORM=[
     {k:'hospital',l:'Hospital o clínica más cercana',ancho:1},
     {k:'notas',l:'Notas',tipo:'area',ancho:1}]}
 ];
+// PRE-CONSTRUCCIÓN: pestaña "Project Pre-Con Summary" (mismo libro). Cada k es un campo de PRECON_CAMPOS en Code.gs.
+// yn: menú Sí/No (la hoja guarda Y/N o YES/NO según la columna). ayuda: lo que hay que preguntar en la junta.
+const PC_YN=[['','Sin definir'],['YES','Sí'],['NO','No']];
+const PC_PERMISOS=[['Excavation','Excavación'],['Hot Work','Trabajo en caliente (soldar, cortar)'],['Confined Space','Espacio confinado'],
+  ['Crane / Lift','Grúa o izaje'],['Road / Lane Closure','Cierre de calle o carril'],['Work at Height','Trabajo en altura'],['Utility Locate / Potholing','Localizar servicios / potholing']];
+const PRECON_FORM=[
+  {sec:'Junta de pre-construcción',campos:[
+    {k:'fecha',l:'Fecha de la junta',tipo:'date'},
+    {k:'asistentes',l:'Quiénes asistieron',ayuda:'Nombres y empresa: GC, super, foreman, Safety.'}]},
+  {sec:'Alcance del trabajo',campos:[
+    {k:'categoria',l:'Categoría',listaPc:'categoria',ayuda:'Ejemplo: TEMP ERS, CLSP, Micropiles, Soil nails.'},
+    {k:'profundidad',l:'Profundidad aproximada (ft)'},
+    {k:'alcance',l:'Alcance del trabajo',tipo:'area',ancho:1},
+    {k:'operadores',l:'Operadores',opciones:[['','Sin definir'],['CERTIFIED','Certificados'],['NOT CERTIFIED','Sin certificar']]},
+    {k:'equipo',l:'Equipo en el sitio y comentarios',tipo:'area',ancho:1,ayuda:'Drill, loader, grout pump, boom lift, silo...'}]},
+  {sec:'Acceso al sitio',campos:[
+    {k:'orientacion',l:'¿Piden orientación del sitio?',yn:1},
+    {k:'orientacionDetalle',l:'Horario o detalles de la orientación'},
+    {k:'badging',l:'Gafete o proceso de acceso'},
+    {k:'drogas',l:'¿Piden prueba de drogas o antecedentes?',yn:1},
+    {k:'manualCliente',l:'Liga al manual de seguridad del cliente',ancho:1},
+    {k:'epp',l:'EPP adicional que pide el cliente',ancho:1,ayuda:'Además del básico: chaleco clase 3, guantes contra corte, lentes oscuros, ropa FR...'},
+    {k:'horario',l:'Horario de trabajo y restricciones',ayuda:'Hora de entrada, ruido, vecinos, días sin trabajo.'},
+    {k:'logistica',l:'Estacionamiento, material y entrada de equipo',ayuda:'Dónde se estaciona la gente, dónde va el material, por dónde entra el equipo.'}]},
+  {sec:'Requisitos para supervisores',campos:[
+    {k:'osha',l:'¿Piden OSHA 10/30?',yn:1},
+    {k:'cpr',l:'¿Piden CPR / primeros auxilios / AED?',yn:1}]},
+  {sec:'Riesgos principales',campos:[
+    {k:'caidas',l:'Caídas',yn:1},
+    {k:'silice',l:'Sílice',yn:1,ayuda:'Controles con agua y Fit Test para quien use respirador.'},
+    {k:'utilidades',l:'Servicios subterráneos',yn:1},
+    {k:'lineasAereas',l:'Líneas eléctricas aéreas',yn:1,ayuda:'Voltaje y distancia mínima con el dueño de la línea antes de levantar el mástil.'},
+    {k:'confinado',l:'Espacio confinado',yn:1},
+    {k:'soldador',l:'Soldador en el sitio',yn:1},
+    {k:'boomlift',l:'Boom lift',yn:1},
+    {k:'izaje',l:'Izaje de piezas pesadas',yn:1,ayuda:'Peso de las piezas, capacidad del equipo y quién da las señales.'},
+    {k:'trafico',l:'Tráfico o público cerca',yn:1,ayuda:'Plan de control de tráfico, banderero, paso de peatones.'},
+    {k:'clima',l:'Calor o frío extremo',yn:1,ayuda:'Agua, sombra, descansos y electrolitos; en frío, ropa y calentadores.'}]},
+  {sec:'Excavación y servicios',campos:[
+    {k:'personaCompetente',l:'Persona competente de la excavación',ayuda:'Quién revisa la excavación cada día antes de entrar.'},
+    {k:'ticket811',l:'Ticket de 811 (número y vencimiento)',ayuda:'Sin ticket vigente no se perfora.'},
+    {k:'proteccionBorde',l:'¿Quién pone y mantiene la protección del borde?',ancho:1,ayuda:'Barandal o cable en el borde de la excavación: GC u OOI.'}]},
+  {sec:'Permisos',campos:[
+    {k:'permisos',l:'Permisos que pide el cliente',tipo:'multi',multi:PC_PERMISOS}]},
+  {sec:'Emergencias y reportes',campos:[
+    {k:'emergencia',l:'Plan de emergencia y punto de reunión',ancho:1,ayuda:'Punto de reunión, quién llama al 911 y la dirección exacta para la ambulancia.'},
+    {k:'reporteLesiones',l:'Cómo se reporta una lesión',ancho:1,ayuda:'A quién se llama y en cuánto tiempo. En CCIP/OCIP: la clínica que asigna el seguro.'}]},
+  {sec:'Otros en el sitio',campos:[
+    {k:'subcontratistas',l:'Subcontratistas de OOI en el sitio',ancho:1,ayuda:'Deben traer su seguro (COI) y sus PTP/JHA, y entrar a nuestras pláticas.'},
+    {k:'reunionesGC',l:'Juntas de seguridad del GC',ayuda:'Día y hora.'},
+    {k:'ambiental',l:'Medio ambiente',ayuda:'SWPPP, kit de derrames, lavado de concreto, arroyos o drenajes cerca.'}]},
+  {sec:'Notas del gerente',campos:[
+    {k:'notasGerente',l:'Notas',tipo:'area',ancho:1}]}
+];
+function pcSi(v){ return /^(y|yes|s[ií])$/i.test(String(v||'').trim()); }
+function pcNo(v){ return /^(n|no)$/i.test(String(v||'').trim()); }
+function preconHecha(p){ const d=p.precon||{}; return PRECON_FORM.some(s=>s.campos.some(c=>String(d[c.k]||'').trim())); }
 // Lo que debe tener un proyecto activo para contar como completo
 const PROY_REQUERIDOS=[['gc','contratista'],['direccion','dirección'],['ciudad','ciudad'],['super','superintendente'],['foreman','foreman'],['mob','fecha de MOB'],['seguro','CCIP/OCIP'],['metodo','método de PTP']];
-const proy={lista:null,t:0,url:'',f:'activos',abierto:null,estado:'Activo',pendiente:''};
+const proy={lista:null,t:0,url:'',urlPrecon:'',listas:{},hayPrecon:false,vista:'datos',f:'activos',abierto:null,estado:'Activo',pendiente:''};
 
 async function proyCargar(forzar){
   if(!(listasGlobal.foremen&&listasGlobal.foremen.length)) cargarListas();
@@ -5656,7 +5717,7 @@ async function proyCargar(forzar){
   try{
     const j=await leerDeScript('proyectos');
     if(!j||j.status!=='ok') throw new Error((j&&j.message)||'');
-    proy.lista=j.proyectos||[]; proy.url=j.url||''; proy.t=Date.now();
+    proy.lista=j.proyectos||[]; proy.url=j.url||''; proy.urlPrecon=j.urlPrecon||''; proy.listas=j.listas||{}; proy.hayPrecon=!!j.precon; proy.t=Date.now();
     proyMostrarInicio();
   }catch(err){
     if(String(err&&err.message)==='auth') return;
@@ -5684,16 +5745,19 @@ function proyRender(){
   todos.forEach(p=>{ const k=ptpdClave(p.nombre); cuenta[k]=(cuenta[k]||0)+1; });
   const conFaltas=activos.filter(p=>proyFaltan(p).length), sinMetodo=activos.filter(p=>!p.metodo);
   const seguros=activos.filter(p=>/ocip|ccip/i.test(p.seguro||'')), repetidos=activos.filter(p=>cuenta[ptpdClave(p.nombre)]>1);
+  const sinPrecon=activos.filter(p=>!preconHecha(p));
   const kpi=(n,t,f,color)=>`<div class="stat-card obs-kpi${f?' obs-kpi-btn':''}"${f?` onclick="proyFiltro('${f}')"`:''}><div class="stat-num"${color?` style="color:${color};"`:''}>${n}</div><div class="stat-lbl">${t}</div></div>`;
   document.getElementById('proy-kpis').innerHTML='<div class="obs-kpis">'+
     kpi(activos.length,'Activos','activos')+kpi(todos.length-activos.length,'Inactivos','inactivos')+
     kpi(conFaltas.length,'Les faltan datos','faltan',conFaltas.length?'var(--warning-text)':'')+
     kpi(sinMetodo.length,'Sin método de PTP','sinmetodo',sinMetodo.length?'var(--warning-text)':'')+
-    kpi(seguros.length,'Con OCIP / CCIP','seguro')+kpi(repetidos.length,'Nombre repetido','repetidos',repetidos.length?'var(--warning-text)':'')+'</div>'+
-    (proy.url?`<div style="margin:-4px 0 12px;"><a class="ins-link" href="${rcEsc(proy.url)}" target="_blank" rel="noopener">Abrir la hoja de Active Project Information</a></div>`:'');
+    kpi(seguros.length,'Con OCIP / CCIP','seguro')+kpi(repetidos.length,'Nombre repetido','repetidos',repetidos.length?'var(--warning-text)':'')+
+    (proy.hayPrecon?kpi(sinPrecon.length,'Sin pre-construcción','sinprecon',sinPrecon.length?'var(--warning-text)':''):'')+'</div>'+
+    (proy.url?`<div style="margin:-4px 0 12px;display:flex;gap:16px;flex-wrap:wrap;"><a class="ins-link" href="${rcEsc(proy.url)}" target="_blank" rel="noopener">Abrir la hoja de Active Project Information</a>${
+      proy.urlPrecon?`<a class="ins-link" href="${rcEsc(proy.urlPrecon)}" target="_blank" rel="noopener">Abrir Project Pre-Con Summary</a>`:''}</div>`:'');
   const q=document.getElementById('proy-buscar').value;
   const pasa={activos:p=>p.activo,inactivos:p=>!p.activo,todos:()=>true,faltan:p=>p.activo&&proyFaltan(p).length>0,
-    sinmetodo:p=>p.activo&&!p.metodo,seguro:p=>p.activo&&/ocip|ccip/i.test(p.seguro||''),repetidos:p=>p.activo&&cuenta[ptpdClave(p.nombre)]>1}[proy.f]||(()=>true);
+    sinmetodo:p=>p.activo&&!p.metodo,sinprecon:p=>p.activo&&!preconHecha(p),seguro:p=>p.activo&&/ocip|ccip/i.test(p.seguro||''),repetidos:p=>p.activo&&cuenta[ptpdClave(p.nombre)]>1}[proy.f]||(()=>true);
   const lista=todos.filter(pasa).filter(p=>!q||coincideBusqueda(q,p.nombre,p.gc,p.ciudad,p.direccion,p.super,p.foreman,p.pm))
     .sort((a,b)=>a.nombre.localeCompare(b.nombre));
   const c=document.getElementById('proy-cuerpo');
@@ -5713,18 +5777,57 @@ function proyValoresLista(k){
   const base=k==='super'?(listasGlobal.superintendentes||[]):k==='foreman'?(listasGlobal.foremen||[]):[];
   return [...new Set(base.concat((proy.lista||[]).map(p=>String(p[k]||'').trim())).filter(Boolean))].sort((a,b)=>a.localeCompare(b));
 }
-function proyCampoHtml(c,p){
-  const id='proy-c-'+c.k, v=p[c.k]||'', cl=c.ancho?' ancho':'';
-  if(c.opciones){
+// c: campo de PROY_FORM o PRECON_FORM; p: los valores (el proyecto o su precon); pref: prefijo del id
+function proyCampoHtml(c,p,pref){
+  pref=pref||'proy-c-';
+  const id=pref+c.k, cl=c.ancho?' ancho':'';
+  let v=p[c.k]||'';
+  const ayuda=c.ayuda?`<div class="proy-sub">${rcEsc(c.ayuda)}</div>`:'';
+  // Superintendent y PM: la hoja solo acepta su lista de iniciales, así que aquí es un menú con esa lista
+  const deHoja=c.hoja&&(proy.listas||{})[c.k];
+  const opciones=c.opciones||(c.yn?PC_YN:null)||(deHoja?[['','Sin definir']].concat(deHoja.map(x=>[x,x])):null);
+  if(opciones){
+    if(c.yn) v=pcSi(v)?'YES':pcNo(v)?'NO':v;
     // Lo que venga de la hoja y no esté en la lista se conserva tal cual
     const iguala=(o)=>String(o).toUpperCase()===String(v).toUpperCase();
-    const ops=c.opciones.some(o=>iguala(o[0]))?c.opciones:c.opciones.concat([[v,v]]);
-    return `<div class="field${cl}"><label for="${id}">${c.l}</label><select id="${id}">${ops.map(o=>`<option value="${rcEsc(o[0])}"${iguala(o[0])?' selected':''}>${rcEsc(o[1])}</option>`).join('')}</select></div>`;
+    const ops=opciones.some(o=>iguala(o[0]))?opciones:opciones.concat([[v,v]]);
+    const nota=deHoja?`<div class="proy-sub">Iniciales, como en la hoja. Si falta alguien, agrégalo primero a la lista de esa columna en la hoja.</div>`:ayuda;
+    return `<div class="field${cl}"><label for="${id}">${c.l}</label><select id="${id}">${ops.map(o=>`<option value="${rcEsc(o[0])}"${iguala(o[0])?' selected':''}>${rcEsc(o[1])}</option>`).join('')}</select>${nota}</div>`;
   }
-  if(c.tipo==='area') return `<div class="field${cl}"><label for="${id}">${c.l}</label><textarea id="${id}" rows="3" maxlength="1000">${rcEsc(v)}</textarea></div>`;
-  if(c.tipo==='date') return `<div class="field${cl}"><label for="${id}">${c.l}</label><input type="date" id="${id}" value="${rcEsc(v)}"/>${c.k==='mob'&&p.mobTexto?`<div class="proy-sub">En la hoja dice "${rcEsc(p.mobTexto)}". Si no eliges fecha, se queda así y no se le exige PTP todavía.</div>`:''}</div>`;
-  const lista=c.lista?`list="proy-dl-${c.k}"`:'';
-  return `<div class="field${cl}"><label for="${id}">${c.l}</label><input type="text" id="${id}" value="${rcEsc(v)}" ${lista} maxlength="${c.k==='nombre'?150:300}" autocomplete="off"/>${c.lista?`<datalist id="proy-dl-${c.k}">${proyValoresLista(c.lista).map(n=>`<option value="${rcEsc(n)}">`).join('')}</datalist>`:''}</div>`;
+  if(c.tipo==='multi'){
+    const partes=String(v).split(/\s*[,;]\s*/).filter(Boolean);
+    const marcado=o=>partes.some(x=>x.toUpperCase()===o[0].toUpperCase());
+    const extra=partes.filter(x=>!c.multi.some(o=>o[0].toUpperCase()===x.toUpperCase()));
+    return `<div class="field ancho"><label>${c.l}</label><div class="pc-checks" id="${id}" data-extra="${rcEsc(extra.join(', '))}">${
+      c.multi.map(o=>`<label class="pc-check"><input type="checkbox" value="${rcEsc(o[0])}"${marcado(o)?' checked':''}/> ${rcEsc(o[1])}</label>`).join('')}</div>${
+      extra.length?`<div class="proy-sub">En la hoja también dice: ${rcEsc(extra.join(', '))} (se conserva).</div>`:''}</div>`;
+  }
+  if(c.tipo==='area') return `<div class="field${cl}"><label for="${id}">${c.l}</label><textarea id="${id}" rows="3" maxlength="${c.k==='notasGerente'?2000:1000}">${rcEsc(v)}</textarea>${ayuda}</div>`;
+  if(c.tipo==='date'){
+    const iso=/^\d{4}-\d{2}-\d{2}$/.test(v), crudo=v&&!iso?v:'';
+    return `<div class="field${cl}"><label for="${id}">${c.l}</label><input type="date" id="${id}" value="${rcEsc(iso?v:'')}" data-raw="${rcEsc(crudo)}"/>${
+      c.k==='mob'&&p.mobTexto?`<div class="proy-sub">En la hoja dice "${rcEsc(p.mobTexto)}". Si no eliges fecha, se queda así y no se le exige PTP todavía.</div>`:
+      crudo?`<div class="proy-sub">En la hoja dice "${rcEsc(crudo)}". Si no eliges fecha, se queda así.</div>`:ayuda}</div>`;
+  }
+  const valoresLista=c.lista?proyValoresLista(c.lista):c.listaPc?[...new Set((proy.lista||[]).map(x=>String((x.precon||{})[c.listaPc]||'').trim()).filter(Boolean))].sort((a,b)=>a.localeCompare(b)):null;
+  const lista=valoresLista?`list="${pref}dl-${c.k}"`:'';
+  return `<div class="field${cl}"><label for="${id}">${c.l}</label><input type="text" id="${id}" value="${rcEsc(v)}" ${lista} maxlength="${c.k==='nombre'?150:300}" autocomplete="off"/>${valoresLista?`<datalist id="${pref}dl-${c.k}">${valoresLista.map(n=>`<option value="${rcEsc(n)}">`).join('')}</datalist>`:''}${ayuda}</div>`;
+}
+function proyValorCampo(c,pref){
+  const el=document.getElementById(pref+c.k);
+  if(!el) return '';
+  if(c.tipo==='multi'){
+    const marcados=[...el.querySelectorAll('input:checked')].map(i=>i.value);
+    return marcados.concat(el.dataset.extra?[el.dataset.extra]:[]).join(', ');
+  }
+  return String(el.value||el.dataset.raw||'').trim();
+}
+function proySetVista(v){
+  proy.vista=v;
+  document.querySelectorAll('#proy-form-vista [data-vista]').forEach(b=>b.classList.toggle('on',b.dataset.vista===v));
+  const a=document.getElementById('proy-vista-datos'), b=document.getElementById('proy-vista-precon');
+  if(a) a.style.display=v==='datos'?'block':'none';
+  if(b) b.style.display=v==='precon'?'block':'none';
 }
 function proyAbrir(id){
   const p=id?(proy.lista||[]).find(x=>x.id===id):{activo:true};
@@ -5739,6 +5842,17 @@ function proyAbrir(id){
       ${id?`<button class="tp-chip" onclick="proyVerPTP()">Ver sus PTP</button>`:''}</div>
     <div style="font-family:var(--f-head);font-size:18px;font-weight:800;margin-bottom:4px;">${id?rcEsc(p.nombre):'Agregar proyecto'}</div>
     <div style="font-size:12px;color:var(--text2);margin-bottom:14px;">${faltan.length?'Le falta: '+rcEsc(faltan.join(', '))+'.':id?'Los cambios se escriben en la hoja y las listas de la app se actualizan al guardar.':'Se agrega a la hoja y sale en las listas de la app al guardar.'}</div>
+    ${proy.hayPrecon?`<div class="safety-seg" style="margin:0 0 14px;max-width:420px;">
+      <button class="safety-seg-btn" data-vista="datos" onclick="proySetVista('datos')">Proyecto</button>
+      <button class="safety-seg-btn" data-vista="precon" onclick="proySetVista('precon')">Pre-construcción${id&&!preconHecha(p)?' (pendiente)':''}</button>
+    </div>`:''}
+    <div id="proy-vista-precon" style="display:none;">
+      <div class="card"><div style="font-size:12px;color:var(--text2);line-height:1.5;">Se guarda en la pestaña <b>Project Pre-Con Summary</b>, en el renglón de este proyecto${
+        p.precon?'':' (se crea al guardar)'}.${p.mob?' MOB: '+rcEsc(+p.mob.slice(5,7)+'/'+(+p.mob.slice(8))+'/'+p.mob.slice(0,4))+'.':''}${
+        p.precon&&p.precon.actualizado?' Última vez: '+rcEsc(p.precon.actualizado)+(p.precon.por?' por '+rcEsc(p.precon.por):'')+'.':''}</div></div>
+      ${PRECON_FORM.map(s=>`<div class="card"><div class="sec-label">${s.sec}</div><div class="proy-grid">${s.campos.map(c=>proyCampoHtml(c,p.precon||{},'pc-c-')).join('')}</div></div>`).join('')}
+    </div>
+    <div id="proy-vista-datos">
     <div class="card"><div class="sec-label">Estado</div>
       <div class="safety-seg" style="margin:0 0 10px;max-width:320px;">
         <button class="safety-seg-btn" data-e="Activo" onclick="proySetEstado('Activo')">Activo</button>
@@ -5748,10 +5862,12 @@ function proyAbrir(id){
       <div class="field" id="proy-cierre-wrap" style="margin:10px 0 0;max-width:240px;"><label for="proy-c-cierre">Fecha de cierre</label><input type="date" id="proy-c-cierre" value="${rcEsc(p.cierre||(p.activo?hoyLocal():''))}"/></div>
     </div>
     ${PROY_FORM.map(s=>`<div class="card"><div class="sec-label">${s.sec}</div><div class="proy-grid">${s.campos.map(c=>proyCampoHtml(c,p)).join('')}</div></div>`).join('')}
+    </div>
     <div class="submit-msg" id="proy-msg"></div>
     <button class="btn btn-primary" id="proy-btn" style="font-size:16px;min-height:54px;" onclick="envioUnico(this,proyGuardar)">${id?'Guardar cambios':'Agregar proyecto'}</button>
     <button class="btn btn-ghost" onclick="proyCerrar()">Cancelar</button>`;
   proySetEstado(proy.estado);
+  proySetVista(proy.hayPrecon&&proy.vista==='precon'?'precon':'datos');
   window.scrollTo(0,0);
   if(!id) document.getElementById('proy-c-nombre').focus();
 }
@@ -5763,7 +5879,7 @@ function proySetEstado(e){
     ?'No sale en las listas de la app y deja de exigir PTP después de la fecha de cierre. Su historial se conserva.'
     :'Sale en las listas de la app y se le revisa el PTP desde su fecha de MOB.';
 }
-function proyCerrar(){ proy.abierto=null; proyRender(); window.scrollTo(0,0); }
+function proyCerrar(){ proy.abierto=null; proy.vista='datos'; proyRender(); window.scrollTo(0,0); }
 function proyVerPTP(){
   const p=(proy.lista||[]).find(x=>x.id===proy.abierto);
   if(!p) return;
@@ -5777,13 +5893,28 @@ async function proyGuardar(){
   const previo=proy.abierto?(proy.lista||[]).find(x=>x.id===proy.abierto):null;
   const campos={estado:proy.estado};
   PROY_FORM.forEach(s=>s.campos.forEach(c=>{ campos[c.k]=String(document.getElementById('proy-c-'+c.k).value||'').trim(); }));
-  if(!campos.nombre){ pinta('Falta el nombre del proyecto.','danger'); document.getElementById('proy-c-nombre').focus(); return; }
+  if(!campos.nombre){ pinta('Falta el nombre del proyecto.','danger'); proySetVista('datos'); document.getElementById('proy-c-nombre').focus(); return; }
+  // Superintendent y PM: la hoja solo acepta su lista. Se avisa aquí, antes de mandar nada.
+  for(const k of ['super','pm']){
+    const lista=(proy.listas||{})[k];
+    if(!lista||!campos[k]||(previo&&String(previo[k]||'').toUpperCase()===campos[k].toUpperCase())) continue;
+    if(!lista.some(x=>x.toUpperCase()===campos[k].toUpperCase())){
+      pinta((k==='pm'?'El PM':'El superintendente')+' tiene que ser uno de: '+lista.join(', ')+'.','danger'); proySetVista('datos'); return;
+    }
+  }
+  let precon=null;
+  if(proy.hayPrecon&&document.getElementById('proy-vista-precon')){
+    precon={};
+    PRECON_FORM.forEach(s=>s.campos.forEach(c=>{ precon[c.k]=proyValorCampo(c,'pc-c-'); }));
+  }
   if(!campos.mob&&previo&&previo.mobTexto) campos.mob=previo.mobTexto;
   campos.cierre=proy.estado==='Inactivo'?(document.getElementById('proy-c-cierre').value||hoyLocal()):'';
   pinta('Guardando...','info');
   try{
     // marca: cada guardado es distinto, para que activar-desactivar-activar no se tome como envío repetido
-    const r=await enviarAScript({tipo:'proyecto_guardar',id:proy.abierto||'',campos,quien:'Safety',marca:Date.now()});
+    const envio={tipo:'proyecto_guardar',id:proy.abierto||'',campos,quien:'Safety',marca:Date.now()};
+    if(precon) envio.precon=precon;
+    const r=await enviarAScript(envio);
     if(!r||!r.proyecto) throw new Error('El servidor no confirmó el cambio.');
     const i=(proy.lista||[]).findIndex(x=>x.id===r.proyecto.id);
     if(i>=0) proy.lista[i]=r.proyecto; else proy.lista.push(r.proyecto);
@@ -5793,6 +5924,7 @@ async function proyGuardar(){
     proyRender();
     window.scrollTo(0,0);
     if(r.avisoListas) alert('Se guardó en la hoja, pero las listas de la app no se actualizaron todavía: '+r.avisoListas);
+    if(r.avisoPrecon) alert('El proyecto se guardó, pero la pre-construcción no: '+r.avisoPrecon);
   }catch(err){
     if(String(err&&err.message)==='auth') return;
     pinta(err instanceof TypeError?'Error de conexión. Intenta de nuevo.':(err.message||'No se pudo guardar.'),'danger');
