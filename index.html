@@ -322,6 +322,54 @@ textarea{min-height:88px;resize:vertical;line-height:1.5;}
 .obs-cerrar-btn{margin:8px 0 4px;width:100%;}
 .obs-cierre-form{border-top:1px solid var(--border);margin-top:10px;padding-top:12px;}
 .obs-cierre-form .field textarea{min-height:76px;}
+/* Eventos: accidentes, incidentes y casi accidentes (aviso, reporte del foreman y caso en Safety) */
+.ev-chips{display:flex;flex-wrap:wrap;gap:8px;}
+.ev-chip{border:1.5px solid var(--border2);background:var(--bg);color:var(--text);border-radius:99px;padding:9px 14px;min-height:42px;font:700 14px var(--f-body);cursor:pointer;text-align:left;line-height:1.25;}
+.ev-chip:hover{border-color:var(--ooi-orange);}
+.ev-chip.on{background:var(--ooi-orange);border-color:var(--ooi-orange);color:#fff;}
+.ev-chip.peligro.on{background:var(--swa);border-color:var(--swa);}
+.ev-opciones{display:grid;gap:8px;}
+.ev-opciones .ev-chip{border-radius:var(--radius);width:100%;padding:12px 14px;}
+.ev-opciones .ev-chip small{display:block;font-weight:400;font-size:13px;margin-top:2px;opacity:.85;}
+.ev-nota{background:var(--info-bg);color:var(--info-text);border-radius:var(--radius);padding:11px 13px;font-size:13px;line-height:1.5;margin-bottom:14px;}
+.ev-nota.gris{background:var(--bg2);color:var(--text2);}
+.ev-alerta{background:var(--danger-bg);color:var(--danger-text);border:1px solid var(--danger-border);border-radius:var(--radius);padding:13px;font-size:14px;line-height:1.5;margin-bottom:14px;}
+.ev-alerta b{display:block;font-weight:900;margin-bottom:2px;}
+.ev-oculto{display:none !important;}
+.ev-ayuda{font-size:13px;color:var(--text2);margin-top:8px;line-height:1.45;}
+.ev-auto{border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:16px;}
+.ev-auto-tit{font-size:11px;font-weight:900;letter-spacing:.07em;text-transform:uppercase;color:var(--text2);background:var(--bg2);padding:8px 12px;}
+.ev-fila{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding:10px 12px;border-top:1px solid var(--border);font-size:14px;line-height:1.4;}
+.ev-auto > .ev-fila:first-child{border-top:none;}
+.ev-fila > span:first-child{color:var(--text2);flex:none;max-width:42%;}
+.ev-fila > :last-child{text-align:right;min-width:0;overflow-wrap:anywhere;white-space:pre-wrap;}
+.ev-track{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;margin:10px 0 2px;}
+.ev-paso{font-size:10px;font-weight:700;color:var(--text3);line-height:1.2;min-width:0;}
+.ev-paso::before{content:'';display:block;height:5px;border-radius:3px;background:var(--border2);margin-bottom:4px;}
+.ev-paso.hecho{color:var(--text2);}
+.ev-paso.hecho::before{background:var(--ooi-orange);}
+.ev-paso.actual{color:var(--text);font-weight:900;}
+.ev-paso.actual::before{background:var(--text);}
+.ev-paso.nada::before{background:repeating-linear-gradient(90deg,var(--border2) 0 3px,transparent 3px 6px);}
+.ev-caso{display:block;width:100%;text-align:left;font-family:var(--f-body);color:var(--text);cursor:pointer;}
+.ev-caso:hover{border-color:var(--ooi-orange);}
+.ev-etiquetas{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0 2px;}
+.ev-etiquetas .badge{text-transform:none;letter-spacing:0;white-space:normal;}
+.ev-listo{text-align:center;padding:12px 0 18px;}
+.ev-listo h2{font-family:var(--f-display);font-weight:900;font-size:26px;line-height:1.1;text-transform:uppercase;margin-top:12px;}
+.ev-listo p{color:var(--text2);font-size:14px;margin-top:6px;}
+.ev-accion{display:flex;gap:10px;align-items:flex-start;padding:10px 0;border-top:1px solid var(--border);font-size:14px;line-height:1.4;}
+.ev-accion input{width:22px;height:22px;min-height:0;padding:0;flex:none;appearance:auto;-webkit-appearance:checkbox;margin-top:1px;accent-color:var(--ooi-orange);}
+.ev-accion small{display:block;color:var(--text2);font-size:12px;margin-top:2px;}
+.ev-accion.hecha span{text-decoration:line-through;color:var(--text2);}
+.ev-tabla{width:100%;border-collapse:collapse;font-size:14px;}
+.ev-tabla th{font-size:11px;font-weight:900;letter-spacing:.06em;text-transform:uppercase;color:var(--text2);text-align:left;padding:0 8px 8px 0;}
+.ev-tabla td{border-top:1px solid var(--border);padding:9px 8px 9px 0;font-variant-numeric:tabular-nums;}
+.ev-tabla th:not(:first-child),.ev-tabla td:not(:first-child){text-align:right;padding-right:0;}
+.ev-total{display:flex;justify-content:space-between;align-items:baseline;border-top:2px solid var(--text);padding-top:10px;margin-bottom:4px;font-weight:900;}
+.ev-total b{font-size:24px;font-variant-numeric:tabular-nums;}
+.ev-testigo{border:1px solid var(--border);border-radius:var(--radius);padding:12px 12px 0;margin-bottom:10px;}
+@media(min-width:900px){.ev-grid{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:14px;align-items:start;}}
 .btn-icon{
   width:42px;height:42px;min-height:42px;
   border-radius:var(--radius);
@@ -1095,7 +1143,13 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{outline:none;}
 
     <button class="role-btn swa-btn" onclick="show('s-swa');setToday();">
       <div class="role-icon"><svg class="ico"><use href="#i-shield"/></svg></div>
-      <div class="rb-body"><div class="rb-title">Observación de Seguridad</div><div class="rb-desc">Reporta una condición insegura, un casi accidente o una mejora</div></div>
+      <div class="rb-body"><div class="rb-title">Observación de Seguridad</div><div class="rb-desc">Reporta una condición insegura, una mejora o algo bien hecho</div></div>
+      <span class="role-arrow"><svg class="ico"><use href="#i-chev"/></svg></span>
+    </button>
+
+    <button class="role-btn swa-btn" onclick="evAbrirAviso('s-trabajador')">
+      <div class="role-icon"><svg class="ico"><use href="#i-siren"/></svg></div>
+      <div class="rb-body"><div class="rb-title">Reportar un evento</div><div class="rb-desc">Accidente, incidente o casi accidente</div></div>
       <span class="role-arrow"><svg class="ico"><use href="#i-chev"/></svg></span>
     </button>
 
@@ -1146,7 +1200,7 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{outline:none;}
     <div class="header-bar"><button class="btn-icon" onclick="show('s-trabajador')">←</button><div style="flex:1"><div style="font-size:18px;font-weight:600;color:var(--swa);">Observación de Seguridad</div><div style="font-size:12px;color:var(--text2);">Lo que ves hoy puede evitar un accidente mañana</div></div></div>
     <div style="background:var(--swa);color:white;border-radius:var(--radius);padding:16px;margin-bottom:16px;font-size:14px;line-height:1.6;">
       <div style="font-weight:600;font-size:16px;margin-bottom:8px;">Tu voz cuida a todo el equipo</div>
-      Reporta lo que veas: un peligro, un casi accidente, una idea o algo bien hecho. Si el riesgo es inmediato, <strong>detén la tarea y avisa a tu foreman</strong>: todo trabajador de OOI tiene la <strong>autoridad y responsabilidad</strong> de hacerlo, sin importar su posición y <strong>sin miedo a represalias</strong>.
+      Reporta lo que veas: un peligro, una idea o algo bien hecho. Si el riesgo es inmediato, <strong>detén la tarea y avisa a tu foreman</strong>: todo trabajador de OOI tiene la <strong>autoridad y responsabilidad</strong> de hacerlo, sin importar su posición y <strong>sin miedo a represalias</strong>.
     </div>
     <!-- 5 Pasos -->
     <div style="margin-bottom:16px;">
@@ -1184,15 +1238,13 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{outline:none;}
       <div class="card">
         <div class="sec-label">Tipo de reporte <span style="color:var(--swa);">*</span></div>
         <div class="chip-group" id="swa-tipo-chips">
-          <button class="chip" onclick="elegirTipoReporte(this,'Accidente con lesión')">Accidente con lesión</button>
-          <button class="chip" onclick="elegirTipoReporte(this,'Accidente sin lesión / daño a propiedad')">Accidente sin lesión / daño a propiedad</button>
-          <button class="chip" onclick="elegirTipoReporte(this,'Casi accidente')">Casi accidente</button>
           <button class="chip" onclick="elegirTipoReporte(this,'Condición insegura')">Condición insegura</button>
           <button class="chip" onclick="elegirTipoReporte(this,'Acto inseguro')">Acto inseguro</button>
           <button class="chip" onclick="elegirTipoReporte(this,'Oportunidad de mejora')">Oportunidad de mejora</button>
           <button class="chip" onclick="elegirTipoReporte(this,'Buena práctica')">Buena práctica</button>
         </div>
         <div id="swa-tipo-hint" style="font-size:13px;color:var(--text2);margin-top:10px;line-height:1.5;">Elige la opción que mejor describe lo que viste o te pasó.</div>
+        <div style="font-size:13px;color:var(--text2);margin-top:10px;line-height:1.5;border-top:1px solid var(--border);padding-top:10px;">¿Alguien se lastimó, se dañó algo o casi pasa un accidente? <button class="ins-link" style="font-size:13px;padding:0;" onclick="evAbrirAviso('s-trabajador')">Repórtalo aquí como evento</button>.</div>
       </div>
       <div class="card">
         <div class="sec-label">Información del evento</div>
@@ -1250,6 +1302,15 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{outline:none;}
       <button class="btn btn-success" onclick="resetSWA()" style="margin-top:16px;">Cerrar</button>
     </div>
   </div>
+</div>
+
+<!-- ── EVENTO: aviso de accidente, incidente o casi accidente (sin PIN). Servidor: procesarEventoAviso_ en Code.gs ── -->
+<div id="s-evento" class="screen">
+  <div class="bottom-nav">
+    <button class="bottom-nav-back" onclick="evSalirAviso()">← Atrás</button>
+    <span class="bottom-nav-title">Reportar un evento</span>
+  </div>
+  <div class="container" id="ev-aviso"></div>
 </div>
 
 <!-- ── PIN ── -->
@@ -1494,6 +1555,12 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{outline:none;}
       <button class="role-btn" onclick="superAForeman('obs')">
         <div class="role-icon"><svg class="ico"><use href="#i-alert"/></svg></div>
         <div class="rb-body"><div class="rb-title">Observaciones pendientes</div><div class="rb-desc">Cerrar con foto lo que reportó tu gente</div></div>
+        <span class="role-arrow"><svg class="ico"><use href="#i-chev"/></svg></span>
+      </button>
+
+      <button class="role-btn" onclick="superAForeman('ev')">
+        <div class="role-icon"><svg class="ico"><use href="#i-siren"/></svg></div>
+        <div class="rb-body"><div class="rb-title">Accidentes e incidentes</div><div class="rb-desc">Reportar un evento · completar el reporte en 24 horas</div></div>
         <span class="role-arrow"><svg class="ico"><use href="#i-chev"/></svg></span>
       </button>
     </div>
@@ -1786,6 +1853,12 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{outline:none;}
         <div class="rb-body"><div class="rb-title">Observaciones pendientes</div><div class="rb-desc">Cerrar con foto lo que reportó tu gente</div></div>
         <span class="role-arrow"><svg class="ico"><use href="#i-chev"/></svg></span>
       </button>
+
+      <button class="role-btn" onclick="foremanTab('ev')">
+        <div class="role-icon"><svg class="ico"><use href="#i-siren"/></svg></div>
+        <div class="rb-body"><div class="rb-title">Accidentes e incidentes</div><div class="rb-desc">Reportar un evento · completar el reporte en 24 horas</div></div>
+        <span class="role-arrow"><svg class="ico"><use href="#i-chev"/></svg></span>
+      </button>
     </div>
 
     <!-- Hidden tab IDs for compatibility -->
@@ -2005,6 +2078,13 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{outline:none;}
       <button class="btn btn-ghost" onclick="foremanSalir()" style="margin-top:8px;">← Salir</button>
     </div><!-- end foreman-obs-panel -->
 
+    <!-- ACCIDENTES E INCIDENTES (foreman y super): avisar y completar el reporte de los eventos de su gente.
+         Datos: hoja Eventos (leer:eventos); el reporte va como tipo 'evento_reporte' (procesarEventoReporte_ en Code.gs). -->
+    <div id="foreman-ev-panel" style="display:none;">
+      <div id="evf-cuerpo"><div class="loading">Cargando eventos...</div></div>
+      <button class="btn btn-ghost" onclick="foremanSalir()" style="margin-top:8px;">← Salir</button>
+    </div><!-- end foreman-ev-panel -->
+
   </div>
 </div>
 
@@ -2125,6 +2205,12 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{outline:none;}
         <span class="role-arrow"><svg class="ico"><use href="#i-chev"/></svg></span>
       </button>
 
+      <button class="role-btn" onclick="safetyTab('ev')">
+        <div class="role-icon"><svg class="ico"><use href="#i-siren"/></svg></div>
+        <div class="rb-body"><div class="rb-title">Accidentes e incidentes</div><div class="rb-desc">Qué se reportó · qué necesita algo de mí · investigación, médico y cierre</div></div>
+        <span class="role-arrow"><svg class="ico"><use href="#i-chev"/></svg></span>
+      </button>
+
       <button class="role-btn" onclick="safetyTab('ptp')">
         <div class="role-icon"><svg class="ico"><use href="#i-clipboard"/></svg></div>
         <div class="rb-body"><div class="rb-title">PTP</div><div class="rb-desc">Qué proyecto entregó su PTP cada semana · por foreman · documentos</div></div>
@@ -2185,6 +2271,12 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{outline:none;}
       </div>
       <div id="proy-form-vista" style="display:none;"></div>
     </div>
+  </div>
+
+  <!-- ACCIDENTES E INCIDENTES: tablero y caso (seguimiento médico, costo, causa raíz, acciones, cierre).
+       Servidor: getEventos_() / actualizarEvento_() en Code.gs (leer:eventos, evento_actualizar) -->
+  <div id="safety-ev-panel" style="display:none;">
+    <div class="obs-wrap" id="evs-cuerpo"><div class="loading">Cargando eventos...</div></div>
   </div>
 
   <!-- OBSERVACIONES DE SEGURIDAD: lo que mandan los trabajadores (hoja SWA). Servidor: getSWA_() en Code.gs (leer:swa) -->
@@ -2997,9 +3089,7 @@ function zrReset(){ zrOk.clear(); zrActualizar(); }
 function show(id){if(id==='s-login')cerrarSesion();document.querySelectorAll('.campo-falta').forEach(e=>e.classList.remove('campo-falta'));document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');window.scrollTo(0,0);}
 let swaTipoSelected='';
 const SWA_TIPO_HINTS={
-  'Accidente con lesión':'Alguien se lastimó. Si hay un lesionado, avisa a tu foreman y pide ayuda (911) antes de llenar esto.',
-  'Accidente sin lesión / daño a propiedad':'Hubo daño a equipo, material o propiedad, sin lesionados.',
-  'Casi accidente':'Pudo haber pasado algo grave, pero no pasó.',
+  // Accidente, daño y casi accidente ya no van aquí: se reportan en "Reportar un evento" (evAbrirAviso)
   'Condición insegura':'Un lugar, equipo o área que representa un riesgo.',
   'Acto inseguro':'Una acción que pone en riesgo a alguien.',
   'Oportunidad de mejora':'Una idea para trabajar de forma más segura.',
@@ -3749,6 +3839,7 @@ function poblarSelectoresEmpleados() {
     if (actual) el.value = actual;
   });
   ptpdListasCambiaron();   // nombres para firmar el PTP diario
+  evListasCambiaron();     // persona lastimada y operador en Reportar un evento
 }
 
 var EMPLEADOS_TTL_MS = 15 * 60 * 1000; // la lista se vuelve a pedir cada 15 min aunque la pestana siga abierta
@@ -3986,6 +4077,7 @@ function poblarTodosLosDropdowns(listas){
 
   // PTP diario abierto: proyectos y foremen que llegaron después de abrirlo
   ptpdListasCambiaron();
+  evListasCambiaron();
 }
 
 function selectRole(role){
@@ -4139,10 +4231,12 @@ function triggerPhoto(sk,iid){const inp=document.getElementById(iid);inp.dataset
 // ── FOTOS → Google Drive ──
 // El celular reduce la foto (máx. 1600 px, JPEG) y la sube de inmediato a Apps Script, que la guarda en Drive.
 // Cada foto queda con su enlace (p.url); si falla, queda marcada para reintentar.
-const FOTO_MAX={'swa-fotos':3,'ptp-fotos':5,'cierre-fotos':3};   // tope de fotos por grupo (los demás no tienen tope)
-function fotoDestino(key){return key==='swa-fotos'?'swa':key==='ptp-fotos'?'ptp':key==='cierre-fotos'?'swa_cierre':'inspeccion';}
+const FOTO_MAX={'swa-fotos':3,'ptp-fotos':5,'cierre-fotos':3,'ev-fotos':4,'evc-fotos':3};   // tope de fotos por grupo (los demás no tienen tope)
+function fotoDestino(key){return key==='swa-fotos'?'swa':key==='ptp-fotos'?'ptp':key==='cierre-fotos'?'swa_cierre':key==='ev-fotos'?'evento':key==='evc-fotos'?'evento_cierre':'inspeccion';}
 function fotoEtiqueta(key){
   if(key==='cierre-fotos') return 'Cierre '+String(obsCierreSitio()).slice(0,33);
+  if(key==='ev-fotos') return String(evVal('eva-proyecto')).slice(0,40);
+  if(key==='evc-fotos') return 'Cierre '+String(ev.abierto||'');
   const el=document.getElementById(key==='swa-fotos'?'swa-sitio':key==='ptp-fotos'?'ptp-quien':key.startsWith('scph-')?'sc-proy':'f-proy');
   return el&&el.value?String(el.value).slice(0,40):'';
 }
@@ -4602,7 +4696,7 @@ function superTab(tab){
 // El correo de quien recibe las solicitudes (Briseida) está en el archivo de Configuración, pestaña Avisos.
 
 // Paneles de la pantalla del Foreman (también los abre el super desde "En campo")
-const FOREMAN_PANELES = ['foreman-ptp-panel','foreman-ptpd-panel','foreman-resp-tabs','foreman-fittest-panel','foreman-ftestado-panel','foreman-obs-panel'];
+const FOREMAN_PANELES = ['foreman-ptp-panel','foreman-ptpd-panel','foreman-resp-tabs','foreman-fittest-panel','foreman-ftestado-panel','foreman-obs-panel','foreman-ev-panel'];
 
 function foremanTab(tab){
   // Hide selection screen
@@ -4636,6 +4730,11 @@ function foremanTab(tab){
     const el=document.getElementById('foreman-obs-panel');if(el)el.style.display='block';
     if(!(listasGlobal.foremen&&listasGlobal.foremen.length)) cargarListas();   // nombres para "Quién la cierra"
     obsCampoIniciar();
+  } else if(tab==='ev'){
+    if(bt) bt.textContent='Accidentes e incidentes';
+    const el=document.getElementById('foreman-ev-panel');if(el)el.style.display='block';
+    if(!(listasGlobal.foremen&&listasGlobal.foremen.length)) cargarListas();
+    evCampoIniciar();
   }
   window.scrollTo(0,0);
 }
@@ -6634,7 +6733,7 @@ function foremanSalir(){
 
 
 // ── SAFETY PORTAL ──
-const SAFETY_PANELES = {obs:'safety-obs-panel', ptp:'safety-ptp-panel', proy:'safety-proy-panel', certs:'safety-certs-panel', emp:'safety-emp-panel', sds:'safety-sds-panel'};
+const SAFETY_PANELES = {ev:'safety-ev-panel', obs:'safety-obs-panel', ptp:'safety-ptp-panel', proy:'safety-proy-panel', certs:'safety-certs-panel', emp:'safety-emp-panel', sds:'safety-sds-panel'};
 let safetyPersonalUltimo='certs';   // la última opción usada dentro de "Empleados y certificaciones"
 
 function safetyMostrarMenu(){
@@ -6663,6 +6762,7 @@ function safetyBack(){
   // Primero se cierra lo que está abierto dentro del panel (detalle de un proyecto, formulario de Proyectos)
   if(document.getElementById('safety-ptp-panel').style.display!=='none'&&sptp.abierto){ sptpCerrarDetalle(); return; }
   if(document.getElementById('safety-proy-panel').style.display!=='none'&&proy.abierto!==null){ proyCerrar(); return; }
+  if(document.getElementById('safety-ev-panel').style.display!=='none'){ if(ev.abierto){ evCerrarCaso(); return; } }
   const abierto = Object.keys(SAFETY_PANELES).some(k=>{const p=document.getElementById(SAFETY_PANELES[k]);return p && p.style.display!=='none';});
   if(abierto) safetyMostrarMenu();
   else show('s-login');
@@ -6676,7 +6776,10 @@ function safetyTab(tab){
   const bt = document.getElementById('safety-bottom-title');
   const panel = document.getElementById(SAFETY_PANELES[tab]);
   if(panel) panel.style.display='block';
-  if(tab==='obs'){
+  if(tab==='ev'){
+    if(bt) bt.textContent='Accidentes e incidentes';
+    evSafetyIniciar();
+  } else if(tab==='obs'){
     if(bt) bt.textContent='Observaciones de Seguridad';
     obsCargar(false);
   } else if(tab==='ptp'){
@@ -7118,6 +7221,619 @@ function obsCampoRender(){
       (obsc.vista==='cerradas' ? 'No hay observaciones cerradas en los últimos 30 días.' : 'No hay observaciones pendientes'+(obsc.persona?' de '+rcEsc(obsc.persona):'')+'.')+'</div></div>';
   if(obs.cerrandoEn==='campo') renderPhotoGrid('cierre-fotos');
 }
+
+// ── EVENTOS: ACCIDENTES, INCIDENTES Y CASI ACCIDENTES ──
+// 1) Aviso (pantalla s-evento, sin PIN): tipo 'evento_aviso'. 2) Reporte completo del foreman o super en 24 h
+// (panel foreman-ev-panel): tipo 'evento_reporte'. 3) Safety (panel safety-ev-panel): tablero con etiquetas de lo
+// que falta, seguimiento médico privado, costo, causa raíz, acciones y cierre: tipo 'evento_actualizar'.
+// Lectura: leer 'eventos' (Safety recibe todo; foreman y super, sin datos médicos, costos ni investigación).
+// Las fotos no tienen enlace público: se piden con sesión (leer 'evento_fotos'). Diseño: investigacion-reportes-incidentes.md
+const EV_HORA=3600000, EV_DIA=24*EV_HORA;
+const EV_TIPOS=[{v:'Accidente',t:'Accidente',s:'Alguien se lastimó.',peligro:true},
+  {v:'Incidente',t:'Incidente',s:'Se dañó un equipo, una propiedad o una línea de servicio. Nadie se lastimó.'},
+  {v:'Casi accidente',t:'Casi accidente',s:'No pasó nada, pero pudo pasar.'}];
+const EV_DANOS=['Equipo de OOI','Equipo rentado','Propiedad de otros','Línea de servicio'];
+const EV_NADA='Nada se dañó';
+const EV_MAQUINAS=['Grout Pump','Excavadora','Drill','Loader','Skytrack','Boom Lift','Pier Drill','Compresor','Camión','Otra máquina'];
+const EV_CONDICIONES=['Lluvia o lodo','Poca visibilidad','Espacio reducido','Terreno inestable','De noche','Prisa por terminar','Otro oficio cerca','Normales'];
+const EV_PARTES=['Sistema hidráulico','Brazo o boom','Tren de rodaje o llantas','Cabina o vidrios','Motor','Eléctrico','Carrocería','Herramienta de perforación','Otra'];
+const EV_COSTOS=['Menos de $500','$500 a $2,500','$2,500 a $10,000','Más de $10,000','No sé'];
+const EV_OTROS=['Edificio o estructura vecina','Vehículo','Material del cliente','Otro'];
+const EV_CAUSAS=['Planeación del trabajo','Procedimiento','Entrenamiento','Inspección','Mantenimiento','Comunicación','Condiciones del sitio','Diseño del equipo'];
+const EV_POT={baja:'Solo daño',media:'Lesión que necesita médico',alta:'Lesión grave o muerte'};
+const EV_POT_OPC=[{v:'baja',t:EV_POT.baja,s:'Nadie estaba expuesto'},{v:'media',t:EV_POT.media,s:'Golpe, corte o caída menor'},
+  {v:'alta',t:EV_POT.alta,s:'Aplastamiento, caída de altura, carga, línea de gas o eléctrica',peligro:true}];
+const EV_CUERPO=['Cabeza','Ojo','Espalda','Brazo','Mano o dedos','Pierna','Pie','Otra'];
+const EV_ATENCION=['Ninguna','Primeros auxilios en el sitio','Clínica','Emergencias o 911'];
+const EV_LESIONES=['Golpe','Corte','Torcedura','Quemadura','Fractura','Ojo','Calor','Otra'];
+const EV_EPP=['Casco','Lentes','Guantes','Chaleco','Botas','Arnés','Respirador','Protección auditiva'];
+const EV_TRATAMIENTOS=['Solo primeros auxilios','Tratamiento médico'];
+const EV_GRAVES=['Ninguno','Hospitalizado','Amputación','Pérdida de un ojo','Muerte'];
+const EV_CONTROLES=['Eliminar el peligro','Sustituir','Ingeniería','Administrativo','EPP'];
+const EV_OTRA_PERSONA='Otra persona (no es de OOI)';
+const EV_MONTO_INV=2500;   // daño de este monto o más lleva investigación completa
+const EV_VERIF='Comprobé en el sitio que las acciones funcionaron';
+const EV_OSHA_OK='Ya se avisó a OSHA', EV_LOG_OK='Ya está en el Log 300', EV_ANON='Reportar sin mi nombre';
+const EV_PERSONA_KEY='ooi_ev_persona', EV_QUIEN_KEY='ooi_ev_quien';
+let ev={datos:null,rol:'',cargado:0,cargando:false,origen:'s-trabajador',idPendiente:null,filtro:'mio',abierto:null,caso:null,sucio:false,
+  campo:{vista:'lista',folio:'',paso:1,persona:'',abrir:''}};
+
+// ── Piezas de formulario ──
+function evChips(g,ops,o){
+  o=o||{};
+  return '<div class="'+(o.lista?'ev-opciones':'ev-chips')+'" data-grupo="'+g+'"'+(o.multi?' data-multi="1"':'')+'>'+ops.map(x=>{
+    const v=typeof x==='string'?x:x.v;
+    const t=typeof x==='string'?rcEsc(x):rcEsc(x.t)+(x.s?'<small>'+rcEsc(x.s)+'</small>':'');
+    return '<button type="button" class="ev-chip'+(x.peligro?' peligro':'')+'" data-v="'+rcEsc(v)+'"'+(v===o.excl?' data-excl="1"':'')+' aria-pressed="false">'+t+'</button>';
+  }).join('')+'</div>';
+}
+function evElegidos(g){ return [...document.querySelectorAll('[data-grupo="'+g+'"] .ev-chip.on')].map(c=>c.dataset.v); }
+function evUno(g){ return evElegidos(g)[0]||''; }
+function evMarcar(g,vals){ document.querySelectorAll('[data-grupo="'+g+'"] .ev-chip').forEach(c=>{const on=vals.includes(c.dataset.v);c.classList.toggle('on',on);c.setAttribute('aria-pressed',on);}); }
+function evVal(id){ const e=document.getElementById(id); return e?String(e.value||'').trim():''; }
+// lista: [selector, nombre para el aviso, ¿está vacío?]. Marca en rojo y avisa; devuelve true si falta algo.
+function evExigir(lista){
+  document.querySelectorAll('.campo-falta').forEach(e=>e.classList.remove('campo-falta'));
+  let primero=null; const nombres=[];
+  lista.forEach(([sel,nombre,vacio])=>{
+    if(!vacio) return;
+    const n=document.querySelector(sel), caja=n&&(n.closest('.field')||n.closest('.card'));
+    if(caja){ caja.classList.add('campo-falta'); primero=primero||caja; }
+    nombres.push(nombre);
+  });
+  if(!nombres.length) return false;
+  if(primero) primero.scrollIntoView({behavior:'smooth',block:'center'});
+  alert('Falta llenar: '+nombres.join(', ')+'. Está marcado en rojo.');
+  return true;
+}
+function evFila(k,v,html){ return '<div class="ev-fila"><span>'+rcEsc(k)+'</span><span>'+(html?v:rcEsc(v))+'</span></div>'; }
+function evSi(k,v){ return v?evFila(k,v):''; }
+function evDinero(n){ return '$'+Math.round(n||0).toLocaleString('en-US'); }
+function evEncabezado(tit,sub,fn){ return '<div class="header-bar"><button class="btn-icon" onclick="'+fn+'" aria-label="Atrás">←</button><div style="flex:1;min-width:0;"><div style="font-size:18px;font-weight:600;">'+rcEsc(tit)+'</div><div style="font-size:12px;color:var(--text2);">'+rcEsc(sub)+'</div></div></div>'; }
+function evMsg(id,texto,tipo){
+  const m=document.getElementById(id); if(!m) return;
+  m.style.display=texto?'block':'none'; m.textContent=texto||'';
+  m.style.background=tipo==='error'?'var(--danger-bg)':tipo==='ok'?'var(--success-bg)':'var(--info-bg)';
+  m.style.color=tipo==='error'?'var(--danger-text)':tipo==='ok'?'var(--success-text)':'var(--info-text)';
+}
+function evFotosCampo(key,titulo){
+  return '<button type="button" class="photo-btn" onclick="triggerPhoto(\''+key+'\',\''+key+'-input\')"><svg class="ico"><use href="#i-camera"/></svg>'+titulo+'</button>'+
+    '<input type="file" id="'+key+'-input" accept="image/*" multiple style="display:none" onchange="handlePhotos(this,\''+key+'\')" data-storekey="'+key+'"/>'+
+    '<div class="photo-grid" id="'+key+'"></div>';
+}
+function evFotosPendientes(key){
+  const f=photoStore[key]||[];
+  if(f.some(p=>p.uploading)){ alert('Espera — las fotos se están subiendo...'); return true; }
+  if(f.some(p=>p.error)){ alert('Una foto no se pudo subir. Tócala para reintentar o quítala con la ×.'); return true; }
+  return false;
+}
+function evEmpleados(){ const l=ptpdEmpleados(); return l.length?l:(listasGlobal.operadores||[]); }
+function evSupervisores(){ return [...new Set([...(listasGlobal.foremen||[]),...(listasGlobal.superintendentes||[])])].sort((a,b)=>a.localeCompare(b,'es')); }
+// Los selects se pintan vacíos y se llenan aquí; también cuando las listas llegan después de abrir la pantalla.
+function evListasCambiaron(){
+  [['eva-proyecto',listasGlobal.proyectos,'Selecciona proyecto'],['eva-foreman',listasGlobal.foremen,'Selecciona foreman'],
+   ['eva-super',listasGlobal.superintendentes,'Selecciona superintendente'],['eva-herido',evEmpleados().concat([EV_OTRA_PERSONA]),'Selecciona persona'],
+   ['evr-operador',evEmpleados(),'Selecciona operador']].forEach(([id,lista,ph])=>{
+    const el=document.getElementById(id); if(!el) return;
+    const v=el.value; buildDropdown(el,lista||[],ph); if(v) el.value=v;
+  });
+}
+document.addEventListener('click',e=>{
+  const chip=e.target.closest&&e.target.closest('.ev-chip');
+  if(!chip||!chip.parentElement.dataset.grupo) return;
+  const box=chip.parentElement, g=box.dataset.grupo;
+  if(box.dataset.multi){
+    const on=!chip.classList.contains('on'); chip.classList.toggle('on',on);
+    if(on){ if(chip.dataset.excl) [...box.children].forEach(c=>{if(c!==chip)c.classList.remove('on');}); else [...box.children].forEach(c=>{if(c.dataset.excl)c.classList.remove('on');}); }
+  } else [...box.children].forEach(c=>c.classList.toggle('on',c===chip));
+  [...box.children].forEach(c=>c.setAttribute('aria-pressed',c.classList.contains('on')));
+  if(g==='eva-tipo'||g==='eva-danos'||g==='eva-anon') evRefrescarAviso();
+  if(g==='evr-pot'){ const a=document.getElementById('evr-pot-alta'); if(a) a.classList.toggle('ev-oculto',evUno('evr-pot')!=='alta'); }
+  if(chip.closest('#evs-cuerpo')) ev.sucio=true;
+});
+document.addEventListener('input',e=>{ if(e.target.closest&&e.target.closest('#evs-cuerpo')&&ev.abierto) ev.sucio=true; if(/^evs-t-(piezas|mano|otros)$/.test(e.target.id||'')) evsSumarTaller(); });
+
+// ── Reglas (las mismas que el servidor usa para cerrar) ──
+function evFechaMs(s){ const m=/^(\d{4})-(\d\d)-(\d\d)[ T](\d\d):(\d\d)/.exec(s||''); return m?new Date(+m[1],m[2]-1,+m[3],+m[4],+m[5]).getTime():0; }
+function evNuevaInv(){ return {porques:[],causas:[],acciones:[],potSafety:'',fotosCierre:[],leccion:'',verificado:false,presion:'',antes:''}; }
+function evNormalizar(o){
+  o.ts=evFechaMs(o.creado)||Date.now(); o.cerrado=o.estado==='Cerrado'; o.danos=o.danos||[]; o.lesion=!!o.herido;
+  o.inv=Object.assign(evNuevaInv(),o.inv||{});
+  ['porques','causas','acciones','fotosCierre'].forEach(k=>{ if(!Array.isArray(o.inv[k])) o.inv[k]=[]; });
+  if(o.cerrado) o.diasCierre=Math.max(1,Math.round(((evFechaMs(o.cerradoEl)||Date.now())-o.ts)/EV_DIA));
+  return o;
+}
+function evBuscar(folio){ return (ev.datos||[]).find(c=>c.folio===folio)||null; }
+function evTieneEquipo(c){ return c.danos.includes('Equipo de OOI')||c.danos.includes('Equipo rentado'); }
+function evTipoCaso(c){ const p=[c.tipo]; if(evTieneEquipo(c))p.push('daño a equipo'); if(c.danos.includes('Propiedad de otros'))p.push('propiedad de otros'); if(c.danos.includes('Línea de servicio'))p.push('línea de servicio'); return p.join(' + '); }
+function evSujeto(c){ return c.maquina?(c.maquina+' '+c.numero).trim():(c.herido?c.herido.quien:'Sin máquina'); }
+function evTotalTaller(c){ return c.taller?(+c.taller.piezas||0)+(+c.taller.mano||0)+(+c.taller.otros||0):0; }
+function evPotencial(c){ return (c.inv&&c.inv.potSafety)||(c.rep&&c.rep.pot)||c.potAviso||''; }
+// Un casi accidente sin nombre o de bajo potencial no lleva el reporte completo del foreman.
+function evNecesitaRep(c){ return !c.rep&&!(c.tipo==='Casi accidente'&&(c.anonimo||c.potAviso!=='alta')); }
+function evRestante(c){ const h=Math.round((c.ts+EV_DIA-Date.now())/EV_HORA); return h>0?'vence en '+h+' h':'venció hace '+Math.abs(h)+' h'; }
+function evFechaCorta(c){ return obsFechaCorta(c.fecha)+(c.hora?' · '+c.hora:''); }
+function evCostoAlto(c){ return evTotalTaller(c)>=EV_MONTO_INV||(!c.taller&&!!c.rep&&['$2,500 a $10,000','Más de $10,000'].includes(c.rep.costo)); }
+function evAtencionMedica(c){ return !!c.herido&&(['Clínica','Emergencias o 911'].includes(c.herido.atencion)||(!!c.med&&c.med.trat==='Tratamiento médico')); }
+function evPideInv(c){ return evAtencionMedica(c)||evCostoAlto(c)||c.danos.includes('Línea de servicio')||evPotencial(c)==='alta'; }
+function evRegistrable(c){ const m=c.med; return !!m&&(m.trat==='Tratamiento médico'||m.restr==='Sí'||(+m.dias||0)>0||(!!m.grave&&m.grave!=='Ninguno')); }
+function evReal(c){
+  if(!c.lesion) return c.danos.length?'Solo daño':'Sin daño';
+  const m=c.med||{};
+  if(m.grave&&m.grave!=='Ninguno') return m.grave;
+  if(evRegistrable(c)) return 'Lesión registrable';
+  return m.trat?'Primeros auxilios':'Lesión por evaluar';
+}
+// Lo que falta en cada caso abierto: [texto, 'bad' | 'pending']
+function evEtiquetas(c){
+  if(c.cerrado) return [];
+  const e=[], m=c.med||{}, i=c.inv, h=c.herido, hoy=hoyLocal();
+  if(m.grave&&m.grave!=='Ninguno'&&!m.osha){ const lim=m.grave==='Muerte'?8:24, q=Math.round((c.ts+lim*EV_HORA-Date.now())/EV_HORA); e.push(['Avisar a OSHA · '+(q>0?'quedan '+q+' h':'plazo vencido'),'bad']); }
+  if(h&&h.atencion==='Ninguna'&&!m.trat) e.push(['Llevar al médico','bad']);
+  if(h&&h.atencion!=='Ninguna'&&!c.med) e.push(['Seguimiento médico','pending']);
+  if(c.med&&(m.restr==='Sí'||m.cita)&&!m.regreso) e.push(['Seguimiento médico','pending']);
+  if(evNecesitaRep(c)) e.push(['Falta reporte completo · '+evRestante(c),Date.now()>c.ts+EV_DIA?'bad':'pending']);
+  if(evTieneEquipo(c)&&!c.taller) e.push(['Falta el costo de reparación','pending']);
+  if(evPideInv(c)&&!i.porques[0]) e.push(['Requiere investigación','bad']);
+  if(i.acciones.some(a=>!a.hecha&&a.fecha&&a.fecha<hoy)) e.push(['Acciones vencidas','bad']);
+  if(evRegistrable(c)&&!m.log){ const q=Math.ceil((c.ts+7*EV_DIA-Date.now())/EV_DIA); e.push(['Registrar en Log 300 · '+(q>0?'quedan '+q+' días':'plazo vencido'),'pending']); }
+  if(i.acciones.length&&i.acciones.every(a=>a.hecha)&&!i.verificado) e.push(['Por verificar','pending']);
+  if(!e.length) e.push([evPideInv(c)?'Terminar investigación y cerrar':'Revisión corta y cerrar','pending']);
+  return e;
+}
+function evEtiquetasHTML(c){ const e=evEtiquetas(c); return e.length?'<div class="ev-etiquetas">'+e.map(x=>'<span class="badge badge-'+x[1]+'">'+rcEsc(x[0])+'</span>').join('')+'</div>':''; }
+function evEstadoTxt(c){ if(c.cerrado)return 'Cerrado'; if(evNecesitaRep(c))return 'Falta el reporte del foreman'; return evPideInv(c)?'En investigación de Safety':'En revisión corta de Safety'; }
+function evTrack(c){
+  const pasos=[['Aviso',true],['Reporte',!!c.rep,!c.rep&&!evNecesitaRep(c)],['Safety',c.cerrado],['Cerrado',c.cerrado]]; let actual=false;
+  return '<div class="ev-track">'+pasos.map(([t,h,n])=>{ let k=''; if(n)k='nada'; else if(h)k='hecho'; else if(!actual){k='actual';actual=true;} return '<div class="ev-paso '+k+'">'+(n?'No aplica':t)+'</div>'; }).join('')+'</div>';
+}
+
+// donde: 'campo' (foreman y super) o 'safety'. Los dos comparten ev.datos; si cambió el rol se vuelve a pedir.
+async function evCargar(forzar,donde){
+  const pintar=donde==='campo'?evCampoRender:evSafetyRender;
+  const cuerpo=document.getElementById(donde==='campo'?'evf-cuerpo':'evs-cuerpo');
+  if(ev.cargando) return;
+  if(ev.rol!==sesion.rol){ ev.datos=null; ev.rol=sesion.rol; }
+  if(!forzar&&ev.datos&&Date.now()-ev.cargado<2*60*1000){ pintar(); return; }
+  ev.cargando=true;
+  if(!ev.datos) cuerpo.innerHTML='<div class="loading">Cargando eventos...</div>';
+  try{
+    const r=await leerDeScript('eventos');
+    if(!r||r.status!=='ok') throw new Error((r&&r.message)||'Sin respuesta');
+    ev.datos=(r.eventos||[]).map(evNormalizar).sort((a,b)=>b.ts-a.ts);
+    ev.cargado=Date.now();
+    pintar();
+  }catch(e){
+    if(String(e.message)!=='auth') cuerpo.innerHTML='<div class="empty-state"><div class="icon"><svg class="ico"><use href="#i-alert"/></svg></div><div>No se pudieron cargar los eventos.<br><span style="font-size:12px;">'+rcEsc(e.message)+'</span></div><button class="btn btn-ghost" onclick="evCargar(true,\''+donde+'\')">Intentar otra vez</button></div>';
+  }finally{ ev.cargando=false; }
+}
+async function evVerFotos(folio,btn){
+  const txt=btn.innerHTML; btn.disabled=true; btn.innerHTML='Abriendo...';
+  try{
+    const r=await leerDeScript('evento_fotos',{folio:folio});
+    if(!r||r.status!=='ok') throw new Error((r&&r.message)||'No se pudieron abrir las fotos.');
+    const v=document.createElement('div'); v.id='ev-visor';
+    v.style.cssText='position:fixed;inset:0;z-index:9999;background:var(--bg);overflow:auto;';
+    v.innerHTML='<div style="max-width:640px;margin:0 auto;padding:16px 16px 40px;"><div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;"><div style="flex:1;font-family:var(--f-head);font-size:17px;font-weight:800;">Fotos · '+rcEsc(folio)+'</div><button class="btn btn-ghost" style="width:auto;margin:0;" onclick="document.getElementById(\'ev-visor\').remove()">Cerrar</button></div>'+
+      ((r.archivos||[]).map(a=>'<div style="font-size:12px;color:var(--text2);margin-bottom:4px;">'+rcEsc(a.nombre)+'</div><img src="data:'+rcEsc(a.mime)+';base64,'+a.base64+'" alt="Foto" style="width:100%;border-radius:var(--radius);margin-bottom:12px;display:block;"/>').join('')||'<div class="empty-state"><div>Este evento no tiene fotos.</div></div>')+'</div>';
+    document.body.appendChild(v);
+  }catch(err){ if(String(err&&err.message)!=='auth') alert(err instanceof TypeError?'Error de conexión — intenta de nuevo':(err.message||'No se pudieron abrir las fotos.')); }
+  finally{ btn.disabled=false; btn.innerHTML=txt; }
+}
+
+// ── 1. AVISO (cualquiera, sin PIN) ──
+function evAbrirAviso(origen){
+  ev.origen=origen||'s-trabajador'; ev.idPendiente=null; photoStore['ev-fotos']=[];
+  if(!(listasGlobal.foremen&&listasGlobal.foremen.length)) cargarListas(); else fetchEmpleados();
+  evRenderAviso(); show('s-evento');
+}
+function evSalirAviso(){ show(ev.origen); }
+function evRenderAviso(){
+  const d=new Date(), ahora=fechaLocal(d)+'T'+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');
+  const yo=sesion.rol==='foreman'||sesion.rol==='super'?(ev.campo.persona||''):'';
+  document.getElementById('ev-aviso').innerHTML=
+    evEncabezado('Reportar un evento','Menos de 2 minutos. Los detalles van después.','evSalirAviso()')+
+    '<div class="ev-alerta"><b>Primero la gente</b>Si hay un lesionado o un peligro activo, atiende eso y llama al 911 antes de llenar esto.</div>'+
+    '<div class="card"><div class="sec-label">¿Qué pasó? <span style="color:var(--swa);">*</span></div><div class="field" style="margin-bottom:0;">'+evChips('eva-tipo',EV_TIPOS,{lista:true})+
+      '<div class="ev-ayuda">Reportar no trae castigo. Si no estás seguro del tipo, elige el que más se parezca: Safety lo puede corregir.</div></div></div>'+
+    '<div class="card ev-oculto" id="eva-c-herido"><div class="sec-label">Persona lastimada</div>'+
+      '<div class="ev-alerta"><b>Llama al 911 si hace falta y avisa a tu foreman</b>Estos datos son privados: solo los ve Safety.</div>'+
+      '<div class="field"><label>¿Quién se lastimó? <span style="color:var(--swa);">*</span></label><select id="eva-herido"></select></div>'+
+      '<div class="field"><label>¿Qué parte del cuerpo? <span style="color:var(--swa);">*</span></label>'+evChips('eva-parte',EV_CUERPO)+'</div>'+
+      '<div class="field" style="margin-bottom:0;"><label>¿Qué atención recibió? <span style="color:var(--swa);">*</span></label>'+evChips('eva-atencion',EV_ATENCION,{lista:true})+'</div></div>'+
+    '<div class="card ev-oculto" id="eva-c-casi"><div class="sec-label">Casi accidente</div>'+
+      '<div class="ev-nota">Pudo pasar algo y no pasó. Se reporta igual, porque así se evita el siguiente.</div>'+
+      '<div class="field"><label>¿Qué pudo haber pasado? <span style="color:var(--swa);">*</span></label>'+evChips('eva-pot',EV_POT_OPC,{lista:true})+'</div>'+
+      '<div class="field"><label>¿Qué lo evitó?</label><textarea id="eva-evito" rows="2" placeholder="Nadie estaba debajo, alguien gritó a tiempo..."></textarea></div>'+
+      '<div class="field" style="margin-bottom:0;">'+evChips('eva-anon',[EV_ANON],{multi:true})+'</div></div>'+
+    '<div class="card ev-oculto" id="eva-c-danos"><div class="sec-label" id="eva-danos-lbl">¿Qué se dañó? *</div><div class="field" style="margin-bottom:0;"><div class="ev-ayuda" style="margin:0 0 10px;">Marca todo lo que aplique.</div>'+evChips('eva-danos',[...EV_DANOS,EV_NADA],{multi:true,excl:EV_NADA})+'</div></div>'+
+    '<div class="card"><div class="sec-label">Dónde, cuándo y quién</div>'+
+      '<div class="field"><label>Proyecto <span style="color:var(--swa);">*</span></label><select id="eva-proyecto"></select></div>'+
+      '<div class="field"><label>Fecha y hora <span style="color:var(--swa);">*</span></label><input type="datetime-local" id="eva-fecha" value="'+ahora+'"/></div>'+
+      '<div class="field" id="eva-f-quien"><label>Tu nombre <span style="color:var(--swa);">*</span></label><input type="text" id="eva-quien" placeholder="Tu nombre" autocomplete="off" value="'+rcEsc(yo)+'"/></div>'+
+      '<div class="field"><label>Foreman en turno <span style="color:var(--swa);">*</span></label><select id="eva-foreman"></select><div class="ev-ayuda">Es quien completa el reporte después.</div></div>'+
+      '<div class="field" style="margin-bottom:0;"><label>Superintendente en turno <span style="color:var(--swa);">*</span></label><select id="eva-super"></select></div></div>'+
+    '<div class="card"><div class="sec-label">Máquina involucrada</div>'+
+      '<div class="grid2"><div class="field"><label id="eva-maq-lbl">Máquina</label><select id="eva-maquina"><option value="">— Ninguna —</option>'+EV_MAQUINAS.map(m=>'<option>'+m+'</option>').join('')+'</select></div>'+
+      '<div class="field"><label id="eva-num-lbl">Número</label><input type="text" id="eva-numero" placeholder="Ej. EX-04" autocomplete="off"/></div></div>'+
+      '<div class="field" style="margin-bottom:0;"><label id="eva-est-lbl">¿Cómo quedó?</label>'+evChips('eva-estado',['Fuera de servicio','Sigue operando'])+'<div class="ev-ayuda">Si hay duda, queda fuera de servicio hasta que el taller la revise.</div></div></div>'+
+    '<div class="card"><div class="sec-label">Cuéntalo en pocas palabras <span style="color:var(--swa);">*</span></div><div class="field" style="margin-bottom:0;"><textarea id="eva-desc" rows="3" placeholder="Lo que viste. No hace falta decir de quién fue la culpa."></textarea></div></div>'+
+    '<div class="card"><div class="sec-label">¿El área ya está segura? <span style="color:var(--swa);">*</span></div><div class="field" style="margin-bottom:0;">'+evChips('eva-segura',['Sí','No, se detuvo el trabajo'])+'</div></div>'+
+    '<div class="card"><div class="sec-label">Fotos <span id="eva-foto-ast"></span></div><div class="field" style="margin-bottom:0;"><div class="ev-nota gris">Si es seguro, toma las fotos <b>antes de mover o limpiar</b>: de lejos para ver el lugar y de cerca para ver el daño. Máximo 4.</div>'+evFotosCampo('ev-fotos','Tomar foto o elegir de galería')+'</div></div>'+
+    '<div class="submit-msg" id="eva-msg"></div>'+
+    '<button class="btn btn-swa" onclick="envioUnico(this,evEnviarAviso)">Enviar aviso</button>'+
+    '<button class="btn btn-ghost" onclick="evSalirAviso()" style="margin-top:10px;">Cancelar</button>';
+  evListasCambiaron();
+}
+function evRefrescarAviso(){
+  const nada=document.querySelector('[data-grupo="eva-danos"] [data-excl]'); if(!nada) return;
+  const tp=evUno('eva-tipo');
+  if(tp!=='Accidente'&&nada.classList.contains('on')){ nada.classList.remove('on'); nada.setAttribute('aria-pressed','false'); }
+  const d=tp==='Casi accidente'?[]:evElegidos('eva-danos'), equipo=d.includes('Equipo de OOI')||d.includes('Equipo rentado');
+  document.getElementById('eva-c-herido').classList.toggle('ev-oculto',tp!=='Accidente');
+  document.getElementById('eva-c-casi').classList.toggle('ev-oculto',tp!=='Casi accidente');
+  document.getElementById('eva-c-danos').classList.toggle('ev-oculto',!tp||tp==='Casi accidente');
+  document.getElementById('eva-danos-lbl').textContent=tp==='Accidente'?'¿También se dañó algo? *':'¿Qué se dañó? *';
+  nada.classList.toggle('ev-oculto',tp!=='Accidente');
+  document.getElementById('eva-f-quien').classList.toggle('ev-oculto',tp==='Casi accidente'&&evElegidos('eva-anon').length>0);
+  document.getElementById('eva-maq-lbl').textContent='Máquina'+(equipo?' *':'');
+  document.getElementById('eva-num-lbl').textContent='Número'+(equipo?' *':'');
+  document.getElementById('eva-est-lbl').textContent='¿Cómo quedó?'+(equipo?' *':'');
+  document.getElementById('eva-foto-ast').textContent=d.some(x=>x!==EV_NADA)?'*':'';
+}
+async function evEnviarAviso(){
+  const tp=evUno('eva-tipo'), casi=tp==='Casi accidente', acc=tp==='Accidente';
+  const anon=casi&&evElegidos('eva-anon').length>0;
+  const d=casi?[]:evElegidos('eva-danos'), dReal=d.filter(x=>x!==EV_NADA), equipo=d.includes('Equipo de OOI')||d.includes('Equipo rentado');
+  const fotos=photoStore['ev-fotos']||[], f=evVal('eva-fecha');
+  if(evExigir([['[data-grupo="eva-tipo"]','qué pasó',!tp],['#eva-herido','quién se lastimó',acc&&!evVal('eva-herido')],
+    ['[data-grupo="eva-parte"]','parte del cuerpo',acc&&!evUno('eva-parte')],['[data-grupo="eva-atencion"]','atención recibida',acc&&!evUno('eva-atencion')],
+    ['[data-grupo="eva-pot"]','qué pudo pasar',casi&&!evUno('eva-pot')],['[data-grupo="eva-danos"]','qué se dañó',!!tp&&!casi&&!d.length],
+    ['#eva-proyecto','proyecto',!evVal('eva-proyecto')],['#eva-fecha','fecha y hora',!f],['#eva-quien','tu nombre',!anon&&!evVal('eva-quien')],
+    ['#eva-foreman','foreman en turno',!evVal('eva-foreman')],['#eva-super','superintendente en turno',!evVal('eva-super')],
+    ['#eva-maquina','máquina',equipo&&!evVal('eva-maquina')],['#eva-numero','número de la máquina',equipo&&!evVal('eva-numero')],
+    ['[data-grupo="eva-estado"]','cómo quedó la máquina',equipo&&!evUno('eva-estado')],['#eva-desc','qué pasó, en pocas palabras',!evVal('eva-desc')],
+    ['[data-grupo="eva-segura"]','si el área está segura',!evUno('eva-segura')],['#ev-fotos','una foto del daño',dReal.length>0&&!fotos.length]])) return;
+  if(evFotosPendientes('ev-fotos')) return;
+  ev.idPendiente=ev.idPendiente||Date.now();
+  const datos={tipo:'evento_aviso',id:ev.idPendiente,clase:tp,fecha:f.slice(0,10),hora:f.slice(11,16),proyecto:evVal('eva-proyecto'),
+    quien:anon?'':evVal('eva-quien'),anonimo:anon,foreman:evVal('eva-foreman'),superintendente:evVal('eva-super'),desc:evVal('eva-desc'),
+    segura:evUno('eva-segura'),herido:acc?{quien:evVal('eva-herido'),parte:evUno('eva-parte'),atencion:evUno('eva-atencion')}:null,danos:dReal,
+    maquina:evVal('eva-maquina'),numero:evVal('eva-numero'),estadoMaq:evUno('eva-estado'),pot:casi?evUno('eva-pot'):'',evito:casi?evVal('eva-evito'):'',
+    fotoUrls:fotos.map(p=>p.url).filter(Boolean)};
+  evMsg('eva-msg','Enviando... espera unos segundos, no cierres esta pantalla.');
+  try{
+    const r=await enviarAScript(datos);
+    ev.idPendiente=null; ev.cargado=0; photoStore['ev-fotos']=[];
+    evAvisoListo(datos,r||{});
+  }catch(err){
+    if(String(err.message)==='auth') return;
+    evMsg('eva-msg',/HTTP|fetch|network/i.test(err.message)||err instanceof TypeError?'No se pudo confirmar el envío. Revisa tu señal y toca Enviar otra vez: no se duplica.':err.message,'error');
+  }
+}
+function evAvisoListo(d,r){
+  const falta=r.faltaReporte!==false&&!(d.clase==='Casi accidente'&&(d.anonimo||d.pot!=='alta'));
+  const supervisor=(sesion.rol==='foreman'||sesion.rol==='super')&&ev.origen==='s-foreman';
+  const quien=[['Safety',d.anonimo?'sin tu nombre':'aviso inmediato'],['Foreman',d.foreman],['Superintendente',d.superintendente]];
+  document.getElementById('ev-aviso').innerHTML=
+    '<div class="ev-listo"><div class="ico-tile lg"><svg class="ico"><use href="#i-check"/></svg></div><h2>Aviso enviado</h2><p>'+rcEsc(r.folio||'')+' · '+rcEsc(d.clase)+'</p></div>'+
+    '<div class="ev-auto"><div class="ev-auto-tit">Se le avisó a</div>'+quien.map(q=>evFila(q[0],q[1])).join('')+'</div>'+
+    (d.herido&&d.herido.atencion==='Ninguna'?'<div class="ev-alerta"><b>Safety decide hoy si hay que llevarlo al médico</b>Aunque diga que está bien, una lesión sin revisar puede empeorar.</div>':'')+
+    (falta?'<div class="ev-nota"><b>Falta el reporte completo.</b> '+(supervisor?'Tienes 24 horas para entregarlo.':'Lo llena el foreman o el superintendente en las próximas 24 horas.')+'</div>'+
+      (supervisor?'<button class="btn btn-primary" onclick="evCampoDesdeAviso(\''+rcEsc(r.folio||'')+'\')">Completar el reporte ahora</button>':'')
+      :'<div class="ev-nota"><b>Gracias. No hace falta nada más de tu parte.</b> Safety lo revisa.</div>')+
+    '<button class="btn '+(falta&&supervisor?'btn-ghost':'btn-success')+'" onclick="evSalirAviso()" style="margin-top:8px;">'+(falta&&supervisor?'Hacerlo después':'Cerrar')+'</button>';
+  window.scrollTo(0,0);
+  if(supervisor){ ev.campo.vista='lista'; evCargar(true,'campo'); }
+}
+
+// ── 2. FOREMAN Y SUPER: lista y reporte completo ──
+function evCampoIniciar(){
+  ev.campo.vista='lista';
+  ev.campo.persona=ev.campo.persona||obsGuardado(EV_PERSONA_KEY)||obsGuardado(OBSC_PERSONA_KEY);
+  evCargar(false,'campo');
+}
+function evCampoPersona(v){ ev.campo.persona=v; obsGuardar(EV_PERSONA_KEY,v); evCampoRender(); }
+function evCampoDesdeAviso(folio){ ev.campo.abrir=folio; show('s-foreman'); if(ev.datos&&evBuscar(folio)) evCampoRender(); else evCargar(true,'campo'); }
+function evCampoRender(){
+  const cuerpo=document.getElementById('evf-cuerpo');
+  if(!cuerpo||!ev.datos) return;
+  if(ev.campo.abrir){ const c=evBuscar(ev.campo.abrir); ev.campo.abrir=''; if(c&&evNecesitaRep(c)&&!c.cerrado){ evCampoAbrirReporte(c.folio); return; } }
+  if(ev.campo.vista==='reporte') return;   // el formulario abierto no se repinta encima
+  const nombres=Array.from(new Set(ev.datos.flatMap(c=>[c.foreman,c.superintendente]).filter(Boolean))).sort((a,b)=>a.localeCompare(b,'es'));
+  const p=ev.campo.persona;
+  if(p&&!nombres.includes(p)) nombres.unshift(p);
+  const mios=ev.datos.filter(c=>!p||c.foreman===p||c.superintendente===p);
+  const pend=mios.filter(c=>!c.cerrado&&evNecesitaRep(c)).sort((a,b)=>a.ts-b.ts);
+  const otros=mios.filter(c=>c.cerrado||!evNecesitaRep(c)).slice(0,30);
+  cuerpo.innerHTML=
+    '<button class="role-btn swa-btn" onclick="evAbrirAviso(\'s-foreman\')" style="margin-bottom:16px;"><div class="role-icon"><svg class="ico"><use href="#i-siren"/></svg></div><div class="rb-body"><div class="rb-title">Reportar un evento</div><div class="rb-desc">Accidente, incidente o casi accidente</div></div><span class="role-arrow"><svg class="ico"><use href="#i-chev"/></svg></span></button>'+
+    '<div class="field"><label>Ver los de</label><select onchange="evCampoPersona(this.value)"><option value="">Todos los eventos</option>'+nombres.map(n=>'<option value="'+rcEsc(n)+'"'+(n===p?' selected':'')+'>'+rcEsc(n)+'</option>').join('')+'</select></div>'+
+    '<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;"><div class="menu-label" style="margin:0;">Reportes por completar ('+pend.length+')</div><button class="tp-chip" onclick="evCargar(true,\'campo\')">Actualizar</button></div>'+
+    '<div style="margin-top:10px;">'+(pend.map(c=>'<button class="obs-card ev-caso" onclick="evCampoAbrirReporte(\''+rcEsc(c.folio)+'\')" style="border-left-color:var(--swa);"><div class="obs-card-top"><span class="obs-tipo">'+rcEsc(evTipoCaso(c))+'</span><span class="obs-dias'+(Date.now()>c.ts+EV_DIA?' tarde':'')+'">'+rcEsc(evRestante(c))+'</span></div><div class="obs-card-sitio">'+rcEsc(evSujeto(c))+' <span>· '+rcEsc(c.proyecto)+' · '+evFechaCorta(c)+'</span></div><div class="obs-card-accion">'+rcEsc(c.desc)+'</div><div style="font-size:13px;font-weight:900;color:var(--ooi-orange-dark);">Completar reporte →</div></button>').join('')||'<div class="obs-vacio">No hay reportes por completar'+(p?' de '+rcEsc(p):'')+'.</div>')+'</div>'+
+    (otros.length?'<div class="menu-label" style="margin-top:20px;">Entregados y en revisión</div>'+otros.map(c=>'<div class="obs-card" style="border-left-color:'+(c.cerrado?'var(--success-text)':'var(--border2)')+';"><div class="obs-card-top"><span class="obs-tipo">'+rcEsc(evTipoCaso(c))+'</span><span style="font-size:12px;color:var(--text3);">'+rcEsc(c.folio)+'</span></div><div class="obs-card-sitio">'+rcEsc(evSujeto(c))+' <span>· '+rcEsc(c.proyecto)+' · '+evFechaCorta(c)+' · '+rcEsc(evEstadoTxt(c))+'</span></div>'+evTrack(c)+'</div>').join(''):'');
+}
+const EVR_PASOS=['Lo que pasó','Personas, máquina y daño','Testigos y gravedad','Revisar y entregar'];
+function evCampoAbrirReporte(folio){
+  const c=evBuscar(folio); if(!c) return;
+  ev.campo.vista='reporte'; ev.campo.folio=folio; ev.campo.paso=1;
+  if(!evEmpleados().length) fetchEmpleados();
+  const equipo=evTieneEquipo(c), otros=c.danos.includes('Propiedad de otros'), renta=c.danos.includes('Equipo rentado'), linea=c.danos.includes('Línea de servicio');
+  const req=' <span style="color:var(--swa);">*</span>';
+  document.getElementById('evf-cuerpo').innerHTML=
+    evEncabezado('Reporte completo',c.folio+' · '+evTipoCaso(c),'evCampoCerrarReporte()')+
+    '<div class="ptpd-pasos" id="evr-barras">'+EVR_PASOS.map(()=>'<span class="ptpd-paso"></span>').join('')+'</div><div class="ptpd-paso-tit" id="evr-tit"></div>'+
+    '<div class="evr-paso" data-p="1">'+
+      '<div class="ev-nota">Escribe los hechos. No hace falta decir de quién fue la culpa: buscamos qué falló para que no vuelva a pasar.</div>'+
+      '<div class="card"><div class="sec-label">Lo que se avisó</div><div style="font-size:14px;line-height:1.5;margin-bottom:10px;white-space:pre-wrap;">'+rcEsc(c.desc)+'</div><div class="ev-auto" style="margin-bottom:0;">'+evFila('Proyecto',c.proyecto)+evFila('Cuándo',evFechaCorta(c))+evFila('Avisó',c.quien)+(c.herido?evFila('Persona lastimada',c.herido.quien):'')+(c.maquina?evFila('Máquina',evSujeto(c)+(c.estadoMaq?' · '+c.estadoMaq:'')):'')+'</div>'+
+        (c.nFotos?'<button class="btn btn-ghost" onclick="evVerFotos(\''+rcEsc(c.folio)+'\',this)" style="margin-top:10px;">Ver fotos ('+c.nFotos+')</button>':'')+'</div>'+
+      '<div class="card"><div class="sec-label">Más detalle</div>'+
+        '<div class="field"><label>¿Qué trabajo se estaba haciendo?'+req+'</label><textarea id="evr-trabajo" rows="2" placeholder="La tarea, la herramienta o el equipo"></textarea></div>'+
+        '<div class="field"><label>¿Qué fue diferente de lo normal?</label><textarea id="evr-diferente" rows="2" placeholder="Un cambio de plan, alguien que faltó, otra máquina cerca..."></textarea></div>'+
+        '<div class="field"><label>¿Qué objeto o sustancia causó la lesión o el daño?</label><input type="text" id="evr-objeto" placeholder="Disco del esmeril, poste, carga, concreto..." autocomplete="off"/></div>'+
+        '<div class="field"><label>Condiciones'+req+'</label>'+evChips('evr-cond',EV_CONDICIONES,{multi:true})+'</div>'+
+        '<div class="field" style="margin-bottom:0;"><label>¿El PTP de ese día cubría esta tarea?</label>'+evChips('evr-ptp',['Sí','No','No había PTP'])+'</div></div>'+
+    '</div>'+
+    '<div class="evr-paso" data-p="2">'+
+      (c.lesion?'<div class="card"><div class="sec-label">Lesión de '+rcEsc(c.herido.quien)+'</div>'+
+        '<div class="field"><label>Tipo de lesión'+req+'</label>'+evChips('evr-lesion',EV_LESIONES)+'</div>'+
+        '<div class="field"><label>¿Qué EPP llevaba puesto?</label>'+evChips('evr-epp',EV_EPP,{multi:true})+'</div>'+
+        '<div class="field" style="margin-bottom:0;"><label>¿A qué hora empezó su turno?</label><input type="time" id="evr-turno"/></div></div>':'')+
+      '<div class="card"><div class="sec-label">Operador</div><div class="field" style="margin-bottom:0;"><label>¿Quién operaba la máquina?'+(c.maquina?req:'')+'</label><select id="evr-operador"></select>'+(c.maquina?'':'<div class="ev-ayuda">Déjalo vacío si no había máquina.</div>')+'</div></div>'+
+      (equipo?'<div class="card"><div class="sec-label">Daño a '+rcEsc(evSujeto(c))+'</div>'+
+        '<div class="field"><label>¿Qué se dañó?'+req+'</label>'+evChips('evr-partes',EV_PARTES,{multi:true})+'</div>'+
+        '<div class="field" style="margin-bottom:0;"><label>Costo estimado'+req+'</label>'+evChips('evr-costo',EV_COSTOS)+'<div class="ev-ayuda">Es solo una idea. El costo real lo anota Safety con el taller.</div></div></div>':'')+
+      (renta?'<div class="card"><div class="sec-label">Equipo rentado</div><div class="field"><label>Compañía de renta'+req+'</label><input type="text" id="evr-renta" autocomplete="off"/></div><div class="field" style="margin-bottom:0;"><label>¿Ya se le avisó?'+req+'</label>'+evChips('evr-renta-aviso',['Sí','Todavía no'])+'</div></div>':'')+
+      (linea?'<div class="card"><div class="sec-label">Línea de servicio</div><div class="field"><label>¿Había ticket 811?'+req+'</label>'+evChips('evr-l811',['Sí','No'])+'</div><div class="field"><label>¿La línea estaba marcada?'+req+'</label>'+evChips('evr-lmarca',['Sí','No','Mal marcada'])+'</div><div class="field" style="margin-bottom:0;"><label>¿A quién se avisó?</label><input type="text" id="evr-linea-aviso" placeholder="Compañía de gas, luz, agua..." autocomplete="off"/></div></div>':'')+
+      (otros?'<div class="card"><div class="sec-label">Propiedad de otros</div><div class="field"><label>¿Qué se dañó?'+req+'</label>'+evChips('evr-otro-que',EV_OTROS,{multi:true})+'</div><div class="field"><label>¿De quién es?'+req+'</label><input type="text" id="evr-dueno" placeholder="Contratista general, vecino..." autocomplete="off"/></div><div class="field" style="margin-bottom:0;"><label>¿Ya se le avisó?'+req+'</label>'+evChips('evr-otro-aviso',['Sí','Todavía no'])+'</div></div>':'')+
+    '</div>'+
+    '<div class="evr-paso" data-p="3">'+
+      '<div class="card"><div class="sec-label">Testigos</div><div id="evr-testigos"></div><button type="button" class="btn btn-ghost" onclick="evrAgregarTestigo()" style="margin-top:0;"><svg class="ico"><use href="#i-plus"/></svg>Agregar testigo</button></div>'+
+      '<div class="card"><div class="sec-label">Gravedad</div>'+
+        '<div class="field"><label>¿Había alguien en la zona de peligro?'+req+'</label>'+evChips('evr-zona',['Sí','No'])+'</div>'+
+        '<div class="field" style="margin-bottom:0;"><label>Si las cosas hubieran salido peor, ¿qué pudo pasar?'+req+'</label>'+evChips('evr-pot',EV_POT_OPC,{lista:true})+
+          '<div id="evr-pot-alta" class="ev-alerta ev-oculto" style="margin:12px 0 0;"><b>Safety lo revisa hoy</b>Aunque nadie se haya lastimado, se trata como evento grave.</div></div></div>'+
+      '<div class="card"><div class="sec-label">Qué se hizo de inmediato'+req+'</div><div class="field" style="margin-bottom:0;"><textarea id="evr-accion" rows="3" placeholder="Se detuvo la máquina, se acordonó la zona..."></textarea></div></div>'+
+    '</div>'+
+    '<div class="evr-paso" data-p="4">'+
+      '<div class="ev-auto" id="evr-resumen"></div>'+
+      '<div class="card"><div class="sec-label">Quién llena el reporte'+req+'</div><div class="field" style="margin-bottom:0;"><input type="text" id="evr-quien" list="evr-quien-lista" autocomplete="off" placeholder="Tu nombre" value="'+rcEsc(ev.campo.persona||'')+'"/><datalist id="evr-quien-lista">'+evSupervisores().map(n=>'<option value="'+rcEsc(n)+'">').join('')+'</datalist></div></div>'+
+    '</div>'+
+    '<div class="submit-msg" id="evr-msg"></div>'+
+    '<div class="grid2" style="margin-top:4px;"><button class="btn btn-ghost" id="evr-atras" onclick="evrAtras()" style="margin:0;">Atrás</button><button class="btn btn-primary" id="evr-sig" onclick="evrSiguiente(this)" style="margin:0;">Siguiente</button></div>';
+  if(c.potAviso){ evMarcar('evr-pot',[c.potAviso]); document.getElementById('evr-pot-alta').classList.toggle('ev-oculto',c.potAviso!=='alta'); }
+  evListasCambiaron(); evrPintarPaso();
+}
+function evCampoCerrarReporte(){
+  if(!confirm('¿Salir del reporte? Lo que escribiste no se guarda.')) return;
+  ev.campo.vista='lista'; evCampoRender(); window.scrollTo(0,0);
+}
+function evrAgregarTestigo(){
+  const caja=document.getElementById('evr-testigos');
+  if(caja.children.length>=5){ alert('Máximo 5 testigos.'); return; }
+  const d=document.createElement('div'); d.className='ev-testigo';
+  d.innerHTML='<div class="field"><label>Nombre</label><input type="text" autocomplete="off"/></div><div class="field"><label>¿Qué vio?</label><textarea rows="2"></textarea></div>';
+  caja.appendChild(d);
+}
+function evrLeer(){
+  return {trabajo:evVal('evr-trabajo'),diferente:evVal('evr-diferente'),objeto:evVal('evr-objeto'),condiciones:evElegidos('evr-cond'),ptp:evUno('evr-ptp'),
+    operador:evVal('evr-operador'),lesionTipo:evUno('evr-lesion'),epp:evElegidos('evr-epp'),turno:evVal('evr-turno'),
+    partes:evElegidos('evr-partes'),costo:evUno('evr-costo'),renta:evVal('evr-renta'),rentaAviso:evUno('evr-renta-aviso'),
+    l811:evUno('evr-l811'),lmarca:evUno('evr-lmarca'),lineaAviso:evVal('evr-linea-aviso'),
+    otroQue:evElegidos('evr-otro-que'),otroDueno:evVal('evr-dueno'),otroAviso:evUno('evr-otro-aviso'),
+    testigos:[...document.querySelectorAll('#evr-testigos .ev-testigo')].map(t=>({nombre:t.querySelector('input').value.trim(),vio:t.querySelector('textarea').value.trim()})).filter(t=>t.nombre),
+    zona:evUno('evr-zona'),pot:evUno('evr-pot'),accion:evVal('evr-accion')};
+}
+function evrFalta(n){
+  const c=evBuscar(ev.campo.folio), r=evrLeer(), eq=evTieneEquipo(c), ot=c.danos.includes('Propiedad de otros'), re=c.danos.includes('Equipo rentado'), li=c.danos.includes('Línea de servicio');
+  if(n===1) return evExigir([['#evr-trabajo','qué trabajo se hacía',!r.trabajo],['[data-grupo="evr-cond"]','condiciones',!r.condiciones.length]]);
+  if(n===2) return evExigir([['[data-grupo="evr-lesion"]','tipo de lesión',c.lesion&&!r.lesionTipo],['#evr-operador','operador',!!c.maquina&&!r.operador],
+    ['[data-grupo="evr-partes"]','qué se dañó',eq&&!r.partes.length],['[data-grupo="evr-costo"]','costo estimado',eq&&!r.costo],
+    ['#evr-renta','compañía de renta',re&&!r.renta],['[data-grupo="evr-renta-aviso"]','aviso a la compañía de renta',re&&!r.rentaAviso],
+    ['[data-grupo="evr-l811"]','ticket 811',li&&!r.l811],['[data-grupo="evr-lmarca"]','si la línea estaba marcada',li&&!r.lmarca],
+    ['[data-grupo="evr-otro-que"]','qué se dañó de otros',ot&&!r.otroQue.length],['#evr-dueno','de quién es',ot&&!r.otroDueno],['[data-grupo="evr-otro-aviso"]','aviso al dueño',ot&&!r.otroAviso]]);
+  if(n===3) return evExigir([['[data-grupo="evr-zona"]','si había alguien en la zona',!r.zona],['[data-grupo="evr-pot"]','qué pudo pasar',!r.pot],['#evr-accion','qué se hizo',!r.accion]]);
+  return evExigir([['#evr-quien','quién llena el reporte',!evVal('evr-quien')]]);
+}
+function evrPintarPaso(){
+  const n=ev.campo.paso, c=evBuscar(ev.campo.folio);
+  document.querySelectorAll('#evf-cuerpo .evr-paso').forEach(p=>p.classList.toggle('ev-oculto',+p.dataset.p!==n));
+  document.querySelectorAll('#evr-barras .ptpd-paso').forEach((b,i)=>{ b.classList.toggle('hecho',i<n-1); b.classList.toggle('actual',i===n-1); });
+  document.getElementById('evr-tit').innerHTML='<b>Paso '+n+' de 4</b> · '+EVR_PASOS[n-1];
+  document.getElementById('evr-atras').style.visibility=n===1?'hidden':'visible';
+  document.getElementById('evr-sig').textContent=n===4?'Entregar a Safety':'Siguiente';
+  if(n===4){ const r=evrLeer(); document.getElementById('evr-resumen').innerHTML='<div class="ev-auto-tit">Revisa antes de entregar</div>'+evFila('Evento',evTipoCaso(c))+evFila('Proyecto',c.proyecto)+evSi('Máquina',c.maquina?evSujeto(c):'')+evSi('Operador',r.operador)+evFila('Trabajo',r.trabajo)+evSi('Lesión',r.lesionTipo)+evSi('Daño',r.partes.join(', '))+evSi('Estimado',r.costo)+evFila('Testigos',r.testigos.length?r.testigos.map(t=>t.nombre).join(', '):'Ninguno')+evFila('Pudo pasar',EV_POT[r.pot]||'')+evFila('Se hizo',r.accion); }
+  window.scrollTo(0,0);
+}
+function evrAtras(){ if(ev.campo.paso>1){ ev.campo.paso--; evrPintarPaso(); } }
+function evrSiguiente(btn){
+  if(evrFalta(ev.campo.paso)) return;
+  if(ev.campo.paso<4){ ev.campo.paso++; evrPintarPaso(); return; }
+  envioUnico(btn,evrEntregar);
+}
+async function evrEntregar(){
+  const c=evBuscar(ev.campo.folio), rep=evrLeer(), quien=evVal('evr-quien');
+  evMsg('evr-msg','Entregando... no cierres esta pantalla.');
+  try{
+    await enviarAScript({tipo:'evento_reporte',folio:c.folio,quien,rep});
+    c.rep=rep; c.repPor=quien;
+    if(!ev.campo.persona) evCampoPersona(quien);
+    ev.campo.vista='lista';
+    document.getElementById('evf-cuerpo').innerHTML='<div class="ev-listo"><div class="ico-tile lg"><svg class="ico"><use href="#i-check"/></svg></div><h2>Reporte entregado</h2><p>'+rcEsc(c.folio)+' · '+rcEsc(evTipoCaso(c))+'</p></div>'+
+      '<div class="card">'+evTrack(c)+'<div style="font-size:14px;color:var(--text2);margin-top:10px;">Safety investiga la causa y te avisa qué acciones siguen.</div></div>'+
+      '<button class="btn btn-primary" onclick="evCampoRender();window.scrollTo(0,0);">Volver a la lista</button>';
+    window.scrollTo(0,0);
+  }catch(e){
+    if(String(e.message)!=='auth') evMsg('evr-msg','No se pudo entregar: '+String(e.message).replace(/\.\s*$/,'')+'. Lo que escribiste sigue aquí, intenta de nuevo.','error');
+  }
+}
+
+// ── 3. SAFETY: tablero ──
+function evSafetyIniciar(){ ev.abierto=null; ev.caso=null; ev.sucio=false; evCargar(false,'safety'); }
+function evFiltro(f){ ev.filtro=f; evSafetyRender(); }
+function evSafetyRender(){
+  const cuerpo=document.getElementById('evs-cuerpo');
+  if(!cuerpo||!ev.datos) return;
+  if(ev.abierto){ if(!ev.caso) evAbrirCaso(ev.abierto); return; }   // con un caso abierto no se repinta encima
+  const ab=ev.datos.filter(c=>!c.cerrado), cerr=ev.datos.filter(c=>c.cerrado);
+  const urgentes=ab.filter(c=>evEtiquetas(c).some(e=>e[1]==='bad')).length, alta=ab.filter(c=>evPotencial(c)==='alta').length;
+  const costo=ev.datos.reduce((s,c)=>s+evTotalTaller(c),0), prom=cerr.length?Math.round(cerr.reduce((s,c)=>s+(c.diasCierre||0),0)/cerr.length):0;
+  const kpi=(n,l,sub,col)=>'<div class="stat-card obs-kpi"'+(col?' style="border-top-color:'+col+';"':'')+'><div class="stat-num"'+(col?' style="color:'+col+';"':'')+'>'+n+'</div><div class="stat-lbl">'+l+'</div>'+(sub?'<div class="obs-kpi-sub">'+sub+'</div>':'')+'</div>';
+  const porMaq={};
+  ev.datos.forEach(c=>{ if(!evTieneEquipo(c)) return; const k=c.maquina||'Otra'; (porMaq[k]=porMaq[k]||{n:0,t:0,d:0}); porMaq[k].n++; porMaq[k].t+=evTotalTaller(c); porMaq[k].d+=(c.taller&&+c.taller.dias)||0; });
+  const filas=Object.entries(porMaq).sort((a,b)=>b[1].t-a[1].t);
+  const lista=ev.filtro==='mio'?ab:ev.filtro==='cerrados'?cerr:ev.datos;
+  const colorPot={alta:'#B3261E',media:'var(--ooi-orange)',baja:'var(--ooi-grey)'};
+  const f=(k,t,n)=>'<button class="tp-chip'+(ev.filtro===k?' on':'')+'" onclick="evFiltro(\''+k+'\')">'+t+' ('+n+')</button>';
+  cuerpo.innerHTML=
+    '<div class="obs-head"><div><div style="font-family:var(--f-head);font-size:18px;font-weight:800;margin-bottom:4px;">Accidentes, incidentes y casi accidentes</div><div style="font-size:12px;color:var(--text2);">Lo que se reporta desde la app (hoja Eventos). Cada caso dice qué le falta.</div></div><button class="tp-chip" onclick="evCargar(true,\'safety\')">Actualizar</button></div>'+
+    '<div class="obs-kpis" style="grid-template-columns:repeat(auto-fit,minmax(140px,1fr));">'+
+      kpi(ab.length,'Necesitan algo de mí',urgentes?(urgentes===1?'1 urgente':urgentes+' urgentes'):'Abiertos',urgentes?'#B3261E':'')+
+      kpi(alta,'Gravedad potencial alta','Abiertos',alta?'#B3261E':'')+
+      kpi(evDinero(costo),'Costo de reparación','Todos los casos')+
+      kpi(prom===1?'1 día':prom+' días','Promedio para cerrar',cerr.length===1?'1 cerrado':cerr.length+' cerrados')+'</div>'+
+    '<div class="ev-grid"><div>'+
+      '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;">'+f('mio','Necesita algo de mí',ab.length)+f('todos','Todos',ev.datos.length)+f('cerrados','Cerrados',cerr.length)+'</div>'+
+      (lista.map(c=>{ const p=evPotencial(c); return '<button class="obs-card ev-caso" onclick="evAbrirCaso(\''+rcEsc(c.folio)+'\')" style="border-left-color:'+(c.cerrado?'var(--success-text)':colorPot[p]||'var(--border2)')+';"><div class="obs-card-top"><span class="obs-tipo">'+rcEsc(evTipoCaso(c))+'</span><span style="font-size:12px;color:var(--text3);">'+rcEsc(c.folio)+'</span></div><div class="obs-card-sitio">'+rcEsc(evSujeto(c))+' <span>· '+rcEsc(c.proyecto)+' · '+evFechaCorta(c)+'</span></div><div class="obs-card-accion" style="margin-bottom:4px;">'+rcEsc(c.desc)+'</div>'+evEtiquetasHTML(c)+evTrack(c)+'<div class="obs-card-meta" style="margin-top:8px;"><span><b>Real:</b> '+rcEsc(evReal(c))+'</span><span><b>Potencial:</b> '+rcEsc(EV_POT[p]||'sin evaluar')+'</span>'+(c.taller?'<span><b>'+evDinero(evTotalTaller(c))+'</b></span>':'')+'<span>'+rcEsc(evEstadoTxt(c))+'</span></div></button>'; }).join('')||
+        '<div class="empty-state"><div class="icon"><svg class="ico"><use href="#i-check"/></svg></div><div>'+(ev.filtro==='mio'?'Nada pendiente de tu parte.':'Sin casos.')+'</div></div>')+
+    '</div><div class="card"><div class="sec-label">Costo por máquina</div>'+(filas.length?'<table class="ev-tabla"><thead><tr><th>Máquina</th><th>Casos</th><th>Días fuera</th><th>Costo</th></tr></thead><tbody>'+filas.map(([k,v])=>'<tr><td>'+rcEsc(k)+'</td><td>'+v.n+'</td><td>'+v.d+'</td><td>'+(v.t?evDinero(v.t):'Pendiente')+'</td></tr>').join('')+'</tbody></table>':'<div class="obs-vacio">Todavía no hay daños a equipo reportados.</div>')+'</div></div>';
+}
+
+// ── 3. SAFETY: caso (seguimiento médico, costo, causa raíz, acciones y cierre) ──
+function evAbrirCaso(folio){
+  const c=evBuscar(folio); if(!c) return;
+  ev.abierto=folio; ev.caso=JSON.parse(JSON.stringify(c)); ev.sucio=false; photoStore['evc-fotos']=[];
+  evCasoRender(); window.scrollTo(0,0);
+}
+function evCerrarCaso(){
+  if(ev.sucio&&!confirm('Hay cambios sin guardar en este caso. ¿Salir sin guardar?')) return;
+  ev.abierto=null; ev.caso=null; ev.sucio=false; photoStore['evc-fotos']=[];
+  evSafetyRender(); window.scrollTo(0,0);
+}
+function evCasoRender(){
+  const c=ev.caso, i=c.inv, r=c.rep, sl=c.cerrado, h=c.herido, m=c.med||{}, t=c.taller||{};
+  const faltaRep=evNecesitaRep(c), corta=!evPideInv(c), req=sl?'':' <span style="color:var(--swa);">*</span>';
+  const hechos=evFila('Proyecto',c.proyecto)+evFila('Cuándo',evFechaCorta(c))+evFila('Reportó',c.quien)+evSi('Foreman',c.foreman)+evSi('Superintendente',c.superintendente)+evSi('Área segura',c.segura)+
+    (c.maquina?evFila('Máquina',evSujeto(c)+(c.estadoMaq?' · '+c.estadoMaq:'')):'')+evSi('Qué lo evitó',c.evito)+
+    (r?evSi('Operador',r.operador)+evFila('Trabajo',r.trabajo)+evSi('Fue diferente',r.diferente)+evSi('Objeto o sustancia',r.objeto)+evSi('Condiciones',(r.condiciones||[]).join(', '))+evSi('¿El PTP cubría la tarea?',r.ptp)+
+      evSi('Lesión',r.lesionTipo)+evSi('EPP que llevaba',(r.epp||[]).join(', '))+evSi('Empezó el turno',r.turno)+evSi('Daño',(r.partes||[]).join(', '))+evSi('Estimado de campo',r.costo)+
+      evSi('Equipo rentado',[r.renta,r.rentaAviso?'avisada: '+r.rentaAviso:''].filter(Boolean).join(' · '))+evSi('De otros',[(r.otroQue||[]).join(', '),r.otroDueno,r.otroAviso?'avisado: '+r.otroAviso:''].filter(Boolean).join(' · '))+
+      (r.l811?evFila('Línea de servicio','Ticket 811: '+r.l811+' · Marcada: '+(r.lmarca||'—')+(r.lineaAviso?' · Avisado: '+r.lineaAviso:'')):'')+
+      evSi('Había gente en la zona',r.zona)+evFila('Testigos',(r.testigos||[]).length?r.testigos.map(x=>x.nombre+(x.vio?': '+x.vio:'')).join(' / '):'Ninguno')+evFila('Se hizo',r.accion)+evSi('Reporte de',c.repPor)
+      :evFila('Reporte',faltaRep?'Falta el reporte del foreman · '+evRestante(c):'No lleva: casi accidente sin nombre o de bajo potencial'));
+  const medico=h?'<div class="card"><div class="sec-label">Seguimiento médico</div><div class="ev-nota gris">Privado: se guarda en un archivo aparte que solo abre Safety, no en la hoja de eventos.</div>'+
+      '<div class="ev-auto">'+evFila('Persona',h.quien)+evSi('Parte del cuerpo',h.parte)+evSi('Atención en el sitio',h.atencion)+(c.med?evFila('Para OSHA','<span class="badge badge-'+(evRegistrable(c)?'pending':'ok')+'" style="text-transform:none;letter-spacing:0;">'+(evRegistrable(c)?'Registrable: va al Log 300':'No registrable')+'</span>',true):'')+'</div>'+
+      '<div class="grid2"><div class="field"><label>Clínica y médico</label><input type="text" id="evs-m-clinica" value="'+rcEsc(m.clinica||'')+'" autocomplete="off"/></div><div class="field"><label>Diagnóstico</label><input type="text" id="evs-m-diag" value="'+rcEsc(m.diag||'')+'" autocomplete="off"/></div></div>'+
+      '<div class="field"><label>Tratamiento que recibió'+req+'</label>'+evChips('evs-m-trat',EV_TRATAMIENTOS)+'<div class="ev-ayuda">Puntos, receta, férula rígida o terapia cuentan como tratamiento médico. Limpiar, vendar, hielo o lavar el ojo son primeros auxilios.</div></div>'+
+      '<div class="field"><label>¿Resultado grave?</label>'+evChips('evs-m-grave',EV_GRAVES)+'<div class="ev-ayuda" style="margin-bottom:8px;">Muerte: aviso a OSHA en 8 horas. Hospitalización, amputación o pérdida de un ojo: 24 horas. Teléfono 1-800-321-6742.</div>'+evChips('evs-m-osha',[EV_OSHA_OK],{multi:true})+'</div>'+
+      '<div class="grid2"><div class="field"><label>¿Restricciones de trabajo?</label>'+evChips('evs-m-restr',['Sí','No'])+'</div><div class="field"><label>Días fuera del trabajo</label><input type="number" min="0" inputmode="numeric" id="evs-m-dias" value="'+rcEsc(m.dias||'')+'"/></div></div>'+
+      '<div class="grid2"><div class="field"><label>Próxima cita</label><input type="date" id="evs-m-cita" value="'+rcEsc(m.cita||'')+'"/></div><div class="field"><label>Regreso a trabajo completo</label><input type="date" id="evs-m-regreso" value="'+rcEsc(m.regreso||'')+'"/></div></div>'+
+      '<div class="field" style="margin-bottom:0;">'+evChips('evs-m-log',[EV_LOG_OK],{multi:true})+'</div></div>':'';
+  const taller=evTieneEquipo(c)?'<div class="card"><div class="sec-label">Costo de reparación</div>'+
+      '<div class="field"><label>¿Qué encontró el taller?</label><textarea id="evs-t-diag" rows="2">'+rcEsc(t.diag||'')+'</textarea></div>'+
+      '<div class="field"><label>¿El daño pudo venir de antes?</label>'+evChips('evs-t-previo',[{v:'No',t:'No, fue el evento'},{v:'Sí',t:'Sí, ya venía mal'},{v:'No se sabe',t:'No se sabe'}])+'</div>'+
+      '<div class="grid2"><div class="field"><label>Piezas ($)</label><input type="number" min="0" inputmode="decimal" id="evs-t-piezas" value="'+rcEsc(t.piezas||'')+'"/></div><div class="field"><label>Mano de obra ($)</label><input type="number" min="0" inputmode="decimal" id="evs-t-mano" value="'+rcEsc(t.mano||'')+'"/></div></div>'+
+      '<div class="grid2"><div class="field"><label>Renta de reemplazo ($)</label><input type="number" min="0" inputmode="decimal" id="evs-t-otros" value="'+rcEsc(t.otros||'')+'"/></div><div class="field"><label>Días fuera de servicio</label><input type="number" min="0" inputmode="numeric" id="evs-t-dias" value="'+rcEsc(t.dias==null?'':t.dias)+'"/></div></div>'+
+      '<div class="ev-total"><span>Total</span><b id="evs-t-total">$0</b></div></div>':'';
+  document.getElementById('evs-cuerpo').innerHTML='<div style="max-width:640px;margin:0 auto;">'+
+    evEncabezado(evTipoCaso(c),c.folio+' · '+evEstadoTxt(c),'evCerrarCaso()')+
+    '<div class="card">'+evTrack(c)+evEtiquetasHTML(c)+'</div>'+
+    '<div class="card"><div class="sec-label">Hechos</div><div style="font-size:15px;line-height:1.5;margin-bottom:10px;white-space:pre-wrap;">'+rcEsc(c.desc)+'</div>'+
+      ((c.nFotos||i.fotosCierre.length)?'<button class="btn btn-ghost" onclick="evVerFotos(\''+rcEsc(c.folio)+'\',this)" style="margin:0 0 12px;">Ver fotos ('+(c.nFotos+i.fotosCierre.length)+')</button>':'')+
+      '<div class="ev-auto" style="margin-bottom:14px;">'+hechos+'</div>'+
+      '<div class="field" style="margin-bottom:0;"><label>Tipo de evento (lo puedes corregir)</label>'+evChips('evs-tipo',EV_TIPOS.map(x=>x.v))+'</div></div>'+
+    medico+taller+
+    '<div class="card"><div class="sec-label">Gravedad potencial</div><div class="field" style="margin-bottom:0;"><label>'+(r?'El foreman dijo: '+rcEsc(EV_POT[r.pot]||'')+'. Safety confirma:':c.potAviso?'Quien reportó dijo: '+rcEsc(EV_POT[c.potAviso])+'. Safety confirma:':'Safety confirma:')+req+'</label>'+evChips('evs-pot',[{v:'baja',t:EV_POT.baja},{v:'media',t:EV_POT.media},{v:'alta',t:EV_POT.alta,peligro:true}],{lista:true})+'</div></div>'+
+    '<div class="card"><div class="sec-label">Causa raíz</div>'+
+      (corta?'<div class="ev-nota gris"><b>Revisión corta.</b> Por su gravedad, este caso no pide investigación completa: basta el primer porqué y una acción.</div>':'<div class="ev-alerta"><b>Requiere investigación completa</b>Por lesión con atención médica, daño de '+evDinero(EV_MONTO_INV)+' o más, línea de servicio o potencial de lesión grave.</div>')+
+      '<div class="ev-nota">Pregunta "¿por qué?" hasta llegar a lo que falló en el sistema. "Fue descuidado" no es una causa raíz.</div>'+
+      [0,1,2,3,4].map(n=>'<div class="field"><label>¿Por qué? '+(n+1)+(n===0?req:'')+'</label><input type="text" class="evs-pq" value="'+rcEsc(i.porques[n]||'')+'" autocomplete="off"/></div>').join('')+
+      '<div class="field"><label>Factores que contribuyeron'+req+'</label>'+evChips('evs-causas',EV_CAUSAS,{multi:true})+'</div>'+
+      '<div class="grid2"><div class="field" style="margin-bottom:0;"><label>¿Hubo presión de tiempo?</label>'+evChips('evs-presion',['Sí','No'])+'</div><div class="field" style="margin-bottom:0;"><label>¿Había pasado algo parecido?</label>'+evChips('evs-antes',['Sí','No'])+'</div></div></div>'+
+    '<div class="card"><div class="sec-label">Acciones correctivas</div><div id="evs-acciones"></div>'+
+      (sl?'':'<div class="field" style="margin-top:10px;"><label>Qué se va a hacer</label><input type="text" id="evs-a-que" autocomplete="off"/></div>'+
+        '<div class="field"><label>Tipo de control</label><select id="evs-a-tipo"><option value="">— Selecciona —</option>'+EV_CONTROLES.map(x=>'<option>'+x+'</option>').join('')+'</select><div class="ev-ayuda">De más a menos fuerte. El EPP y los avisos son lo último.</div></div>'+
+        '<div class="grid2"><div class="field"><label>Responsable</label><input type="text" id="evs-a-quien" autocomplete="off"/></div><div class="field"><label>Fecha límite</label><input type="date" id="evs-a-fecha"/></div></div>'+
+        '<button type="button" class="btn btn-ghost" onclick="evsAgregarAccion()" style="margin-top:0;"><svg class="ico"><use href="#i-plus"/></svg>Agregar acción</button>')+'</div>'+
+    '<div class="card"><div class="sec-label">Lección para las cuadrillas</div><div class="field" style="margin-bottom:0;"><textarea id="evs-leccion" rows="3" placeholder="Una o dos frases, sin nombres, para compartir en el PTP de la semana.">'+rcEsc(i.leccion||'')+'</textarea></div></div>'+
+    '<div class="card"><div class="sec-label">Cierre</div>'+
+      (sl?'<div class="obs-cierre"><div class="obs-cierre-quien">Cerrado por '+rcEsc(c.cerradoPor||'Safety')+' · '+rcEsc(c.cerradoEl||'')+' · en '+((c.diasCierre||1)===1?'1 día':c.diasCierre+' días')+'</div></div>'
+        :'<div class="field"><label>Verificación'+req+'</label>'+evChips('evs-verif',[EV_VERIF],{multi:true})+'</div>'+
+        '<div class="field"><label>Foto de cómo quedó'+req+(i.fotosCierre.length?' <span style="font-weight:400;color:var(--text2);text-transform:none;letter-spacing:0;">('+i.fotosCierre.length+' ya guardada'+(i.fotosCierre.length>1?'s':'')+')</span>':'')+'</label>'+evFotosCampo('evc-fotos','Agregar foto')+'</div>'+
+        '<div class="field"><label>Quién cierra el caso'+req+'</label><input type="text" id="evs-quien" autocomplete="off" placeholder="Tu nombre" value="'+rcEsc(obsGuardado(EV_QUIEN_KEY))+'"/></div>'+
+        (faltaRep?'<div class="ev-nota gris">No se puede cerrar todavía: falta el reporte del foreman.</div>':'')+
+        '<div class="submit-msg" id="evs-msg"></div>'+
+        '<button class="btn btn-primary" onclick="envioUnico(this,evsGuardarAvance)">Guardar avance</button>'+
+        '<button class="btn btn-success" onclick="envioUnico(this,evsCerrar)" style="margin-top:8px;">Guardar y cerrar caso</button>')+
+      '<button class="btn btn-ghost" onclick="evCerrarCaso()" style="margin-top:8px;">← Volver a la lista</button></div></div>';
+  evMarcar('evs-tipo',[c.tipo]); evMarcar('evs-pot',[evPotencial(c)]); evMarcar('evs-causas',i.causas); evMarcar('evs-presion',[i.presion||'']); evMarcar('evs-antes',[i.antes||'']);
+  evMarcar('evs-verif',i.verificado?[EV_VERIF]:[]);
+  if(h){ evMarcar('evs-m-trat',[m.trat||'']); evMarcar('evs-m-grave',[m.grave||'']); evMarcar('evs-m-restr',[m.restr||'']); evMarcar('evs-m-osha',m.osha?[EV_OSHA_OK]:[]); evMarcar('evs-m-log',m.log?[EV_LOG_OK]:[]); }
+  if(evTieneEquipo(c)){ evMarcar('evs-t-previo',[t.previo||'']); evsSumarTaller(); }
+  evsPintarAcciones(); renderPhotoGrid('evc-fotos');
+  if(sl) document.querySelectorAll('#evs-cuerpo input,#evs-cuerpo textarea,#evs-cuerpo .ev-chip').forEach(e=>{ if(e.tagName==='BUTTON') e.disabled=true; else if(e.type!=='file') e.readOnly=true; });
+}
+function evsSumarTaller(){ const n=id=>parseFloat(evVal(id))||0, e=document.getElementById('evs-t-total'); if(e) e.textContent=evDinero(n('evs-t-piezas')+n('evs-t-mano')+n('evs-t-otros')); }
+function evsPintarAcciones(){
+  const c=ev.caso, l=c.inv.acciones, hoy=hoyLocal();
+  document.getElementById('evs-acciones').innerHTML=l.length?l.map((a,n)=>'<label class="ev-accion'+(a.hecha?' hecha':'')+'"><input type="checkbox" onchange="evsMarcarAccion('+n+',this.checked)"'+(a.hecha?' checked':'')+(c.cerrado?' disabled':'')+'/><span>'+rcEsc(a.que)+'<small>'+rcEsc(a.quien)+(a.tipo?' · '+rcEsc(a.tipo):'')+(a.fecha?' · antes del '+rcEsc(a.fecha):'')+(!a.hecha&&a.fecha&&a.fecha<hoy?' · <b style="color:var(--danger-text);">vencida</b>':'')+'</small></span>'+(c.cerrado?'':'<button type="button" class="ins-link" onclick="event.preventDefault();evsQuitarAccion('+n+')" aria-label="Quitar acción">Quitar</button>')+'</label>').join(''):'<div class="obs-vacio">Aún no hay acciones. Se necesita al menos una para cerrar.</div>';
+}
+function evsMarcarAccion(n,hecha){ ev.caso.inv.acciones[n].hecha=hecha; ev.sucio=true; evsPintarAcciones(); }
+function evsQuitarAccion(n){ ev.caso.inv.acciones.splice(n,1); ev.sucio=true; evsPintarAcciones(); }
+function evsAgregarAccion(){
+  const que=evVal('evs-a-que'), quien=evVal('evs-a-quien');
+  if(evExigir([['#evs-a-que','qué se va a hacer',!que],['#evs-a-quien','responsable',!quien]])) return;
+  ev.caso.inv.acciones.push({que,quien,tipo:evVal('evs-a-tipo'),fecha:evVal('evs-a-fecha'),hecha:false});
+  ['evs-a-que','evs-a-quien','evs-a-tipo','evs-a-fecha'].forEach(id=>{ document.getElementById(id).value=''; });
+  ev.sucio=true; evsPintarAcciones();
+}
+// Pasa lo escrito en pantalla a ev.caso
+function evsLeer(){
+  const c=ev.caso, i=c.inv, n=id=>parseFloat(evVal(id))||0;
+  c.tipo=evUno('evs-tipo')||c.tipo;
+  if(c.herido){
+    const m={clinica:evVal('evs-m-clinica'),diag:evVal('evs-m-diag'),trat:evUno('evs-m-trat'),grave:evUno('evs-m-grave'),osha:evElegidos('evs-m-osha').length>0,
+      restr:evUno('evs-m-restr'),dias:evVal('evs-m-dias'),cita:evVal('evs-m-cita'),regreso:evVal('evs-m-regreso'),log:evElegidos('evs-m-log').length>0};
+    if(c.med||m.clinica||m.diag||m.trat||m.grave||m.restr||m.dias||m.cita||m.regreso||m.osha||m.log) c.med=m;
+  }
+  if(evTieneEquipo(c)){
+    const t={diag:evVal('evs-t-diag'),previo:evUno('evs-t-previo'),piezas:n('evs-t-piezas'),mano:n('evs-t-mano'),otros:n('evs-t-otros'),dias:n('evs-t-dias')};
+    if(c.taller||t.diag||t.previo||t.piezas||t.mano||t.otros||evVal('evs-t-dias')!=='') c.taller=t;
+  }
+  i.porques=[...document.querySelectorAll('#evs-cuerpo .evs-pq')].map(e=>e.value.trim());
+  i.causas=evElegidos('evs-causas'); i.potSafety=evUno('evs-pot'); i.presion=evUno('evs-presion'); i.antes=evUno('evs-antes');
+  i.verificado=evElegidos('evs-verif').length>0; i.leccion=evVal('evs-leccion');
+}
+async function evsGuardar(cerrar){
+  const c=ev.caso; evsLeer();
+  if(evFotosPendientes('evc-fotos')) return;
+  const fotos=[...new Set([...(c.inv.fotosCierre||[]),...(photoStore['evc-fotos']||[]).map(p=>p.url).filter(Boolean)])].slice(0,3);
+  const i=c.inv, quien=evVal('evs-quien');
+  if(cerrar){
+    if(evNecesitaRep(c)){ alert('Antes hace falta el reporte completo del foreman.'); return; }
+    if(evExigir([['[data-grupo="evs-m-trat"]','tratamiento (seguimiento médico)',!!c.herido&&!(c.med&&c.med.trat)],['[data-grupo="evs-pot"]','gravedad potencial',!i.potSafety],
+      ['.evs-pq','primer ¿por qué?',!i.porques[0]],['[data-grupo="evs-causas"]','factores que contribuyeron',!i.causas.length],['#evs-acciones','una acción correctiva',!i.acciones.length],
+      ['[data-grupo="evs-verif"]','verificación',!i.verificado],['#evc-fotos','foto de cómo quedó',!fotos.length],['#evs-quien','quién cierra el caso',!quien]])) return;
+    const abiertas=i.acciones.filter(a=>!a.hecha).length;
+    if(abiertas){ alert(abiertas===1?'Falta 1 acción por marcar como hecha.':'Faltan '+abiertas+' acciones por marcar como hechas.'); document.getElementById('evs-acciones').scrollIntoView({behavior:'smooth',block:'center'}); return; }
+  }
+  evMsg('evs-msg',cerrar?'Cerrando el caso...':'Guardando...');
+  const inv=Object.assign({},i,{fotosCierre:fotos});
+  try{
+    await enviarAScript({tipo:'evento_actualizar',folio:c.folio,clase:c.tipo,taller:c.taller||undefined,inv,med:c.herido&&c.med?c.med:undefined,cerrar:!!cerrar,quien});
+    if(quien) obsGuardar(EV_QUIEN_KEY,quien);
+    c.inv=inv; photoStore['evc-fotos']=[]; ev.sucio=false;
+    if(cerrar){ ev.abierto=null; ev.caso=null; ev.filtro='mio'; await evCargar(true,'safety'); window.scrollTo(0,0); return; }
+    const k=ev.datos.findIndex(x=>x.folio===c.folio);
+    if(k>=0) ev.datos[k]=JSON.parse(JSON.stringify(c));
+    const y=window.scrollY; evCasoRender(); window.scrollTo(0,y);
+    evMsg('evs-msg','Guardado.','ok');
+  }catch(e){
+    if(String(e.message)!=='auth') evMsg('evs-msg',/HTTP|fetch|network/i.test(e.message)||e instanceof TypeError?'No se pudo guardar. Revisa tu señal e intenta de nuevo: lo que escribiste sigue aquí.':e.message,'error');
+  }
+}
+function evsGuardarAvance(){ return evsGuardar(false); }
+function evsCerrar(){ return evsGuardar(true); }
 
 // ── EMPLEADOS (Safety) ──
 // Alta en el EMPLOYEE TRAINING LOG (tipo 'nuevo_empleado') y foto de perfil (tipo 'foto_perfil').
