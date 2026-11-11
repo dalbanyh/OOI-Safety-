@@ -1147,12 +1147,6 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{outline:none;}
       <span class="role-arrow"><svg class="ico"><use href="#i-chev"/></svg></span>
     </button>
 
-    <button class="role-btn swa-btn" onclick="evAbrirAviso('s-trabajador')">
-      <div class="role-icon"><svg class="ico"><use href="#i-siren"/></svg></div>
-      <div class="rb-body"><div class="rb-title">Reportar un evento</div><div class="rb-desc">Accidente, incidente o casi accidente</div></div>
-      <span class="role-arrow"><svg class="ico"><use href="#i-chev"/></svg></span>
-    </button>
-
     <button class="role-btn" onclick="selectRole('operator')">
       <div class="role-icon"><svg class="ico"><use href="#i-wrench"/></svg></div>
       <div class="rb-body"><div class="rb-title">Inspección de equipo</div><div class="rb-desc">Bomba de gruta o Shotcrete — antes de trabajar</div></div>
@@ -1244,7 +1238,7 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{outline:none;}
           <button class="chip" onclick="elegirTipoReporte(this,'Buena práctica')">Buena práctica</button>
         </div>
         <div id="swa-tipo-hint" style="font-size:13px;color:var(--text2);margin-top:10px;line-height:1.5;">Elige la opción que mejor describe lo que viste o te pasó.</div>
-        <div style="font-size:13px;color:var(--text2);margin-top:10px;line-height:1.5;border-top:1px solid var(--border);padding-top:10px;">¿Alguien se lastimó, se dañó algo o casi pasa un accidente? <button class="ins-link" style="font-size:13px;padding:0;" onclick="evAbrirAviso('s-trabajador')">Repórtalo aquí como evento</button>.</div>
+        <div style="font-size:13px;color:var(--text2);margin-top:10px;line-height:1.5;border-top:1px solid var(--border);padding-top:10px;">¿Alguien se lastimó, se dañó algo o casi pasa un accidente? <b>Avísale de inmediato a tu foreman o superintendente</b>: ellos lo reportan en la app.</div>
       </div>
       <div class="card">
         <div class="sec-label">Información del evento</div>
@@ -7423,7 +7417,7 @@ async function evVerFotos(folio,btn){
 
 // ── 1. AVISO (cualquiera, sin PIN) ──
 function evAbrirAviso(origen){
-  ev.origen=origen||'s-trabajador'; ev.idPendiente=null; photoStore['ev-fotos']=[];
+  ev.origen=origen||'s-foreman'; ev.idPendiente=null; photoStore['ev-fotos']=[];
   if(!(listasGlobal.foremen&&listasGlobal.foremen.length)) cargarListas(); else fetchEmpleados();
   evRenderAviso(); show('s-evento');
 }
@@ -7432,7 +7426,7 @@ function evRenderAviso(){
   const d=new Date(), ahora=fechaLocal(d)+'T'+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');
   const yo=sesion.rol==='foreman'||sesion.rol==='super'?(ev.campo.persona||''):'';
   document.getElementById('ev-aviso').innerHTML=
-    evEncabezado('Reportar un evento','Menos de 2 minutos. Los detalles van después.','evSalirAviso()')+
+    evEncabezado('Reportar un evento','Paso 1 de 2: aviso inmediato a Safety. Luego sigue el reporte completo.','evSalirAviso()')+
     '<div class="ev-alerta"><b>Primero la gente</b>Si hay un lesionado o un peligro activo, atiende eso y llama al 911 antes de llenar esto.</div>'+
     '<div class="card"><div class="sec-label">¿Qué pasó? <span style="color:var(--swa);">*</span></div><div class="field" style="margin-bottom:0;">'+evChips('eva-tipo',EV_TIPOS,{lista:true})+
       '<div class="ev-ayuda">Reportar no trae castigo. Si no estás seguro del tipo, elige el que más se parezca: Safety lo puede corregir.</div></div></div>'+
@@ -7444,14 +7438,13 @@ function evRenderAviso(){
     '<div class="card ev-oculto" id="eva-c-casi"><div class="sec-label">Casi accidente</div>'+
       '<div class="ev-nota">Pudo pasar algo y no pasó. Se reporta igual, porque así se evita el siguiente.</div>'+
       '<div class="field"><label>¿Qué pudo haber pasado? <span style="color:var(--swa);">*</span></label>'+evChips('eva-pot',EV_POT_OPC,{lista:true})+'</div>'+
-      '<div class="field"><label>¿Qué lo evitó?</label><textarea id="eva-evito" rows="2" placeholder="Nadie estaba debajo, alguien gritó a tiempo..."></textarea></div>'+
-      '<div class="field" style="margin-bottom:0;">'+evChips('eva-anon',[EV_ANON],{multi:true})+'</div></div>'+
+      '<div class="field" style="margin-bottom:0;"><label>¿Qué lo evitó?</label><textarea id="eva-evito" rows="2" placeholder="Nadie estaba debajo, alguien gritó a tiempo..."></textarea></div></div>'+
     '<div class="card ev-oculto" id="eva-c-danos"><div class="sec-label" id="eva-danos-lbl">¿Qué se dañó? *</div><div class="field" style="margin-bottom:0;"><div class="ev-ayuda" style="margin:0 0 10px;">Marca todo lo que aplique.</div>'+evChips('eva-danos',[...EV_DANOS,EV_NADA],{multi:true,excl:EV_NADA})+'</div></div>'+
     '<div class="card"><div class="sec-label">Dónde, cuándo y quién</div>'+
       '<div class="field"><label>Proyecto <span style="color:var(--swa);">*</span></label><select id="eva-proyecto"></select></div>'+
       '<div class="field"><label>Fecha y hora <span style="color:var(--swa);">*</span></label><input type="datetime-local" id="eva-fecha" value="'+ahora+'"/></div>'+
       '<div class="field" id="eva-f-quien"><label>Tu nombre <span style="color:var(--swa);">*</span></label><input type="text" id="eva-quien" placeholder="Tu nombre" autocomplete="off" value="'+rcEsc(yo)+'"/></div>'+
-      '<div class="field"><label>Foreman en turno <span style="color:var(--swa);">*</span></label><select id="eva-foreman"></select><div class="ev-ayuda">Es quien completa el reporte después.</div></div>'+
+      '<div class="field"><label>Foreman en turno <span style="color:var(--swa);">*</span></label><select id="eva-foreman"></select><div class="ev-ayuda">Es el responsable del reporte completo.</div></div>'+
       '<div class="field" style="margin-bottom:0;"><label>Superintendente en turno <span style="color:var(--swa);">*</span></label><select id="eva-super"></select></div></div>'+
     '<div class="card"><div class="sec-label">Máquina involucrada</div>'+
       '<div class="grid2"><div class="field"><label id="eva-maq-lbl">Máquina</label><select id="eva-maquina"><option value="">— Ninguna —</option>'+EV_MAQUINAS.map(m=>'<option>'+m+'</option>').join('')+'</select></div>'+
@@ -7461,7 +7454,7 @@ function evRenderAviso(){
     '<div class="card"><div class="sec-label">¿El área ya está segura? <span style="color:var(--swa);">*</span></div><div class="field" style="margin-bottom:0;">'+evChips('eva-segura',['Sí','No, se detuvo el trabajo'])+'</div></div>'+
     '<div class="card"><div class="sec-label">Fotos <span id="eva-foto-ast"></span></div><div class="field" style="margin-bottom:0;"><div class="ev-nota gris">Si es seguro, toma las fotos <b>antes de mover o limpiar</b>: de lejos para ver el lugar y de cerca para ver el daño. Máximo 4.</div>'+evFotosCampo('ev-fotos','Tomar foto o elegir de galería')+'</div></div>'+
     '<div class="submit-msg" id="eva-msg"></div>'+
-    '<button class="btn btn-swa" onclick="envioUnico(this,evEnviarAviso)">Enviar aviso</button>'+
+    '<button class="btn btn-swa" onclick="envioUnico(this,evEnviarAviso)">Enviar aviso y seguir al reporte</button>'+
     '<button class="btn btn-ghost" onclick="evSalirAviso()" style="margin-top:10px;">Cancelar</button>';
   evListasCambiaron();
 }
@@ -7475,7 +7468,6 @@ function evRefrescarAviso(){
   document.getElementById('eva-c-danos').classList.toggle('ev-oculto',!tp||tp==='Casi accidente');
   document.getElementById('eva-danos-lbl').textContent=tp==='Accidente'?'¿También se dañó algo? *':'¿Qué se dañó? *';
   nada.classList.toggle('ev-oculto',tp!=='Accidente');
-  document.getElementById('eva-f-quien').classList.toggle('ev-oculto',tp==='Casi accidente'&&evElegidos('eva-anon').length>0);
   document.getElementById('eva-maq-lbl').textContent='Máquina'+(equipo?' *':'');
   document.getElementById('eva-num-lbl').textContent='Número'+(equipo?' *':'');
   document.getElementById('eva-est-lbl').textContent='¿Cómo quedó?'+(equipo?' *':'');
@@ -7524,7 +7516,12 @@ function evAvisoListo(d,r){
       :'<div class="ev-nota"><b>Gracias. No hace falta nada más de tu parte.</b> Safety lo revisa.</div>')+
     '<button class="btn '+(falta&&supervisor?'btn-ghost':'btn-success')+'" onclick="evSalirAviso()" style="margin-top:8px;">'+(falta&&supervisor?'Hacerlo después':'Cerrar')+'</button>';
   window.scrollTo(0,0);
-  if(supervisor){ ev.campo.vista='lista'; evCargar(true,'campo'); }
+  if(supervisor){
+    ev.campo.vista='lista';
+    // Paso 2 de 2: el reporte completo se abre solo, sin pasar por la lista ni salir de la app
+    if(falta&&r.folio){ ev.campo.recien=r.folio; evCampoDesdeAviso(r.folio); }
+    else evCargar(true,'campo');
+  }
 }
 
 // ── 2. FOREMAN Y SUPER: lista y reporte completo ──
@@ -7534,7 +7531,14 @@ function evCampoIniciar(){
   evCargar(false,'campo');
 }
 function evCampoPersona(v){ ev.campo.persona=v; obsGuardar(EV_PERSONA_KEY,v); evCampoRender(); }
-function evCampoDesdeAviso(folio){ ev.campo.abrir=folio; show('s-foreman'); if(ev.datos&&evBuscar(folio)) evCampoRender(); else evCargar(true,'campo'); }
+function evCampoDesdeAviso(folio){
+  ev.campo.abrir=folio; show('s-foreman');
+  if(ev.datos&&evBuscar(folio)){ evCampoRender(); return; }
+  const cuerpo=document.getElementById('evf-cuerpo');
+  if(cuerpo) cuerpo.innerHTML='<div class="loading">Aviso enviado ('+rcEsc(folio)+'). Abriendo el reporte completo...</div>';
+  window.scrollTo(0,0);
+  evCargar(true,'campo');
+}
 function evCampoRender(){
   const cuerpo=document.getElementById('evf-cuerpo');
   if(!cuerpo||!ev.datos) return;
@@ -7562,6 +7566,7 @@ function evCampoAbrirReporte(folio){
   const req=' <span style="color:var(--swa);">*</span>';
   document.getElementById('evf-cuerpo').innerHTML=
     evEncabezado('Reporte completo',c.folio+' · '+evTipoCaso(c),'evCampoCerrarReporte()')+
+    (ev.campo.recien===folio?'<div class="ev-alerta" style="border-left-color:var(--success-text);"><b>Aviso enviado: Safety ya sabe ('+rcEsc(c.folio)+')</b>Ahora sigue el paso 2 de 2: el reporte completo. El evento no queda listo hasta que lo entregues.</div>':'')+
     '<div class="ptpd-pasos" id="evr-barras">'+EVR_PASOS.map(()=>'<span class="ptpd-paso"></span>').join('')+'</div><div class="ptpd-paso-tit" id="evr-tit"></div>'+
     '<div class="evr-paso" data-p="1">'+
       '<div class="ev-nota">Escribe los hechos. No hace falta decir de quién fue la culpa: buscamos qué falló para que no vuelva a pasar.</div>'+
@@ -7605,8 +7610,9 @@ function evCampoAbrirReporte(folio){
   evListasCambiaron(); evrPintarPaso();
 }
 function evCampoCerrarReporte(){
-  if(!confirm('¿Salir del reporte? Lo que escribiste no se guarda.')) return;
-  ev.campo.vista='lista'; evCampoRender(); window.scrollTo(0,0);
+  const c=evBuscar(ev.campo.folio);
+  if(!confirm('El reporte '+(c?c.folio+' ':'')+'todavía NO está entregado y lo que escribiste no se guarda.\n\nQueda pendiente en "Reportes por completar" y tienes 24 horas desde el evento.\n\n¿Salir de todos modos?')) return;
+  ev.campo.vista='lista'; ev.campo.recien=''; evCampoRender(); window.scrollTo(0,0);
 }
 function evrAgregarTestigo(){
   const caja=document.getElementById('evr-testigos');
@@ -7658,9 +7664,14 @@ async function evrEntregar(){
     await enviarAScript({tipo:'evento_reporte',folio:c.folio,quien,rep});
     c.rep=rep; c.repPor=quien;
     if(!ev.campo.persona) evCampoPersona(quien);
-    ev.campo.vista='lista';
-    document.getElementById('evf-cuerpo').innerHTML='<div class="ev-listo"><div class="ico-tile lg"><svg class="ico"><use href="#i-check"/></svg></div><h2>Reporte entregado</h2><p>'+rcEsc(c.folio)+' · '+rcEsc(evTipoCaso(c))+'</p></div>'+
-      '<div class="card">'+evTrack(c)+'<div style="font-size:14px;color:var(--text2);margin-top:10px;">Safety investiga la causa y te avisa qué acciones siguen.</div></div>'+
+    ev.campo.vista='lista'; ev.campo.recien='';
+    const sigue=[['Safety','Revisa el reporte e investiga la causa']];
+    if(c.lesion) sigue.push(['Seguimiento médico','Lo lleva Safety']);
+    if(evTieneEquipo(c)) sigue.push(['Taller / mecánica','Safety coordina la revisión de '+evSujeto(c)+(c.estadoMaq==='Fuera de servicio'?' (sigue fuera de servicio)':'')]);
+    sigue.push(['Tú','Safety te avisa qué acciones siguen']);
+    document.getElementById('evf-cuerpo').innerHTML='<div class="ev-listo"><div class="ico-tile lg"><svg class="ico"><use href="#i-check"/></svg></div><h2>Reporte entregado</h2><p>'+rcEsc(c.folio)+' · '+rcEsc(evTipoCaso(c))+' · ya terminaste tu parte</p></div>'+
+      '<div class="ev-auto"><div class="ev-auto-tit">Qué sigue</div>'+sigue.map(s=>evFila(s[0],s[1])).join('')+'</div>'+
+      '<div class="card">'+evTrack(c)+'</div>'+
       '<button class="btn btn-primary" onclick="evCampoRender();window.scrollTo(0,0);">Volver a la lista</button>';
     window.scrollTo(0,0);
   }catch(e){
